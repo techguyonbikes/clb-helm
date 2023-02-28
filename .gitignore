@@ -33,3 +33,4 @@ test-output
 .DS_Store
 ._*
 *.swp
+/logs/

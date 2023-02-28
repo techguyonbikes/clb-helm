@@ -6,15 +6,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table("meeting")
 public class Meeting {
+    @Id
     private String id;
     private String name;
     @SerializedName("advertised_date")
@@ -23,6 +29,7 @@ public class Meeting {
     private String categoryId;
     @SerializedName("venue_id")
     private String venueId;
+    @Transient
     @SerializedName("race_ids")
     private List<String> raceIds;
     @SerializedName("track_condition")
@@ -35,6 +42,7 @@ public class Meeting {
     private String regionId;
     @SerializedName("feed_id")
     private String feedId;
+    @Transient
     @SerializedName("compound_ids")
     private List<String> compoundIds;
 }

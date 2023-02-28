@@ -12,7 +12,7 @@ public class MeetingDtoMapper {
 
     public static MeetingDto toMeetingDto(Meeting meeting, List<Race> races) {
         return MeetingDto.builder()
-                .id(meeting.getId())
+                .id(meeting.getId().toString())
                 .name(meeting.getName())
                 .advertisedDate(Instant.parse(meeting.getAdvertisedDate()))
                 .categoryId(meeting.getCategoryId())

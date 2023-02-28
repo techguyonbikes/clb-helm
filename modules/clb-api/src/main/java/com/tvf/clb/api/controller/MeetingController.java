@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/meeting")
@@ -22,8 +22,7 @@ public class MeetingController {
     private CrawlService crawlService;
 
     @GetMapping("")
-    @Async("crawlLadbrokesBet")
-    public Flux<MeetingDto> getTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return Mono.just(crawlService.getTodayMeetings(date)).flatMapMany(Flux::fromIterable).log();
+    public Mono<List<MeetingDto>> getTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return crawlService.getTodayMeetings(date);
     }
 }

@@ -17,9 +17,9 @@ public class RaceController {
     @Autowired
     private CrawlService crawlService;
 
+    //today, do we need get 1 by 1 or bulk?
     @GetMapping("")
-    @Async("crawlLadbrokesBet")
     public Flux<EntrantDto> getRaceById(@RequestParam(value = "id", required = true) String id) {
-        return Mono.just(crawlService.getRaceById(id)).flatMapMany(Flux::fromIterable).log();
+        return crawlService.getRaceById(id);
     }
 }
