@@ -1,0 +1,62 @@
+{
+	"info": {
+		"_postman_id": "2daa898e-b389-484b-8c76-cd904cffe0e4",
+		"name": "clb",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9848484"
+	},
+	"item": [
+		{
+			"name": "localhost:20001/cloudbet/api/meeting?date=2023-02-28",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:20001/cloudbet/api/meeting?date=2023-02-28",
+					"host": [
+						"localhost"
+					],
+					"port": "20001",
+					"path": [
+						"cloudbet",
+						"api",
+						"meeting"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "2023-02-28"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:20001/cloudbet/api/race?id=6c8f2b1c-6606-4801-904b-8b9be8ffa6b8",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:20001/cloudbet/api/race?id=6c8f2b1c-6606-4801-904b-8b9be8ffa6b8",
+					"host": [
+						"localhost"
+					],
+					"port": "20001",
+					"path": [
+						"cloudbet",
+						"api",
+						"race"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "6c8f2b1c-6606-4801-904b-8b9be8ffa6b8"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

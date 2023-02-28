@@ -1,0 +1,3 @@
+socket-server:
+  host: localhost
+  port: 20002
