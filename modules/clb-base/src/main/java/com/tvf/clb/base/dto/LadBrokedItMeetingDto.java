@@ -1,9 +1,9 @@
 package com.tvf.clb.base.dto;
 
 import com.google.gson.annotations.SerializedName;
-import com.tvf.clb.base.model.Meeting;
-import com.tvf.clb.base.model.Race;
-import com.tvf.clb.base.model.Venue;
+import com.tvf.clb.base.model.MeetingRawData;
+import com.tvf.clb.base.model.RaceRawData;
+import com.tvf.clb.base.model.VenueRawData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +21,7 @@ public class LadBrokedItMeetingDto {
     private Object compounds;
     @SerializedName("domestic_countries")
     private String domesticCountries;
-    private HashMap<String, Meeting> meetings;
-    private HashMap<String, Race> races;
-    private HashMap<String, Venue>  venues;
+    private HashMap<String, MeetingRawData> meetings;
+    private HashMap<String, RaceRawData> races;
+    private HashMap<String, VenueRawData>  venues;
 }

@@ -64,6 +64,11 @@
                 <artifactId>clb-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.tvf.clb</groupId>
+                <artifactId>clb-ws</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- 3rd party lib -->
             <dependency>

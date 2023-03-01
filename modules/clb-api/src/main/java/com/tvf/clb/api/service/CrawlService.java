@@ -6,10 +6,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.tvf.clb.api.repository.MeetingRepository;
 import com.tvf.clb.base.dto.*;
-import com.tvf.clb.base.model.Entrant;
-import com.tvf.clb.base.model.Meeting;
-import com.tvf.clb.base.model.Race;
-import com.tvf.clb.base.model.Venue;
+import com.tvf.clb.base.entity.Meeting;
+import com.tvf.clb.base.model.EntrantRawData;
+import com.tvf.clb.base.model.MeetingRawData;
+import com.tvf.clb.base.model.RaceRawData;
+import com.tvf.clb.base.model.VenueRawData;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -39,15 +40,18 @@ public class CrawlService {
 
     public Mono<List<MeetingDto>> getTodayMeetings(LocalDate date) {
         return Mono.fromSupplier(() -> {
-            LadBrokedItMeetingDto rawData;
+            LadBrokedItMeetingDto rawData = null;
             try {
                 String url = AppConstant.LAD_BROKES_IT_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
                 Response response = ApiUtils.get(url);
                 ResponseBody body = response.body();
                 Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").create();
-                rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
-                log.info("Test");
+                if (body != null) {
+                    rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
+                }
+                //if null then throw error?
             } catch (IOException e) {
+                //define exception
                 throw new RuntimeException(e);
             }
             return getAllAusMeeting(rawData);
@@ -55,21 +59,21 @@ public class CrawlService {
     }
 
     private List<MeetingDto> getAllAusMeeting(LadBrokedItMeetingDto ladBrokedItMeetingDto) {
-        List<Venue> ausVenues = ladBrokedItMeetingDto.getVenues().values().stream().filter(v -> v.getCountry().equals(AppConstant.AUS)).collect(Collectors.toList());
-        List<String> venuesId = ausVenues.stream().map(Venue::getId).collect(Collectors.toList());
-        List<Meeting> meetings = new ArrayList<>(ladBrokedItMeetingDto.getMeetings().values());
-        List<Meeting> ausMeetings = meetings.stream().filter(m -> StringUtils.hasText(m.getCountry()) && venuesId.contains(m.getVenueId())).collect(Collectors.toList());
-        List<String> raceIds = ausMeetings.stream().map(Meeting::getRaceIds).flatMap(List::stream)
+        List<VenueRawData> ausVenues = ladBrokedItMeetingDto.getVenues().values().stream().filter(v -> v.getCountry().equals(AppConstant.AUS)).collect(Collectors.toList());
+        List<String> venuesId = ausVenues.stream().map(VenueRawData::getId).collect(Collectors.toList());
+        List<MeetingRawData> meetings = new ArrayList<>(ladBrokedItMeetingDto.getMeetings().values());
+        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> StringUtils.hasText(m.getCountry()) && venuesId.contains(m.getVenueId())).collect(Collectors.toList());
+        List<String> raceIds = ausMeetings.stream().map(MeetingRawData::getRaceIds).flatMap(List::stream)
                 .collect(Collectors.toList());
-        List<Race> ausRace = ladBrokedItMeetingDto.getRaces()
+        List<RaceRawData> ausRace = ladBrokedItMeetingDto.getRaces()
                 .values().stream().filter(r -> raceIds.contains(r.getId())).collect(Collectors.toList());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
-        for (Meeting localMeeting : ausMeetings) {
-            List<Race> localRace = ausRace.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId()))
+        for (MeetingRawData localMeeting : ausMeetings) {
+            List<RaceRawData> localRace = ausRace.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId()))
 //                    .sorted(Comparator.comparing(Race::getNumber))
                     .collect(Collectors.toList());
 
-            MeetingDto meetingDto = MeetingDtoMapper.toMeetingDto(localMeeting, localRace);
+            MeetingDto meetingDto = MeetingMapper.toMeetingDto(localMeeting, localRace);
             meetingDtoList.add(meetingDto);
         }
         saveMeeting(ausMeetings);
@@ -80,15 +84,16 @@ public class CrawlService {
         String url = AppConstant.LAD_BROKES_IT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
         try {
             Response response = ApiUtils.get(url);
+            //todo check null
             JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
             Gson gson = new Gson();
             LadBrokedItRaceDto raceDto = gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-            List<Entrant> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null).collect(Collectors.toList());
+            List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null).collect(Collectors.toList());
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
                         List<Float> entrantPrices = allEntrantPrices.get(r.getId());
-                        EntrantDto entrantDto = EntrantDtoMapper.toEntrantDto(r, entrantPrices);
+                        EntrantDto entrantDto = EntrantMapper.toEntrantDto(r, entrantPrices);
                         return Mono.just(entrantDto);
                     });
         } catch (IOException e) {
@@ -98,7 +103,8 @@ public class CrawlService {
 
     //todo. Fix this,
     @Async()
-    public void saveMeeting(List<Meeting> meetings) {
+    public void saveMeeting(List<MeetingRawData> meetingRawData) {
+        List<Meeting> meetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
         meetingRepository.saveAll(meetings).subscribe();
     }
 }

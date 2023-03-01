@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Entrant {
+public class EntrantRawData {
     private String id;
     private String name;
     private int barrier;
@@ -21,7 +21,7 @@ public class Entrant {
     private String marketId;
     private boolean visible;
     @SerializedName("form_summary")
-    private FormSummaryDTO formSummary;
+    private FormSummaryRawData formSummary;
 }
 
 @Getter
@@ -29,7 +29,7 @@ public class Entrant {
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-class FormSummaryDTO {
+class FormSummaryRawData {
     private String last20Starts;
     private String riderOrDriver;
     private String trainerName;
