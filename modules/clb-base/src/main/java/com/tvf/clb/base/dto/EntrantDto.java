@@ -21,5 +21,5 @@ public class EntrantDto {
     private Integer number;
     private String marketId;
     private Boolean visible;
-    private List<Double> priceFluctuations;
+    private List<Float> priceFluctuations;
 }

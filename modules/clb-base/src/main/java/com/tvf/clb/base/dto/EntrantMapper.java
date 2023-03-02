@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public class EntrantMapper {
-    public static EntrantDto toEntrantDto(EntrantRawData entrant, List<Double> prices) {
+    public static EntrantDto toEntrantDto(EntrantRawData entrant, List<Float> prices) {
         return EntrantDto.builder()
                 .id(entrant.getId())
                 .name(entrant.getName())
@@ -21,7 +21,7 @@ public class EntrantMapper {
     }
 
 
-    public static EntrantRawData mapPrices(EntrantRawData entrant, List<Double> prices) {
+    public static EntrantRawData mapPrices(EntrantRawData entrant, List<Float> prices) {
         return EntrantRawData.builder()
                 .id(entrant.getId())
                 .name(entrant.getName())
@@ -30,17 +30,6 @@ public class EntrantMapper {
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
                 .priceFluctuations(prices)
-                .build();
-    }
-    public static Entrant toEntrantExist(Entrant entrant,Entrant entrant1) {
-        return Entrant.builder()
-                .id(entrant1.getId())
-                .name(entrant.getName())
-                .marketId(entrant.getMarketId())
-                .number(entrant.getNumber())
-                .barrier(entrant.getBarrier())
-                .visible(entrant.isVisible())
-                .priceFluctuations(entrant.getPriceFluctuations())
                 .build();
     }
 }

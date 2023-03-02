@@ -101,9 +101,9 @@ public class CrawlService {
             JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
             Gson gson = new Gson();
             LadBrokedItRaceDto raceDto = gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
-            HashMap<String, ArrayList<Double>> allEntrantPrices = raceDto.getPriceFluctuations();
+            HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null).map(r ->{
-                List<Double> entrantPrices = allEntrantPrices.get(r.getId());
+                List<Float> entrantPrices = allEntrantPrices.get(r.getId());
                 EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices);
                 return entrantRawData;
             }).collect(Collectors.toList());
@@ -111,7 +111,7 @@ public class CrawlService {
             saveEntrant(allEntrant);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
-                        List<Double> entrantPrices = allEntrantPrices.get(r.getId());
+                        List<Float> entrantPrices = allEntrantPrices.get(r.getId());
                         EntrantDto entrantDto = EntrantMapper.toEntrantDto(r, entrantPrices);
                         return Mono.just(entrantDto);
                     });

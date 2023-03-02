@@ -26,7 +26,7 @@ public class EntrantRawData {
     private boolean visible;
 
     @SerializedName("pricefluctuations")
-    private List<Double> priceFluctuations;
+    private List<Float> priceFluctuations;
     @SerializedName("form_summary")
     private FormSummaryRawData formSummary;
 }

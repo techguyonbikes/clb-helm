@@ -26,5 +26,5 @@ public class LadBrokedItRaceDto {
     private Object results;
     private HashMap<String, EntrantRawData> entrants;
     @SerializedName("price_fluctuations")
-    private HashMap<String, ArrayList<Double>> priceFluctuations;
+    private HashMap<String, ArrayList<Float>> priceFluctuations;
 }
