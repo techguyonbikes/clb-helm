@@ -29,15 +29,15 @@ public class MeetingMapper {
                 .regionId(meeting.getRegionId())
                 .feedId(meeting.getFeedId())
                 .compoundIds(meeting.getCompoundIds())
-                .races(toRaceDtoList(races))
+                .races(toRaceDtoList(races, meeting.getId()))
                 .raceType(convertRaceType(meeting.getFeedId()))
                 .build();
     }
 
-    public static RaceDto toRaceDto(RaceRawData race) {
+    public static RaceDto toRaceDto(RaceRawData race, String meetingId) {
         return RaceDto.builder()
                 .id(race.getId())
-                .meetingId(race.getMeetingId())
+                .meetingId(meetingId)
                 .name(race.getName())
                 .number(race.getNumber())
                 .advertisedStart(race.getAdvertisedStart())
@@ -48,10 +48,10 @@ public class MeetingMapper {
                 .build();
     }
 
-    public static List<RaceDto> toRaceDtoList(List<RaceRawData> races) {
+    public static List<RaceDto> toRaceDtoList(List<RaceRawData> races, String meetingId) {
         List<RaceDto> raceDtoList = new ArrayList<>();
-        races.stream().forEach((role) -> {
-            raceDtoList.add(toRaceDto(role));
+        races.stream().forEach((r) -> {
+            raceDtoList.add(toRaceDto(r, meetingId));
         });
         return raceDtoList;
     }
@@ -86,17 +86,17 @@ public class MeetingMapper {
                 .build();
     }
 
-    public static Race toRaceEntity(RaceRawData raceRawData) {
+    public static Race toRaceEntity(RaceDto raceDto) {
         return Race.builder()
-                .raceId(raceRawData.getId())
-                .meetingId(raceRawData.getMeetingId())
-                .name(raceRawData.getName())
-                .number(raceRawData.getNumber())
-                .advertisedStart(raceRawData.getAdvertisedStart())
-                .actualStart(raceRawData.getActualStart())
-                .marketIds(Json.of(gson.toJson(raceRawData.getMarketIds())))
-                .mainMarketStatusId(raceRawData.getMainMarketStatusId())
-                .resultsDisplay(raceRawData.getResultsDisplay())
+                .raceId(raceDto.getId())
+                .meetingId(raceDto.getMeetingId())
+                .name(raceDto.getName())
+                .number(raceDto.getNumber())
+                .advertisedStart(raceDto.getAdvertisedStart())
+                .actualStart(raceDto.getActualStart())
+                .marketIds(Json.of(gson.toJson(raceDto.getMarketIds())))
+                .mainMarketStatusId(raceDto.getMainMarketStatusId())
+                .resultsDisplay(raceDto.getResultsDisplay())
                 .build();
     }
 

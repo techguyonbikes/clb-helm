@@ -20,6 +20,11 @@ public class MeetingController {
     @Autowired
     private CrawlService crawlService;
 
+    @GetMapping("/crawl")
+    public Mono<List<MeetingDto>> crawlTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return crawlService.getTodayMeetings(date);
+    }
+
     @GetMapping("")
     public Mono<List<MeetingDto>> getTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return crawlService.getTodayMeetings(date);
