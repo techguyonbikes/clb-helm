@@ -37,12 +37,8 @@ public class RaceService {
 
     @Async()
     public Flux<RaceResponseDTO> getListSideBarRaces() {
-        List<Race> races = getAllRace().collectList();
-        List<RaceResponseDTO> responseDTOS = races.stream().map(race -> {
-            Mono<Meeting> meeting = meetingService.getMeetingByMeetingId(UUID.fromString(race.getMeetingId()));
-            meeting.subscribe();
-            return raceResponseMapper.toRaceResponseDTO(meeting.block(), race);
-        });
-        return responseDTOS;
+        Flux<Race> races = getAllRace();
+        races.subscribe();
+        return Flux.empty();
     }
 }
