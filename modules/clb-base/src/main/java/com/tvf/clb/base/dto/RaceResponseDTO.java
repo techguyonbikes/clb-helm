@@ -3,7 +3,6 @@ package com.tvf.clb.base.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 
 @Data
@@ -11,6 +10,8 @@ import java.time.Instant;
 public class RaceResponseDTO {
     String raceId;
     String sideName;
+    String meetingName;
+    Integer number;
     String type;
     Instant date;
 }

@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -22,9 +20,9 @@ public class RaceRawData {
     private String name;
     private Integer number;
     @SerializedName("advertised_start")
-    private Instant advertisedStart;
+    private String advertisedStart;
     @SerializedName("actual_start")
-    private Instant actualStart;
+    private String actualStart;
     @SerializedName("market_ids")
     private List<String> marketIds;
     @SerializedName("main_market_status_id")

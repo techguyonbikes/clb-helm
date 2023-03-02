@@ -5,11 +5,11 @@ import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.UUID;
 
 public interface RaceRepository extends R2dbcRepository<Race, Long> {
     Mono<Race> findRaceByRaceId(UUID raceId);
 
-    Flux<Race> findAllByActualStart(Date start, Date end);
+    Flux<Race> findAllByActualStartBetween(Instant start, Instant end);
 }

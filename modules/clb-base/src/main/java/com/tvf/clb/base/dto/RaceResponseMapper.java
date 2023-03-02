@@ -4,9 +4,6 @@ import com.google.gson.Gson;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 @Component
 public class RaceResponseMapper {
@@ -17,6 +14,8 @@ public class RaceResponseMapper {
         return RaceResponseDTO.builder()
                 .raceId(race.getRaceId())
                 .sideName(meeting.getRaceType().charAt(0) + race.getNumber().toString() + " " + meeting.getName())
+                .meetingName(meeting.getName())
+                .number(race.getNumber())
                 .type(meeting.getRaceType())
                 .date(race.getActualStart())
                 .build();

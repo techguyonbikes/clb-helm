@@ -1,21 +1,18 @@
 package com.tvf.clb.api.controller;
 
+import com.tvf.clb.base.dto.EntrantDto;
 import com.tvf.clb.base.dto.RaceResponseDTO;
 import com.tvf.clb.service.service.CrawlService;
 import com.tvf.clb.service.service.RaceService;
-import com.tvf.clb.base.dto.EntrantDto;
-import com.tvf.clb.base.dto.RaceDto;
-import com.tvf.clb.base.entity.Race;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/race")
@@ -38,7 +35,7 @@ public class RaceController {
 //    }
 
     @GetMapping("/side-bar-races")
-    public Flux<RaceResponseDTO> getListSideBarRaces(Instant date) {
+    public Flux<RaceResponseDTO> getListSideBarRaces(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return raceService.getListSideBarRaces(date);
     }
 }
