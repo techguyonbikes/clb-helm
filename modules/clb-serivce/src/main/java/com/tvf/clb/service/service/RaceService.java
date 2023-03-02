@@ -1,6 +1,6 @@
-package com.tvf.clb.api.service;
+package com.tvf.clb.service.service;
 
-import com.tvf.clb.api.repository.RaceRepository;
+import com.tvf.clb.service.repository.RaceRepository;
 import com.tvf.clb.base.entity.Race;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

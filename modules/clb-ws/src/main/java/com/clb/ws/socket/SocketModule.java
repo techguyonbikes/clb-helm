@@ -14,9 +14,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SocketModule {
 
-
     private final SocketIOServer server;
-
 
     public SocketModule(SocketIOServer server) {
         this.server = server;
@@ -40,10 +38,8 @@ public class SocketModule {
 
     private ConnectListener onConnected() {
         return (client) -> {
-//            String room = client.getHandshakeData().getSingleUrlParam("room");
-//            String username = client.getHandshakeData().getSingleUrlParam("room");
             java.util.Map<String, java.util.List<String>> params = client.getHandshakeData().getUrlParams();
-            log.info("Socket ID[{}] -  Connected to chat module through", client.getSessionId().toString());
+            log.info("Socket ID[{}] -  Connected ", client.getSessionId().toString());
         };
 
     }
@@ -51,7 +47,7 @@ public class SocketModule {
     private DisconnectListener onDisconnected() {
         return client -> {
             java.util.Map<String, java.util.List<String>> params = client.getHandshakeData().getUrlParams();
-            log.info("Socket ID[{}] -  disconnected to chat module through", client.getSessionId().toString());
+            log.info("Socket ID[{}] -  disconnected", client.getSessionId().toString());
         };
     }
 

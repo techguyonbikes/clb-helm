@@ -1,7 +1,7 @@
 package com.tvf.clb.api.controller;
 
-import com.tvf.clb.api.service.CrawlService;
-import com.tvf.clb.api.service.RaceService;
+import com.tvf.clb.service.service.CrawlService;
+import com.tvf.clb.service.service.RaceService;
 import com.tvf.clb.base.dto.EntrantDto;
 import com.tvf.clb.base.entity.Race;
 import org.springframework.beans.factory.annotation.Autowired;

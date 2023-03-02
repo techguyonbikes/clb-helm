@@ -1,4 +1,4 @@
-package com.tvf.clb.api.repository;
+package com.tvf.clb.service.repository;
 
 import com.tvf.clb.base.entity.Race;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
