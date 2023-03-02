@@ -1,7 +1,7 @@
 package com.tvf.clb.base.dto;
 
 import com.google.gson.annotations.SerializedName;
-import com.tvf.clb.base.model.Entrant;
+import com.tvf.clb.base.model.EntrantRawData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ public class LadBrokedItRaceDto {
     private Object venues;
     private Object substitutions;
     private Object results;
-    private HashMap<String, Entrant> entrants;
+    private HashMap<String, EntrantRawData> entrants;
     @SerializedName("price_fluctuations")
     private HashMap<String, ArrayList<Float>> priceFluctuations;
 }

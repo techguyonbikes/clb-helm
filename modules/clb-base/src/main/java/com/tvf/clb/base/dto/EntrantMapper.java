@@ -1,11 +1,11 @@
 package com.tvf.clb.base.dto;
 
-import com.tvf.clb.base.model.Entrant;
+import com.tvf.clb.base.model.EntrantRawData;
 
 import java.util.List;
 
-public class EntrantDtoMapper {
-    public static EntrantDto toEntrantDto(Entrant entrant, List<Float> prices) {
+public class EntrantMapper {
+    public static EntrantDto toEntrantDto(EntrantRawData entrant, List<Float> prices) {
         return EntrantDto.builder()
                 .id(entrant.getId())
                 .name(entrant.getName())

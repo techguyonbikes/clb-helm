@@ -14,7 +14,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Race {
+public class RaceRawData {
     private String id;
     private String meetingId;
     private String name;

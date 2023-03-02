@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Venue {
+public class VenueRawData {
     private String id;
     private String name;
     private String state;
