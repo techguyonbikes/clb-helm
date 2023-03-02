@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.tvf.clb.base.dto.*;
+import com.tvf.clb.base.entity.Entrant;
+import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
 import com.tvf.clb.base.entity.Meeting;
@@ -30,6 +32,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
@@ -42,6 +45,10 @@ public class CrawlService {
 
     @Autowired
     private RaceRepository raceRepository;
+
+    @Autowired
+    private EntrantRepository entrantRepository;
+
 
     public Mono<List<MeetingDto>> getTodayMeetings(LocalDate date) {
         return Mono.fromSupplier(() -> {
@@ -94,11 +101,17 @@ public class CrawlService {
             JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
             Gson gson = new Gson();
             LadBrokedItRaceDto raceDto = gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
-            HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null).collect(Collectors.toList());
+            HashMap<String, ArrayList<Double>> allEntrantPrices = raceDto.getPriceFluctuations();
+            List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null).map(r ->{
+                List<Double> entrantPrices = allEntrantPrices.get(r.getId());
+                EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices);
+                return entrantRawData;
+            }).collect(Collectors.toList());
+
+            saveEntrant(allEntrant);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
-                        List<Float> entrantPrices = allEntrantPrices.get(r.getId());
+                        List<Double> entrantPrices = allEntrantPrices.get(r.getId());
                         EntrantDto entrantDto = EntrantMapper.toEntrantDto(r, entrantPrices);
                         return Mono.just(entrantDto);
                     });
@@ -119,4 +132,22 @@ public class CrawlService {
         List<Race> races = raceRawData.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
         raceRepository.saveAll(races).subscribe();
     }
+
+    public void saveEntrant(List<EntrantRawData> entrantRawData) {
+        List<Entrant> entrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
+        List<Entrant> savedList = new ArrayList<>();
+        for (Entrant entrant: entrants) {
+            Mono<Entrant> existingEntity = entrantRepository.findByEntrantId(entrant.getEntrantId());
+            if (existingEntity != null) {
+       //        Entrant entrantexist = existingEntity.flatMap(m-> EntrantMapper.toEntrantExist(m,entrant));
+        //        savedList.add(entrantexist);
+            } else {
+                savedList.add(entrant);
+            }
+        }
+        entrantRepository.saveAll(savedList);
+    }
+
+
+
 }
