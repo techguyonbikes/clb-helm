@@ -35,10 +35,11 @@ public class RaceService {
         return raceRepository.findRaceByRaceId(UUID.fromString(id));
     }
 
-    @Async()
     public Flux<RaceResponseDTO> getListSideBarRaces() {
         Flux<Race> races = getAllRace();
-        races.subscribe();
-        return Flux.empty();
+        return races.filter(x -> x.getNumber() != null).flatMap(r -> {
+            Mono<Meeting> meetingMono = meetingService.getMeetingByMeetingId(UUID.fromString(r.getMeetingId()));
+            return meetingMono.map(meeting -> RaceResponseMapper.toRaceResponseDTO(meeting, r));
+        });
     }
 }
