@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 @Getter
 @Setter
@@ -17,8 +19,8 @@ public class RaceDto {
     private String meetingId;
     private String name;
     private Integer number;
-    private String advertisedStart;
-    private String actualStart;
+    private Instant advertisedStart;
+    private Instant actualStart;
     private List<String> marketIds;
     private String mainMarketStatusId;
     private String resultsDisplay;

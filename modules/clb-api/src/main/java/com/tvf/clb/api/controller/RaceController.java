@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -31,18 +32,13 @@ public class RaceController {
         return crawlService.getRaceById(id);
     }
 
-    @GetMapping("/all")
-    public Flux<Race> getAllRace() {
-        return raceService.getAllRace();
-    }
-
 //    @GetMapping("")
 //    public Mono<Race> getRaceById(@RequestParam(value = "id", required = true) String id) {
 //        return raceService.getRaceById(id);
 //    }
 
     @GetMapping("/side-bar-races")
-    public Flux<RaceResponseDTO> getListSideBarRaces() {
-        return raceService.getListSideBarRaces();
+    public Flux<RaceResponseDTO> getListSideBarRaces(Instant date) {
+        return raceService.getListSideBarRaces(date);
     }
 }

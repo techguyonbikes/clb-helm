@@ -16,7 +16,7 @@ public class RaceResponseMapper {
     public static RaceResponseDTO toRaceResponseDTO(Meeting meeting, Race race) {
         return RaceResponseDTO.builder()
                 .raceId(race.getRaceId())
-                .sideName(meeting.getRaceType().charAt(0) + race.getNumber() + meeting.getName())
+                .sideName(meeting.getRaceType().charAt(0) + race.getNumber().toString() + " " + meeting.getName())
                 .type(meeting.getRaceType())
                 .date(race.getActualStart())
                 .build();
