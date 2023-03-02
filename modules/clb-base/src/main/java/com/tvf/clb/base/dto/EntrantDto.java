@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 public class EntrantDto {
     private String id;
-    private String raceId;
     private String name;
     private Integer barrier;
     private Integer number;

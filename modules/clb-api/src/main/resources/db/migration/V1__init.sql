@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS race (
   results_display VARCHAR(255)
 );
 
-CREATE TABLE entrant (
+CREATE TABLE IF NOT EXISTS entrant (
       id bigserial PRIMARY KEY,
-      entrant_id VARCHAR(255),
+      entrant_id VARCHAR(255) UNIQUE ,
       name VARCHAR(255) NOT NULL,
       barrier INT NOT NULL,
       number INT NOT NULL,

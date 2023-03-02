@@ -135,17 +135,7 @@ public class CrawlService {
 
     public void saveEntrant(List<EntrantRawData> entrantRawData) {
         List<Entrant> entrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        List<Entrant> savedList = new ArrayList<>();
-        for (Entrant entrant: entrants) {
-            Mono<Entrant> existingEntity = entrantRepository.findByEntrantId(entrant.getEntrantId());
-            if (existingEntity != null) {
-       //        Entrant entrantexist = existingEntity.flatMap(m-> EntrantMapper.toEntrantExist(m,entrant));
-        //        savedList.add(entrantexist);
-            } else {
-                savedList.add(entrant);
-            }
-        }
-        entrantRepository.saveAll(savedList);
+        entrantRepository.saveAll(entrants).subscribe();
     }
 
 
