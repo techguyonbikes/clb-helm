@@ -1,12 +1,12 @@
-package com.tvf.clb.api.service;
+package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.tvf.clb.api.repository.MeetingRepository;
-import com.tvf.clb.api.repository.RaceRepository;
 import com.tvf.clb.base.dto.*;
+import com.tvf.clb.service.repository.MeetingRepository;
+import com.tvf.clb.service.repository.RaceRepository;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.EntrantRawData;
