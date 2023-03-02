@@ -5,8 +5,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.tvf.clb.api.repository.MeetingRepository;
+import com.tvf.clb.api.repository.RaceRepository;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Meeting;
+import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
@@ -37,6 +39,9 @@ public class CrawlService {
 
     @Autowired
     private MeetingRepository meetingRepository;
+
+    @Autowired
+    private RaceRepository raceRepository;
 
     public Mono<List<MeetingDto>> getTodayMeetings(LocalDate date) {
         return Mono.fromSupplier(() -> {
@@ -77,6 +82,7 @@ public class CrawlService {
             meetingDtoList.add(meetingDto);
         }
         saveMeeting(ausMeetings);
+        saveRace(ausRace);
         return meetingDtoList;
     }
 
@@ -106,5 +112,11 @@ public class CrawlService {
     public void saveMeeting(List<MeetingRawData> meetingRawData) {
         List<Meeting> meetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
         meetingRepository.saveAll(meetings).subscribe();
+    }
+
+    @Async()
+    public void saveRace(List<RaceRawData> raceRawData) {
+        List<Race> races = raceRawData.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
+        raceRepository.saveAll(races).subscribe();
     }
 }

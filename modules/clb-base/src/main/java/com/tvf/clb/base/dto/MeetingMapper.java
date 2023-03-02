@@ -1,15 +1,19 @@
 package com.tvf.clb.base.dto;
 
+import com.google.gson.Gson;
 import com.tvf.clb.base.entity.Meeting;
+import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.utils.AppConstant;
+import io.r2dbc.postgresql.codec.Json;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MeetingMapper {
+    private static final Gson gson = new Gson();
 
     public static MeetingDto toMeetingDto(MeetingRawData meeting, List<RaceRawData> races) {
         return MeetingDto.builder()
@@ -79,6 +83,20 @@ public class MeetingMapper {
                 .regionId(meeting.getRegionId())
                 .feedId(meeting.getFeedId())
                 .raceType(convertRaceType(meeting.getFeedId()))
+                .build();
+    }
+
+    public static Race toRaceEntity(RaceRawData raceRawData) {
+        return Race.builder()
+                .raceId(raceRawData.getId())
+                .meetingId(raceRawData.getMeetingId())
+                .name(raceRawData.getName())
+                .number(raceRawData.getNumber())
+                .advertisedStart(raceRawData.getAdvertisedStart())
+                .actualStart(raceRawData.getActualStart())
+                .marketIds(Json.of(gson.toJson(raceRawData.getMarketIds())))
+                .mainMarketStatusId(raceRawData.getMainMarketStatusId())
+                .resultsDisplay(raceRawData.getResultsDisplay())
                 .build();
     }
 
