@@ -28,8 +28,8 @@ public class RaceService {
     @Autowired
     private MeetingService meetingService;
 
-    public Mono<Race> getRaceById(String id) {
-        return raceRepository.findRaceByRaceId(UUID.fromString(id));
+    public Mono<Race> getRaceById(String raceId) {
+        return raceRepository.findRaceByRaceId(raceId);
     }
 
     public Flux<RaceResponseDTO> getListSideBarRaces(LocalDate date) {
