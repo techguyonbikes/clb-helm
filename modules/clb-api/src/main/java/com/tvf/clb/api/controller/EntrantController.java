@@ -30,7 +30,7 @@ public class EntrantController {
     }
 
     @GetMapping("")
-    public Flux<Entrant> getRaceById(@RequestParam(value = "id", required = true) String id) {
+    public Flux<Entrant> getEntrantByRaceId(@RequestParam(value = "id", required = true) String id) {
         return entrantService.getEntrantsByRaceId(id);
    }
 }
