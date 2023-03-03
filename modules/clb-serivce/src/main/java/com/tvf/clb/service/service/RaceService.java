@@ -12,11 +12,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 
-import java.time.Instant;
+import java.time.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.UUID;
 
 @Service
@@ -33,14 +30,14 @@ public class RaceService {
     }
 
     public Flux<RaceResponseDTO> getListSideBarRaces(LocalDate date) {
-        LocalDateTime maxDateTime = date.atTime(23, 59, 59);
-        LocalDateTime minDateTime = date.atTime(00, 00, 00);
+        LocalDateTime maxDateTime = date.atTime(LocalTime.MAX);
+        LocalDateTime minDateTime = date.atTime(LocalTime.MIN);
         Instant endTime = maxDateTime.atOffset(ZoneOffset.UTC).toInstant();
         Instant startTime = minDateTime.atOffset(ZoneOffset.UTC).toInstant();
         Flux<Race> races = raceRepository.findAllByActualStartBetween(startTime, endTime);
 //        Flux<Race> races = raceRepository.findAll();
         return races.filter(x -> x.getNumber() != null).flatMap(r -> {
-            Mono<Meeting> meetingMono = meetingService.getMeetingByMeetingId(UUID.fromString(r.getMeetingId()));
+            Mono<Meeting> meetingMono = meetingService.getMeetingByMeetingId(r.getMeetingId());
             return meetingMono.map(meeting -> RaceResponseMapper.toRaceResponseDTO(meeting, r));
         });
     }

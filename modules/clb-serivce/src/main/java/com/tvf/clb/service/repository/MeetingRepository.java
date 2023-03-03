@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
-    Mono<Meeting> findByMeetingId(UUID meetingId);
+    Mono<Meeting> findByMeetingId(String meetingId);
 }

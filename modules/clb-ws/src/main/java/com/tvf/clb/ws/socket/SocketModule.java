@@ -31,7 +31,7 @@ public class SocketModule {
         this.server = server;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
-        server.addEventListener("ping", String.class, healthCheck());
+        server.addEventListener("call_phat_xem_nao", String.class, healthCheck());
     }
 
     private DataListener<String> healthCheck() {
@@ -41,10 +41,23 @@ public class SocketModule {
         };
     }
 
-    private void sendPong(SocketIOClient senderClient, String request) {
-        for (SocketIOClient client : senderClient.getNamespace().getAllClients()) {
-            client.sendEvent("ping", "pong");
+    private void sendPong(SocketIOClient senderClient, String request) throws InterruptedException {
+//        List<SocketIOClient> clients = new ArrayList<>(server.getAllClients());
+//        Flux<Entrant> entrants =  entrantService.getEntrantsByRaceId(request);
+//        List<EntrantResponseDto> entrantList= entrants.map(EntrantMapper::toEntrantResponseDto).collectList().block();
+//                    entrantList.subscribe();
+//        clients.forEach(x -> {
+//            x.sendEvent("new_prices", entrantList);
+//        });
+        while (true) {
+            Thread.sleep(20000);
+            Flux<Entrant> entrants =  entrantService.getEntrantsByRaceId(request);
+            List<EntrantResponseDto> entrantList= entrants.map(EntrantMapper::toEntrantResponseDto).collectList().block();
+            for (SocketIOClient client : senderClient.getNamespace().getAllClients()) {
+                client.sendEvent("new_prices", entrantList);
+            }
         }
+
     }
 
     private ConnectListener onConnected() {
@@ -63,16 +76,16 @@ public class SocketModule {
         };
     }
 
-    @Scheduled(cron = "0/20 * * * * *")
-    public void  sendDate() {
-        List<SocketIOClient> clients = new ArrayList<>(server.getAllClients());
-        Flux<Entrant> entrants =  entrantService.getEntrantsByRaceId("1c255ce2-3bf6-4322-85ad-f2c9395aebde");
-        List<EntrantResponseDto> entrantList= entrants.map(EntrantMapper::toEntrantResponseDto).collectList().block();
-//                    entrantList.subscribe();
-        clients.forEach(x -> {
-            x.sendEvent("new_prices", entrantList);
-        });
-
-    }
+//    @Scheduled(cron = "0/20 * * * * *")
+//    public void  sendDate() {
+//        List<SocketIOClient> clients = new ArrayList<>(server.getAllClients());
+//        Flux<Entrant> entrants =  entrantService.getEntrantsByRaceId("1c255ce2-3bf6-4322-85ad-f2c9395aebde");
+//        List<EntrantResponseDto> entrantList= entrants.map(EntrantMapper::toEntrantResponseDto).collectList().block();
+////                    entrantList.subscribe();
+//        clients.forEach(x -> {
+//            x.sendEvent("new_prices", entrantList);
+//        });
+//
+//    }
 
 }

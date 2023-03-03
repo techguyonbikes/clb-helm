@@ -21,7 +21,7 @@ public class MeetingService {
         return meetingRepository.findAll();
     }
 
-    public Mono<Meeting> getMeetingByMeetingId(UUID meetingId) {
+    public Mono<Meeting> getMeetingByMeetingId(String meetingId) {
         return meetingRepository.findByMeetingId(meetingId);
     }
 
