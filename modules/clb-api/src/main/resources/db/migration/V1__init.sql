@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS race (
   meeting_id VARCHAR(255),
   name VARCHAR(255),
   number INTEGER,
-  advertised_start VARCHAR(255),
-  actual_start VARCHAR(255),
-  market_ids VARCHAR(255),
+  advertised_start TIMESTAMP WITH TIME ZONE,
+  actual_start TIMESTAMP WITH TIME ZONE,
+  market_ids JSONB,
   main_market_status_id VARCHAR(255),
   results_display VARCHAR(255)
 );
@@ -35,5 +35,5 @@ CREATE TABLE entrant (
       number INT NOT NULL,
       market_id VARCHAR(36) NOT NULL,
       visible BOOLEAN NOT NULL,
-      price_fluctuations DOUBLE PRECISION ARRAY NOT NULL
+      price_fluctuations JSONB NOT NULL
 );

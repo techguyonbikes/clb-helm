@@ -13,6 +13,9 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+
 @Getter
 @Setter
 @SuperBuilder
@@ -25,8 +28,8 @@ public class Race {
     private String meetingId;
     private String name;
     private Integer number;
-    private String advertisedStart;
-    private String actualStart;
+    private Instant advertisedStart;
+    private Instant actualStart;
     @JsonSerialize(using = PgJsonObjectSerializer.class)
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
     private Json marketIds;
