@@ -1,5 +1,7 @@
 package com.tvf.clb.service.service;
 
+import com.tvf.clb.base.dto.EntrantDto;
+import com.tvf.clb.base.dto.RaceResponseDTO;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.service.repository.EntrantRepository;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,6 +23,10 @@ public class EntrantService {
     public Flux<Entrant> getAllEntrant() {
         return entrantRepository.findAll();
 
+    }
+
+    public Flux<Entrant> getEntrantsByRaceId(String id){
+        return entrantRepository.findByRaceId(id);
     }
 
 

@@ -106,9 +106,9 @@ public class CrawlService {
             List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null).map(r ->{
                 List<Float> entrantPrices = allEntrantPrices.get(r.getId());
                 EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices);
+                entrantRawData.setRaceId(raceId);
                 return entrantRawData;
             }).collect(Collectors.toList());
-
             saveEntrant(allEntrant);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
