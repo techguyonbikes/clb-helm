@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS race (
 CREATE TABLE IF NOT EXISTS entrant (
       id bigserial PRIMARY KEY,
       entrant_id VARCHAR(255) UNIQUE ,
+      race_id VARCHAR(255)
       name VARCHAR(255) NOT NULL,
       barrier INT NOT NULL,
       number INT NOT NULL,
