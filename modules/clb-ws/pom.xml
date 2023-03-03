@@ -14,6 +14,11 @@
 
    <dependencies>
        <dependency>
+           <groupId>com.tvf.clb</groupId>
+           <artifactId>clb-serivce</artifactId>
+       </dependency>
+
+       <dependency>
            <groupId>com.corundumstudio.socketio</groupId>
            <artifactId>netty-socketio</artifactId>
        </dependency>
