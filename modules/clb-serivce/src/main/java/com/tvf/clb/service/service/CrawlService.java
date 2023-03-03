@@ -89,7 +89,8 @@ public class CrawlService {
             meetingDtoList.add(meetingDto);
         }
         saveMeeting(ausMeetings);
-        saveRace(ausRace);
+        List<RaceDto> raceDtoList = meetingDtoList.stream().map(x -> x.getRaces()).flatMap(List::stream).collect(Collectors.toList());
+        saveRace(raceDtoList);
         return meetingDtoList;
     }
 
@@ -128,8 +129,8 @@ public class CrawlService {
     }
 
     @Async()
-    public void saveRace(List<RaceRawData> raceRawData) {
-        List<Race> races = raceRawData.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
+    public void saveRace( List<RaceDto> raceDtoList) {
+        List<Race> races = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
         raceRepository.saveAll(races).subscribe();
     }
 
