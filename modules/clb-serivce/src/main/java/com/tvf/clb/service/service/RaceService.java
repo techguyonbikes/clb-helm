@@ -42,5 +42,23 @@ public class RaceService {
             Mono<Meeting> meetingMono = meetingService.getMeetingByMeetingId(UUID.fromString(r.getMeetingId()));
             return meetingMono.map(meeting -> RaceResponseMapper.toRaceResponseDTO(meeting, r));
         });
+    @Autowired
+    private MeetingService meetingService;
+
+    public Mono<Race> getRaceById(String id) {
+        return raceRepository.findRaceByRaceId(UUID.fromString(id));
+    }
+
+    public Flux<RaceResponseDTO> getListSideBarRaces(LocalDate date) {
+        LocalDateTime maxDateTime = date.atTime(23, 59, 59);
+        LocalDateTime minDateTime = date.atTime(00, 00, 00);
+        Instant endTime = maxDateTime.atOffset(ZoneOffset.UTC).toInstant();
+        Instant startTime = minDateTime.atOffset(ZoneOffset.UTC).toInstant();
+        Flux<Race> races = raceRepository.findAllByActualStartBetween(startTime, endTime);
+//        Flux<Race> races = raceRepository.findAll();
+        return races.filter(x -> x.getNumber() != null).flatMap(r -> {
+            Mono<Meeting> meetingMono = meetingService.getMeetingByMeetingId(UUID.fromString(r.getMeetingId()));
+            return meetingMono.map(meeting -> RaceResponseMapper.toRaceResponseDTO(meeting, r));
+        });
     }
 }

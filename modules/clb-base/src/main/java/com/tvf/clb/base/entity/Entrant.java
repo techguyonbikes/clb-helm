@@ -34,4 +34,5 @@ public class Entrant {
     private Json priceFluctuations;
 
 
+
 }
