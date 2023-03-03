@@ -1,8 +1,10 @@
 package com.tvf.clb.base.dto;
 
 import com.google.gson.Gson;
+import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.utils.AppConstant;
@@ -97,6 +99,17 @@ public class MeetingMapper {
                 .marketIds(Json.of(gson.toJson(raceDto.getMarketIds())))
                 .mainMarketStatusId(raceDto.getMainMarketStatusId())
                 .resultsDisplay(raceDto.getResultsDisplay())
+                .build();
+    }
+    public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
+        return Entrant.builder()
+                .entrantId(entrantRawData.getId())
+                .name(entrantRawData.getName())
+                .number(entrantRawData.getNumber())
+                .barrier(entrantRawData.getBarrier())
+                .visible(entrantRawData.isVisible())
+                .marketId(entrantRawData.getMarketId())
+                .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations())))
                 .build();
     }
 
