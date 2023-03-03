@@ -6,7 +6,7 @@ server:
   jetty:
     threads:
       max: 50
-  port: ${app.port:20002}
+  port: ${app.port:8000}
 logging:
   file:
     name: ./logs/cloudbet.log
@@ -55,3 +55,6 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${postgresql.datasource.username:clb_db}
     url: ${postgresql.datasource.dbUrl:jdbc:postgresql://sylveron.com:30543/cloudbet}
+socket-server:
+  host: localhost
+  port: 20002

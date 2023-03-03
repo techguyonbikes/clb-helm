@@ -1,4 +1,4 @@
-package com.clb.ws.socket;
+package com.tvf.clb.ws.socket;
 
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
@@ -11,13 +11,12 @@ import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.service.service.EntrantService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -51,16 +50,7 @@ public class SocketModule {
     private ConnectListener onConnected() {
         return (client) -> {
             java.util.Map<String, java.util.List<String>> params = client.getHandshakeData().getUrlParams();
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    Flux<Entrant> entrants =  entrantService.getEntrantsByRaceId("1c255ce2-3bf6-4322-85ad-f2c9395aebde");
-                    Flux<EntrantResponseDto> entrantList= entrants.map(EntrantMapper::toEntrantResponseDto);
-                    entrantList.subscribe();
-                    client.sendEvent("new_prices", entrantList);
-                }
-            }, 1000);
+            client.sendEvent("subscription", "new prices");
             log.info("Socket ID[{}] -  Connected ", client.getSessionId().toString());
         };
 
@@ -73,5 +63,16 @@ public class SocketModule {
         };
     }
 
+    @Scheduled(cron = "0/20 * * * * *")
+    public void  sendDate() {
+        List<SocketIOClient> clients = new ArrayList<>(server.getAllClients());
+        Flux<Entrant> entrants =  entrantService.getEntrantsByRaceId("1c255ce2-3bf6-4322-85ad-f2c9395aebde");
+        List<EntrantResponseDto> entrantList= entrants.map(EntrantMapper::toEntrantResponseDto).collectList().block();
+//                    entrantList.subscribe();
+        clients.forEach(x -> {
+            x.sendEvent("new_prices", entrantList);
+        });
+
+    }
 
 }

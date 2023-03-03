@@ -15,5 +15,5 @@ import java.util.List;
 @NoArgsConstructor
 public class EntrantResponseDto {
     private String entrantId;
-    private List<Float> priceFluctuations;
+    private Object priceFluctuations;
 }

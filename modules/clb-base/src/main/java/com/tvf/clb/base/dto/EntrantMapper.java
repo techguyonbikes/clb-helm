@@ -44,11 +44,9 @@ public class EntrantMapper {
     }
 
     public static EntrantResponseDto toEntrantResponseDto (Entrant entrant) {
-        Type type =new TypeToken<List<Float>>() {}.getType();
-        Gson gson = new Gson();
         return EntrantResponseDto.builder()
                 .entrantId(entrant.getEntrantId())
-                .priceFluctuations(gson.fromJson(entrant.getPriceFluctuations().toString(), type))
+                .priceFluctuations(entrant.getPriceFluctuations().toString())
                 .build();
     }
 }

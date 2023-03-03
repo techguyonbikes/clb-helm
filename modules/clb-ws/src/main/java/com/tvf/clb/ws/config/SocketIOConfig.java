@@ -1,4 +1,4 @@
-package com.clb.ws.config;
+package com.tvf.clb.ws.config;
 
 import com.corundumstudio.socketio.SocketIOServer;
 import lombok.extern.slf4j.Slf4j;
