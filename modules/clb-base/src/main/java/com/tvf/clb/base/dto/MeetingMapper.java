@@ -104,6 +104,7 @@ public class MeetingMapper {
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
         return Entrant.builder()
                 .entrantId(entrantRawData.getId())
+                .raceId(entrantRawData.getRaceId())
                 .name(entrantRawData.getName())
                 .number(entrantRawData.getNumber())
                 .barrier(entrantRawData.getBarrier())

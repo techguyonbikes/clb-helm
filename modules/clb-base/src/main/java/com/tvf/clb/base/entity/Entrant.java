@@ -24,6 +24,7 @@ public class Entrant {
     @Id
     private Long id;
     private String entrantId;
+    private String raceId;
     private String name;
     private Integer number;
     private Integer barrier;
