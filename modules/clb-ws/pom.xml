@@ -15,7 +15,7 @@
    <dependencies>
        <dependency>
            <groupId>com.tvf.clb</groupId>
-           <artifactId>clb-serivce</artifactId>
+           <artifactId>clb-service</artifactId>
        </dependency>
 
        <dependency>

@@ -1,4 +1,4 @@
-package com.tvf.clb.api.controller;
+package com.tvf.clb.controller;
 
 import com.tvf.clb.base.dto.MeetingDto;
 import com.tvf.clb.service.service.CrawlService;
@@ -24,9 +24,4 @@ public class MeetingController {
     public Mono<List<MeetingDto>> crawlTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return crawlService.getTodayMeetings(date);
     }
-
-//    @GetMapping("")
-//    public Mono<List<MeetingDto>> getTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-//        return crawlService.getTodayMeetings(date);
-//    }
 }

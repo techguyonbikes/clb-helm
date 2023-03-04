@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>clb-serivce</artifactId>
+    <artifactId>clb-service</artifactId>
     <packaging>jar</packaging>
 
    <dependencies>

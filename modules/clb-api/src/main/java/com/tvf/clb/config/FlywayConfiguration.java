@@ -1,4 +1,4 @@
-package com.tvf.clb.api.config;
+package com.tvf.clb.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.flywaydb.core.Flyway;
 public class FlywayConfiguration {
 
     private final Environment env;
-    private final String DEFAUL_SCHEMA = "clb_db";
+    private final static String DEFAULT_SCHEMA = "clb_db";
 
     public FlywayConfiguration(Environment env) {
         this.env = env;
@@ -18,7 +18,7 @@ public class FlywayConfiguration {
     @Bean(initMethod = "migrate")
     public Flyway flyway() {
         return new Flyway(Flyway.configure()
-                .schemas(DEFAUL_SCHEMA)
+                .schemas(DEFAULT_SCHEMA)
                 .dataSource(
                         env.getRequiredProperty("spring.flyway.url"),
                         env.getRequiredProperty("spring.flyway.user"),

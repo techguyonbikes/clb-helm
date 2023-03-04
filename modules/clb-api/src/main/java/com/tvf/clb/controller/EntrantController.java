@@ -1,4 +1,4 @@
-package com.tvf.clb.api.controller;
+package com.tvf.clb.controller;
 
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.service.service.EntrantService;

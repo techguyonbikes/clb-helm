@@ -1,4 +1,4 @@
-package com.tvf.clb.api.config;
+package com.tvf.clb.config;
 
 import lombok.Getter;
 import lombok.Setter;

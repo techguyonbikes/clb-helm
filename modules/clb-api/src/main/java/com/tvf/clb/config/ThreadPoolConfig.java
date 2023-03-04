@@ -1,4 +1,4 @@
-package com.tvf.clb.api.config;
+package com.tvf.clb.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

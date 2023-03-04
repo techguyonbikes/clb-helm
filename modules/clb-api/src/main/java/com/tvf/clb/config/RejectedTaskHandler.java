@@ -1,4 +1,4 @@
-package com.tvf.clb.api.config;
+package com.tvf.clb.config;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

@@ -32,7 +32,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
@@ -89,7 +88,7 @@ public class CrawlService {
             meetingDtoList.add(meetingDto);
         }
         saveMeeting(ausMeetings);
-        List<RaceDto> raceDtoList = meetingDtoList.stream().map(x -> x.getRaces()).flatMap(List::stream).collect(Collectors.toList());
+        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         saveRace(raceDtoList);
         return meetingDtoList;
     }

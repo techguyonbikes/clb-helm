@@ -1,4 +1,4 @@
-package com.tvf.clb.api.controller;
+package com.tvf.clb.controller;
 
 import com.tvf.clb.base.dto.EntrantDto;
 import com.tvf.clb.base.dto.RaceResponseDTO;

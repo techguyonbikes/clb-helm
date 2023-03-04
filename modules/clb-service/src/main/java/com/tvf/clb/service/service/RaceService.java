@@ -10,11 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-
 import java.time.*;
-
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -35,7 +31,6 @@ public class RaceService {
         Instant endTime = maxDateTime.atOffset(ZoneOffset.UTC).toInstant();
         Instant startTime = minDateTime.atOffset(ZoneOffset.UTC).toInstant();
         Flux<Race> races = raceRepository.findAllByActualStartBetween(startTime, endTime);
-//        Flux<Race> races = raceRepository.findAll();
         return races.filter(x -> x.getNumber() != null).flatMap(r -> {
             Mono<Meeting> meetingMono = meetingService.getMeetingByMeetingId(r.getMeetingId());
             return meetingMono.map(meeting -> RaceResponseMapper.toRaceResponseDTO(meeting, r));

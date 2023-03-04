@@ -1,13 +1,11 @@
-package com.tvf.clb.api;
+package com.tvf.clb;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.tvf.clb")
+//@ComponentScan(basePackages = "com.tvf.clb")
 @EnableR2dbcRepositories(basePackages = "com.tvf.clb")
 public class CloudBetApplication {
 
