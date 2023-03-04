@@ -22,7 +22,7 @@
         <slf4j.version>1.7.32</slf4j.version>
         <postgresql.version>42.2.19</postgresql.version>
         <r2dbc.postgresql>0.9.2.RELEASE</r2dbc.postgresql>
-        <spring.boot.version>2.5.12</spring.boot.version>
+        <spring.boot.version>2.7.6</spring.boot.version>
         <flyway.version>6.4.4</flyway.version>
         <netty-socketio.version>1.7.17</netty-socketio.version>
     </properties>
