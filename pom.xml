@@ -66,11 +66,6 @@
             </dependency>
             <dependency>
                 <groupId>com.tvf.clb</groupId>
-                <artifactId>clb-ws</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.tvf.clb</groupId>
                 <artifactId>clb-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -116,7 +111,6 @@
     <modules>
         <module>modules/clb-api</module>
         <module>modules/clb-base</module>
-        <module>modules/clb-ws</module>
         <module>modules/clb-service</module>
     </modules>
 
