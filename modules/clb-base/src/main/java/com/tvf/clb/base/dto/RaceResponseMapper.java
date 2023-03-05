@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class RaceResponseMapper {
 
-    private static final Gson gson = new Gson();
 
     public static RaceResponseDTO toRaceResponseDTO(Meeting meeting, Race race) {
         return RaceResponseDTO.builder()
@@ -18,6 +17,9 @@ public class RaceResponseMapper {
                 .number(race.getNumber())
                 .type(meeting.getRaceType())
                 .date(race.getActualStart())
+                .raceName(race.getName())
+                .distance("500m")
+                .state(meeting.getState())
                 .build();
     }
 

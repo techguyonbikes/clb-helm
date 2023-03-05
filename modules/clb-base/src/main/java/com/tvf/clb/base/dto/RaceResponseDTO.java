@@ -14,4 +14,8 @@ public class RaceResponseDTO {
     Integer number;
     String type;
     Instant date;
+    String state;
+    String stateName;
+    String raceName;
+    String distance;
 }
