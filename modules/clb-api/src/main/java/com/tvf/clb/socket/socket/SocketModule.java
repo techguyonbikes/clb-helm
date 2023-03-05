@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.List;
@@ -58,6 +58,7 @@ public class SocketModule {
         return (senderClient, raceId, ackSender) -> {
             String sessionId = senderClient.getSessionId().toString();
             Disposable subscription = subscriptions.remove(sessionId);
+            senderClient.sendEvent("unsubscribe", raceId);
             if (subscription != null) {
                 subscription.dispose();
                 log.info("Socket ID[{}] - Unsubscribed from raceId: {}", sessionId, raceId);
@@ -66,23 +67,18 @@ public class SocketModule {
     }
 
     private Disposable sendNewPrices(SocketIOClient senderClient, String request) {
-            return Mono.delay(Duration.ofSeconds(20L))
+            return Flux.interval(Duration.ofSeconds(20L))
                     .flatMap(tick -> entrantService.getEntrantsByRaceId(request)
                             .map(EntrantMapper::toEntrantResponseDto)
                             .collectList()
                     )
-                    .subscribe(
-                            entrantList -> {
-                                senderClient.sendEvent("new_prices", entrantList);
-                                sendNewPrices(senderClient, request);
-                            },
-                            throwable -> {
-                                log.error("Socket ID[{}] - Error in subscription: {}", senderClient.getSessionId().toString(), throwable.getMessage());
-                            },
-                            () -> {
-                                log.info("Socket ID[{}] - Subscription complete", senderClient.getSessionId().toString());
-                            }
-                    );
+                    .doOnNext(entrantList ->
+                    {
+                        senderClient.sendEvent("new_prices", entrantList);
+                    })
+//                    .doOnError(throwable -> log.error("Socket ID[{}] - Error in subscription: {}", senderClient.getSessionId().toString(), throwable.getMessage()))
+//                    .doOnComplete(() -> log.info("Socket ID[{}] - Subscription complete with raceId[{}]", senderClient.getSessionId().toString(), request))
+                    .subscribe();
     }
 
     private ConnectListener onConnected() {
@@ -100,17 +96,5 @@ public class SocketModule {
             log.info("Socket ID[{}] -  disconnected", client.getSessionId().toString());
         };
     }
-
-//    @Scheduled(cron = "0/20 * * * * *")
-//    public void  sendDate() {
-//        List<SocketIOClient> clients = new ArrayList<>(server.getAllClients());
-//        Flux<Entrant> entrants =  entrantService.getEntrantsByRaceId("1c255ce2-3bf6-4322-85ad-f2c9395aebde");
-//        List<EntrantResponseDto> entrantList= entrants.map(EntrantMapper::toEntrantResponseDto).collectList().block();
-////                    entrantList.subscribe();
-//        clients.forEach(x -> {
-//            x.sendEvent("new_prices", entrantList);
-//        });
-//
-//    }
 
 }
