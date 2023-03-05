@@ -6,21 +6,25 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.tvf.clb.base.dto.EntrantMapper;
-import com.tvf.clb.base.dto.EntrantResponseDto;
-import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.service.service.EntrantService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
+import reactor.core.Disposable;
+import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
 public class SocketModule {
 
     private final SocketIOServer server;
+
+    private final Map<String, Disposable> subscriptions = new ConcurrentHashMap<>();
 
     @Autowired
     private EntrantService entrantService;
@@ -29,26 +33,57 @@ public class SocketModule {
         this.server = server;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
-        server.addEventListener("call_phat_xem_nao", String.class, healthCheck());
+        server.addEventListener("call_phat_xem_nao", String.class, subscribe());
+        server.addEventListener("unsubscribe", String.class, unsubscribe());
     }
 
-    private DataListener<String> healthCheck() {
+    private DataListener<String> getNewPrices() {
         return (senderClient, data, ackSender) -> {
             log.info(data);
-            sendPong(senderClient, data);
+            sendNewPrices(senderClient, data);
         };
     }
 
-    private void sendPong(SocketIOClient senderClient, String request) throws InterruptedException {
-        while (true) {
-            Thread.sleep(20000);
-            Flux<Entrant> entrants =  entrantService.getEntrantsByRaceId(request);
-            List<EntrantResponseDto> entrantList= entrants.map(EntrantMapper::toEntrantResponseDto).collectList().block();
-            for (SocketIOClient client : senderClient.getNamespace().getAllClients()) {
-                client.sendEvent("new_prices", entrantList);
-            }
-        }
 
+    private DataListener<String> subscribe() {
+        return (senderClient, raceId, ackSender) -> {
+            log.info("Socket ID[{}] - Subscribed to raceId: {}", senderClient.getSessionId().toString(), raceId);
+            Disposable subscription = sendNewPrices(senderClient, raceId);
+            subscriptions.put(senderClient.getSessionId().toString(), subscription);
+            senderClient.sendEvent("subscription", "new prices");
+        };
+    }
+
+    private DataListener<String> unsubscribe() {
+        return (senderClient, raceId, ackSender) -> {
+            String sessionId = senderClient.getSessionId().toString();
+            Disposable subscription = subscriptions.remove(sessionId);
+            if (subscription != null) {
+                subscription.dispose();
+                log.info("Socket ID[{}] - Unsubscribed from raceId: {}", sessionId, raceId);
+            }
+        };
+    }
+
+    private Disposable sendNewPrices(SocketIOClient senderClient, String request) {
+            return Mono.delay(Duration.ofSeconds(20L))
+                    .flatMap(tick -> entrantService.getEntrantsByRaceId(request)
+                            .map(EntrantMapper::toEntrantResponseDto)
+                            .collectList()
+                    )
+                    .subscribe(
+                            entrantList -> {
+                                log.info("Send new Prices");
+                                senderClient.sendEvent("new_prices", entrantList);
+                                sendNewPrices(senderClient, request);
+                            },
+                            throwable -> {
+                                log.error("Socket ID[{}] - Error in subscription: {}", senderClient.getSessionId().toString(), throwable.getMessage());
+                            },
+                            () -> {
+                                log.info("Socket ID[{}] - Subscription complete", senderClient.getSessionId().toString());
+                            }
+                    );
     }
 
     private ConnectListener onConnected() {
