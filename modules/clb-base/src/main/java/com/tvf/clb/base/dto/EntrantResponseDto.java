@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
 
 @Getter
 @Setter
@@ -16,4 +15,5 @@ import java.util.List;
 public class EntrantResponseDto {
     private String entrantId;
     private Object priceFluctuations;
+    private String entrantName;
 }

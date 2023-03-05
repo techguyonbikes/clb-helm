@@ -29,4 +29,6 @@ public class RaceRawData {
     private String mainMarketStatusId;
     @SerializedName("results_display")
     private String resultsDisplay;
+    @SerializedName("additional_info")
+    private Object additionalInfo;
 }
