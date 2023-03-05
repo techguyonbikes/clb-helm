@@ -73,7 +73,6 @@ public class SocketModule {
                     )
                     .subscribe(
                             entrantList -> {
-                                log.info("Send new Prices");
                                 senderClient.sendEvent("new_prices", entrantList);
                                 sendNewPrices(senderClient, request);
                             },
