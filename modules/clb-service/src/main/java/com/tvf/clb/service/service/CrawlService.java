@@ -21,11 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -60,9 +60,7 @@ public class CrawlService {
                 if (body != null) {
                     rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
                 }
-                //if null then throw error?
             } catch (IOException e) {
-                //define exception
                 throw new RuntimeException(e);
             }
             return getAllAusMeeting(rawData);
@@ -81,7 +79,6 @@ public class CrawlService {
         List<MeetingDto> meetingDtoList = new ArrayList<>();
         for (MeetingRawData localMeeting : ausMeetings) {
             List<RaceRawData> localRace = ausRace.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId()))
-//                    .sorted(Comparator.comparing(Race::getNumber))
                     .collect(Collectors.toList());
 
             MeetingDto meetingDto = MeetingMapper.toMeetingDto(localMeeting, localRace);
@@ -90,20 +87,28 @@ public class CrawlService {
         saveMeeting(ausMeetings);
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         saveRace(raceDtoList);
+        getRaceByIds(ausRace.stream().map(RaceRawData::getId).collect(Collectors.toList())).subscribe();
         return meetingDtoList;
+    }
+
+    public Flux<EntrantDto> getRaceByIds(List<String> raceIds) {
+        return Flux.fromIterable(raceIds)
+                .parallel() // create a parallel flux
+                .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
+                .flatMap(this::getRaceById) // call the getRaceById method for each raceId
+                .sequential(); // convert back to a sequential flux
     }
 
     public Flux<EntrantDto> getRaceById(String raceId) {
         String url = AppConstant.LAD_BROKES_IT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
         try {
             Response response = ApiUtils.get(url);
-            //todo check null
             JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
             Gson gson = new Gson();
             LadBrokedItRaceDto raceDto = gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null).map(r ->{
-                List<Float> entrantPrices = allEntrantPrices.get(r.getId());
+            List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null && r.getId() != null).map(r -> {
+                List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.get(r.getId());
                 EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices);
                 entrantRawData.setRaceId(raceId);
                 return entrantRawData;
@@ -120,24 +125,75 @@ public class CrawlService {
         }
     }
 
-    //todo. Fix this,
-    @Async()
     public void saveMeeting(List<MeetingRawData> meetingRawData) {
-        List<Meeting> meetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
-        meetingRepository.saveAll(meetings).subscribe();
+        List<Meeting> newMeetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
+        Flux<Meeting> existedMeetings = meetingRepository
+                .findAllByMeetingIdIn(newMeetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList()));
+        existedMeetings
+                .collectList()
+                .subscribe(existed ->
+                        {
+                            newMeetings.addAll(existed);
+                            List<Meeting> meetingNeedUpdateOrInsert = newMeetings.stream().distinct().peek(m ->
+                            {
+                                if (m.getId() == null) {
+                                    existed.stream()
+                                            .filter(x -> x.getMeetingId().equals(m.getMeetingId()))
+                                            .findFirst()
+                                            .ifPresent(meeting -> m.setId(meeting.getId()));
+                                }
+                            }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
+                            log.info("Meeting need to be update or insert " + meetingNeedUpdateOrInsert.size());
+                            meetingRepository.saveAll(meetingNeedUpdateOrInsert).subscribe();
+                        }
+                );
     }
 
-    @Async()
-    public void saveRace( List<RaceDto> raceDtoList) {
-        List<Race> races = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        raceRepository.saveAll(races).subscribe();
+    public void saveRace(List<RaceDto> raceDtoList) {
+        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
+        Flux<Race> existedRaces = raceRepository
+                .findAllByRaceIdIn(newRaces.stream().map(Race::getRaceId).collect(Collectors.toList()));
+        existedRaces
+                .collectList()
+                .subscribe(existed ->
+                        {
+                            newRaces.addAll(existed);
+                            List<Race> raceNeedUpdateOrInsert = newRaces.stream().distinct().peek(e ->
+                            {
+                                if (e.getId() == null) {
+                                    existed.stream()
+                                            .filter(x -> x.getRaceId().equals(e.getRaceId()))
+                                            .findFirst()
+                                            .ifPresent(entrant -> e.setId(entrant.getId()));
+                                }
+                            }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
+                            log.info("Race need to be update is " + raceNeedUpdateOrInsert.size());
+                            raceRepository.saveAll(raceNeedUpdateOrInsert).subscribe();
+                        }
+                );
     }
 
     public void saveEntrant(List<EntrantRawData> entrantRawData) {
-        List<Entrant> entrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        entrantRepository.saveAll(entrants).subscribe();
+        List<Entrant> newEntrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
+        Flux<Entrant> existedEntrant = entrantRepository
+                .findAllByEntrantIdIn(entrantRawData.stream().map(EntrantRawData::getId).collect(Collectors.toList()));
+        existedEntrant
+                .collectList()
+                .subscribe(existed ->
+                        {
+                             newEntrants.addAll(existed);
+                             List<Entrant> entrantNeedUpdateOrInsert = newEntrants.stream().distinct().peek(e ->
+                             {
+                                 if (e.getId() == null) {
+                                     existed.stream()
+                                             .filter(x -> x.getEntrantId().equals(e.getEntrantId()))
+                                             .findFirst()
+                                             .ifPresent(entrant -> e.setId(entrant.getId()));
+                                 }
+                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
+                             log.info("Entrant need to be update is " + entrantNeedUpdateOrInsert.size());
+                             entrantRepository.saveAll(entrantNeedUpdateOrInsert).subscribe();
+                        }
+                );
     }
-
-
-
 }

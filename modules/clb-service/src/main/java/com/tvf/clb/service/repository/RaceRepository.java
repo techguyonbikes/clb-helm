@@ -6,9 +6,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.List;
 
 public interface RaceRepository extends R2dbcRepository<Race, Long> {
     Mono<Race> findRaceByRaceId(String raceId);
 
     Flux<Race> findAllByActualStartBetween(Instant start, Instant end);
+
+    Flux<Race> findAllByRaceIdIn(List<String> raceIds);
 }

@@ -24,7 +24,7 @@ spring:
   webflux:
     base-path: /cloudbet/api
   r2dbc:
-    url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://sylveron.com:30543/cloudbet}
+    url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://34.87.145.150:5432/cloudbet}
     pool:
       enabled: true
       max-size: 5
@@ -32,16 +32,16 @@ spring:
       initial-size: 5
       max-idle-time: 5000
     username: ${postgresql.datasource.username:postgres}
-    password: ${postgresql.datasource.password:123456}
+    password: ${postgresql.datasource.password:admin123}
     properties:
       schema: clb_db
   flyway:
     out-of-order: true
     schemas:
       - ${postgresql.schema:clb_db}
-    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://sylveron.com:30543/cloudbet}
+    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://34.87.145.150:5432/cloudbet}
     user: ${postgresql.datasource.username:postgres}
-    password: ${postgresql.datasource.password:123456}
+    password: ${postgresql.datasource.password:admin123}
   datasource:
     driverClassName: org.postgresql.Driver
     hikari:
@@ -51,10 +51,10 @@ spring:
       keepalive-time: 60000 # each 5 minutes to re-"pinged" the connection
       max-lifetime: 600000 # 10 minutes allowed for connection life time
       leak-detection-threshold: 5000 # only 5 seconds allowed connection can be out of the pool
-    password: ${postgresql.datasource.password:123456}
+    password: ${postgresql.datasource.password:admin123}
     driver-class-name: org.postgresql.Driver
     username: ${postgresql.datasource.username:clb_db}
-    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://sylveron.com:30543/cloudbet}
+    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://34.87.145.150:5432/cloudbet}
 socket-server:
   host: localhost
   port: 20002

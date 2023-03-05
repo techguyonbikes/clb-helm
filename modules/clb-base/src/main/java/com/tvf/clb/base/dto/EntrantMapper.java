@@ -46,7 +46,10 @@ public class EntrantMapper {
     public static EntrantResponseDto toEntrantResponseDto (Entrant entrant) {
         return EntrantResponseDto.builder()
                 .entrantId(entrant.getEntrantId())
-                .priceFluctuations(entrant.getPriceFluctuations().toString())
+                .entrantName(entrant.getName())
+                .priceFluctuations(gson.fromJson(entrant.getPriceFluctuations().asString(), ArrayList.class))
                 .build();
     }
+
+    private static final Gson gson = new Gson();
 }

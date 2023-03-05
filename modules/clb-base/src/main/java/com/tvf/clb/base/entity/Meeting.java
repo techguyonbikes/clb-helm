@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -31,4 +32,44 @@ public class Meeting {
     private String regionId;
     private String feedId;
     private String raceType;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Meeting)) return false;
+
+        Meeting meeting = (Meeting) o;
+
+        if (!Objects.equals(meetingId, meeting.meetingId)) return false;
+        if (!Objects.equals(name, meeting.name)) return false;
+        if (!Objects.equals(advertisedDate, meeting.advertisedDate))
+            return false;
+        if (!Objects.equals(categoryId, meeting.categoryId)) return false;
+        if (!Objects.equals(venueId, meeting.venueId)) return false;
+        if (!Objects.equals(trackCondition, meeting.trackCondition))
+            return false;
+        if (!Objects.equals(country, meeting.country)) return false;
+        if (!Objects.equals(state, meeting.state)) return false;
+        if (!Objects.equals(hasFixed, meeting.hasFixed)) return false;
+        if (!Objects.equals(regionId, meeting.regionId)) return false;
+        if (!Objects.equals(feedId, meeting.feedId)) return false;
+        return Objects.equals(raceType, meeting.raceType);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = meetingId != null ? meetingId.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (advertisedDate != null ? advertisedDate.hashCode() : 0);
+        result = 31 * result + (categoryId != null ? categoryId.hashCode() : 0);
+        result = 31 * result + (venueId != null ? venueId.hashCode() : 0);
+        result = 31 * result + (trackCondition != null ? trackCondition.hashCode() : 0);
+        result = 31 * result + (country != null ? country.hashCode() : 0);
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + (hasFixed != null ? hasFixed.hashCode() : 0);
+        result = 31 * result + (regionId != null ? regionId.hashCode() : 0);
+        result = 31 * result + (feedId != null ? feedId.hashCode() : 0);
+        result = 31 * result + (raceType != null ? raceType.hashCode() : 0);
+        return result;
+    }
 }

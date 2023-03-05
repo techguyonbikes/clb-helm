@@ -13,8 +13,8 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -36,9 +36,35 @@ public class Race {
     private String mainMarketStatusId;
     private String resultsDisplay;
 
-//    public List<String> getMarketIds() {
-//        Gson gson = new Gson();
-//        Type type =new TypeToken<List<String>>() {}.getType();
-//        return gson.fromJson(marketIds, type);
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Race)) return false;
+
+        Race race = (Race) o;
+
+        if (!Objects.equals(raceId, race.raceId)) return false;
+        if (!Objects.equals(meetingId, race.meetingId)) return false;
+        if (!Objects.equals(name, race.name)) return false;
+        if (!Objects.equals(number, race.number)) return false;
+        if (!Objects.equals(advertisedStart, race.advertisedStart))
+            return false;
+        if (!Objects.equals(actualStart, race.actualStart)) return false;
+        if (!Objects.equals(mainMarketStatusId, race.mainMarketStatusId))
+            return false;
+        return Objects.equals(resultsDisplay, race.resultsDisplay);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = raceId != null ? raceId.hashCode() : 0;
+        result = 31 * result + (meetingId != null ? meetingId.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (number != null ? number.hashCode() : 0);
+        result = 31 * result + (advertisedStart != null ? advertisedStart.hashCode() : 0);
+        result = 31 * result + (actualStart != null ? actualStart.hashCode() : 0);
+        result = 31 * result + (mainMarketStatusId != null ? mainMarketStatusId.hashCode() : 0);
+        result = 31 * result + (resultsDisplay != null ? resultsDisplay.hashCode() : 0);
+        return result;
+    }
 }
