@@ -17,6 +17,7 @@ import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.model.VenueRawData;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
+import io.r2dbc.spi.Parameter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -28,10 +29,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -77,8 +77,14 @@ public class CrawlService {
         List<RaceRawData> ausRace = ladBrokedItMeetingDto.getRaces()
                 .values().stream().filter(r -> raceIds.contains(r.getId())).collect(Collectors.toList());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
+        List<RaceRawData> newRacesList = new ArrayList<>();
+        for(RaceRawData raceRawData : ausRace){
+            if(Instant.parse(raceRawData.getActualStart()).isAfter(Instant.now().minusSeconds(600))){
+                newRacesList.add(raceRawData);
+            }
+        }
         for (MeetingRawData localMeeting : ausMeetings) {
-            List<RaceRawData> localRace = ausRace.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId()))
+            List<RaceRawData> localRace = newRacesList.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId()))
                     .collect(Collectors.toList());
 
             MeetingDto meetingDto = MeetingMapper.toMeetingDto(localMeeting, localRace);
@@ -87,7 +93,7 @@ public class CrawlService {
         saveMeeting(ausMeetings);
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         saveRace(raceDtoList);
-        getRaceByIds(ausRace.stream().map(RaceRawData::getId).collect(Collectors.toList())).subscribe();
+        getRaceByIds(newRacesList.stream().map(RaceRawData::getId).collect(Collectors.toList())).subscribe();
         return meetingDtoList;
     }
 
