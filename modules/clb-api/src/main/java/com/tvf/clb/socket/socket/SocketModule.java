@@ -6,7 +6,7 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.tvf.clb.base.dto.EntrantMapper;
-import com.tvf.clb.service.service.EntrantService;
+import com.tvf.clb.service.service.CrawlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class SocketModule {
     private final Map<String, Disposable> subscriptions = new ConcurrentHashMap<>();
 
     @Autowired
-    private EntrantService entrantService;
+    private CrawlService crawlService;
 
     public SocketModule(SocketIOServer server) {
         this.server = server;
@@ -68,7 +68,7 @@ public class SocketModule {
 
     private Disposable sendNewPrices(SocketIOClient senderClient, String request) {
             return Flux.interval(Duration.ofSeconds(20L))
-                    .flatMap(tick -> entrantService.getEntrantsByRaceId(request)
+                    .flatMap(tick -> crawlService.getRaceById(request)
                             .map(EntrantMapper::toEntrantResponseDto)
                             .collectList()
                     )
