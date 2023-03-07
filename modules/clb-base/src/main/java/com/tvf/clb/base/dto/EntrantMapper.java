@@ -55,5 +55,13 @@ public class EntrantMapper {
                 .build();
     }
 
+    public static EntrantResponseDto toEntrantResponseDto (EntrantDto entrant) {
+        return EntrantResponseDto.builder()
+                .entrantId(entrant.getId())
+                .entrantName(entrant.getName())
+                .priceFluctuations(entrant.getPriceFluctuations())
+                .build();
+    }
+
     private static final Gson gson = new Gson();
 }
