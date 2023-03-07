@@ -4,19 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.internal.LinkedTreeMap;
 import com.tvf.clb.base.dto.*;
-import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.entity.Meeting;
-import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.base.entity.Results;
+import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.service.repository.EntrantRepository;
-import com.tvf.clb.service.repository.MeetingRepository;
-import com.tvf.clb.service.repository.RaceRepository;
-import com.tvf.clb.service.repository.ResultsRepository;
+import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -54,6 +47,9 @@ public class CrawlService {
     @Autowired
     private ResultsRepository resultsRepository;
 
+    @Autowired
+    AdditionalInfoResponse additionalInfoResponse;
+
 
     public Mono<List<MeetingDto>> getTodayMeetings(LocalDate date) {
         return Mono.fromSupplier(() -> {
@@ -85,9 +81,9 @@ public class CrawlService {
         List<MeetingDto> meetingDtoList = new ArrayList<>();
         List<RaceRawData> newRacesList = new ArrayList<>();
         for(RaceRawData raceRawData : ausRace){
-            if(Instant.parse(raceRawData.getActualStart()).isAfter(Instant.now().minusSeconds(TIME_VALIDATE_START))){
+            //if(Instant.parse(raceRawData.getActualStart()).isAfter(Instant.now().minusSeconds(TIME_VALIDATE_START))){
                 newRacesList.add(raceRawData);
-            }
+           // }
         }
         for (MeetingRawData localMeeting : ausMeetings) {
             List<RaceRawData> localRace = newRacesList.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId()))
@@ -118,8 +114,13 @@ public class CrawlService {
             JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
             Gson gson = new Gson();
             LadBrokedItRaceDto raceDto = gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
-            LinkedTreeMap<String, Object>  additionalInfo = (LinkedTreeMap<String, Object>) raceDto.getAdditionalInfo();
-            List<ResultsRawData>  results =  raceDto.getResults().values().stream().collect(Collectors.toList());
+            JsonObject races =  raceDto.getRaces();
+            RaceRawData racesRawData = gson.fromJson(races.get(raceId), RaceRawData.class);
+            AdditionalInfo additionalInfo = RaceResponseMapper.toAdditionalInfo(racesRawData,raceId);
+            additionalInfoResponse.save(additionalInfo).subscribe();
+            List<ResultsRawData>  results =  raceDto.getResults().values().stream().map(r -> {
+                ResultsRawData resultsRawData = ResultMapper.mapRaceID(r,raceId);
+                return resultsRawData;}).collect(Collectors.toList());
             if(results.size() >0) {
                 saveResults(results);
             }

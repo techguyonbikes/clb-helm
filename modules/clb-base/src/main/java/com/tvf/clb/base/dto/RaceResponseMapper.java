@@ -1,8 +1,10 @@
 package com.tvf.clb.base.dto;
 
 import com.google.gson.Gson;
+import com.tvf.clb.base.entity.AdditionalInfo;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.model.RaceRawData;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,6 +22,17 @@ public class RaceResponseMapper {
                 .raceName(race.getName())
                 .distance("500m")
                 .state(meeting.getState())
+                .build();
+    }
+    public static AdditionalInfo toAdditionalInfo(RaceRawData raceRawData , String id) {
+        return AdditionalInfo.builder()
+                .distance(raceRawData.getAdditionalInfo().getDistance())
+                .raceId(id)
+                .generated(raceRawData.getAdditionalInfo().getGenerated())
+                .trackCondition(raceRawData.getAdditionalInfo().getTrackCondition().getName())
+                .weather(raceRawData.getAdditionalInfo().getWeather().getName())
+                .raceComment(raceRawData.getAdditionalInfo().getRaceComment())
+                .silkBaseUrl(raceRawData.getAdditionalInfo().getSilkBaseUrl())
                 .build();
     }
 

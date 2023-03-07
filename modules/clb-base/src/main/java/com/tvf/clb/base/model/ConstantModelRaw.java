@@ -12,14 +12,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResultsRawData {
-
-    private String raceId;
-    @SerializedName("entrant_id")
-    private String entranId;
-    @SerializedName("market_id")
-    private String marketId;
-    private Integer position;
-    @SerializedName("result_status_id")
-    private String resultStatusId;
+public class ConstantModelRaw {
+    private String name;
+    @SerializedName("short_name")
+    private String shortName;
 }
+
