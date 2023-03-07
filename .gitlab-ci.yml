@@ -27,8 +27,7 @@ test_deploy_gcp:   # This job runs in the test stage.
   when: manual
   script:
     - echo "try to deploy redis"
-    - helm repo add bitnami https://charts.bitnami.com/bitnami
-    - helm install cloudbet bitnami/redis
+    - kubectl get all
 
 test_deploy_dev:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
