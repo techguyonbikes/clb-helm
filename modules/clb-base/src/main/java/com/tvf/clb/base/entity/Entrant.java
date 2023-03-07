@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -36,6 +37,8 @@ public class Entrant {
     private Integer barrier;
     private boolean visible;
     private String marketId;
+    private boolean isScratched;
+    private Instant scratchedTime;
     @JsonSerialize(using = PgJsonObjectSerializer.class)
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
     private Json priceFluctuations;
@@ -58,6 +61,8 @@ public class Entrant {
         ArrayList<Double> prices = gson.fromJson(priceFluctuations.asString(), ArrayList.class);
         ArrayList<Double> entrantPrices = gson.fromJson(entrant.priceFluctuations.asString(), ArrayList.class);
         if ((prices == null || entrantPrices == null) || !compareArrayLists(prices, entrantPrices)) return false;
+        if (isScratched != entrant.isScratched) return false;
+        if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
         return Objects.equals(marketId, entrant.marketId);
     }
 
@@ -88,6 +93,8 @@ public class Entrant {
         result = 31 * result + (barrier != null ? barrier.hashCode() : 0);
         result = 31 * result + (visible ? 1 : 0);
         result = 31 * result + (marketId != null ? marketId.hashCode() : 0);
+        result = 31 * result + (isScratched ? 1 : 0);
+        result = 31 * result + (scratchedTime != null ? scratchedTime.hashCode() : 0);
         return result;
     }
 }

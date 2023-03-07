@@ -1,14 +1,13 @@
 package com.tvf.clb.service.repository;
 
 import com.tvf.clb.base.entity.Entrant;
+import com.tvf.clb.base.entity.Results;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface EntrantRepository extends R2dbcRepository<Entrant, Long> {
-    Flux<Entrant> findByRaceId(String id);
+public interface ResultsRepository extends R2dbcRepository<Results, UUID> {
 
-    Flux<Entrant> findAllByEntrantIdIn(List<String> entrantIds);
 }

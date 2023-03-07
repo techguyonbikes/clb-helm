@@ -111,6 +111,8 @@ public class MeetingMapper {
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
                 .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations())))
+                .isScratched(entrantRawData.isScratched())
+                .scratchedTime(entrantRawData.getScratchedTime())
                 .build();
     }
 
