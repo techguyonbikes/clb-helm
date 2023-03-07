@@ -3,8 +3,18 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - deploy
 
-build-job:       # This job runs in the build stage, which runs first.
+build-dev:       # This job runs in the build stage, which runs first.
   stage: build
+  environment:
+    name: dev
+  script:
+    - echo "Compiling the code..."
+    - echo "Compile complete."
+
+build-gcp:       # This job runs in the build stage, which runs first.
+  stage: build
+  environment:
+    name: gcp
   script:
     - echo "Compiling the code..."
     - echo "Compile complete."
