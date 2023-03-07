@@ -22,6 +22,8 @@ build-gcp:       # This job runs in the build stage, which runs first.
 test_deploy_gcp:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   environment: gcp
+  image:
+    name: dtzar/helm-kubectl
   when: manual
   script:
     - echo "try to deploy redis"
