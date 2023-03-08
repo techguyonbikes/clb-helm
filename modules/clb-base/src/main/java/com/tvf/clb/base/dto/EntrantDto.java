@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 public class EntrantDto {
     private String id;
-    private String raceId;
     private String name;
     private Integer barrier;
     private Integer number;
@@ -26,4 +25,5 @@ public class EntrantDto {
     private List<Float> priceFluctuations;
     private boolean isScratched;
     private Instant scratchedTime;
+    private Integer position;
 }

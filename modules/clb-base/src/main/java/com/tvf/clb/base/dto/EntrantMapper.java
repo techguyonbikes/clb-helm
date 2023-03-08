@@ -19,7 +19,6 @@ public class EntrantMapper {
     public static EntrantDto toEntrantDto(EntrantRawData entrant, List<Float> prices) {
         return EntrantDto.builder()
                 .id(entrant.getId())
-                .raceId(entrant.getRaceId())
                 .name(entrant.getName())
                 .marketId(entrant.getMarketId())
                 .number(entrant.getNumber())
@@ -28,11 +27,12 @@ public class EntrantMapper {
                 .priceFluctuations(prices)
                 .isScratched(entrant.isScratched())
                 .scratchedTime(entrant.getScratchedTime())
+                .position(entrant.getPosition())
                 .build();
     }
 
 
-    public static EntrantRawData mapPrices(EntrantRawData entrant, List<Float> prices) {
+    public static EntrantRawData mapPrices(EntrantRawData entrant, List<Float> prices,Integer position) {
         return EntrantRawData.builder()
                 .id(entrant.getId())
                 .raceId(entrant.getRaceId())
@@ -44,6 +44,7 @@ public class EntrantMapper {
                 .priceFluctuations(prices)
                 .isScratched(entrant.isScratched())
                 .scratchedTime(entrant.getScratchedTime())
+                .position(position)
                 .build();
     }
 

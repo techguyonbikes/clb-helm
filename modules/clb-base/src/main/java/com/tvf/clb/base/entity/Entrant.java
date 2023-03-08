@@ -42,6 +42,8 @@ public class Entrant {
     @JsonSerialize(using = PgJsonObjectSerializer.class)
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
     private Json priceFluctuations;
+    private Integer position;
+
 
 
     @Override
@@ -63,6 +65,7 @@ public class Entrant {
         if ((prices == null || entrantPrices == null) || !compareArrayLists(prices, entrantPrices)) return false;
         if (isScratched != entrant.isScratched) return false;
         if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
+        if (!Objects.equals(position, entrant.position)) return false;
         return Objects.equals(marketId, entrant.marketId);
     }
 
@@ -94,7 +97,8 @@ public class Entrant {
         result = 31 * result + (visible ? 1 : 0);
         result = 31 * result + (marketId != null ? marketId.hashCode() : 0);
         result = 31 * result + (isScratched ? 1 : 0);
-        result = 31 * result + (scratchedTime != null ? scratchedTime.hashCode() : 0);
+        result = 31 * result + (isScratched ? 1 : 0);
+        result = 31 * result + (position != null ? position.hashCode() : 0);
         return result;
     }
 }

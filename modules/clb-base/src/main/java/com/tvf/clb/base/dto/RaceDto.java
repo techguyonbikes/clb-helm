@@ -24,4 +24,6 @@ public class RaceDto {
     private List<String> marketIds;
     private String mainMarketStatusId;
     private String resultsDisplay;
+    private Integer distance;
+
 }

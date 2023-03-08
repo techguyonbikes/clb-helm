@@ -1,11 +1,7 @@
 ALTER TABLE  entrant
     ADD is_scratched BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD scratched_time TIMESTAMP WITH TIME ZONE;
-CREATE TABLE IF NOT EXISTS results (
-      id bigserial PRIMARY KEY,
-      race_id VARCHAR(255),
-      entrant_id VARCHAR(255),
-      market_id VARCHAR(36) NOT NULL,
-      position INT NOT NULL,
-      result_status_id VARCHAR(36) NOT NULL
-    );
+    ADD scratched_time TIMESTAMP WITH TIME ZONE,
+    ADD position INT NOT NULL;
+
+ALTER TABLE  race
+    ADD distance INT;

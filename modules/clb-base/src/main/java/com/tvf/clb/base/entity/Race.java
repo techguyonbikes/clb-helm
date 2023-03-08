@@ -36,6 +36,8 @@ public class Race {
     private String mainMarketStatusId;
     private String resultsDisplay;
 
+    private Integer distance;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -51,7 +53,7 @@ public class Race {
             return false;
         if (!Objects.equals(actualStart, race.actualStart)) return false;
         if (!Objects.equals(mainMarketStatusId, race.mainMarketStatusId))
-            return false;
+        if (!Objects.equals(distance, race.distance)) return false;
         return Objects.equals(resultsDisplay, race.resultsDisplay);
     }
 
@@ -65,6 +67,7 @@ public class Race {
         result = 31 * result + (actualStart != null ? actualStart.hashCode() : 0);
         result = 31 * result + (mainMarketStatusId != null ? mainMarketStatusId.hashCode() : 0);
         result = 31 * result + (resultsDisplay != null ? resultsDisplay.hashCode() : 0);
+        result = 31 * result + (distance != null ? distance.hashCode() : 0);
         return result;
     }
 }

@@ -34,6 +34,8 @@ public class EntrantRawData {
     private boolean isScratched;
     @SerializedName("scratch_time")
     private Instant scratchedTime;
+    @SerializedName("position")
+    private Integer position;
 }
 
 @Getter

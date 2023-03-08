@@ -3,8 +3,6 @@ package com.tvf.clb.base.dto;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import com.tvf.clb.base.model.EntrantRawData;
-import com.tvf.clb.base.model.RaceRawData;
-import com.tvf.clb.base.model.ResultsRawData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +27,7 @@ public class LadBrokedItRaceDto {
     private Object substitutions;
 
     //private Object results;
-    private HashMap<String, ResultsRawData> results;
+    private JsonObject results;
     private HashMap<String, EntrantRawData> entrants;
     @SerializedName("price_fluctuations")
     private HashMap<String, ArrayList<Float>> priceFluctuations;
