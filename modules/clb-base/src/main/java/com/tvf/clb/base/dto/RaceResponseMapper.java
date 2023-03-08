@@ -17,7 +17,7 @@ public class RaceResponseMapper {
                 .type(meeting.getRaceType())
                 .date(race.getActualStart())
                 .raceName(race.getName())
-                .distance(100)
+                .distance(race.getDistance())
                 .state(meeting.getState())
                 .build();
     }

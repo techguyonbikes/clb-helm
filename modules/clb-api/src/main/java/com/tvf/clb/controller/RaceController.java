@@ -28,7 +28,7 @@ public class RaceController {
     //today, do we need get 1 by 1 or bulk?
     @GetMapping("/crawl")
     public Flux<EntrantDto> crawlRaceById(@RequestParam(value = "id", required = true) String id) {
-        return crawlService.getEntrantRaceById(id);
+        return crawlService.getEntrantByRaceId(id);
     }
 
     @GetMapping("")

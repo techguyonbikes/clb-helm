@@ -68,7 +68,7 @@ public class SocketModule {
 
     private Disposable sendNewPrices(SocketIOClient senderClient, String request) {
             return Flux.interval(Duration.ofSeconds(20L))
-                    .flatMap(tick -> crawlService.getEntrantRaceById(request)
+                    .flatMap(tick -> crawlService.getEntrantByRaceId(request)
                             .map(EntrantMapper::toEntrantResponseDto)
                             .collectList()
                     )

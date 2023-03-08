@@ -107,11 +107,11 @@ public class CrawlService {
         return Flux.fromIterable(raceIds)
                 .parallel() // create a parallel flux
                 .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
-                .flatMap(this::getEntrantRaceById) // call the getRaceById method for each raceId
+                .flatMap(this::getEntrantByRaceId) // call the getRaceById method for each raceId
                 .sequential(); // convert back to a sequential flux
     }
 
-    public Flux<EntrantDto> getEntrantRaceById(String raceId) {
+    public Flux<EntrantDto> getEntrantByRaceId(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
             JsonObject results = raceDto.getResults();
