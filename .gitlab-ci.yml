@@ -23,11 +23,11 @@ test_deploy_gcp:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   environment: gcp
   image:
-    name: kiwigrid/gcloud-kubectl-helm
+    name: google/cloud-sdk
   when: manual
   script:
     - echo "try to deploy redis"
-    - echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+    - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
       gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
     - gcloud container clusters get-credentials cloudbet-cluster --region asia-east1 --project reflecting-card-371713
     - kubectl get all
