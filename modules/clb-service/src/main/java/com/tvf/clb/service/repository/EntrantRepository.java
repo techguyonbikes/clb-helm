@@ -7,7 +7,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.UUID;
 
-public interface EntrantRepository extends R2dbcRepository<Entrant, UUID> {
+public interface EntrantRepository extends R2dbcRepository<Entrant, Long> {
     Flux<Entrant> findByRaceId(String id);
 
     Flux<Entrant> findAllByEntrantIdIn(List<String> entrantIds);

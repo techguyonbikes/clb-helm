@@ -1,22 +1,12 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.tvf.clb.base.dto.*;
-import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.service.repository.EntrantRepository;
-import com.tvf.clb.service.repository.MeetingRepository;
-import com.tvf.clb.service.repository.RaceRepository;
-import com.tvf.clb.base.entity.Meeting;
-import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.base.model.EntrantRawData;
-import com.tvf.clb.base.model.MeetingRawData;
-import com.tvf.clb.base.model.RaceRawData;
-import com.tvf.clb.base.model.VenueRawData;
+import com.tvf.clb.base.entity.*;
+import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -28,11 +18,13 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.tvf.clb.base.utils.AppConstant.TIME_VALIDATE_START;
 
 
 @Service
@@ -77,42 +69,62 @@ public class CrawlService {
         List<RaceRawData> ausRace = ladBrokedItMeetingDto.getRaces()
                 .values().stream().filter(r -> raceIds.contains(r.getId())).collect(Collectors.toList());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
+        List<RaceRawData> newRacesList = new ArrayList<>();
+        for (RaceRawData raceRawData : ausRace) {
+            if (Instant.parse(raceRawData.getActualStart()).isAfter(Instant.now().minusSeconds(TIME_VALIDATE_START))) {
+                newRacesList.add(raceRawData);
+            }
+        }
         for (MeetingRawData localMeeting : ausMeetings) {
-            List<RaceRawData> localRace = ausRace.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId()))
+            List<RaceRawData> localRace = newRacesList.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId()))
                     .collect(Collectors.toList());
 
             MeetingDto meetingDto = MeetingMapper.toMeetingDto(localMeeting, localRace);
             meetingDtoList.add(meetingDto);
         }
         saveMeeting(ausMeetings);
-        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
+        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).map(r->{
+            LadBrokedItRaceDto raceDto = null;
+            try {
+                raceDto = getLadBrokedItRaceDto(r.getId());
+                String distance = raceDto.getRaces().getAsJsonObject(r.getId()).getAsJsonObject("additional_info").get("distance").getAsString();
+                if (distance == null) {
+                    r.setDistance(0);
+                } else {
+                    r.setDistance(Integer.valueOf(distance));
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+           return r;
+        }).collect(Collectors.toList());
         saveRace(raceDtoList);
-        getRaceByIds(ausRace.stream().map(RaceRawData::getId).collect(Collectors.toList())).subscribe();
+        getEntrantRaceByIds(newRacesList.stream().map(RaceRawData::getId).collect(Collectors.toList())).subscribe();
         return meetingDtoList;
     }
 
-    public Flux<EntrantDto> getRaceByIds(List<String> raceIds) {
+    public Flux<EntrantDto> getEntrantRaceByIds(List<String> raceIds) {
         return Flux.fromIterable(raceIds)
                 .parallel() // create a parallel flux
                 .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
-                .flatMap(this::getRaceById) // call the getRaceById method for each raceId
+                .flatMap(this::getEntrantByRaceId) // call the getRaceById method for each raceId
                 .sequential(); // convert back to a sequential flux
     }
 
-    public Flux<EntrantDto> getRaceById(String raceId) {
-        String url = AppConstant.LAD_BROKES_IT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
+    public Flux<EntrantDto> getEntrantByRaceId(String raceId) {
         try {
-            Response response = ApiUtils.get(url);
-            JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
-            Gson gson = new Gson();
-            LadBrokedItRaceDto raceDto = gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
+            LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
+            JsonObject results = raceDto.getResults();
+            Map<String, Integer> positions = new HashMap<>();
+            if(results !=null) {
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+            }
+            else{
+                positions.put("position",0);
+            }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null && r.getId() != null).map(r -> {
-                List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.get(r.getId());
-                EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices);
-                entrantRawData.setRaceId(raceId);
-                return entrantRawData;
-            }).collect(Collectors.toList());
+            List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+
             saveEntrant(allEntrant);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
@@ -181,19 +193,39 @@ public class CrawlService {
                 .collectList()
                 .subscribe(existed ->
                         {
-                             newEntrants.addAll(existed);
-                             List<Entrant> entrantNeedUpdateOrInsert = newEntrants.stream().distinct().peek(e ->
-                             {
-                                 if (e.getId() == null) {
-                                     existed.stream()
-                                             .filter(x -> x.getEntrantId().equals(e.getEntrantId()))
-                                             .findFirst()
-                                             .ifPresent(entrant -> e.setId(entrant.getId()));
-                                 }
-                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
-                             log.info("Entrant need to be update is " + entrantNeedUpdateOrInsert.size());
-                             entrantRepository.saveAll(entrantNeedUpdateOrInsert).subscribe();
+                            newEntrants.addAll(existed);
+                            List<Entrant> entrantNeedUpdateOrInsert = newEntrants.stream().distinct().peek(e ->
+                            {
+                                if (e.getId() == null) {
+                                    existed.stream()
+                                            .filter(x -> x.getEntrantId().equals(e.getEntrantId()))
+                                            .findFirst()
+                                            .ifPresent(entrant -> e.setId(entrant.getId()));
+                                }
+                            }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
+                            log.info("Entrant need to be update is " + entrantNeedUpdateOrInsert.size());
+                            entrantRepository.saveAll(entrantNeedUpdateOrInsert).subscribe();
                         }
                 );
+    }
+
+    public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, HashMap<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
+        List<EntrantRawData> allEntrant = raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null && r.getId() != null).map(r -> {
+            List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.get(r.getId());
+            Integer entrantPosition = positions.get(r.getId()) == null ? 0 : positions.get(r.getId());
+            EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
+            entrantRawData.setRaceId(raceId);
+            return entrantRawData;
+        }).collect(Collectors.toList());
+        return allEntrant;
+    }
+
+    public LadBrokedItRaceDto getLadBrokedItRaceDto(String raceId) throws IOException {
+        String url = AppConstant.LAD_BROKES_IT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
+        Response response = ApiUtils.get(url);
+        JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
+        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").create();
+        LadBrokedItRaceDto raceDto = gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
+        return raceDto;
     }
 }

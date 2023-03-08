@@ -1,6 +1,5 @@
 package com.tvf.clb.base.dto;
 
-import com.google.gson.Gson;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import org.springframework.stereotype.Component;
@@ -18,9 +17,8 @@ public class RaceResponseMapper {
                 .type(meeting.getRaceType())
                 .date(race.getActualStart())
                 .raceName(race.getName())
-                .distance("500m")
+                .distance(race.getDistance())
                 .state(meeting.getState())
                 .build();
     }
-
 }

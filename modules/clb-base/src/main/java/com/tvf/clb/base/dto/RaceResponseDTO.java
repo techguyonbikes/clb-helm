@@ -17,5 +17,5 @@ public class RaceResponseDTO {
     String state;
     String stateName;
     String raceName;
-    String distance;
+    Integer distance;
 }

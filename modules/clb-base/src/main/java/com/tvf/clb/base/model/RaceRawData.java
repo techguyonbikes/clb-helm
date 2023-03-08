@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RaceRawData {
     private String id;
+    @SerializedName("meeting_id")
     private String meetingId;
     private String name;
     private Integer number;
@@ -29,6 +30,9 @@ public class RaceRawData {
     private String mainMarketStatusId;
     @SerializedName("results_display")
     private String resultsDisplay;
-    @SerializedName("additional_info")
-    private Object additionalInfo;
+
+    private Integer distance;
+
 }
+
+
