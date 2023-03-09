@@ -4,4 +4,5 @@ ALTER TABLE  entrant
     ADD position INT NOT NULL;
 
 ALTER TABLE  race
-    ADD distance INT;
+    ADD distance INT,
+    ADD status VARCHAR(255);

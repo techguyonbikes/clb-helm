@@ -113,7 +113,7 @@ public class MeetingMapper {
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
                 .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations())))
-                .isScratched(entrantRawData.getIsScratched())
+                .isScratched(entrantRawData.getIsScratched() == null ? false : true)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
                 .build();

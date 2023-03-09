@@ -25,7 +25,7 @@ public class EntrantMapper {
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
                 .priceFluctuations(prices)
-                .isScratched(entrant.getIsScratched())
+                .isScratched(entrant.getIsScratched() ==null ? false :true)
                 .scratchedTime(entrant.getScratchedTime())
                 .position(entrant.getPosition())
                 .build();
