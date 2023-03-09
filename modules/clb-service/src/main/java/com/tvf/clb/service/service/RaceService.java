@@ -18,14 +18,11 @@ import java.util.Comparator;
 public class RaceService {
     @Autowired
     private RaceRepository raceRepository;
-
     @Autowired
     private MeetingService meetingService;
-
     public Mono<Race> getRaceById(String raceId) {
         return raceRepository.findRaceByRaceId(raceId);
     }
-
     public Flux<RaceResponseDTO> getListSideBarRaces(LocalDate date) {
         LocalDateTime maxDateTime = date.atTime(LocalTime.MAX);
         LocalDateTime minDateTime = date.atTime(LocalTime.MIN);

@@ -31,7 +31,7 @@ public class EntrantRawData {
     @SerializedName("form_summary")
     private FormSummaryRawData formSummary;
     @SerializedName("is_scratched")
-    private Boolean isScratched;
+    private String isScratched;
     @SerializedName("scratch_time")
     private Instant scratchedTime;
     @SerializedName("position")
