@@ -1,15 +1,10 @@
 package com.tvf.clb.base.dto;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.model.EntrantRawData;
-import io.r2dbc.postgresql.codec.Json;
-import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +56,7 @@ public class EntrantMapper {
                 .entrantId(entrant.getId())
                 .entrantName(entrant.getName())
                 .priceFluctuations(entrant.getPriceFluctuations())
+                .position(entrant.getPosition())
                 .build();
     }
 

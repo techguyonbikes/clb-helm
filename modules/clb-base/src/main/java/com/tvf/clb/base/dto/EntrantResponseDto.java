@@ -16,4 +16,5 @@ public class EntrantResponseDto {
     private String entrantId;
     private Object priceFluctuations;
     private String entrantName;
+    private Integer position;
 }
