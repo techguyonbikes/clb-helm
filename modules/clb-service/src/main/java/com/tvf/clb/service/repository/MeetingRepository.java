@@ -11,6 +11,5 @@ import java.util.List;
 @Repository
 public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     Mono<Meeting> findByMeetingId(String meetingId);
-
     Flux<Meeting> findAllByMeetingIdIn(List<String> meetingIds);
 }

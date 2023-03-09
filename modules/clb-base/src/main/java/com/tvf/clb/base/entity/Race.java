@@ -70,4 +70,17 @@ public class Race {
         result = 31 * result + (distance != null ? distance.hashCode() : 0);
         return result;
     }
+    public enum Status {
+        O("OPEN"),
+        F("FINAL"),
+        C("CLOSE");
+
+        public final String label;
+
+        Status(String label) {
+            this.label = label;
+        }
+    }
+
+
 }

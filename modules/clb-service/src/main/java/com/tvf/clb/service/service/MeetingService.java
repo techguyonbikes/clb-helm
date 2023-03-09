@@ -14,11 +14,6 @@ public class MeetingService {
 
     @Autowired
     private MeetingRepository meetingRepository;
-
-    public Flux<Meeting> getAllMeetings() {
-        return meetingRepository.findAll();
-    }
-
     public Mono<Meeting> getMeetingByMeetingId(String meetingId) {
         return meetingRepository.findByMeetingId(meetingId);
     }
