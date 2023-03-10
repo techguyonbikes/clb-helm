@@ -6,6 +6,7 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.tvf.clb.base.dto.EntrantMapper;
+import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.service.service.CrawlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 @Component
 @Slf4j
@@ -67,18 +69,19 @@ public class SocketModule {
     }
 
     private Disposable sendNewPrices(SocketIOClient senderClient, String request) {
-            return Flux.interval(Duration.ofSeconds(20L))
-                    .flatMap(tick -> crawlService.getEntrantByRaceId(request)
-                            .map(EntrantMapper::toEntrantResponseDto)
-                            .collectList()
-                    )
-                    .doOnNext(entrantList ->
-                    {
-                        senderClient.sendEvent("new_prices", entrantList);
-                    })
+
+        Predicate<List<EntrantResponseDto>> stopEmittingCondition = entrants -> entrants.stream().anyMatch(entrant -> entrant.getPosition() > 0);
+
+        return Flux.interval(Duration.ofSeconds(20L))
+                .flatMap(tick -> crawlService.getEntrantByRaceId(request).map(EntrantMapper::toEntrantResponseDto).collectList())
+                .doOnNext(entrantList -> senderClient.sendEvent("new_prices", entrantList))
+                .takeWhile(stopEmittingCondition.negate())
+                .doOnComplete(() -> {
+                    senderClient.sendEvent("subscription", "race has finished");
+                    subscriptions.remove(senderClient.getSessionId().toString());
+                })
 //                    .doOnError(throwable -> log.error("Socket ID[{}] - Error in subscription: {}", senderClient.getSessionId().toString(), throwable.getMessage()))
-//                    .doOnComplete(() -> log.info("Socket ID[{}] - Subscription complete with raceId[{}]", senderClient.getSessionId().toString(), request))
-                    .subscribe();
+                .subscribe();
     }
 
     private ConnectListener onConnected() {
