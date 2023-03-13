@@ -7,11 +7,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class RaceResponseMapper {
 
+    private static final String SIDE_NAME_PREFIX = "R";
 
     public static RaceResponseDTO toRaceResponseDTO(Meeting meeting, Race race) {
         return RaceResponseDTO.builder()
                 .raceId(race.getRaceId())
-                .sideName(meeting.getRaceType().charAt(meeting.getRaceType().indexOf(" ") + 1) + race.getNumber().toString() + " " + meeting.getName())
+                .sideName(SIDE_NAME_PREFIX + race.getNumber().toString() + " " + meeting.getName())
                 .meetingName(meeting.getName())
                 .number(race.getNumber())
                 .type(meeting.getRaceType())
