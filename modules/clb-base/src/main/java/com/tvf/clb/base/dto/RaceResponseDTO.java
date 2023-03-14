@@ -9,6 +9,7 @@ import java.time.Instant;
 @Builder
 public class RaceResponseDTO {
     String raceId;
+    String meetingId;
     String sideName;
     String meetingName;
     Integer number;

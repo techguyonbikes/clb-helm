@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
@@ -23,6 +24,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Table("race")
 public class Race {
+    @Id
     private Long id;
     private String raceId;
     private String meetingId;
