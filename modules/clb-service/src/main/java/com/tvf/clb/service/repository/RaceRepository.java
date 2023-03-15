@@ -17,4 +17,6 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     @Query("Update clb_db.race set distance =:distance , status =:status  WHERE race_id =:raceId")
     Mono<Race> setUpdateRaceByRaceId(@Param("raceId") String raceId, @Param("distance") Integer distance, @Param("status") String status);
 
+    @Query("select r.race_id  from clb_db.race r where r.id =:raceId")
+    Flux<String> getAllByRaceId(@Param("raceId") Long raceId);
 }

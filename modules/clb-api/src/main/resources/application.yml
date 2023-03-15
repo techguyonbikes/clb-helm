@@ -21,6 +21,12 @@ logging:
     console: "%d{ISO8601} %highlight(%-5level) [%blue(%t)] [%blue(%X{remoteAddr})] [%cyan(%X{tenant})] %yellow(%C{1.}): %msg%n%throwable"
     file: "%d %p %C{1.} [%t] [%X{remoteAddr}] [%X{tenant}] %m%n"
 spring:
+  redis:
+    host: redis-14403.c23894.asia-east1-mz.gcp.cloud.rlrcp.com
+    port: 14403
+    password: 3xDpHgRPbB4Kz591JZ3QNwNZPbZyepur
+  main:
+    allow-bean-definition-overriding: true
   webflux:
     base-path: /cloudbet/api
   r2dbc:
