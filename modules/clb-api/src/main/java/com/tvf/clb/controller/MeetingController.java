@@ -31,7 +31,7 @@ public class MeetingController {
     }
 
     @GetMapping("")
-    public Flux<MeetingDto> getTodayMeeting(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return meetingService.filterMeetingByDate(date);
+    public Flux<MeetingDto> getTodayMeeting() {
+        return meetingService.filterMeetingByDate();
     }
 }

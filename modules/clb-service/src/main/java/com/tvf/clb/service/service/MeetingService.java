@@ -21,10 +21,8 @@ public class MeetingService {
         return meetingRepository.findByMeetingId(meetingId);
     }
 
-    public Flux<MeetingDto> filterMeetingByDate(LocalDate date){
-        LocalDateTime dateTime = date.atTime(LocalTime.MIN);
-        Instant startDate = dateTime.atOffset(ZoneOffset.UTC).toInstant();
-        return meetingRepository.findMeetingByDate(startDate)
+    public Flux<MeetingDto> filterMeetingByDate(){
+        return meetingRepository.findMeetingByDate()
                 .map(r -> {
                     r.setRaceType(String.valueOf(r.getRaceType().charAt(0)));
                     return r;
