@@ -1,6 +1,5 @@
 package com.tvf.clb.base.dto;
 
-import com.google.gson.Gson;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import org.springframework.stereotype.Component;
@@ -8,19 +7,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class RaceResponseMapper {
 
+    private static final String SIDE_NAME_PREFIX = "R";
 
     public static RaceResponseDTO toRaceResponseDTO(Meeting meeting, Race race) {
         return RaceResponseDTO.builder()
                 .raceId(race.getRaceId())
-                .sideName(meeting.getRaceType().charAt(0) + race.getNumber().toString() + " " + meeting.getName())
+                .meetingId(meeting.getMeetingId())
+                .sideName(SIDE_NAME_PREFIX + race.getNumber().toString() + " " + meeting.getName())
                 .meetingName(meeting.getName())
                 .number(race.getNumber())
                 .type(meeting.getRaceType())
                 .date(race.getActualStart())
                 .raceName(race.getName())
-                .distance("500m")
+                .distance(race.getDistance())
                 .state(meeting.getState())
                 .build();
     }
-
 }

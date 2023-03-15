@@ -25,6 +25,8 @@
         <spring.boot.version>2.7.6</spring.boot.version>
         <flyway.version>6.4.4</flyway.version>
         <netty-socketio.version>1.7.17</netty-socketio.version>
+        <spring.fox.version>2.9.2</spring.fox.version>
+        <spring.fox.webflux.version>3.0.0</spring.fox.webflux.version>
     </properties>
 
     <dependencyManagement>
@@ -39,6 +41,21 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-r2dbc</artifactId>
                 <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${spring.fox.webflux.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-spring-webflux</artifactId>
+                <version>${spring.fox.webflux.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${spring.fox.version}</version>
             </dependency>
 
             <!--    Database        -->

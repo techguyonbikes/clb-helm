@@ -16,4 +16,6 @@ public class AppConstant {
     public static final String HARNESS_FEED_TYPE = "harness_racing";
     public static final String HORSE_FEED_TYPE = "horse_racing";
     public static final String GREYHOUND_FEED_TYPE = "greyhound_racing";
+    public static final String DATE_TIME_FORMAT_LONG = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    public static final long TIME_VALIDATE_START = 6000;
 }

@@ -17,7 +17,6 @@ public class EntrantService {
         return entrantRepository.findAll();
 
     }
-
     public Flux<Entrant> getEntrantsByRaceId(String id){
         return entrantRepository.findByRaceId(id);
     }

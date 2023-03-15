@@ -9,6 +9,7 @@ import java.time.Instant;
 @Builder
 public class RaceResponseDTO {
     String raceId;
+    String meetingId;
     String sideName;
     String meetingName;
     Integer number;
@@ -17,5 +18,5 @@ public class RaceResponseDTO {
     String state;
     String stateName;
     String raceName;
-    String distance;
+    Integer distance;
 }

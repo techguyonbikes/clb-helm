@@ -47,6 +47,7 @@ public class MeetingMapper {
                 .marketIds(race.getMarketIds())
                 .mainMarketStatusId(race.getMainMarketStatusId())
                 .resultsDisplay(race.getResultsDisplay())
+                .distance(race.getDistance())
                 .build();
     }
 
@@ -99,6 +100,7 @@ public class MeetingMapper {
                 .marketIds(Json.of(gson.toJson(raceDto.getMarketIds())))
                 .mainMarketStatusId(raceDto.getMainMarketStatusId())
                 .resultsDisplay(raceDto.getResultsDisplay())
+                .distance(raceDto.getDistance())
                 .build();
     }
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
@@ -111,6 +113,9 @@ public class MeetingMapper {
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
                 .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations())))
+                .isScratched(entrantRawData.getIsScratched() == null ? false : true)
+                .scratchedTime(entrantRawData.getScratchedTime())
+                .position(entrantRawData.getPosition())
                 .build();
     }
 

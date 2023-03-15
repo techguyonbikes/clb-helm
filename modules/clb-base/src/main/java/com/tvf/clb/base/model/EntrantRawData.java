@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -29,6 +30,12 @@ public class EntrantRawData {
     private List<Float> priceFluctuations;
     @SerializedName("form_summary")
     private FormSummaryRawData formSummary;
+    @SerializedName("is_scratched")
+    private String isScratched;
+    @SerializedName("scratch_time")
+    private Instant scratchedTime;
+    @SerializedName("position")
+    private Integer position;
 }
 
 @Getter

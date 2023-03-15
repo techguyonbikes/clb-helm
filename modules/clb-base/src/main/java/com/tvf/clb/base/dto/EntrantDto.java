@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
 import java.util.List;
 
 @Getter
@@ -16,11 +17,13 @@ import java.util.List;
 @NoArgsConstructor
 public class EntrantDto {
     private String id;
-    private String raceId;
     private String name;
     private Integer barrier;
     private Integer number;
     private String marketId;
     private Boolean visible;
     private List<Float> priceFluctuations;
+    private boolean isScratched;
+    private Instant scratchedTime;
+    private Integer position;
 }
