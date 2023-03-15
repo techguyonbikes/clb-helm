@@ -19,10 +19,9 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
 
     Flux<Meeting> findAllByMeetingIdIn(List<String> meetingIds);
 
-    @Query("select m.name as name, m.race_type, m.meeting_id as id, m.advertised_date\n" +
-            "from clb_db.meeting m \n" +
-            "where m.advertised_date::date = current_date ")
-    Flux<MeetingDto> findMeetingByDate();
+    @Query("select m.name as name, m.race_type, m.meeting_id as id" +
+            " from clb_db.meeting m where m.advertised_date = :date ")
+    Flux<MeetingDto> findMeetingByDate(@Param("date") Instant date);
 
     @Query("SELECT r.race_id, r.number, r.actual_start as date, r.name as race_name, r.distance, m.meeting_id, m.race_type as type, m.name as meeting_name , m.state as state" +
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.meeting_id = r.meeting_id" +
