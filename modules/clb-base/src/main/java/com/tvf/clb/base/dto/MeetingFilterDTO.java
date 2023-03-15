@@ -15,7 +15,6 @@ import java.time.Instant;
 @NoArgsConstructor
 @SuperBuilder
 public class MeetingFilterDTO {
-    private String type;
     private String meetingId;
-    private Instant advertisedDate;
+    private String meetingName;
 }

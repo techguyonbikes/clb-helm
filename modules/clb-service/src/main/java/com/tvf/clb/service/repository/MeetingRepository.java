@@ -1,5 +1,6 @@
 package com.tvf.clb.service.repository;
 
+import com.tvf.clb.base.dto.MeetingFilterDTO;
 import com.tvf.clb.base.dto.RaceResponseDTO;
 import com.tvf.clb.base.entity.Meeting;
 import org.springframework.data.r2dbc.repository.Query;
@@ -17,6 +18,9 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     Mono<Meeting> findByMeetingId(String meetingId);
 
     Flux<Meeting> findAllByMeetingIdIn(List<String> meetingIds);
+
+    @Query("select m.name as meeting_name, m.meeting_id from clb_db.meeting m where m.advertised_date between :startTime and :endTime")
+    Flux<MeetingFilterDTO> findMeetingByDate(@Param("endTime") Instant endTime, @Param("startTime") Instant startTime);
 
     @Query("SELECT r.race_id, r.number, r.actual_start as date, r.name as race_name, r.distance, m.meeting_id, m.race_type as type, m.name as meeting_name , m.state as state" +
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.meeting_id = r.meeting_id" +
