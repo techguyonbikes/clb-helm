@@ -27,8 +27,39 @@ package:
     - main
     - cicd
 
-deploy-job:
+build:
+  image:
+    name: docker:18.09
+    entrypoint: [""]
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  stage: build
+  script:
+    - ls
+    - cd modules/clb-api
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg GIT_FULL_BRANCH=$(git rev-parse --abbrev-ref HEAD) --build-arg SHORT_COMMIT_HASH=${CI_COMMIT_SHA:0:8} -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:latest
+  only:
+    - main
+    - cicd
+    - release
+
+deploy:
+  image:
+    name: docker:18.09
+  services:
+    - docker:18.09-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   stage: deploy
   script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - if docker ps | grep cloudbet; then echo docker stop clb && docker rm clb;fi
+    - docker run -d --name clb $CI_REGISTRY_IMAGE
