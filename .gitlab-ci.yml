@@ -42,7 +42,7 @@ build:
     - ls
     - cd modules/clb-api
     - docker login -u ducvu123 -p Mohoang1998 docker.io
-    - docker build --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') --build-arg GIT_FULL_BRANCH=$(git rev-parse --abbrev-ref HEAD) --build-arg SHORT_COMMIT_HASH=${CI_COMMIT_SHA:0:8} -t https://index.docker.io/ducvu123/cloudbet:$CI_COMMIT_SHA -t $https://index.docker.io/ducvu123/cloudbet:latest .
+    - docker build -t https://index.docker.io/ducvu123/cloudbet:$CI_COMMIT_SHA -t $https://index.docker.io/ducvu123/cloudbet:latest .
     - docker push $https://index.docker.io/ducvu123/cloudbet:latest
   only:
     - main
