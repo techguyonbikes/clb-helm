@@ -1,5 +1,6 @@
 package com.tvf.clb.service.service;
 
+import com.tvf.clb.base.dto.MeetingDto;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.service.repository.MeetingRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.*;
 
 @Service
 @Slf4j
@@ -16,6 +19,16 @@ public class MeetingService {
     private MeetingRepository meetingRepository;
     public Mono<Meeting> getMeetingByMeetingId(String meetingId) {
         return meetingRepository.findByMeetingId(meetingId);
+    }
+
+    public Flux<MeetingDto> filterMeetingByDate(LocalDate date){
+        LocalDateTime dateTime = date.atTime(LocalTime.MIN);
+        Instant startDate = dateTime.atOffset(ZoneOffset.UTC).toInstant();
+        return meetingRepository.findMeetingByDate(startDate)
+                .map(r -> {
+                    r.setRaceType(String.valueOf(r.getRaceType().charAt(0)));
+                    return r;
+                });
     }
 
 }
