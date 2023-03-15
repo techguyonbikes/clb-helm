@@ -69,8 +69,8 @@ deploy:
     - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
-    - pwd
     - ssh dukecorp@35.197.135.112
+    - pwd
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - if docker ps | grep cloudbet; then echo docker stop clb && docker rm clb;fi
     - docker run -d --name clb $CI_REGISTRY_IMAGE
