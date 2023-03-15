@@ -3,7 +3,7 @@ package com.tvf.clb.base.dto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.model.EntrantPriceRawData;
+import com.tvf.clb.base.model.EntrantSiteRawData;
 import com.tvf.clb.base.model.EntrantRawData;
 
 import java.time.Instant;
@@ -45,8 +45,8 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantPriceRawData mapPrices(EntrantRawData entrant, int siteId, String status) {
-        return EntrantPriceRawData.builder()
+    public static EntrantSiteRawData mapPrices(EntrantRawData entrant, int siteId, String status) {
+        return EntrantSiteRawData.builder()
                 .id(entrant.getId())
                 .raceId(entrant.getRaceId())
                 .name(entrant.getName())

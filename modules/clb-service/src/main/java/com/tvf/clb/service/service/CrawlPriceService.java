@@ -5,7 +5,7 @@ import com.tvf.clb.base.dto.EntrantMapper;
 import com.tvf.clb.base.dto.LadBrokedItRaceDto;
 import com.tvf.clb.base.dto.MeetingMapper;
 import com.tvf.clb.base.entity.*;
-import com.tvf.clb.base.model.EntrantPriceRawData;
+import com.tvf.clb.base.model.EntrantSiteRawData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.RaceEntrantDTO;
 import com.tvf.clb.service.repository.EntrantRepository;
@@ -107,15 +107,15 @@ public class CrawlPriceService {
      */
     public List<EntrantRedis> saveEntrantForRacing(List<RaceEntrantDTO> priceDTOS, Long raceId) {
 
-        List<EntrantPriceRawData> entrantPriceRawData = priceDTOS.stream()
+        List<EntrantSiteRawData> entrantSiteRawData = priceDTOS.stream()
                 .flatMap(priceDTO -> priceDTO.getAllEntrant()
                         .stream()
                         .map(entrant -> EntrantMapper.mapPrices(entrant, priceDTO.getSiteId(), priceDTO.getStatusRace())))
                 .collect(Collectors.toList()); // flat to stream of EntrantPriceRawData and collect all into a list
 
         // Map list EntrantPriceRawData to list EntrantRedis for saving
-        Map<EntrantPriceRawData, Map<Integer, List<Float>>> result = entrantPriceRawData.stream().collect(
-                Collectors.groupingBy(Function.identity(), Collectors.toMap(EntrantPriceRawData::getSiteId, EntrantPriceRawData::getPriceFluctuations)));
+        Map<EntrantSiteRawData, Map<Integer, List<Float>>> result = entrantSiteRawData.stream().collect(
+                Collectors.groupingBy(Function.identity(), Collectors.toMap(EntrantSiteRawData::getSiteId, EntrantSiteRawData::getPriceFluctuations)));
         List<EntrantRedis> entrantRedis = new ArrayList<>();
         result.keySet().forEach(
                 key -> entrantRedis.add(new EntrantRedis(key.getId(), raceId, key.getName(), key.getNumber(), key.getMarketId(), key.getStatus(), result.get(key)))

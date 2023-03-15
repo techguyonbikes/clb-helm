@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EntrantPriceRawData extends EntrantRawData {
+public class EntrantSiteRawData extends EntrantRawData {
     private int siteId;
     private String status;
 
