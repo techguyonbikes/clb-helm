@@ -73,5 +73,5 @@ deploy:
     - pwd
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - if docker ps | grep cloudbet; then echo docker stop clb && docker rm clb;fi
-    - docker run -d --name clb $CI_REGISTRY_IMAGE
+    - docker run -d -p 20001:20001 -p 20002:20002 --name clb $CI_REGISTRY_IMAGE
     - docker ps
