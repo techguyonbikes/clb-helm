@@ -1,7 +1,6 @@
 package com.tvf.clb.controller;
 
 import com.tvf.clb.base.dto.MeetingDto;
-import com.tvf.clb.base.dto.MeetingFilterDTO;
 import com.tvf.clb.service.service.CrawlService;
 import com.tvf.clb.service.service.MeetingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +28,5 @@ public class MeetingController {
     @GetMapping("/crawl")
     public Mono<List<MeetingDto>> crawlTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return crawlService.getTodayMeetings(date);
-    }
-    @GetMapping("")
-    public Flux<MeetingFilterDTO> getTodayMeeting(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return meetingService.filterMeetingByDate(date);
     }
 }

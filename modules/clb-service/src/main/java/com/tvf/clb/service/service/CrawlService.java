@@ -71,9 +71,7 @@ public class CrawlService {
         List<MeetingDto> meetingDtoList = new ArrayList<>();
         List<RaceRawData> newRacesList = new ArrayList<>();
         for (RaceRawData raceRawData : ausRace) {
-//            if (Instant.parse(raceRawData.getActualStart()).isAfter(Instant.now().minusSeconds(TIME_VALIDATE_START))) {
                 newRacesList.add(raceRawData);
-//            }
         }
         for (MeetingRawData localMeeting : ausMeetings) {
             List<RaceRawData> localRace = newRacesList.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId())).collect(Collectors.toList());
