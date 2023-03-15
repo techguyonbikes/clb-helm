@@ -17,4 +17,5 @@ import java.time.Instant;
 public class MeetingFilterDTO {
     private String meetingId;
     private String meetingName;
+    private String type;
 }

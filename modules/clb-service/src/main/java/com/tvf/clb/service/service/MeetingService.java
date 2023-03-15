@@ -29,7 +29,11 @@ public class MeetingService {
         LocalDateTime minDateTime = date.atTime(0, 0, 0);
         Instant endTime = maxDateTime.atOffset(ZoneOffset.UTC).toInstant();
         Instant startTime = minDateTime.atOffset(ZoneOffset.UTC).toInstant();
-        return meetingRepository.findMeetingByDate(endTime, startTime);
+        return meetingRepository.findMeetingByDate(endTime, startTime)
+                .map(r -> {
+                    r.setType(String.valueOf(r.getType().charAt(0)));
+                    return r;
+                });
     }
 
 }
