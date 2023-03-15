@@ -7,6 +7,7 @@ import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.tvf.clb.base.dto.EntrantMapper;
 import com.tvf.clb.base.dto.EntrantResponseDto;
+import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.service.service.CrawlPriceService;
 import com.tvf.clb.service.service.CrawlService;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +78,7 @@ public class SocketModule {
         return Flux.interval(Duration.ofSeconds(20L))
                 .flatMap(tick -> crawlPriceService.crawlPriceByRaceId(request))
                 .doOnNext(entrantList -> senderClient.sendEvent("new_prices", entrantList))
-                .takeUntil(listEntrant -> listEntrant.stream().anyMatch(entrant -> entrant.getStatus().equals(Race.Status.C.toString()))) // stop emitting when race has finished
+                .takeUntil(listEntrant -> listEntrant.stream().anyMatch(entrant -> entrant.getStatus().equals(Race.Status.F.toString()))) // stop emitting when race has finished
                 .doOnComplete(() -> {
                     senderClient.sendEvent("subscription", "race has finished");
                     subscriptions.remove(senderClient.getSessionId().toString());
