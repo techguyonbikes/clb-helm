@@ -40,14 +40,9 @@ public class RaceController {
     }
 
     @GetMapping("/side-bar-races")
-    public Flux<RaceResponseDTO> getListSideBarRaces(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return raceService.getListSideBarRaces(date);
-    }
-
-    @GetMapping("/side-bar-races/filter")
-    public Flux<RaceResponseDTO> getFilterSideBarRaces(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+    public Flux<RaceResponseDTO> searchRaces(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                                        @RequestParam(value = "meetingIds", required = false) List<String> meetingIds,
                                                        @RequestParam(value = "raceTypes", required = false, defaultValue = "Horse,Greyhound,Harness") List<RaceType> raceTypes) {
-        return raceService.getFilter(date, meetingIds, raceTypes);
+        return raceService.searchRaces(date, meetingIds, raceTypes);
     }
 }

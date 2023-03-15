@@ -48,7 +48,7 @@ public class RaceService {
         });
     }
 
-    public Flux<RaceResponseDTO> getFilter(LocalDate date, List<String> meetingIds, List<RaceType> raceTypes) {
+    public Flux<RaceResponseDTO> searchRaces(LocalDate date, List<String> meetingIds, List<RaceType> raceTypes) {
         List<String> raceType = raceTypes.stream()
                 .map(RaceType::toString)
                 .collect(Collectors.toList());
@@ -69,7 +69,7 @@ public class RaceService {
                         return r;
                     });
         }
-        return raceResponse;
+        return raceResponse.sort(Comparator.comparing(RaceResponseDTO::getDate));
     }
 
 }

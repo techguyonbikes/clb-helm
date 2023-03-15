@@ -12,6 +12,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -116,7 +117,7 @@ public class CrawlService {
             saveEntrant(allEntrant);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
-                        List<Float> entrantPrices = allEntrantPrices.get(r.getId());
+                        List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
                         EntrantDto entrantDto = EntrantMapper.toEntrantDto(r, entrantPrices);
                         return Mono.just(entrantDto);
                     });
