@@ -40,7 +40,6 @@ build:
   stage: build
   script:
     - ls
-    - cd modules/clb-api
     - docker login -u ducvu123 -p Mohoang1998 docker.io
     - docker build -t "ducvu123/cloudbet:latest" .
     - docker push $https://index.docker.io/ducvu123/cloudbet:latest
