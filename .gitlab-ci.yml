@@ -1,46 +1,34 @@
-stages:          # List of stages for jobs, and their order of execution
+image: docker:19
+services:
+  - docker:19-dind
+
+cache:
+  paths:
+    - ./.m2/repository
+    # keep cache across branch
+  key: "$CI_BUILD_REF_NAME"
+
+stages:
+  - package
   - build
-  - test
   - deploy
 
-build-dev:       # This job runs in the build stage, which runs first.
-  stage: build
-  environment:
-    name: dev
+package:
+  image: maven:3.8.5-jdk-11
+  stage: package
   script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
+    - mvn -T20 clean install
+  artifacts:
+    when: always
+    paths:
+      - modules/clb-api/target/*.jar
+    expire_in: 1 week
+  only:
+    - main
+    - cicd
 
-build-gcp:       # This job runs in the build stage, which runs first.
-  stage: build
-  environment:
-    name: gcp
-  script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
-
-test_deploy_gcp:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
-  environment: gcp
-  image:
-    name: google/cloud-sdk
-  when: manual
-  script:
-    - echo "try to deploy redis"
-    - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
-    - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-    - gcloud container clusters get-credentials cloudbet-cluster --region asia-east1 --project reflecting-card-371713
-    - kubectl get all
-
-test_deploy_dev:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
-  environment: dev
-  script:
-    - echo "try to deploy to dev"
-    - docker pull redis
-
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+deploy-job:
+  stage: deploy
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
