@@ -73,7 +73,6 @@
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
             <!-- weird case, must force client to explicitly give the version, otherwise fall back to 3.14.9 -->
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
