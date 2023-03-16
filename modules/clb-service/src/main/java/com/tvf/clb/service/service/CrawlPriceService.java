@@ -83,10 +83,10 @@ public class CrawlPriceService {
             String statusRace = null;
             if (results != null) {
                 positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
-                statusRace = String.valueOf(Race.Status.O);
+                statusRace = String.valueOf(Race.Status.F);
             } else {
                 positions.put("position", 0);
-                statusRace = String.valueOf(Race.Status.F);
+                statusRace = String.valueOf(Race.Status.O);
             }
             String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
             raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.valueOf(distance), statusRace).subscribe();
@@ -123,7 +123,7 @@ public class CrawlPriceService {
 
         String raceStatus = priceDTOS.get(0).getStatusRace();
 
-        if (!raceStatus.equals(String.valueOf(Race.Status.O))) { // check crawled races is opening or not, if true save all entrants to Redis
+        if (raceStatus.equals(String.valueOf(Race.Status.O))) { // check crawled races is opening or not, if true save all entrants to Redis
             entrantRedisService.saveAll(entrantRedis).subscribe();
 
         } else { // else save all to DB and remove all from Redis
