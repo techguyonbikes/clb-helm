@@ -7,6 +7,9 @@ import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.tvf.clb.base.dto.EntrantMapper;
 import com.tvf.clb.base.dto.EntrantResponseDto;
+import com.tvf.clb.base.entity.EntrantRedis;
+import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.service.service.CrawlPriceService;
 import com.tvf.clb.service.service.CrawlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +34,14 @@ public class SocketModule {
     @Autowired
     private CrawlService crawlService;
 
+    @Autowired
+    private CrawlPriceService crawlPriceService;
+
     public SocketModule(SocketIOServer server) {
         this.server = server;
         server.addConnectListener(onConnected());
         server.addDisconnectListener(onDisconnected());
-        server.addEventListener("call_phat_xem_nao", String.class, subscribe());
+        server.addEventListener("call_phat_xem_nao", Long.class, subscribe());
         server.addEventListener("unsubscribe", String.class, unsubscribe());
     }
 
@@ -47,10 +53,10 @@ public class SocketModule {
     }
 
 
-    private DataListener<String> subscribe() {
+    private DataListener<Long> subscribe() {
         return (senderClient, raceId, ackSender) -> {
             log.info("Socket ID[{}] - Subscribed to raceId: {}", senderClient.getSessionId().toString(), raceId);
-            Disposable subscription = sendNewPrices(senderClient, raceId);
+            Disposable subscription = sendNewPriceFromRedis(senderClient, raceId);
             subscriptions.put(senderClient.getSessionId().toString(), subscription);
             senderClient.sendEvent("subscription", "new prices");
         };
@@ -66,6 +72,22 @@ public class SocketModule {
                 log.info("Socket ID[{}] - Unsubscribed from raceId: {}", sessionId, raceId);
             }
         };
+    }
+
+
+    private Disposable sendNewPriceFromRedis(SocketIOClient senderClient, Long request) {
+
+        Predicate<List<EntrantRedis>> stopEmittingCondition = listEntrant -> listEntrant.stream().anyMatch(entrant -> entrant.getStatus().equals(Race.Status.F.toString()));
+
+        return Flux.interval(Duration.ofSeconds(20L))
+                .flatMap(tick -> crawlPriceService.crawlPriceByRaceId(request))
+                .doOnNext(entrantList -> senderClient.sendEvent("new_prices", entrantList))
+                .takeUntil(stopEmittingCondition) // stop emitting when race has finished
+                .doOnComplete(() -> {
+                    senderClient.sendEvent("subscription", "race has finished");
+                    subscriptions.remove(senderClient.getSessionId().toString());
+                })
+                .subscribe();
     }
 
     private Disposable sendNewPrices(SocketIOClient senderClient, String request) {
