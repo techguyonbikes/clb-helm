@@ -9,12 +9,14 @@ import com.tvf.clb.base.model.EntrantSiteRawData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.RaceEntrantDTO;
 import com.tvf.clb.service.repository.EntrantRepository;
-import com.tvf.clb.service.repository.RaceRepository;
+import com.tvf.clb.service.repository.EntrantSiteRepository;
+import com.tvf.clb.service.repository.RaceSiteRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,15 +35,27 @@ public class CrawlPriceService {
     private CrawlService crawlService;
 
     @Autowired
-    private RaceRepository raceRepository;
+    private RaceSiteRepository raceSiteRepository;
+
+    @Autowired
+    private EntrantSiteRepository entrantSiteRepository;
+
+    @Autowired
+    private LadBrokeCrawlService ladBrokeCrawlService;
+
+    @Autowired
+    private CrawUtils crawUtils;
 
     @Autowired
     private EntrantRedisService entrantRedisService;
 
     public Mono<List<EntrantRedis>> crawlPriceByRaceId(Long generalRaceId) {
 
-        return raceRepository.getAllByRaceId(generalRaceId)
-                .map(id -> getEntrantByRaceId(id, generalRaceId))
+        return raceSiteRepository.getAllByGeneralRaceId(generalRaceId)
+                .parallel()
+                .runOn(Schedulers.parallel())
+                .map(this::getEntrantByRaceId)
+                .sequential()
                 .collectList() // collect all responses data into a list after crawls from all sites
                 .map(crawledList -> saveEntrantForRacing(crawledList, generalRaceId)); // save all crawled data and return corresponding entrants, race info
     }
@@ -49,24 +63,26 @@ public class CrawlPriceService {
     /**
      * This function crawl data for All API
      *
-     * @param raceId
-     * @param generalRaceId
+     * @param raceSiteDTO
+     *
      * @return
      */
-    public RaceEntrantDTO getEntrantByRaceId(String raceId, Long generalRaceId) {
+    public RaceEntrantDTO getEntrantByRaceId(RaceSite raceSiteDTO) {
         try {
             LadBrokedItRaceDto raceDto = new LadBrokedItRaceDto();
-            switch (1) {
+            switch (raceSiteDTO.getSiteId()) {
                 case 1:
                     log.info("call API to site: LADBROKES");
-                    raceDto = crawlService.getLadBrokedItRaceDto(raceId);
+                    raceDto = ladBrokeCrawlService.getLadBrokedItRaceDto(raceSiteDTO.getRaceSiteId());
                     break;
                 case 2:
                     log.info("ZBET");
                 case 3:
                     log.info("SPORTSNET");
                 case 4:
-                    log.info("NEDS");
+                    log.info("call API to site: NEDS");
+                    raceDto = crawlService.getLadBrokedItRaceDto(raceSiteDTO.getRaceSiteId());
+                    break;
                 case 5:
                     log.info("POINTSBET");
                 case 6:
@@ -88,11 +104,11 @@ public class CrawlPriceService {
                 positions.put("position", 0);
                 statusRace = String.valueOf(Race.Status.O);
             }
-            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
-            raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
+//            String distance = raceDto.getRaces().getAsJsonObject(raceSiteDTO.getRaceSiteId()).getAsJsonObject("additional_info").get("distance").getAsString();
+//            raceRepository.setUpdateRaceByRaceId(raceSiteDTO.getRaceSiteId(), distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            return new RaceEntrantDTO(statusRace, allEntrant, 1, generalRaceId);
+            List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceSiteDTO.getRaceSiteId(), positions);
+            return new RaceEntrantDTO(statusRace, allEntrant, raceSiteDTO.getSiteId(), raceSiteDTO.getGeneralRaceId());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -128,7 +144,7 @@ public class CrawlPriceService {
 
         } else { // else save all to DB and remove all from Redis
             entrantRedisService.delete(raceId).subscribe();
-            priceDTOS.forEach(priceDTO -> saveEntrant(priceDTO.getAllEntrant()));
+            priceDTOS.forEach(priceDTO -> saveEntrant(priceDTO.getAllEntrant(), priceDTO.getSiteId()));
         }
 
         return entrantRedis;
@@ -144,10 +160,13 @@ public class CrawlPriceService {
         }).collect(Collectors.toList());
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, Integer siteId) {
         List<Entrant> newEntrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        Flux<Entrant> existedEntrant = entrantRepository.findAllByEntrantIdIn(entrantRawData.stream().map(EntrantRawData::getId).collect(Collectors.toList()));
-        existedEntrant
+        Flux<Long> entrantIds = entrantSiteRepository
+                .findAllByEntrantSiteIdIn(newEntrants.stream()
+                        .map(Entrant::getEntrantId).collect(Collectors.toList()))
+                .map(EntrantSite::getGeneralEntrantId);
+        entrantIds.collectList().subscribe(r -> entrantRepository.findAllByIdIn(r)
                 .collectList()
                 .subscribe(existed ->
                         {
@@ -156,15 +175,17 @@ public class CrawlPriceService {
                             {
                                 if (e.getId() == null) {
                                     existed.stream()
-                                            .filter(x -> x.getEntrantId().equals(e.getEntrantId()))
+                                            .filter(x -> x.getName().equals(e.getName())
+                                                    && x.getNumber().equals(e.getNumber())
+                                                    && x.getBarrier().equals(e.getBarrier()))
                                             .findFirst()
                                             .ifPresent(entrant -> e.setId(entrant.getId()));
                                 }
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
                             log.info("Entrant need to be update is " + entrantNeedUpdateOrInsert.size());
-                            entrantRepository.saveAll(entrantNeedUpdateOrInsert).subscribe();
+                            entrantRepository.saveAll(entrantNeedUpdateOrInsert).collectList().subscribe(entrants -> crawUtils.saveEntrantSite(entrants, siteId));
                         }
-                );
+                ));
     }
 
 }

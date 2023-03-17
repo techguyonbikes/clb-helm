@@ -45,7 +45,7 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantSiteRawData mapPrices(EntrantRawData entrant, int siteId, String status) {
+    public static EntrantSiteRawData mapPrices(EntrantRawData entrant, Integer siteId, String status) {
         return EntrantSiteRawData.builder()
                 .id(entrant.getId())
                 .raceId(entrant.getRaceId())
@@ -54,8 +54,8 @@ public class EntrantMapper {
                 .number(entrant.getNumber())
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
-                .priceFluctuations(entrant.getPriceFluctuations())
-                .isScratched(entrant.getIsScratched() == null ? "titus" : entrant.getIsScratched())
+                .priceFluctuations(entrant.getPriceFluctuations() == null ? new ArrayList<>() : entrant.getPriceFluctuations())
+                .isScratched(entrant.getIsScratched() == null ? String.valueOf(false) : entrant.getIsScratched())
                 .scratchedTime(entrant.getScratchedTime() == null ? Instant.now() : entrant.getScratchedTime())
                 .position(entrant.getPosition())
                 .siteId(siteId)
