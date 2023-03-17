@@ -9,6 +9,9 @@ public class AppConstant {
 
     public static final String LAD_BROKES_IT_RACE_QUERY= "https://api.ladbrokes.com.au/rest/v1/racing/?method=racecard&id={id}";
 
+    public static final String NEDS_MEETING_QUERY = "https://api.neds.com.au/v2/racing/meeting?date={date}&region=domestic&timezone=Asia%2FBangkok";
+
+    public static final String NEDS_RACE_QUERY= "https://api.neds.com.au/rest/v1/racing/?method=racecard&id={id}";
     public static final String HARNESS_RACING = "Harness Racing";
     public static final String GREYHOUND_RACING = "Greyhound Racing";
     public static final String HORSE_RACING = "Horse Racing";

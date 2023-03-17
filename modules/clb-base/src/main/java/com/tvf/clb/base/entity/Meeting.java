@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
@@ -20,6 +21,7 @@ import java.util.Objects;
 public class Meeting {
     @Id
     private Long id;
+    @Transient
     private String meetingId;
     private String name;
     private Instant advertisedDate;
@@ -40,7 +42,6 @@ public class Meeting {
 
         Meeting meeting = (Meeting) o;
 
-        if (!Objects.equals(meetingId, meeting.meetingId)) return false;
         if (!Objects.equals(name, meeting.name)) return false;
         if (!Objects.equals(advertisedDate, meeting.advertisedDate))
             return false;
@@ -58,8 +59,7 @@ public class Meeting {
 
     @Override
     public int hashCode() {
-        int result = meetingId != null ? meetingId.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (advertisedDate != null ? advertisedDate.hashCode() : 0);
         result = 31 * result + (categoryId != null ? categoryId.hashCode() : 0);
         result = 31 * result + (venueId != null ? venueId.hashCode() : 0);

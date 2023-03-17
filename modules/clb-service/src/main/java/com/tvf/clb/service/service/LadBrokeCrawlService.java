@@ -1,9 +1,15 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
-import com.tvf.clb.base.model.*;
+import com.tvf.clb.base.model.EntrantRawData;
+import com.tvf.clb.base.model.MeetingRawData;
+import com.tvf.clb.base.model.RaceRawData;
+import com.tvf.clb.base.model.VenueRawData;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.service.repository.*;
@@ -19,29 +25,40 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.tvf.clb.base.utils.AppConstant.TIME_VALIDATE_START;
-
-
 @Service
 @Slf4j
-public class CrawlService {
+public class LadBrokeCrawlService implements ICrawlService {
 
     @Autowired
     private MeetingRepository meetingRepository;
 
     @Autowired
+    private MeetingSiteRepository meetingSiteRepository;
+
+    @Autowired
     private RaceRepository raceRepository;
+
+    @Autowired
+    private RaceSiteRepository raceSiteRepository;
 
     @Autowired
     private EntrantRepository entrantRepository;
 
+    @Autowired
+    private CrawUtils crawUtils;
 
+    @Autowired
+    private EntrantSiteRepository entrantSiteRepository;
+
+    @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
         return Mono.fromSupplier(() -> {
             LadBrokedItMeetingDto rawData = null;
@@ -70,25 +87,19 @@ public class CrawlService {
         List<RaceRawData> ausRace = ladBrokedItMeetingDto.getRaces()
                 .values().stream().filter(r -> raceIds.contains(r.getId())).collect(Collectors.toList());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
-        List<RaceRawData> newRacesList = new ArrayList<>();
-        for (RaceRawData raceRawData : ausRace) {
-            if (Instant.parse(raceRawData.getActualStart()).isAfter(Instant.now().minusSeconds(TIME_VALIDATE_START))) {
-                newRacesList.add(raceRawData);
-            }
-        }
         for (MeetingRawData localMeeting : ausMeetings) {
-            List<RaceRawData> localRace = newRacesList.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId())).collect(Collectors.toList());
+            List<RaceRawData> localRace = ausRace.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId())).collect(Collectors.toList());
             MeetingDto meetingDto = MeetingMapper.toMeetingDto(localMeeting, localRace);
             meetingDtoList.add(meetingDto);
         }
         saveMeeting(ausMeetings);
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         saveRace(raceDtoList);
-        getEntrantRaceByIds(newRacesList.stream().map(RaceRawData::getId).collect(Collectors.toList())).subscribe();
+        getEntrantRaceByIds(ausRace.stream().map(RaceRawData::getId).collect(Collectors.toList())).subscribe();
         return meetingDtoList;
     }
 
-    public Flux<EntrantDto> getEntrantRaceByIds(List<String> raceIds) {
+    private Flux<EntrantDto> getEntrantRaceByIds(List<String> raceIds) {
         return Flux.fromIterable(raceIds)
                 .parallel() // create a parallel flux
                 .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
@@ -102,16 +113,16 @@ public class CrawlService {
             JsonObject results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
             String statusRace = null;
-            if(results !=null) {
+            if (results != null) {
                 positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
                 statusRace = String.valueOf(Race.Status.F);
-            }
-            else{
-                positions.put("position",0);
+            } else {
+                positions.put("position", 0);
                 statusRace = String.valueOf(Race.Status.O);
             }
-            String distance =raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
-            raceRepository.setUpdateRaceByRaceId(raceId,distance == null ?0 : Integer.valueOf(distance),statusRace).subscribe();
+//            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
+//            raceRepository.getRaceByRaceSiteId(raceId).subscribe(x -> log.info(x.getName()));
+//            raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
             saveEntrant(allEntrant);
@@ -128,9 +139,9 @@ public class CrawlService {
 
     public void saveMeeting(List<MeetingRawData> meetingRawData) {
         List<Meeting> newMeetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
-        Flux<Meeting> existedMeetings = meetingRepository.
-                findAllByMeetingIdIn(newMeetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList()));
-        existedMeetings
+        Flux<Long> meetingIds = meetingSiteRepository
+                .findAllByMeetingSiteIdIn(newMeetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList())).map(MeetingSite::getGeneralMeetingId);
+        meetingIds.collectList().subscribe(i -> meetingRepository.findAllByIdIn(i)
                 .collectList()
                 .subscribe(existed ->
                         {
@@ -139,21 +150,27 @@ public class CrawlService {
                             {
                                 if (m.getId() == null) {
                                     existed.stream()
-                                            .filter(x -> x.getMeetingId().equals(m.getMeetingId()))
+                                            .filter(x -> x.getName().equals(m.getName()) && x.getAdvertisedDate().equals(m.getAdvertisedDate()))
                                             .findFirst()
                                             .ifPresent(meeting -> m.setId(meeting.getId()));
                                 }
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
                             log.info("Meeting need to be update or insert " + meetingNeedUpdateOrInsert.size());
-                            meetingRepository.saveAll(meetingNeedUpdateOrInsert).subscribe();
+                            meetingRepository.saveAll(meetingNeedUpdateOrInsert)
+                                    .collectList()
+                                    .subscribe(meetings -> crawUtils.saveMeetingSite(meetings, 1));
                         }
-                );
+                ));
     }
 
     public void saveRace(List<RaceDto> raceDtoList) {
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        Flux<Race> existedRaces = raceRepository.findAllByRaceIdIn(newRaces.stream().map(Race::getRaceId).collect(Collectors.toList()));
-        existedRaces
+        Flux<Long> raceIds = raceSiteRepository
+                .findAllByRaceSiteIdIn(newRaces.stream()
+                        .map(Race::getRaceId).collect(Collectors.toList()))
+                .map(RaceSite::getGeneralRaceId);
+        raceIds.collectList().subscribe(r -> raceRepository
+                .findAllByIdIn(r)
                 .collectList()
                 .subscribe(existed ->
                         {
@@ -162,21 +179,27 @@ public class CrawlService {
                             {
                                 if (e.getId() == null) {
                                     existed.stream()
-                                            .filter(x -> x.getRaceId().equals(e.getRaceId()))
+                                            .filter(x -> x.getName().equals(e.getName())
+                                                    && x.getNumber().equals(e.getNumber()))
                                             .findFirst()
                                             .ifPresent(entrant -> e.setId(entrant.getId()));
                                 }
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
                             log.info("Race need to be update is " + raceNeedUpdateOrInsert.size());
-                            raceRepository.saveAll(raceNeedUpdateOrInsert).subscribe();
+                            raceRepository.saveAll(raceNeedUpdateOrInsert)
+                                    .collectList()
+                                    .subscribe(races -> crawUtils.saveRaceSite(races, 1));
                         }
-                );
+                ));
     }
 
     public void saveEntrant(List<EntrantRawData> entrantRawData) {
         List<Entrant> newEntrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        Flux<Entrant> existedEntrant = entrantRepository .findAllByEntrantIdIn(entrantRawData.stream().map(EntrantRawData::getId).collect(Collectors.toList()));
-        existedEntrant
+        Flux<Long> entrantIds = entrantSiteRepository
+                .findAllByEntrantSiteIdIn(newEntrants.stream()
+                        .map(Entrant::getEntrantId).collect(Collectors.toList()))
+                .map(EntrantSite::getGeneralEntrantId);
+        entrantIds.collectList().subscribe(r -> entrantRepository.findAllByIdIn(r)
                 .collectList()
                 .subscribe(existed ->
                         {
@@ -185,18 +208,20 @@ public class CrawlService {
                             {
                                 if (e.getId() == null) {
                                     existed.stream()
-                                            .filter(x -> x.getEntrantId().equals(e.getEntrantId()))
+                                            .filter(x -> x.getName().equals(e.getName())
+                                            && x.getNumber().equals(e.getNumber())
+                                            && x.getBarrier().equals(e.getBarrier()))
                                             .findFirst()
                                             .ifPresent(entrant -> e.setId(entrant.getId()));
                                 }
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
                             log.info("Entrant need to be update is " + entrantNeedUpdateOrInsert.size());
-                            entrantRepository.saveAll(entrantNeedUpdateOrInsert).subscribe();
+                            entrantRepository.saveAll(entrantNeedUpdateOrInsert).collectList().subscribe(entrants -> crawUtils.saveEntrantSite(entrants, 1));
                         }
-                );
+                ));
     }
 
-    public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, HashMap<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
+    public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
         return raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null && r.getId() != null).map(r -> {
             List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.get(r.getId());
             Integer entrantPosition = positions.get(r.getId()) == null ? 0 : positions.get(r.getId());
@@ -205,13 +230,12 @@ public class CrawlService {
             return entrantRawData;
         }).collect(Collectors.toList());
     }
+
     public LadBrokedItRaceDto getLadBrokedItRaceDto(String raceId) throws IOException {
         String url = AppConstant.LAD_BROKES_IT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
         Response response = ApiUtils.get(url);
         JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
         Gson gson = new GsonBuilder().create();
-        LadBrokedItRaceDto raceDto = gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
-        return raceDto;
+        return gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
     }
-
 }

@@ -1,9 +1,7 @@
 package com.tvf.clb.base.dto;
 
 import com.google.gson.Gson;
-import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.entity.Meeting;
-import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
@@ -116,6 +114,37 @@ public class MeetingMapper {
                 .isScratched(entrantRawData.getIsScratched() == null ? false : true)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
+                .build();
+    }
+
+
+    public static MeetingSite toMeetingSite(Meeting meeting, Integer site) {
+        return MeetingSite
+                .builder()
+                .siteId(site)
+                .startDate(meeting.getAdvertisedDate())
+                .generalMeetingId(meeting.getId())
+                .meetingSiteId(meeting.getMeetingId())
+                .build();
+    }
+
+    public static RaceSite toRaceSite(Race race, Integer site) {
+        return RaceSite
+                .builder()
+                .siteId(site)
+                .startDate(race.getActualStart())
+                .raceSiteId(race.getRaceId())
+                .generalRaceId(race.getId())
+                .build();
+    }
+
+    public static EntrantSite toEntrantSite(Entrant entrant, Integer site) {
+        return EntrantSite
+                .builder()
+                .siteId(site)
+                .entrantSiteId(entrant.getEntrantId())
+                .generalEntrantId(entrant.getId())
+                .priceFluctuations(entrant.getPriceFluctuations())
                 .build();
     }
 

@@ -9,4 +9,6 @@ import java.util.List;
 public interface EntrantRepository extends R2dbcRepository<Entrant, Long> {
     Flux<Entrant> findByRaceId(String id);
     Flux<Entrant> findAllByEntrantIdIn(List<String> entrantIds);
+
+    Flux<Entrant> findAllByIdIn(List<Long> ids);
 }

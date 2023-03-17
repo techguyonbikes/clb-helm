@@ -89,7 +89,7 @@ public class CrawlPriceService {
                 statusRace = String.valueOf(Race.Status.O);
             }
             String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
-            raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.valueOf(distance), statusRace).subscribe();
+            raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
             return new RaceEntrantDTO(statusRace, allEntrant, 1, generalRaceId);

@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
@@ -30,6 +31,7 @@ import java.util.Objects;
 public class Entrant {
     @Id
     private Long id;
+    @Transient
     private String entrantId;
     private String raceId;
     private String name;
@@ -54,7 +56,6 @@ public class Entrant {
         Entrant entrant = (Entrant) o;
 
         if (visible != entrant.visible) return false;
-        if (!Objects.equals(entrantId, entrant.entrantId)) return false;
         if (!Objects.equals(raceId, entrant.raceId)) return false;
         if (!Objects.equals(name, entrant.name)) return false;
         if (!Objects.equals(number, entrant.number)) return false;
@@ -89,8 +90,7 @@ public class Entrant {
 
     @Override
     public int hashCode() {
-        int result = entrantId != null ? entrantId.hashCode() : 0;
-        result = 31 * result + (raceId != null ? raceId.hashCode() : 0);
+        int result = raceId != null ? raceId.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (number != null ? number.hashCode() : 0);
         result = 31 * result + (barrier != null ? barrier.hashCode() : 0);

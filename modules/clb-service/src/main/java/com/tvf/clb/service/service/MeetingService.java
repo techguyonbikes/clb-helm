@@ -1,7 +1,9 @@
 package com.tvf.clb.service.service;
 
 import com.tvf.clb.base.dto.MeetingDto;
+import com.tvf.clb.base.dto.RaceDto;
 import com.tvf.clb.base.entity.Meeting;
+import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.service.repository.MeetingRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.*;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -29,6 +32,10 @@ public class MeetingService {
                     r.setRaceType(String.valueOf(r.getRaceType().charAt(0)));
                     return r;
                 });
+    }
+
+    public void saveMeetingSite(List<MeetingRawData> meetingRawData, Integer site, List<RaceDto> raceDtoList) {
+
     }
 
 }
