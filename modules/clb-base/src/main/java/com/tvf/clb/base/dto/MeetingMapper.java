@@ -57,7 +57,7 @@ public class MeetingMapper {
         return raceDtoList;
     }
 
-    private static String convertRaceType(String feedId) {
+    public static String convertRaceType(String feedId) {
         if (feedId.contains(AppConstant.GREYHOUND_FEED_TYPE)) {
             return AppConstant.GREYHOUND_RACING;
         } else if (feedId.contains(AppConstant.HORSE_FEED_TYPE)) {
@@ -111,7 +111,7 @@ public class MeetingMapper {
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
                 .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations())))
-                .isScratched(entrantRawData.getIsScratched() == null ? false : true)
+                .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
                 .build();
@@ -147,5 +147,12 @@ public class MeetingMapper {
                 .priceFluctuations(entrant.getPriceFluctuations())
                 .build();
     }
-
+    public static MeetingSite toMetingSite(Meeting meeting, Integer siteId,Long generalId) {
+        return MeetingSite.builder()
+                .meetingSiteId(meeting.getMeetingId())
+                .generalMeetingId(generalId)
+                .siteId(siteId)
+                .startDate(meeting.getAdvertisedDate())
+                .build();
+    }
 }

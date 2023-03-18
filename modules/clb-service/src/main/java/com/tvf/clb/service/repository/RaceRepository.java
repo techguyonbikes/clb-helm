@@ -26,4 +26,7 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     @Query("select r.race_id  from clb_db.race r where r.id =:raceId")
     Flux<String> getAllByRaceId(@Param("raceId") Long raceId);
+
+    @Query("select r.id from clb_db.race r  where r.meeting_id = :metingId and r.number = :number and r.advertised_start = :date")
+    Mono<Long> getRaceId(@Param("metingId") String metingId, @Param("number") int number, @Param("date") Instant date);
 }
