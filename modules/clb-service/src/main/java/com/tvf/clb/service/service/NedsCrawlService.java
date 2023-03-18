@@ -57,6 +57,7 @@ public class NedsCrawlService implements ICrawlService{
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            log.info("Start getting the API from Ned.");
             return getAllAusMeeting(rawData);
         }).flatMapMany(Flux::fromIterable);
     }

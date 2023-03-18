@@ -2,6 +2,9 @@ app:
   cors:
     allow-origins: ${cors.allow-origins:http://localhost:4200}
   url-crawl: https://www.ladbrokes.com.au
+reactor:
+  parallel:
+    default-threads: 20
 server:
   jetty:
     threads:
