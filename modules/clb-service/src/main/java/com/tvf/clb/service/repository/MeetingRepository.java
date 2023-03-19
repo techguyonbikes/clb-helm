@@ -22,8 +22,8 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
             " from clb_db.meeting m where m.advertised_date = :date ")
     Flux<MeetingOptions> findMeetingByDate(@Param("date") Instant date);
 
-    @Query("SELECT r.race_id, r.number, r.actual_start as date, r.name as race_name, r.distance, m.meeting_id, m.race_type as type, m.name as meeting_name , m.state as state" +
-            " FROM clb_db.meeting m JOIN clb_db.race r ON m.meeting_id = r.meeting_id" +
+    @Query("SELECT r.id, r.number, r.actual_start as date, r.name as race_name, r.distance, r.meeting_id , m.race_type as type, m.name as meeting_name , m.state as state" +
+            " FROM clb_db.meeting m JOIN clb_db.race r ON m.id = r.meeting_id" +
             " WHERE m.race_type IN (:raceTypes)" +
             " AND m.id IN (:meetingIds)" +
             " AND m.advertised_Date = :date")
@@ -31,7 +31,7 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
                                                      @Param("meetingIds") List<Long> meetingIds,
                                                      @Param("date") Instant date);
 
-    @Query("SELECT r.race_id, r.number, r.actual_start as date, r.name as race_name, r.distance, m.meeting_id, m.race_type as type, m.name as meeting_name , m.state as state" +
+    @Query("SELECT r.id, r.number, r.actual_start as date, r.name as race_name, r.distance, r.meeting_id , m.race_type as type, m.name as meeting_name , m.state as state" +
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.id = r.meeting_id" +
             " WHERE m.race_type IN (:raceTypes)" +
             " AND m.advertised_Date = :date")
