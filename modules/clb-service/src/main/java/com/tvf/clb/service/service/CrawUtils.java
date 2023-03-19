@@ -38,7 +38,7 @@ public class CrawUtils {
     public void saveEntrantSite(List<Entrant> entrants, Integer site) {
         Flux<EntrantSite> newEntrantSites = Flux.fromIterable(entrants).flatMap(
                 r -> {
-                    Mono<Long> generalId = entrantRepository.getEntrantId(r.getName(), r.getNumber(), r.getBarrier());
+                    Flux<Long> generalId = entrantRepository.getEntrantId(r.getName(), r.getNumber(), r.getBarrier());
                     return Flux.from(generalId).map(id -> MeetingMapper.toEntrantSite(r, site, id));
                 }
         );
@@ -51,6 +51,7 @@ public class CrawUtils {
                     entrantSiteRepository.saveAll(tuple2.getT1()).subscribe();
                 }).subscribe();
     }
+
     public void saveMeetingSite(List<Meeting> meetings, Integer site) {
         Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
                 r -> {

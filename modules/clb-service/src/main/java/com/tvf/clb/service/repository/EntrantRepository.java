@@ -18,5 +18,5 @@ public interface EntrantRepository extends R2dbcRepository<Entrant, Long> {
     Flux<Entrant> findAllByNameInAndNumberInAndBarrierIn(List<String> entrantNames, List<Integer> entrantNumbers, List<Integer> barriers);
 
     @Query("select e.id from clb_db.entrant e where e.name = :name and e.number = :number and e.barrier = :barrier")
-    Mono<Long> getEntrantId(@Param("name") String name, @Param("number") Integer number, @Param("barrier") Integer barrier);
+    Flux<Long> getEntrantId(@Param("name") String name, @Param("number") Integer number, @Param("barrier") Integer barrier);
 }

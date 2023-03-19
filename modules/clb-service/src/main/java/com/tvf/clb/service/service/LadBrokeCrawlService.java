@@ -55,7 +55,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     private ServiceLookup serviceLookup;
 
     @Autowired
-    private EntrantRedisService entrantRedisService;
+    private EntrantRedisService  entrantRedisService;
 
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
@@ -214,11 +214,14 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .collectList()
                                     .subscribe(savedRace -> {
                                         Flux.fromIterable(savedRace)
-                                                .flatMap(race -> getEntrantByRaceId(race.getRaceId(), race.getId()).subscribeOn(Schedulers.parallel()))
+                                                .parallel()
+                                                .runOn(Schedulers.parallel())
+                                                .flatMap(race -> getEntrantByRaceId(race.getRaceId(), race.getId()))
+                                                .sequential()
                                                 .collectList()
-                                                .subscribe(x -> getMeetingFromAllSite(date).subscribe());
+                                                .subscribe(entrantDtoList -> getMeetingFromAllSite(date).subscribe());
                                         crawUtils.saveRaceSite(savedRace, 1);
-                                        log.info("All races processed successfully");
+                                        log.info("All races  processed successfully");
                                     });
                         }
                 );
@@ -249,7 +252,13 @@ public class LadBrokeCrawlService implements ICrawlService {
                                 }
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
                             log.info("Entrant need to be update is " + entrantNeedUpdateOrInsert.size());
-                            entrantRepository.saveAll(entrantNeedUpdateOrInsert).subscribe();
+                            entrantRepository.saveAll(entrantNeedUpdateOrInsert)
+                                    .collectList()
+                                    .subscribe(saved -> entrantRedisService
+                                            .saveRace(raceId, saved.stream()
+                                                    .map(x -> EntrantMapper.toEntrantResponseDto(x, 1))
+                                                    .collect(Collectors.toList()))
+                                            .subscribe());
                         }
                 );
     }

@@ -116,6 +116,22 @@ public class MeetingMapper {
                 .build();
     }
 
+    public static Entrant toEntrantEntity(EntrantDto entrantDto) {
+        return Entrant.builder()
+                .entrantId(entrantDto.getId())
+                .raceUUID(entrantDto.getId())
+                .name(entrantDto.getName())
+                .number(entrantDto.getNumber())
+                .barrier(entrantDto.getBarrier())
+                .visible(entrantDto.getVisible())
+                .marketId(entrantDto.getMarketId())
+                .priceFluctuations(Json.of(gson.toJson(entrantDto.getPriceFluctuations())))
+                .isScratched(entrantDto.getScratchedTime() != null)
+                .scratchedTime(entrantDto.getScratchedTime())
+                .position(entrantDto.getPosition())
+                .build();
+    }
+
 
 
     public static EntrantSite toEntrantSite(Entrant entrant, Integer site, Long id) {

@@ -22,7 +22,7 @@ public class EntrantRedisService {
         return this.raceDetailTemplate.opsForValue().set(raceId, entrants);
     }
 
-    public Mono<List<EntrantResponseDto>> getByKey(Long key){
+    public Mono<List<EntrantResponseDto>> findEntrantByRaceId(Long key){
         return this.raceDetailTemplate.opsForValue().get(key);
     }
 

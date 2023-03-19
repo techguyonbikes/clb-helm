@@ -24,7 +24,6 @@ public class EntrantResponseDto {
     private Integer barrier;
     private Boolean visible;
     private Boolean isScratched;
-    private Instant scratchedTime;
-    private Map<Integer, List<Float>> priceFluctuations;
-
+    private String scratchedTime;
+    private Map<Integer, List<Double>> priceFluctuations;
 }

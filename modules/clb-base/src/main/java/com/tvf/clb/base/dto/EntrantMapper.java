@@ -3,12 +3,16 @@ package com.tvf.clb.base.dto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.tvf.clb.base.entity.Entrant;
+import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.model.EntrantSiteRawData;
 import com.tvf.clb.base.model.EntrantRawData;
-
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EntrantMapper {
 
@@ -60,6 +64,27 @@ public class EntrantMapper {
                 .position(entrant.getPosition())
                 .siteId(siteId)
                 .status(status)
+                .build();
+    }
+
+    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant, Integer siteId) {
+        Map<Integer, List<Double>> priceFluctuations = new HashMap<>();
+        Gson gson = new Gson();
+        Type listType = new TypeToken<ArrayList<Double>>() {}.getType();
+        ArrayList<Double> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
+        priceFluctuations.put(siteId, prices);
+        return EntrantResponseDto.builder()
+                .id(entrant.getId())
+                .entrantId(entrant.getEntrantId())
+                .raceUUID(entrant.getRaceUUID())
+                .raceId(entrant.getRaceId())
+                .name(entrant.getName())
+                .number(entrant.getNumber())
+                .barrier(entrant.getBarrier())
+                .visible(entrant.isVisible())
+                .isScratched(entrant.isScratched())
+                .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
+                .priceFluctuations(priceFluctuations)
                 .build();
     }
 }

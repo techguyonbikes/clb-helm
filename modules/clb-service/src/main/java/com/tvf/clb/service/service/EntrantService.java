@@ -1,6 +1,7 @@
 package com.tvf.clb.service.service;
 
 import com.tvf.clb.base.entity.Entrant;
+import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.service.repository.EntrantRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +14,15 @@ public class EntrantService {
     @Autowired
     EntrantRepository entrantRepository;
 
+    @Autowired
+    EntrantRedisService entrantRedisService;
+
     public Flux<Entrant> getAllEntrant() {
         return entrantRepository.findAll();
 
     }
-    public Flux<Entrant> getEntrantsByRaceId(Long raceId){
-        return entrantRepository.findAllByRaceId(raceId);
+    public Flux<EntrantResponseDto> getEntrantsByRaceId(Long raceId){
+        return entrantRedisService.findEntrantByRaceId(raceId).flatMapMany(Flux::fromIterable);
     }
 
 

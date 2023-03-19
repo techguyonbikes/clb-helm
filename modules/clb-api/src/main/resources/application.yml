@@ -33,7 +33,7 @@ spring:
   webflux:
     base-path: /cloudbet/api
   r2dbc:
-    url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
+    url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_09}
     pool:
       enabled: true
       max-size: 5
@@ -48,7 +48,7 @@ spring:
     out-of-order: true
     schemas:
       - ${postgresql.schema:clb_db}
-    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
+    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_09}
     user: ${postgresql.datasource.username:postgres}
     password: ${postgresql.datasource.password:admin123}
   datasource:
@@ -63,7 +63,7 @@ spring:
     password: ${postgresql.datasource.password:admin123}
     driver-class-name: org.postgresql.Driver
     username: ${postgresql.datasource.username:clb_db}
-    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
+    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_09}
 socket-server:
   host: localhost
   port: 20002
