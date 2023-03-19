@@ -63,16 +63,16 @@ public class SocketModule {
 
     private Disposable sendNewPriceFromRedis(SocketIOClient senderClient, Long request) {
 
-//        Predicate<List<EntrantResponseDto>> stopEmittingCondition = listEntrant -> listEntrant.stream().anyMatch(entrant -> entrant.getStatus().equals(Race.Status.F.toString()));
+//        Predicate<List<EntrantResponseDto>> stopEmittingCondition = listEntrant -> listEntrant.stream().anyMatch(entrant -> entrant.getPosition() > 0);
 
         return Flux.interval(Duration.ofSeconds(20L))
                 .flatMap(tick -> crawlPriceService.crawlPriceByRaceId(request))
                 .doOnNext(entrantList -> senderClient.sendEvent("new_prices", entrantList))
 //                .takeUntil(stopEmittingCondition) // stop emitting when race has finished
-                .doOnComplete(() -> {
-                    senderClient.sendEvent("subscription", "race has finished");
-                    subscriptions.remove(senderClient.getSessionId().toString());
-                })
+//                .doOnComplete(() -> {
+//                    senderClient.sendEvent("subscription", "race has finished");
+//                    subscriptions.remove(senderClient.getSessionId().toString());
+//                })
                 .subscribe();
     }
     private ConnectListener onConnected() {
