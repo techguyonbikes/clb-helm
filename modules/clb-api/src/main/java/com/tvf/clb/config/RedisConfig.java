@@ -30,4 +30,11 @@ public class RedisConfig {
                 RedisSerializationContext.fromSerializer(new Jackson2JsonRedisSerializer(List.class))
         );
     }
+
+    @Bean
+    public ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate(ReactiveRedisConnectionFactory factory) {
+        return new ReactiveRedisTemplate<String, Long>(
+                factory,
+                RedisSerializationContext.fromSerializer(new Jackson2JsonRedisSerializer(Long.class)));
+    }
 }

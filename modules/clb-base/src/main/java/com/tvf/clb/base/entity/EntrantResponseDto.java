@@ -2,8 +2,6 @@ package com.tvf.clb.base.entity;
 
 import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
-
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -26,4 +24,5 @@ public class EntrantResponseDto {
     private Boolean isScratched;
     private String scratchedTime;
     private Map<Integer, List<Double>> priceFluctuations;
+    private Integer position;
 }

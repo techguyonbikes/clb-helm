@@ -1,16 +1,20 @@
 package com.tvf.clb.service.service;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.dto.MeetingMapper;
 import com.tvf.clb.base.dto.RaceResponseMapper;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,38 +28,49 @@ public class CrawUtils {
     private RaceSiteRepository raceSiteRepository;
 
     @Autowired
-    private EntrantSiteRepository entrantSiteRepository;
-    @Autowired
     private MeetingRepository meetingRepository;
 
     @Autowired
     private RaceRepository raceRepository;
 
     @Autowired
-    private EntrantRepository entrantRepository;
+    private EntrantRedisService entrantRedisService;
 
+    private Gson gson = new Gson();
 
-    public void saveEntrantSite(List<Entrant> entrants, Integer site) {
-        Flux<EntrantSite> newEntrantSites = Flux.fromIterable(entrants).flatMap(
-                r -> {
-                    Flux<Long> generalId = entrantRepository.getEntrantId(r.getName(), r.getNumber(), r.getBarrier());
-                    return Flux.from(generalId).map(id -> MeetingMapper.toEntrantSite(r, site, id));
+    @Autowired
+    private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
+
+    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName, Integer raceNumber) {
+        Mono<Long> raceIdMono = raceNameAndIdTemplate.opsForValue().get(raceName);
+        raceIdMono.map(raceId -> {
+            Mono<List<EntrantResponseDto>> entrantStored = entrantRedisService.findEntrantByRaceId(raceId);
+            return entrantStored.subscribe(records -> {
+                Type listType = new TypeToken<List<EntrantResponseDto>>(){}.getType();
+                List<EntrantResponseDto> storeRecords = gson.fromJson(gson.toJson(records), listType);
+                Map<String, Entrant> entrantMap = new HashMap<>();
+                for(Entrant entrant: entrants) {
+                    entrantMap.put(entrant.getName(), entrant);
                 }
-        );
-        Flux<EntrantSite> existedEntrantSite = entrantSiteRepository
-                .findAllByEntrantSiteIdInAndSiteId(entrants.stream().map(Entrant::getEntrantId).collect(Collectors.toList()), site);
-        Flux.zip(newEntrantSites.collectList(), existedEntrantSite.collectList())
-                .doOnNext(tuple2 -> {
-                    tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
-                    log.info("Entrant site " + site + " need to be update is " + tuple2.getT1().size());
-                    entrantSiteRepository.saveAll(tuple2.getT1()).subscribe();
-                }).subscribe();
+                for (EntrantResponseDto entrantResponseDto: storeRecords) {
+                    Entrant newEntrant = entrantMap.get(entrantResponseDto.getName());
+                    if(entrantResponseDto.getPriceFluctuations() == null) {
+                        Map<Integer, List<Double>> price = new HashMap<>();
+                        log.error("null price");
+                        entrantResponseDto.setPriceFluctuations(price);
+                    }
+                    Map<Integer, List<Double>> price = entrantResponseDto.getPriceFluctuations();
+                    price.put(site, newEntrant.getPrices());
+                }
+                entrantRedisService.saveRace(raceId, storeRecords).subscribe();
+            });
+        }).subscribe();
     }
 
     public void saveMeetingSite(List<Meeting> meetings, Integer site) {
         Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
                 r -> {
-                    Mono<Long> generalId = meetingRepository.getMeetingId(r.getName(),r.getRaceType(), r.getAdvertisedDate());
+                    Mono<Long> generalId = meetingRepository.getMeetingId(r.getName(), r.getRaceType(), r.getAdvertisedDate());
                     return Flux.from(generalId).map(id -> MeetingMapper.toMetingSite(r, site, id));
                 }
         );
@@ -73,7 +88,7 @@ public class CrawUtils {
     public void saveRaceSite(List<Race> races, Integer site) {
         Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                 race -> {
-                    Mono<Long> generalId = raceRepository.getRaceId(race.getName(),race.getNumber(), race.getAdvertisedStart());
+                    Mono<Long> generalId = raceRepository.getRaceId(race.getName(), race.getNumber(), race.getAdvertisedStart());
                     return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
                 }
         );
@@ -83,11 +98,9 @@ public class CrawUtils {
         Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
                 .doOnNext(tuple2 -> {
                     tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
-                    log.info("Race site "  + site + " need to be update is " + tuple2.getT1().size());
+                    log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
                     raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
                 }).subscribe();
 
     }
-
-
 }

@@ -47,6 +47,7 @@ public class NedsCrawlService implements ICrawlService{
         return Mono.fromSupplier(() -> {
             LadBrokedItMeetingDto rawData = null;
             try {
+                Thread.sleep(20000);
                 String url = AppConstant.NEDS_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
                 Response response = ApiUtils.get(url);
                 ResponseBody body = response.body();
@@ -55,6 +56,8 @@ public class NedsCrawlService implements ICrawlService{
                     rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
                 }
             } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
             log.info("Start getting the API from Ned.");
@@ -80,34 +83,31 @@ public class NedsCrawlService implements ICrawlService{
         saveMeeting(ausMeetings);
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         saveRace(raceDtoList);
-        getEntrantRaceByIds(ausRace.stream().map(RaceRawData::getId).collect(Collectors.toList())).subscribe();
+        getEntrantRaceByIds(raceDtoList).subscribe();
         return meetingDtoList;
     }
 
-    private Flux<EntrantDto> getEntrantRaceByIds(List<String> raceIds) {
-        return Flux.fromIterable(raceIds)
+    private Flux<EntrantDto> getEntrantRaceByIds(List<RaceDto> raceDtoList) {
+        return Flux.fromIterable(raceDtoList)
                 .parallel() // create a parallel flux
                 .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
-                .flatMap(this::getEntrantByRaceId) // call the getRaceById method for each raceId
+                .flatMap(x -> getEntrantByRaceId(x.getId(), x.getNumber(), x.getName())) // call the getRaceById method for each raceId
                 .sequential(); // convert back to a sequential flux
     }
 
-    public Flux<EntrantDto> getEntrantByRaceId(String raceId) {
+    public Flux<EntrantDto> getEntrantByRaceId(String raceId, Integer number, String name) {
         try {
             LadBrokedItRaceDto raceDto = getNedsRaceDto(raceId);
             JsonObject results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
-            String statusRace = null;
             if (results != null) {
                 positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
-                statusRace = String.valueOf(Race.Status.F);
             } else {
                 positions.put("position", 0);
-                statusRace = String.valueOf(Race.Status.O);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            saveEntrant(allEntrant);
+            saveEntrant(allEntrant, name, number);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
                         List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
@@ -129,9 +129,9 @@ public class NedsCrawlService implements ICrawlService{
         crawUtils.saveRaceSite(newRaces, 2);
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData) {
-        List<Entrant> newEntrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-//        crawUtils.saveEntrantSite(newEntrants, 2);
+    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, Integer number) {
+        List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
+        crawUtils.saveEntrantIntoRedis(newEntrants, 2, raceName, number);
     }
 
     public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {

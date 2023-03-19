@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -56,6 +56,9 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     @Autowired
     private EntrantRedisService  entrantRedisService;
+
+    @Autowired
+    private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
 
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
@@ -100,17 +103,8 @@ public class LadBrokeCrawlService implements ICrawlService {
         return meetingDtoList;
     }
 
-//    @SneakyThrows
-//    private void getEntrantRaceByIds(List<String> raceIds, LocalDate date) {
-//        // we need wait all race and meeting save? not sure if this is correct
-////        Thread.sleep(5000);
-//        Flux.fromIterable(raceIds)
-//                .flatMap(raceId -> getEntrantByRaceId(raceId).subscribeOn(Schedulers.parallel()))
-//                .collectList()
-//                .subscribe(x -> getMeetingFromAllSite(date).subscribe());
-//    }
 
-    private Flux<EntrantDto> getEntrantByRaceId(String raceId, Long generalRaceId) {
+    private Flux<Entrant> getEntrantByRaceId(String raceId, Long generalRaceId) {
         try {
             LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
             JsonObject results = raceDto.getResults();
@@ -129,13 +123,7 @@ public class LadBrokeCrawlService implements ICrawlService {
 //            raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            saveEntrant(allEntrant, generalRaceId);
-            return Flux.fromIterable(allEntrant)
-                    .flatMap(r -> {
-                        List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
-                        EntrantDto entrantDto = EntrantMapper.toEntrantDto(r, entrantPrices);
-                        return Mono.just(entrantDto);
-                    });
+            return saveEntrant(allEntrant, generalRaceId);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -219,24 +207,27 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                 .flatMap(race -> getEntrantByRaceId(race.getRaceId(), race.getId()))
                                                 .sequential()
                                                 .collectList()
-                                                .subscribe(entrantDtoList -> getMeetingFromAllSite(date).subscribe());
+                                                .subscribe(x -> getMeetingFromAllSite(date).subscribe());
+                                        savedRace.forEach(x -> {
+                                            raceNameAndIdTemplate.opsForValue().set(x.getName(), x.getId()).subscribe();
+                                        });
                                         crawUtils.saveRaceSite(savedRace, 1);
-                                        log.info("All races  processed successfully");
+                                        log.info("All races processed successfully");
                                     });
                         }
                 );
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, Long raceId) {
+    public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, Long raceId) {
         List<Entrant> newEntrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
         List<String> entrantNames = newEntrants.stream().map(Entrant::getName).collect(Collectors.toList());
         List<Integer> entrantNumbers = newEntrants.stream().map(Entrant::getNumber).collect(Collectors.toList());
         List<Integer> entrantBarriers = newEntrants.stream().map(Entrant::getBarrier).collect(Collectors.toList());
         Flux<Entrant> existedEntrants = entrantRepository
                 .findAllByNameInAndNumberInAndBarrierIn(entrantNames, entrantNumbers, entrantBarriers);
-        existedEntrants
+        return existedEntrants
                 .collectList()
-                .subscribe(existed ->
+                .flatMapMany(existed ->
                         {
                             newEntrants.addAll(existed);
                             List<Entrant> entrantNeedUpdateOrInsert = newEntrants.stream().distinct().peek(e ->
@@ -251,26 +242,30 @@ public class LadBrokeCrawlService implements ICrawlService {
                                             .ifPresent(entrant -> e.setId(entrant.getId()));
                                 }
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
-                            log.info("Entrant need to be update is " + entrantNeedUpdateOrInsert.size());
-                            entrantRepository.saveAll(entrantNeedUpdateOrInsert)
+                            log.info("Entrant need to be update is {}" , entrantNeedUpdateOrInsert.size());
+                            return entrantRepository.saveAll(entrantNeedUpdateOrInsert)
                                     .collectList()
-                                    .subscribe(saved -> entrantRedisService
-                                            .saveRace(raceId, saved.stream()
-                                                    .map(x -> EntrantMapper.toEntrantResponseDto(x, 1))
-                                                    .collect(Collectors.toList()))
-                                            .subscribe());
+                                    .flatMapMany(saved -> {
+                                        entrantRedisService
+                                                .saveRace(raceId, saved.stream()
+                                                        .map(x -> EntrantMapper.toEntrantResponseDto(x, 1))
+                                                        .collect(Collectors.toList())).subscribe();
+                                        log.info("{} entrants save into redis and database", saved.size());
+                                        return Flux.fromIterable(saved);
+                                    });
                         }
                 );
     }
 
     private List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
+        //sometime ladbrokes has duplicate entrant have different price, we just need to get the first one
         return raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null && r.getId() != null).map(r -> {
             List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.get(r.getId());
             Integer entrantPosition = positions.get(r.getId()) == null ? 0 : positions.get(r.getId());
             EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
             entrantRawData.setRaceId(raceId);
             return entrantRawData;
-        }).collect(Collectors.toList());
+        }).distinct().collect(Collectors.toList());
     }
 
     private LadBrokedItRaceDto getLadBrokedItRaceDto(String raceId) throws IOException {
@@ -282,6 +277,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     //after every thing is implement for first time then we call all site. we need to save all common data first
+    @SneakyThrows
     private Flux<MeetingDto> getMeetingFromAllSite(LocalDate date) {
         List<ICrawlService> crawlServices = new ArrayList<>();
         for (String site: AppConstant.SITE_LIST) {
