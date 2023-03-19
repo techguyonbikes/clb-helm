@@ -1,24 +1,16 @@
 package com.tvf.clb.scheduler;
 
-import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.service.repository.RaceRepository;
-import com.tvf.clb.service.service.CrawlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 @Component
 @Slf4j
 public class RaceScheduler {
 
-    @Autowired
-    private CrawlService crawlService;
+//    @Autowired
+//    private CrawlService crawlService;
     @Autowired
     private RaceRepository raceRepository;
 

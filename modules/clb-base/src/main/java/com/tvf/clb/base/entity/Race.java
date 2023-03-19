@@ -29,7 +29,9 @@ public class Race {
     private Long id;
     @Transient
     private String raceId;
-    private String meetingId;
+    @Transient
+    private String meetingUUID;
+    private Long meetingId;
     private String name;
     private Integer number;
     private Instant advertisedStart;

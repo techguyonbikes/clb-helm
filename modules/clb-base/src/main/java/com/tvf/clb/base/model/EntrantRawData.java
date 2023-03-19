@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 public class EntrantRawData {
     private String id;
-
     private String raceId;
     private String name;
     private int barrier;

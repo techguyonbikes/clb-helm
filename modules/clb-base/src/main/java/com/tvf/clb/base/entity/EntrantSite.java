@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.util.Objects;
+
 
 @Getter
 @Setter
@@ -31,4 +33,28 @@ public class EntrantSite {
     @JsonSerialize(using = PgJsonObjectSerializer.class)
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
     private Json priceFluctuations;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EntrantSite)) return false;
+
+        EntrantSite that = (EntrantSite) o;
+
+        if (!Objects.equals(generalEntrantId, that.generalEntrantId))
+            return false;
+        if (!Objects.equals(entrantSiteId, that.entrantSiteId))
+            return false;
+        if (!Objects.equals(siteId, that.siteId)) return false;
+        return Objects.equals(priceFluctuations, that.priceFluctuations);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = generalEntrantId != null ? generalEntrantId.hashCode() : 0;
+        result = 31 * result + (entrantSiteId != null ? entrantSiteId.hashCode() : 0);
+        result = 31 * result + (siteId != null ? siteId.hashCode() : 0);
+        result = 31 * result + (priceFluctuations != null ? priceFluctuations.hashCode() : 0);
+        return result;
+    }
 }

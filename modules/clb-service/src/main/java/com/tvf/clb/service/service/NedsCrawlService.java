@@ -131,7 +131,7 @@ public class NedsCrawlService implements ICrawlService{
 
     public void saveEntrant(List<EntrantRawData> entrantRawData) {
         List<Entrant> newEntrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-
+//        crawUtils.saveEntrantSite(newEntrants, 2);
     }
 
     public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {

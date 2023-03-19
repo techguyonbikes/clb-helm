@@ -16,7 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 public class RaceDto {
     private String id;
-    private String meetingId;
+    private Long meetingId;
+    private String meetingUUID;
     private String name;
     private Integer number;
     private Instant advertisedStart;

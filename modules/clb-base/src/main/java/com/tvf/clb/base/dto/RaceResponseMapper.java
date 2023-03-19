@@ -26,7 +26,7 @@ public class RaceResponseMapper {
     }
     public static RaceSite toRacesiteDto(Race race, Integer siteId, Long generalId) {
         return RaceSite.builder()
-                .raceSiteId(race.getMeetingId())
+                .raceSiteId(race.getRaceId())
                 .generalRaceId(generalId)
                 .siteId(siteId)
                 .startDate(race.getAdvertisedStart())

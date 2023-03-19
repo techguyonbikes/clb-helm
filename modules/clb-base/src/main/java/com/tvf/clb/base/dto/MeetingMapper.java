@@ -17,7 +17,7 @@ public class MeetingMapper {
 
     public static MeetingDto toMeetingDto(MeetingRawData meeting, List<RaceRawData> races) {
         return MeetingDto.builder()
-                .id(meeting.getId().toString())
+                .id(meeting.getId())
                 .name(meeting.getName())
                 .advertisedDate(Instant.parse(meeting.getAdvertisedDate()))
                 .categoryId(meeting.getCategoryId())
@@ -37,7 +37,7 @@ public class MeetingMapper {
     public static RaceDto toRaceDto(RaceRawData race, String meetingId) {
         return RaceDto.builder()
                 .id(race.getId())
-                .meetingId(meetingId)
+                .meetingUUID(meetingId)
                 .name(race.getName())
                 .number(race.getNumber())
                 .advertisedStart(Instant.parse(race.getAdvertisedStart()))
@@ -51,9 +51,7 @@ public class MeetingMapper {
 
     public static List<RaceDto> toRaceDtoList(List<RaceRawData> races, String meetingId) {
         List<RaceDto> raceDtoList = new ArrayList<>();
-        races.stream().forEach((r) -> {
-            raceDtoList.add(toRaceDto(r, meetingId));
-        });
+        races.forEach(r -> raceDtoList.add(toRaceDto(r, meetingId)));
         return raceDtoList;
     }
 
@@ -91,6 +89,7 @@ public class MeetingMapper {
         return Race.builder()
                 .raceId(raceDto.getId())
                 .meetingId(raceDto.getMeetingId())
+                .meetingUUID(raceDto.getMeetingUUID())
                 .name(raceDto.getName())
                 .number(raceDto.getNumber())
                 .advertisedStart(raceDto.getAdvertisedStart())
@@ -104,7 +103,7 @@ public class MeetingMapper {
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
         return Entrant.builder()
                 .entrantId(entrantRawData.getId())
-                .raceId(entrantRawData.getRaceId())
+                .raceUUID(entrantRawData.getRaceId())
                 .name(entrantRawData.getName())
                 .number(entrantRawData.getNumber())
                 .barrier(entrantRawData.getBarrier())
@@ -118,32 +117,13 @@ public class MeetingMapper {
     }
 
 
-    public static MeetingSite toMeetingSite(Meeting meeting, Integer site) {
-        return MeetingSite
-                .builder()
-                .siteId(site)
-                .startDate(meeting.getAdvertisedDate())
-                .generalMeetingId(meeting.getId())
-                .meetingSiteId(meeting.getMeetingId())
-                .build();
-    }
 
-    public static RaceSite toRaceSite(Race race, Integer site) {
-        return RaceSite
-                .builder()
-                .siteId(site)
-                .startDate(race.getActualStart())
-                .raceSiteId(race.getRaceId())
-                .generalRaceId(race.getId())
-                .build();
-    }
-
-    public static EntrantSite toEntrantSite(Entrant entrant, Integer site) {
+    public static EntrantSite toEntrantSite(Entrant entrant, Integer site, Long id) {
         return EntrantSite
                 .builder()
                 .siteId(site)
                 .entrantSiteId(entrant.getEntrantId())
-                .generalEntrantId(entrant.getId())
+                .generalEntrantId(id)
                 .priceFluctuations(entrant.getPriceFluctuations())
                 .build();
     }

@@ -33,7 +33,9 @@ public class Entrant {
     private Long id;
     @Transient
     private String entrantId;
-    private String raceId;
+    @Transient
+    private String raceUUID;
+    private Long raceId;
     private String name;
     private Integer number;
     private Integer barrier;

@@ -1,6 +1,6 @@
 package com.tvf.clb.config;
 
-import com.tvf.clb.base.entity.EntrantRedis;
+import com.tvf.clb.base.entity.EntrantResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -24,8 +24,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public ReactiveRedisTemplate<Long, List<EntrantRedis>> reactiveEntrantRedisTemplate(ReactiveRedisConnectionFactory factory) {
-        return new ReactiveRedisTemplate<Long, List<EntrantRedis>>(
+    public ReactiveRedisTemplate<Long, List<EntrantResponseDto>> raceDetailTemplate(ReactiveRedisConnectionFactory factory) {
+        return new ReactiveRedisTemplate<Long, List<EntrantResponseDto>>(
                 factory,
                 RedisSerializationContext.fromSerializer(new Jackson2JsonRedisSerializer(List.class))
         );

@@ -1,8 +1,9 @@
 package com.tvf.clb.service.service;
 
-import com.tvf.clb.base.entity.EntrantRedis;
+import com.tvf.clb.base.entity.EntrantResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,22 +15,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EntrantRedisService {
 
-    private final ReactiveRedisOperations<Long, List<EntrantRedis>> entrantReactiveRedisOperations;
+    @Autowired
+    private ReactiveRedisTemplate<Long, List<EntrantResponseDto>> raceDetailTemplate;
 
-    public Mono<Boolean> saveAll(List<EntrantRedis> entrants){
-        return this.entrantReactiveRedisOperations.opsForValue().set(entrants.get(0).getRaceId(), entrants);
+    public Mono<Boolean> saveRace(Long raceId, List<EntrantResponseDto> entrants){
+        return this.raceDetailTemplate.opsForValue().set(raceId, entrants);
     }
 
-    public Mono<List<EntrantRedis>> getByKey(Long key){
-        return this.entrantReactiveRedisOperations.opsForValue().get(key);
+    public Mono<List<EntrantResponseDto>> getByKey(Long key){
+        return this.raceDetailTemplate.opsForValue().get(key);
     }
 
     public Mono<Long> delete(List<Long> raceIds){
         return Flux.fromIterable(raceIds)
-                .flatMap(entrantReactiveRedisOperations::delete).count();
+                .flatMap(raceDetailTemplate::delete).count();
     }
 
     public Mono<Long> delete(Long raceId){
-        return entrantReactiveRedisOperations.delete(raceId);
+        return raceDetailTemplate.delete(raceId);
     }
 }

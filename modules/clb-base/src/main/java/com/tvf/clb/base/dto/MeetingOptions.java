@@ -6,15 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-
 @Getter
 @Setter
-@SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
-public class EntrantResponseDto {
-    private String entrantId;
-    private Object priceFluctuations;
-    private String entrantName;
-    private Integer position;
+@AllArgsConstructor
+@SuperBuilder
+public class MeetingOptions {
+    private String name;
+    private String raceType;
+    private Long id;
 }

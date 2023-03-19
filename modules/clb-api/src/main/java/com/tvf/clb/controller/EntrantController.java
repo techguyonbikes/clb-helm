@@ -24,7 +24,7 @@ public class EntrantController {
     }
 
     @GetMapping("")
-    public Flux<Entrant> getEntrantByRaceId(@RequestParam(value = "id", required = true) String id) {
+    public Flux<Entrant> getEntrantByRaceId(@RequestParam(value = "id", required = true) Long id) {
         return entrantService.getEntrantsByRaceId(id);
    }
 }

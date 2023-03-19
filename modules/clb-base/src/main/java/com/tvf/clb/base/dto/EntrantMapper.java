@@ -62,23 +62,4 @@ public class EntrantMapper {
                 .status(status)
                 .build();
     }
-
-    public static EntrantResponseDto toEntrantResponseDto (Entrant entrant) {
-        return EntrantResponseDto.builder()
-                .entrantId(entrant.getEntrantId())
-                .entrantName(entrant.getName())
-                .priceFluctuations(gson.fromJson(entrant.getPriceFluctuations().asString(), ArrayList.class))
-                .build();
-    }
-
-    public static EntrantResponseDto toEntrantResponseDto (EntrantDto entrant) {
-        return EntrantResponseDto.builder()
-                .entrantId(entrant.getId())
-                .entrantName(entrant.getName())
-                .priceFluctuations(entrant.getPriceFluctuations())
-                .position(entrant.getPosition())
-                .build();
-    }
-
-    private static final Gson gson = new Gson();
 }

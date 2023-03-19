@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -30,20 +29,18 @@ public class CrawlPriceService {
     private EntrantRepository entrantRepository;
 
     @Autowired
-    private CrawlService crawlService;
-
-    @Autowired
     private RaceRepository raceRepository;
 
     @Autowired
     private EntrantRedisService entrantRedisService;
 
-    public Mono<List<EntrantRedis>> crawlPriceByRaceId(Long generalRaceId) {
+    public Mono<List<EntrantResponseDto>> crawlPriceByRaceId(Long generalRaceId) {
+        return Mono.empty();
 
-        return raceRepository.getAllByRaceId(generalRaceId)
-                .map(id -> getEntrantByRaceId(id, generalRaceId))
-                .collectList() // collect all responses data into a list after crawls from all sites
-                .map(crawledList -> saveEntrantForRacing(crawledList, generalRaceId)); // save all crawled data and return corresponding entrants, race info
+//        return raceRepository.getAllByRaceId(generalRaceId)
+//                .map(id -> getEntrantByRaceId(id, generalRaceId))
+//                .collectList() // collect all responses data into a list after crawls from all sites
+//                .map(crawledList -> saveEntrantForRacing(crawledList, generalRaceId)); // save all crawled data and return corresponding entrants, race info
     }
 
     /**
@@ -54,48 +51,41 @@ public class CrawlPriceService {
      * @return
      */
     public RaceEntrantDTO getEntrantByRaceId(String raceId, Long generalRaceId) {
-        try {
-            LadBrokedItRaceDto raceDto = new LadBrokedItRaceDto();
-            switch (1) {
-                case 1:
-                    log.info("call API to site: LADBROKES");
-                    raceDto = crawlService.getLadBrokedItRaceDto(raceId);
-                    break;
-                case 2:
-                    log.info("ZBET");
-                case 3:
-                    log.info("SPORTSNET");
-                case 4:
-                    log.info("NEDS");
-                case 5:
-                    log.info("POINTSBET");
-                case 6:
-                    log.info("TOPSPORT");
-                case 7:
-                    log.info("BET365");
-                case 8:
-                    log.info("TAB");
-                default:
-                    log.info("DONE!!!");
-            }
-            JsonObject results = raceDto.getResults();
-            Map<String, Integer> positions = new HashMap<>();
-            String statusRace = null;
-            if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
-                statusRace = String.valueOf(Race.Status.F);
-            } else {
-                positions.put("position", 0);
-                statusRace = String.valueOf(Race.Status.O);
-            }
-            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
-            raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
-            HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            return new RaceEntrantDTO(statusRace, allEntrant, 1, generalRaceId);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        LadBrokedItRaceDto raceDto = new LadBrokedItRaceDto();
+        switch (1) {
+            case 1:
+                log.info("call API to site: LADBROKES");
+                break;
+            case 2:
+                log.info("ZBET");
+            case 3:
+                log.info("SPORTSNET");
+            case 4:
+                log.info("NEDS");
+            case 5:
+                log.info("POINTSBET");
+            case 6:
+                log.info("TOPSPORT");
+            case 7:
+                log.info("BET365");
+            case 8:
+                log.info("TAB");
+            default:
+                log.info("DONE!!!");
         }
+        JsonObject results = raceDto.getResults();
+        Map<String, Integer> positions = new HashMap<>();
+        String statusRace = null;
+        if (results != null) {
+            positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+            statusRace = String.valueOf(Race.Status.F);
+        } else {
+            positions.put("position", 0);
+            statusRace = String.valueOf(Race.Status.O);
+        }
+        HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
+        List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+        return new RaceEntrantDTO(statusRace, allEntrant, 1, generalRaceId);
     }
 
     /**
@@ -105,7 +95,7 @@ public class CrawlPriceService {
      * @param raceId    the race id
      * @return the entrants price and race status
      */
-    public List<EntrantRedis> saveEntrantForRacing(List<RaceEntrantDTO> priceDTOS, Long raceId) {
+    public List<EntrantResponseDto> saveEntrantForRacing(List<RaceEntrantDTO> priceDTOS, Long raceId) {
 
         List<EntrantSiteRawData> entrantSiteRawData = priceDTOS.stream()
                 .flatMap(priceDTO -> priceDTO.getAllEntrant()
@@ -116,15 +106,15 @@ public class CrawlPriceService {
         // Map list EntrantPriceRawData to list EntrantRedis for saving
         Map<EntrantSiteRawData, Map<Integer, List<Float>>> result = entrantSiteRawData.stream().collect(
                 Collectors.groupingBy(Function.identity(), Collectors.toMap(EntrantSiteRawData::getSiteId, EntrantSiteRawData::getPriceFluctuations)));
-        List<EntrantRedis> entrantRedis = new ArrayList<>();
-        result.keySet().forEach(
-                key -> entrantRedis.add(new EntrantRedis(key.getId(), raceId, key.getName(), key.getNumber(), key.getMarketId(), key.getStatus(), result.get(key)))
-        );
+        List<EntrantResponseDto> entrantRedis = new ArrayList<>();
+//        result.keySet().forEach(
+//                key -> entrantRedis.add(new RaceDetailResponseDto(key.getId(), raceId, key.getName(), key.getNumber(), key.getMarketId(), key.getStatus(), result.get(key)))
+//        );
 
         String raceStatus = priceDTOS.get(0).getStatusRace();
 
         if (raceStatus.equals(String.valueOf(Race.Status.O))) { // check crawled races is opening or not, if true save all entrants to Redis
-            entrantRedisService.saveAll(entrantRedis).subscribe();
+//            entrantRedisService.saveRace(entrantRedis).subscribe();
 
         } else { // else save all to DB and remove all from Redis
             entrantRedisService.delete(raceId).subscribe();

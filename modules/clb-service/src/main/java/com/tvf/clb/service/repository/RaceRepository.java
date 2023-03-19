@@ -11,14 +11,10 @@ import java.time.Instant;
 import java.util.List;
 
 public interface RaceRepository extends R2dbcRepository<Race, Long> {
-    Mono<Race> findRaceByRaceId(String raceId);
     Flux<Race> findAllByActualStartBetween(Instant start, Instant end);
     Flux<Race> findAllByActualStartAfter(Instant time);
-    Flux<Race> findAllByRaceIdIn(List<String> raceIds);
+    Flux<Race> findAllByRaceIdIn(List<Long> raceIds);
     Flux<Race> findAllByIdIn(List<Long> raceIds);
-
-    @Query("Update clb_db.race set distance =:distance , status =:status  WHERE race_id =:raceId")
-    Mono<Race> setUpdateRaceByRaceId(@Param("raceId") String raceId, @Param("distance") Integer distance, @Param("status") String status);
 
     @Query("SELECT r from race r JOIN race_site rs on r.id = rs.general_race_id " +
             "WHERE rs.race_site_id = :raceId")
@@ -27,8 +23,8 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     @Query("select r.race_id  from clb_db.race r where r.id =:raceId")
     Flux<String> getAllByRaceId(@Param("raceId") Long raceId);
 
-    @Query("select r.id from clb_db.race r  where r.meeting_id = :metingId and r.number = :number and r.advertised_start = :date")
-    Mono<Long> getRaceId(@Param("metingId") String metingId, @Param("number") int number, @Param("date") Instant date);
+    @Query("select r.id from clb_db.race r where r.name = :name and r.number = :number and r.advertised_start = :date")
+    Mono<Long> getRaceId(@Param("name") String name, @Param("number") Integer number, @Param("date") Instant date);
 
     Flux<Race> findAllByNameInAndNumberInAndAdvertisedStartIn(@Param("name") List<String> name, @Param("number") List<Integer> number, @Param("date") List<Instant> date);
 }

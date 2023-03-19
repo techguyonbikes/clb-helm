@@ -1,8 +1,8 @@
 package com.tvf.clb.controller;
 
 import com.tvf.clb.base.dto.MeetingDto;
+import com.tvf.clb.base.dto.MeetingOptions;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.service.service.CrawlService;
 import com.tvf.clb.service.service.ICrawlService;
 import com.tvf.clb.service.service.MeetingService;
 import com.tvf.clb.service.service.ServiceLookup;
@@ -32,7 +32,7 @@ public class MeetingController {
     }
 
     @GetMapping("")
-    public Flux<MeetingDto> getListMeeting(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public Flux<MeetingOptions> getListMeeting(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return meetingService.filterMeetingByDate(date);
     }
 }
