@@ -37,7 +37,8 @@ public class CrawlPriceService {
 
         return entrantRedis.map(x -> {
 
-            Type listType = new TypeToken<List<EntrantResponseDto>>(){}.getType();
+            Type listType = new TypeToken<List<EntrantResponseDto>>() {
+            }.getType();
             List<EntrantResponseDto> storeRecords = gson.fromJson(gson.toJson(x), listType);
             String raceUUID = storeRecords.stream().map(EntrantResponseDto::getRaceUUID).findFirst().get();
 
@@ -45,13 +46,13 @@ public class CrawlPriceService {
             crawlServices.forEach(service -> {
                 Map<String, Map<Integer, List<Double>>> prices = service.getEntrantByRaceId(raceUUID);
                 prices.forEach(
-                    (key, value) -> {
-                        if (newPrices.containsKey(key)) {
-                            newPrices.get(key).putAll(value);
-                        } else {
-                            newPrices.putAll(prices);
+                        (key, value) -> {
+                            if (newPrices.containsKey(key)) {
+                                newPrices.get(key).putAll(value);
+                            } else {
+                                newPrices.putAll(prices);
+                            }
                         }
-                    }
                 );
             });
 
@@ -72,7 +73,7 @@ public class CrawlPriceService {
 //        return entrantRedis;
     }
 
-    public void saveEntrantToDb(Long generalRaceId, List<EntrantResponseDto> storeRecords){
+    public void saveEntrantToDb(Long generalRaceId, List<EntrantResponseDto> storeRecords) {
         entrantRepository.getAllByRaceId(generalRaceId).collectList().subscribe(existed -> {
             storeRecords.forEach(e ->
             {
