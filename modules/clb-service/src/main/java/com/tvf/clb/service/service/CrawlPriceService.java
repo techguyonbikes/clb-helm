@@ -47,61 +47,32 @@ public class CrawlPriceService {
 
 
             return Flux.fromIterable(crawlServices)
-                .parallel().runOn(Schedulers.parallel())
-                .map(iCrawlService -> iCrawlService.getEntrantByRaceId(raceUUID))
-                .sequential().flatMapIterable(stringMapMap -> {
-                                                    stringMapMap.forEach(
-                                                            (key, value) -> {
-                                                                if (newPrices.containsKey(key)) {
-                                                                    newPrices.get(key).putAll(value);
-                                                                } else {
-                                                                    newPrices.putAll(stringMapMap);
-                                                                }
-                                                            }
-                                                    );
+                    .parallel().runOn(Schedulers.parallel())
+                    .map(iCrawlService -> iCrawlService.getEntrantByRaceId(raceUUID))
+                    .sequential().doOnNext(prices -> {
+                        prices.forEach((key, value) -> {
+                            if (newPrices.containsKey(key)) {
+                                newPrices.get(key).putAll(value);
+                            } else {
+                                newPrices.putAll(prices);
+                            }
+                        });
+                    }).doOnComplete(() -> {
+                        storeRecords.forEach(entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId())));
 
-                        return storeRecords;
-                }).doOnComplete(() -> {
-                        storeRecords.forEach(
-                                entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId()))
-                        );
-                        entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
-                    }).collectList();
+                        if (storeRecords.stream().anyMatch(record -> record.getPosition() > 0)) {
+                            log.info("-------- Save entrant price to db and remove data in redis: " + generalRaceId);
+                            // save to db and remove data in redis
+                            saveEntrantToDb(generalRaceId, storeRecords);
+                            entrantRedisService.delete(generalRaceId).subscribe();
+                        } else {
+                            log.info("-------- Save entrant price to redis: " + generalRaceId);
+                            entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
+                        }
 
-
-
+                    }).then().then(Mono.just(storeRecords));
         });
     }
-
-
-
-//            crawlServices.forEach(service -> {
-//                Map<String, Map<Integer, List<Double>>> prices = service.getEntrantByRaceId(raceUUID);
-//                prices.forEach(
-//                        (key, value) -> {
-//                            if (newPrices.containsKey(key)) {
-//                                newPrices.get(key).putAll(value);
-//                            } else {
-//                                newPrices.putAll(prices);
-//                            }
-//                        }
-//                );
-//            });
-//
-//            storeRecords.forEach(
-//                    entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId()))
-//            );
-//
-//            if (storeRecords.stream().anyMatch(record -> record.getPosition() > 0)) {
-//                log.info("-------- Save entrant price to db and remove data in redis: "+generalRaceId);
-//                // save to db and remove data in redis
-//                saveEntrantToDb(generalRaceId, storeRecords);
-//                entrantRedisService.delete(generalRaceId).subscribe();
-//            } else {
-//                log.info("-------- Save entrant price to redis: "+generalRaceId);
-//                entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
-//            }
-//            return storeRecords;
 
     public void saveEntrantToDb(Long generalRaceId, List<EntrantResponseDto> storeRecords) {
         entrantRepository.getAllByRaceId(generalRaceId).collectList().subscribe(existed -> {
