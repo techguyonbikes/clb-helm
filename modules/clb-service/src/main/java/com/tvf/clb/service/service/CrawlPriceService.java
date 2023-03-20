@@ -8,14 +8,10 @@ import io.r2dbc.postgresql.codec.Json;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CrawlPriceService {
@@ -26,7 +22,7 @@ public class CrawlPriceService {
     private EntrantRedisService entrantRedisService;
 
     @Autowired
-    private List<ICrawlService> crawlServices;
+    private CrawUtils CrawUtils;
 
     @Autowired
     private EntrantRepository entrantRepository;
@@ -39,38 +35,25 @@ public class CrawlPriceService {
 
         return entrantRedis.flatMap(x -> {
 
-            Type listType = new TypeToken<List<EntrantResponseDto>>() {}.getType();
+            Type listType = new TypeToken<List<EntrantResponseDto>>() {
+            }.getType();
             List<EntrantResponseDto> storeRecords = gson.fromJson(gson.toJson(x), listType);
             String raceUUID = storeRecords.stream().map(EntrantResponseDto::getRaceUUID).findFirst().get();
 
-            Map<String, Map<Integer, List<Double>>> newPrices = new HashMap<>();
+            return CrawUtils.crawlNewPriceByRaceUUID(raceUUID).doOnNext(newPrices -> {
+                storeRecords.forEach(entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId())));
 
+                if (storeRecords.stream().anyMatch(record -> record.getPosition() > 0)) {
+                    log.info("-------- Save entrant price to db and remove data in redis: " + generalRaceId);
+                    // save to db and remove data in redis
+                    saveEntrantToDb(generalRaceId, storeRecords);
+                    entrantRedisService.delete(generalRaceId).subscribe();
+                } else {
+                    log.info("-------- Save entrant price to redis: " + generalRaceId);
+                    entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
+                }
 
-            return Flux.fromIterable(crawlServices)
-                    .parallel().runOn(Schedulers.parallel())
-                    .map(iCrawlService -> iCrawlService.getEntrantByRaceId(raceUUID))
-                    .sequential().doOnNext(prices -> {
-                        prices.forEach((key, value) -> {
-                            if (newPrices.containsKey(key)) {
-                                newPrices.get(key).putAll(value);
-                            } else {
-                                newPrices.putAll(prices);
-                            }
-                        });
-                    }).doOnComplete(() -> {
-                        storeRecords.forEach(entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId())));
-
-                        if (storeRecords.stream().anyMatch(record -> record.getPosition() > 0)) {
-                            log.info("-------- Save entrant price to db and remove data in redis: " + generalRaceId);
-                            // save to db and remove data in redis
-                            saveEntrantToDb(generalRaceId, storeRecords);
-                            entrantRedisService.delete(generalRaceId).subscribe();
-                        } else {
-                            log.info("-------- Save entrant price to redis: " + generalRaceId);
-                            entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
-                        }
-
-                    }).then().then(Mono.just(storeRecords));
+            }).then(Mono.just(storeRecords));
         });
     }
 

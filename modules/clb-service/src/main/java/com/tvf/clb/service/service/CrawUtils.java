@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -35,6 +36,9 @@ public class CrawUtils {
 
     @Autowired
     private EntrantRedisService entrantRedisService;
+
+    @Autowired
+    private List<ICrawlService> crawlServices;
 
     private Gson gson = new Gson();
 
@@ -106,5 +110,21 @@ public class CrawUtils {
                     raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
                 }).subscribe();
 
+    }
+
+    public Mono<Map<String, Map<Integer, List<Double>>>> crawlNewPriceByRaceUUID(String raceUUID){
+        Map<String, Map<Integer, List<Double>>> newPrices = new HashMap<>();
+        return Flux.fromIterable(crawlServices)
+                .parallel().runOn(Schedulers.parallel())
+                .map(iCrawlService -> iCrawlService.getEntrantByRaceId(raceUUID))
+                .sequential().doOnNext(prices -> {
+                    prices.forEach((key, value) -> {
+                        if (newPrices.containsKey(key)) {
+                            newPrices.get(key).putAll(value);
+                        } else {
+                            newPrices.putAll(prices);
+                        }
+                    });
+                }).then(Mono.just(newPrices));
     }
 }
