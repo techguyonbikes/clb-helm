@@ -13,12 +13,10 @@ import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.model.VenueRawData;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -26,7 +24,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,9 +52,7 @@ public class NedsCrawlService implements ICrawlService{
                 if (body != null) {
                     rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
             log.info("Start getting the API from Ned.");
@@ -71,9 +66,9 @@ public class NedsCrawlService implements ICrawlService{
             JsonObject results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
             } else {
-                positions.put("position", 0);
+                positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
@@ -126,9 +121,9 @@ public class NedsCrawlService implements ICrawlService{
             JsonObject results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
             } else {
-                positions.put("position", 0);
+                positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);

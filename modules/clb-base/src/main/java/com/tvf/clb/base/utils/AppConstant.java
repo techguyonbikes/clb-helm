@@ -11,6 +11,8 @@ public class AppConstant {
     //Because we use ladbroke to store common data , bellow is list site after common data is saved
     public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED));
 
+    public static final String POSITION = "position";
+
     public static final String AUS = "AUS";
     public static final String DATE_PARAM = "{date}";
 
