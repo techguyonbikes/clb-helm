@@ -79,7 +79,8 @@ public class NedsCrawlService implements ICrawlService{
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
             Map<String, Map<Integer, List<Double>>> result = new HashMap<>();
             allEntrant.forEach(x -> {
-                List<Double> entrantPrice = allEntrantPrices.get(x.getRaceId()).stream().map(Float::doubleValue).collect(Collectors.toList());
+                List<Double> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
+                        : allEntrantPrices.get(x.getId()).stream().map(Float::doubleValue).collect(Collectors.toList());
                 Map<Integer, List<Double>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(2, entrantPrice);
                 result.put(x.getId(), priceFluctuations);

@@ -1,11 +1,23 @@
 package com.tvf.clb.service.service;
 
-import com.tvf.clb.base.entity.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.tvf.clb.base.entity.Entrant;
+import com.tvf.clb.base.entity.EntrantResponseDto;
+import com.tvf.clb.service.repository.EntrantRepository;
+import io.r2dbc.postgresql.codec.Json;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import java.util.*;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CrawlPriceService {
@@ -18,19 +30,64 @@ public class CrawlPriceService {
     @Autowired
     private List<ICrawlService> crawlServices;
 
+    @Autowired
+    private EntrantRepository entrantRepository;
+
+    private Gson gson = new Gson();
+
+
     public Mono<List<EntrantResponseDto>> crawlPriceByRaceId(Long generalRaceId) {
         Mono<List<EntrantResponseDto>> entrantRedis = entrantRedisService.findEntrantByRaceId(generalRaceId);
-        Map<String, Map<Integer, List<Double>>> newPrices = new HashMap<>();
-        //todo use crawlSevice to get new price
-        entrantRedis.subscribe(x -> {
-            String raceUUID = x.stream().map(EntrantResponseDto::getRaceUUID).findFirst().get();
+
+        return entrantRedis.map(x -> {
+
+            Type listType = new TypeToken<List<EntrantResponseDto>>(){}.getType();
+            List<EntrantResponseDto> storeRecords = gson.fromJson(gson.toJson(x), listType);
+            String raceUUID = storeRecords.stream().map(EntrantResponseDto::getRaceUUID).findFirst().get();
+
+            Map<String, Map<Integer, List<Double>>> newPrices = new HashMap<>();
             crawlServices.forEach(service -> {
                 Map<String, Map<Integer, List<Double>>> prices = service.getEntrantByRaceId(raceUUID);
-
+                prices.forEach(
+                    (key, value) -> {
+                        if (newPrices.containsKey(key)) {
+                            newPrices.get(key).putAll(value);
+                        } else {
+                            newPrices.putAll(prices);
+                        }
+                    }
+                );
             });
+
+            storeRecords.forEach(
+                    entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId()))
+            );
+
+            if (storeRecords.stream().anyMatch(record -> record.getPosition() == 0)) {
+                // save to db
+                saveEntrantToDb(generalRaceId, storeRecords);
+            } else {
+                entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
+            }
+            return storeRecords;
         });
 
-        return entrantRedis;
+//        return entrantRedis;
+    }
+
+    public void saveEntrantToDb(Long generalRaceId, List<EntrantResponseDto> storeRecords){
+        entrantRepository.getAllByRaceId(generalRaceId).collectList().subscribe(existed -> {
+            storeRecords.forEach(e ->
+            {
+                existed.stream()
+                        .filter(x -> x.getName().equals(e.getName())
+                                && x.getNumber().equals(e.getNumber())
+                                && x.getBarrier().equals(e.getBarrier()))
+                        .findFirst()
+                        .ifPresent(entrant -> entrant.setPriceFluctuations(Json.of(gson.toJson(e.getPriceFluctuations()))));
+            });
+            entrantRepository.saveAll(existed).subscribe();
+        });
     }
 
 }
