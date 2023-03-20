@@ -54,16 +54,17 @@ public class CrawUtils {
                 }
                 for (EntrantResponseDto entrantResponseDto: storeRecords) {
                     Entrant newEntrant = entrantMap.get(entrantResponseDto.getName());
-                    if (newEntrant == null) {
-                        continue;
-                    }
+
                     if(entrantResponseDto.getPriceFluctuations() == null) {
                         Map<Integer, List<Double>> price = new HashMap<>();
                         log.error("null price");
                         entrantResponseDto.setPriceFluctuations(price);
                     }
                     Map<Integer, List<Double>> price = entrantResponseDto.getPriceFluctuations();
-                    price.put(site, newEntrant.getPrices() == null ? new ArrayList<>() : newEntrant.getPrices());
+
+                    if (newEntrant != null) {
+                        price.put(site, newEntrant.getPrices() == null ? new ArrayList<>() : newEntrant.getPrices());
+                    }
                 }
                 entrantRedisService.saveRace(raceId, storeRecords).subscribe();
             });

@@ -51,24 +51,6 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantSiteRawData mapPrices(EntrantRawData entrant, Integer siteId, String status) {
-        return EntrantSiteRawData.builder()
-                .id(entrant.getId())
-                .raceId(entrant.getRaceId())
-                .name(entrant.getName())
-                .marketId(entrant.getMarketId())
-                .number(entrant.getNumber())
-                .barrier(entrant.getBarrier())
-                .visible(entrant.isVisible())
-                .priceFluctuations(entrant.getPriceFluctuations() == null ? new ArrayList<>() : entrant.getPriceFluctuations())
-                .isScratched(entrant.getIsScratched() == null ? String.valueOf(false) : entrant.getIsScratched())
-                .scratchedTime(entrant.getScratchedTime() == null ? Instant.now() : entrant.getScratchedTime())
-                .position(entrant.getPosition())
-                .siteId(siteId)
-                .status(status)
-                .build();
-    }
-
     public static EntrantResponseDto toEntrantResponseDto(Entrant entrant, Integer siteId) {
         Map<Integer, List<Double>> priceFluctuations = new HashMap<>();
         Gson gson = new Gson();
