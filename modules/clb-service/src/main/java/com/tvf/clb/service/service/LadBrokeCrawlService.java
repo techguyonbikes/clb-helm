@@ -144,9 +144,8 @@ public class LadBrokeCrawlService implements ICrawlService {
                 statusRace = String.valueOf(Race.Status.O);
             }
             //got null every time?
-//            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
-//            raceRepository.getRaceByRaceSiteId(raceId).subscribe(x -> log.info(x.getName()));
-//            raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
+            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
+            raceRepository.setUpdateRaceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
             return saveEntrant(allEntrant, generalRaceId);
