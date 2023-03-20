@@ -1,23 +1,19 @@
 package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.service.repository.EntrantRepository;
 import io.r2dbc.postgresql.codec.Json;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class CrawlPriceService {
@@ -63,9 +59,10 @@ public class CrawlPriceService {
                     entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId()))
             );
 
-            if (storeRecords.stream().anyMatch(record -> record.getPosition() == 0)) {
-                // save to db
+            if (storeRecords.stream().anyMatch(record -> record.getPosition() > 0)) {
+                // save to db and remove data in redis
                 saveEntrantToDb(generalRaceId, storeRecords);
+                entrantRedisService.delete(generalRaceId).subscribe();
             } else {
                 entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
             }
