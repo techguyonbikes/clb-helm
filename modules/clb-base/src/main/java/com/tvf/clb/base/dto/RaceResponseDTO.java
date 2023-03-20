@@ -8,8 +8,8 @@ import java.time.Instant;
 @Data
 @Builder
 public class RaceResponseDTO {
-    String raceId;
-    String meetingId;
+    Long id;
+    Long meetingId;
     String sideName;
     String meetingName;
     Integer number;

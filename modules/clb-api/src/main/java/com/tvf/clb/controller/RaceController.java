@@ -1,9 +1,7 @@
 package com.tvf.clb.controller;
 
-import com.tvf.clb.base.dto.EntrantDto;
 import com.tvf.clb.base.dto.RaceResponseDTO;
 import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.service.service.CrawlService;
 import com.tvf.clb.service.service.RaceService;
 import com.tvf.clb.service.service.RaceType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,27 +19,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/race")
 public class RaceController {
-    @Autowired
-    private CrawlService crawlService;
 
     @Autowired
     private RaceService raceService;
 
 
-    //today, do we need get 1 by 1 or bulk?
-    @GetMapping("/crawl")
-    public Flux<EntrantDto> crawlRaceById(@RequestParam(value = "id", required = true) String id) {
-        return crawlService.getEntrantByRaceId(id);
-    }
-
     @GetMapping("")
-    public Mono<Race> getRaceById(@RequestParam(value = "id", required = true) String id) {
+    public Mono<Race> getRaceById(@RequestParam(value = "id", required = true) Long id) {
         return raceService.getRaceById(id);
     }
 
     @GetMapping("/side-bar-races")
     public Flux<RaceResponseDTO> searchRaces(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                                                       @RequestParam(value = "meetingIds", required = false) List<String> meetingIds,
+                                                       @RequestParam(value = "meetingIds", required = false) List<Long> meetingIds,
                                                        @RequestParam(value = "raceTypes", required = false, defaultValue = "Horse,Greyhound,Harness") List<RaceType> raceTypes) {
         return raceService.searchRaces(date, meetingIds, raceTypes);
     }

@@ -31,24 +31,11 @@ public class RaceService {
 
     private static final String SIDE_NAME_PREFIX = "R";
 
-    public Mono<Race> getRaceById(String raceId) {
-        return raceRepository.findRaceByRaceId(raceId);
+    public Mono<Race> getRaceById(Long raceId) {
+        return raceRepository.findById(raceId);
     }
 
-    public Flux<RaceResponseDTO> getListSideBarRaces(LocalDate date) {
-        LocalDateTime maxDateTime = date.atTime(LocalTime.MAX);
-        LocalDateTime minDateTime = date.atTime(LocalTime.MIN);
-        Instant endTime = maxDateTime.atOffset(ZoneOffset.UTC).toInstant();
-        Instant startTime = minDateTime.atOffset(ZoneOffset.UTC).toInstant();
-        Flux<Race> races = raceRepository.findAllByActualStartBetween(startTime, endTime)
-                .sort(Comparator.comparing(Race::getActualStart));
-        return races.filter(x -> x.getNumber() != null).flatMap(r -> {
-            Mono<Meeting> meetingMono = meetingService.getMeetingByMeetingId(r.getMeetingId());
-            return meetingMono.map(meeting -> RaceResponseMapper.toRaceResponseDTO(meeting, r));
-        });
-    }
-
-    public Flux<RaceResponseDTO> searchRaces(LocalDate date, List<String> meetingIds, List<RaceType> raceTypes) {
+    public Flux<RaceResponseDTO> searchRaces(LocalDate date, List<Long> meetingIds, List<RaceType> raceTypes) {
         List<String> raceType = raceTypes.stream()
                 .map(RaceType::toString)
                 .collect(Collectors.toList());

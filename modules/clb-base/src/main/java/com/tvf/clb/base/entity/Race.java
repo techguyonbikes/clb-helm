@@ -29,7 +29,9 @@ public class Race {
     private Long id;
     @Transient
     private String raceId;
-    private String meetingId;
+    @Transient
+    private String meetingUUID;
+    private Long meetingId;
     private String name;
     private Integer number;
     private Instant advertisedStart;
@@ -49,29 +51,22 @@ public class Race {
 
         Race race = (Race) o;
 
-        if (!Objects.equals(meetingId, race.meetingId)) return false;
         if (!Objects.equals(name, race.name)) return false;
         if (!Objects.equals(number, race.number)) return false;
         if (!Objects.equals(advertisedStart, race.advertisedStart))
             return false;
-        if (!Objects.equals(actualStart, race.actualStart)) return false;
-        if (!Objects.equals(mainMarketStatusId, race.mainMarketStatusId))
-        if (!Objects.equals(distance, race.distance)) return false;
-        return Objects.equals(resultsDisplay, race.resultsDisplay);
+        return Objects.equals(actualStart, race.actualStart);
     }
 
     @Override
     public int hashCode() {
-        int result = meetingId != null ? meetingId.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (number != null ? number.hashCode() : 0);
         result = 31 * result + (advertisedStart != null ? advertisedStart.hashCode() : 0);
         result = 31 * result + (actualStart != null ? actualStart.hashCode() : 0);
-        result = 31 * result + (mainMarketStatusId != null ? mainMarketStatusId.hashCode() : 0);
-        result = 31 * result + (resultsDisplay != null ? resultsDisplay.hashCode() : 0);
-        result = 31 * result + (distance != null ? distance.hashCode() : 0);
         return result;
     }
+
     public enum Status {
         O("OPEN"),
         F("FINAL"),

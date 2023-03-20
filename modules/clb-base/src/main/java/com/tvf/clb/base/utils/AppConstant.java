@@ -1,6 +1,16 @@
 package com.tvf.clb.base.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class AppConstant {
+    public static final String LAD_BROKE = "LADBROKE";
+    public static final String NED = "NED";
+
+    //Because we use ladbroke to store common data , bellow is list site after common data is saved
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED));
+
     public static final String AUS = "AUS";
     public static final String DATE_PARAM = "{date}";
 

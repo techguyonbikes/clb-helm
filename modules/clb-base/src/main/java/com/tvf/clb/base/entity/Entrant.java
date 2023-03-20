@@ -3,6 +3,7 @@ package com.tvf.clb.base.entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.utils.PgJsonObjectDeserializer;
 import com.tvf.clb.base.utils.PgJsonObjectSerializer;
 import io.r2dbc.postgresql.codec.Json;
@@ -16,6 +17,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -33,7 +35,9 @@ public class Entrant {
     private Long id;
     @Transient
     private String entrantId;
-    private String raceId;
+    @Transient
+    private String raceUUID;
+    private Long raceId;
     private String name;
     private Integer number;
     private Integer barrier;
@@ -100,5 +104,14 @@ public class Entrant {
         result = 31 * result + (isScratched ? 1 : 0);
         result = 31 * result + (position != null ? position.hashCode() : 0);
         return result;
+    }
+
+    public ArrayList<Double> getPrices() {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<ArrayList<Double>>() {}.getType();
+        if (priceFluctuations == null) {
+            return new ArrayList<>();
+        }
+        return gson.fromJson(priceFluctuations.asString(), listType);
     }
 }
