@@ -2,15 +2,12 @@ package com.tvf.clb.base.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.EntrantResponseDto;
-import com.tvf.clb.base.model.EntrantSiteRawData;
 import com.tvf.clb.base.model.EntrantRawData;
-import com.google.gson.reflect.TypeToken;
-import io.r2dbc.postgresql.codec.Json;
 
 import java.lang.reflect.Type;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

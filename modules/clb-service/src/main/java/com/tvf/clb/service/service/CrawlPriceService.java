@@ -35,9 +35,7 @@ public class CrawlPriceService {
 
         return entrantRedis.flatMap(x -> {
 
-            Type listType = new TypeToken<List<EntrantResponseDto>>() {
-            }.getType();
-            List<EntrantResponseDto> storeRecords = gson.fromJson(gson.toJson(x), listType);
+            List<EntrantResponseDto> storeRecords = CrawUtils.convertFromRedisPriceToDTO(x);
             String raceUUID = storeRecords.stream().map(EntrantResponseDto::getRaceUUID).findFirst().get();
 
             return CrawUtils.crawlNewPriceByRaceUUID(raceUUID).doOnNext(newPrices -> {

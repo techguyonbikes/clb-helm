@@ -50,8 +50,8 @@ public class CrawUtils {
         raceIdMono.map(raceId -> {
             Mono<List<EntrantResponseDto>> entrantStored = entrantRedisService.findEntrantByRaceId(raceId);
             return entrantStored.subscribe(records -> {
-                Type listType = new TypeToken<List<EntrantResponseDto>>(){}.getType();
-                List<EntrantResponseDto> storeRecords = gson.fromJson(gson.toJson(records), listType);
+
+                List<EntrantResponseDto> storeRecords = convertFromRedisPriceToDTO(records);
                 Map<String, Entrant> entrantMap = new HashMap<>();
                 for(Entrant entrant: entrants) {
                     entrantMap.put(entrant.getName(), entrant);
@@ -126,5 +126,11 @@ public class CrawUtils {
                         }
                     });
                 }).then(Mono.just(newPrices));
+    }
+
+    public List<EntrantResponseDto> convertFromRedisPriceToDTO(List<EntrantResponseDto> dtos){
+        Type listType = new TypeToken<List<EntrantResponseDto>>() {
+        }.getType();
+        return gson.fromJson(gson.toJson(dtos), listType);
     }
 }
