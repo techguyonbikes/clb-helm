@@ -18,6 +18,6 @@ public class RaceEntrantDTO {
 
     private String statusRace;
     private List<EntrantRawData> allEntrant;
-    private int siteId;
+    private Integer siteId;
     private Long raceId;
 }

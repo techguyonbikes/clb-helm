@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -36,6 +37,9 @@ public class CrawUtils {
     @Autowired
     private EntrantRedisService entrantRedisService;
 
+    @Autowired
+    private List<ICrawlService> crawlServices;
+
     private Gson gson = new Gson();
 
     @Autowired
@@ -46,21 +50,25 @@ public class CrawUtils {
         raceIdMono.map(raceId -> {
             Mono<List<EntrantResponseDto>> entrantStored = entrantRedisService.findEntrantByRaceId(raceId);
             return entrantStored.subscribe(records -> {
-                Type listType = new TypeToken<List<EntrantResponseDto>>(){}.getType();
-                List<EntrantResponseDto> storeRecords = gson.fromJson(gson.toJson(records), listType);
+
+                List<EntrantResponseDto> storeRecords = convertFromRedisPriceToDTO(records);
                 Map<String, Entrant> entrantMap = new HashMap<>();
                 for(Entrant entrant: entrants) {
                     entrantMap.put(entrant.getName(), entrant);
                 }
                 for (EntrantResponseDto entrantResponseDto: storeRecords) {
                     Entrant newEntrant = entrantMap.get(entrantResponseDto.getName());
+
                     if(entrantResponseDto.getPriceFluctuations() == null) {
                         Map<Integer, List<Double>> price = new HashMap<>();
                         log.error("null price");
                         entrantResponseDto.setPriceFluctuations(price);
                     }
                     Map<Integer, List<Double>> price = entrantResponseDto.getPriceFluctuations();
-                    price.put(site, newEntrant.getPrices());
+
+                    if (newEntrant != null) {
+                        price.put(site, newEntrant.getPrices() == null ? new ArrayList<>() : newEntrant.getPrices());
+                    }
                 }
                 entrantRedisService.saveRace(raceId, storeRecords).subscribe();
             });
@@ -102,5 +110,27 @@ public class CrawUtils {
                     raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
                 }).subscribe();
 
+    }
+
+    public Mono<Map<String, Map<Integer, List<Double>>>> crawlNewPriceByRaceUUID(String raceUUID){
+        Map<String, Map<Integer, List<Double>>> newPrices = new HashMap<>();
+        return Flux.fromIterable(crawlServices)
+                .parallel().runOn(Schedulers.parallel())
+                .map(iCrawlService -> iCrawlService.getEntrantByRaceId(raceUUID))
+                .sequential().doOnNext(prices -> {
+                    prices.forEach((key, value) -> {
+                        if (newPrices.containsKey(key)) {
+                            newPrices.get(key).putAll(value);
+                        } else {
+                            newPrices.putAll(prices);
+                        }
+                    });
+                }).then(Mono.just(newPrices));
+    }
+
+    public List<EntrantResponseDto> convertFromRedisPriceToDTO(List<EntrantResponseDto> dtos){
+        Type listType = new TypeToken<List<EntrantResponseDto>>() {
+        }.getType();
+        return gson.fromJson(gson.toJson(dtos), listType);
     }
 }
