@@ -49,10 +49,10 @@ public class EntrantMapper {
     }
 
     public static EntrantResponseDto toEntrantResponseDto(Entrant entrant, Integer siteId) {
-        Map<Integer, List<Double>> priceFluctuations = new HashMap<>();
+        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
         Gson gson = new Gson();
         Type listType = new TypeToken<ArrayList<Double>>() {}.getType();
-        ArrayList<Double> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
+        ArrayList<Float> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
         priceFluctuations.put(siteId, prices);
         return EntrantResponseDto.builder()
                 .id(entrant.getId())
@@ -66,6 +66,27 @@ public class EntrantMapper {
                 .isScratched(entrant.isScratched())
                 .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
                 .priceFluctuations(priceFluctuations)
+                .position(entrant.getPosition())
+                .build();
+    }
+
+
+    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<Map<Integer, List<Float>>>() {}.getType();
+        Map<Integer, List<Float>> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
+        return EntrantResponseDto.builder()
+                .id(entrant.getId())
+                .entrantId(entrant.getEntrantId())
+                .raceUUID(entrant.getRaceUUID())
+                .raceId(entrant.getRaceId())
+                .name(entrant.getName())
+                .number(entrant.getNumber())
+                .barrier(entrant.getBarrier())
+                .visible(entrant.isVisible())
+                .isScratched(entrant.isScratched())
+                .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
+                .priceFluctuations(prices)
                 .position(entrant.getPosition())
                 .build();
     }

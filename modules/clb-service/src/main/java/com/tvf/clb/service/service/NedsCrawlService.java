@@ -60,7 +60,7 @@ public class NedsCrawlService implements ICrawlService{
         }).flatMapMany(Flux::fromIterable);
     }
 
-    public Map<String, Map<Integer, List<Double>>> getEntrantByRaceId(String raceId) {
+    public Map<String, Map<Integer, List<Float>>> getEntrantByRaceId(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getNedsRaceDto(raceId);
             JsonObject results = raceDto.getResults();
@@ -72,11 +72,11 @@ public class NedsCrawlService implements ICrawlService{
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            Map<String, Map<Integer, List<Double>>> result = new HashMap<>();
+            Map<String, Map<Integer, List<Float>>> result = new HashMap<>();
             allEntrant.forEach(x -> {
-                List<Double> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
-                        : allEntrantPrices.get(x.getId()).stream().map(Float::doubleValue).collect(Collectors.toList());
-                Map<Integer, List<Double>> priceFluctuations = new HashMap<>();
+                List<Float> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
+                        : new ArrayList<>(allEntrantPrices.get(x.getId()));
+                Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(2, entrantPrice);
                 result.put(x.getId(), priceFluctuations);
             });
