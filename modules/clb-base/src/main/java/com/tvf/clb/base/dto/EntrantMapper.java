@@ -51,7 +51,7 @@ public class EntrantMapper {
     public static EntrantResponseDto toEntrantResponseDto(Entrant entrant, Integer siteId) {
         Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
         Gson gson = new Gson();
-        Type listType = new TypeToken<ArrayList<Double>>() {}.getType();
+        Type listType = new TypeToken<ArrayList<Float>>() {}.getType();
         ArrayList<Float> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
         priceFluctuations.put(siteId, prices);
         return EntrantResponseDto.builder()

@@ -65,8 +65,8 @@ public class Entrant {
         if (!Objects.equals(number, entrant.number)) return false;
         if (!Objects.equals(barrier, entrant.barrier)) return false;
         Gson gson = new Gson();
-        ArrayList<Double> prices = gson.fromJson(priceFluctuations.asString(), ArrayList.class);
-        ArrayList<Double> entrantPrices = gson.fromJson(entrant.priceFluctuations.asString(), ArrayList.class);
+        ArrayList<Float> prices = gson.fromJson(priceFluctuations.asString(), ArrayList.class);
+        ArrayList<Float> entrantPrices = gson.fromJson(entrant.priceFluctuations.asString(), ArrayList.class);
         if ((prices == null || entrantPrices == null) || !compareArrayLists(prices, entrantPrices)) return false;
         if (isScratched != entrant.isScratched) return false;
         if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
@@ -74,7 +74,7 @@ public class Entrant {
         return Objects.equals(marketId, entrant.marketId);
     }
 
-    public boolean compareArrayLists(ArrayList<Double> list1, ArrayList<Double> list2) {
+    public boolean compareArrayLists(ArrayList<Float> list1, ArrayList<Float> list2) {
         // Check if both ArrayLists have the same size
         if (list1.size() != list2.size()) {
             return false;
