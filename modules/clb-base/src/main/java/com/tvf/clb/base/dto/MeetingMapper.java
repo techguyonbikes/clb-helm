@@ -7,11 +7,14 @@ import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.utils.AppConstant;
 import io.r2dbc.postgresql.codec.Json;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class MeetingMapper {
     private static final Gson gson = new Gson();
 

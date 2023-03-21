@@ -11,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 @Getter
 @Setter
@@ -25,8 +24,6 @@ public class LadBrokedItRaceDto {
     private Object prices;
     private Object venues;
     private Object substitutions;
-
-    //private Object results;
     private JsonObject results;
     private HashMap<String, EntrantRawData> entrants;
     @SerializedName("price_fluctuations")

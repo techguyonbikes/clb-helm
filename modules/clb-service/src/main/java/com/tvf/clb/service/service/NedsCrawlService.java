@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
+import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
@@ -52,8 +53,11 @@ public class NedsCrawlService implements ICrawlService{
                 if (body != null) {
                     rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
                 }
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
+            } catch (InterruptedException e) {
+                log.warn("Interrupted for 20 seconds!");
+                Thread.currentThread().interrupt();
             }
             log.info("Start getting the API from Ned.");
             return getAllAusMeeting(rawData);
@@ -82,7 +86,7 @@ public class NedsCrawlService implements ICrawlService{
             });
             return result;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
     }
 
@@ -136,7 +140,7 @@ public class NedsCrawlService implements ICrawlService{
                         return Mono.just(entrantDto);
                     });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
     }
 

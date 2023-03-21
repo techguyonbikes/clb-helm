@@ -88,6 +88,7 @@ public class SocketModule {
         return client -> {
             java.util.Map<String, List<String>> params = client.getHandshakeData().getUrlParams();
             log.info("Socket ID[{}] -  disconnected", client.getSessionId().toString());
+            log.info("Number of clients left: {}" , server.getAllClients().size());
         };
     }
 

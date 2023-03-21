@@ -1,7 +1,6 @@
 package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.service.repository.EntrantRepository;
 import io.r2dbc.postgresql.codec.Json;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 @Service
@@ -41,13 +39,13 @@ public class CrawlPriceService {
             return CrawUtils.crawlNewPriceByRaceUUID(raceUUID).doOnNext(newPrices -> {
                 storeRecords.forEach(entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId())));
 
-                if (storeRecords.stream().anyMatch(record -> record.getPosition() > 0)) {
-                    log.info("-------- Save entrant price to db and remove data in redis: " + generalRaceId);
+                if (storeRecords.stream().anyMatch(storeRecord -> storeRecord.getPosition() > 0)) {
+                    log.info("-------- Save entrant price to db and remove data in redis: {}", generalRaceId);
                     // save to db and remove data in redis
                     saveEntrantToDb(generalRaceId, storeRecords);
                     entrantRedisService.delete(generalRaceId).subscribe();
                 } else {
-                    log.info("-------- Save entrant price to redis: " + generalRaceId);
+                    log.info("-------- Save entrant price to redis: {}", generalRaceId);
                     entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
                 }
 

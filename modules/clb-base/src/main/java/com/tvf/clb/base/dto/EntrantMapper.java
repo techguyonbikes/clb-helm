@@ -6,6 +6,9 @@ import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.model.EntrantRawData;
+import com.google.gson.reflect.TypeToken;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -13,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class EntrantMapper {
 
     public static ObjectMapper objectMapper = new ObjectMapper();
