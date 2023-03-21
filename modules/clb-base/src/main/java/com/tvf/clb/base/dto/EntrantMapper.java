@@ -69,4 +69,25 @@ public class EntrantMapper {
                 .position(entrant.getPosition())
                 .build();
     }
+
+
+    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<Map<Integer, List<Double>>>() {}.getType();
+        Map<Integer, List<Double>> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
+        return EntrantResponseDto.builder()
+                .id(entrant.getId())
+                .entrantId(entrant.getEntrantId())
+                .raceUUID(entrant.getRaceUUID())
+                .raceId(entrant.getRaceId())
+                .name(entrant.getName())
+                .number(entrant.getNumber())
+                .barrier(entrant.getBarrier())
+                .visible(entrant.isVisible())
+                .isScratched(entrant.isScratched())
+                .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
+                .priceFluctuations(prices)
+                .position(entrant.getPosition())
+                .build();
+    }
 }

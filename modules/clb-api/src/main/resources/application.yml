@@ -25,10 +25,9 @@ logging:
     file: "%d %p %C{1.} [%t] [%X{remoteAddr}] [%X{tenant}] %m%n"
 spring:
   redis:
-    host: localhost
-    port: 49153
-    password: redispw
-    username: default
+    host: 34.129.76.56
+    port: 6379
+    password: password123
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
