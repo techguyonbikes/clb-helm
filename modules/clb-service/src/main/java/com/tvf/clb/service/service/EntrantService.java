@@ -24,13 +24,8 @@ public class EntrantService {
 
     }
     public Flux<EntrantResponseDto> getEntrantsByRaceId(Long raceId){
-        return entrantRedisService.findEntrantByRaceId(raceId).flatMapMany(entrantResponseDtos -> {
-            if (entrantResponseDtos.size() > 0) {
-                return Flux.fromIterable(entrantResponseDtos);
-            } else {
-                return entrantRepository.getAllByRaceId(raceId).map(EntrantMapper::toEntrantResponseDto);
-            }
-        });
+        return entrantRedisService.findEntrantByRaceId(raceId).flatMapMany(Flux::fromIterable)
+                .switchIfEmpty(entrantRepository.getAllByRaceId(raceId).map(EntrantMapper::toEntrantResponseDto));
     }
 
 
