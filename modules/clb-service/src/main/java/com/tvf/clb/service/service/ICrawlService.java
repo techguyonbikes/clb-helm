@@ -11,5 +11,5 @@ public interface ICrawlService {
 
     Flux<MeetingDto> getTodayMeetings(LocalDate date);
 
-    public Map<String, Map<Integer, List<Double>>> getEntrantByRaceId(String raceId);
+    public Map<String, Map<Integer, List<Float>>> getEntrantByRaceId(String raceId);
 }

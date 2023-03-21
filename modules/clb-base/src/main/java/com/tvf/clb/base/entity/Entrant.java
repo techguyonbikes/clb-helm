@@ -106,9 +106,9 @@ public class Entrant {
         return result;
     }
 
-    public ArrayList<Double> getPrices() {
+    public ArrayList<Float> getPrices() {
         Gson gson = new Gson();
-        Type listType = new TypeToken<ArrayList<Double>>() {}.getType();
+        Type listType = new TypeToken<ArrayList<Float>>() {}.getType();
         if (priceFluctuations == null) {
             return new ArrayList<>();
         }
