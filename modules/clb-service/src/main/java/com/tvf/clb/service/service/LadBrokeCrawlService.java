@@ -79,6 +79,33 @@ public class LadBrokeCrawlService implements ICrawlService {
         }).flatMapMany(Flux::fromIterable);
     }
 
+    @Override
+    public Map<String, Map<Integer, List<Double>>> getEntrantByRaceId(String raceId) {
+        try {
+            LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
+            JsonObject results = raceDto.getResults();
+            Map<String, Integer> positions = new HashMap<>();
+            if (results != null) {
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+            } else {
+                positions.put("position", 0);
+            }
+            HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
+            List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+            Map<String, Map<Integer, List<Double>>> result = new HashMap<>();
+            allEntrant.forEach(x -> {
+                List<Double> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
+                        : allEntrantPrices.get(x.getId()).stream().map(Float::doubleValue).collect(Collectors.toList());
+                Map<Integer, List<Double>> priceFluctuations = new HashMap<>();
+                priceFluctuations.put(1, entrantPrice);
+                result.put(x.getId(), priceFluctuations);
+            });
+            return result;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private List<MeetingDto> getAllAusMeeting(LadBrokedItMeetingDto ladBrokedItMeetingDto,LocalDate date) {
         List<VenueRawData> ausVenues = ladBrokedItMeetingDto.getVenues().values().stream().filter(v -> v.getCountry().equals(AppConstant.AUS)).collect(Collectors.toList());
         List<String> venuesId = ausVenues.stream().map(VenueRawData::getId).collect(Collectors.toList());
