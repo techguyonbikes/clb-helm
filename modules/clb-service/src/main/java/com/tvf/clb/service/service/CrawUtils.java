@@ -60,11 +60,11 @@ public class CrawUtils {
                     Entrant newEntrant = entrantMap.get(entrantResponseDto.getName());
 
                     if(entrantResponseDto.getPriceFluctuations() == null) {
-                        Map<Integer, List<Double>> price = new HashMap<>();
+                        Map<Integer, List<Float>> price = new HashMap<>();
                         log.error("null price");
                         entrantResponseDto.setPriceFluctuations(price);
                     }
-                    Map<Integer, List<Double>> price = entrantResponseDto.getPriceFluctuations();
+                    Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
 
                     if (newEntrant != null) {
                         price.put(site, newEntrant.getPrices() == null ? new ArrayList<>() : newEntrant.getPrices());
@@ -112,8 +112,8 @@ public class CrawUtils {
 
     }
 
-    public Mono<Map<String, Map<Integer, List<Double>>>> crawlNewPriceByRaceUUID(String raceUUID){
-        Map<String, Map<Integer, List<Double>>> newPrices = new HashMap<>();
+    public Mono<Map<String, Map<Integer, List<Float>>>> crawlNewPriceByRaceUUID(String raceUUID){
+        Map<String, Map<Integer, List<Float>>> newPrices = new HashMap<>();
         return Flux.fromIterable(crawlServices)
                 .parallel().runOn(Schedulers.parallel())
                 .map(iCrawlService -> iCrawlService.getEntrantByRaceId(raceUUID))

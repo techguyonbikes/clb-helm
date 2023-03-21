@@ -23,6 +23,6 @@ public class EntrantResponseDto {
     private Boolean visible;
     private Boolean isScratched;
     private String scratchedTime;
-    private Map<Integer, List<Double>> priceFluctuations;
+    private Map<Integer, List<Float>> priceFluctuations;
     private Integer position;
 }
