@@ -94,7 +94,8 @@ public class LadBrokeCrawlService implements ICrawlService {
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
             Map<String, Map<Integer, List<Double>>> result = new HashMap<>();
             allEntrant.forEach(x -> {
-                List<Double> entrantPrice = allEntrantPrices.get(x.getRaceId()).stream().map(Float::doubleValue).collect(Collectors.toList());
+                List<Double> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
+                        : allEntrantPrices.get(x.getId()).stream().map(Float::doubleValue).collect(Collectors.toList());
                 Map<Integer, List<Double>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(1, entrantPrice);
                 result.put(x.getId(), priceFluctuations);
@@ -144,9 +145,8 @@ public class LadBrokeCrawlService implements ICrawlService {
                 statusRace = String.valueOf(Race.Status.O);
             }
             //got null every time?
-//            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
-//            raceRepository.getRaceByRaceSiteId(raceId).subscribe(x -> log.info(x.getName()));
-//            raceRepository.setUpdateRaceByRaceId(raceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
+            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
+            raceRepository.setUpdateRaceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
             return saveEntrant(allEntrant, generalRaceId);

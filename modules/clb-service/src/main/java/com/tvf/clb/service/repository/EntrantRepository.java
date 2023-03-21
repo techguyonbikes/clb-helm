@@ -26,4 +26,6 @@ public interface EntrantRepository extends R2dbcRepository<Entrant, Long> {
             "AND r.name = :raceName " +
             "AND r.number = :raceNumber ")
     Mono<Entrant> findByNameAndNumberAndBarrier(String name, Integer number, Integer barrier, String raceName, Integer raceNumber);
+
+    Flux<Entrant> getAllByRaceId(Long raceId);
 }
