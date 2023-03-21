@@ -122,7 +122,7 @@ public class CrawUtils {
                         if (newPrices.containsKey(key)) {
                             newPrices.get(key).putAll(value);
                         } else {
-                            newPrices.putAll(prices);
+                            newPrices.put(key, value);
                         }
                     });
                 }).then(Mono.just(newPrices));
