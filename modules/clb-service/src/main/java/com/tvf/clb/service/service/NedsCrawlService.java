@@ -116,11 +116,11 @@ public class NedsCrawlService implements ICrawlService{
         return Flux.fromIterable(raceDtoList)
                 .parallel() // create a parallel flux
                 .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
-                .flatMap(x -> getEntrantByRaceId(x.getId(), x.getNumber(), x.getName())) // call the getRaceById method for each raceId
+                .flatMap(x -> getEntrantByRaceId(x.getId(), x.getName())) // call the getRaceById method for each raceId
                 .sequential(); // convert back to a sequential flux
     }
 
-    public Flux<EntrantDto> getEntrantByRaceId(String raceId, Integer number, String name) {
+    public Flux<EntrantDto> getEntrantByRaceId(String raceId, String name) {
         try {
             LadBrokedItRaceDto raceDto = getNedsRaceDto(raceId);
             JsonObject results = raceDto.getResults();
@@ -132,7 +132,7 @@ public class NedsCrawlService implements ICrawlService{
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            saveEntrant(allEntrant, name, number);
+            saveEntrant(allEntrant, name);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
                         List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
@@ -154,9 +154,9 @@ public class NedsCrawlService implements ICrawlService{
         crawUtils.saveRaceSite(newRaces, 2);
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, Integer number) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantIntoRedis(newEntrants, 2, raceName, number);
+        crawUtils.saveEntrantIntoRedis(newEntrants, 2, raceName);
     }
 
     public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
