@@ -39,7 +39,7 @@ build:
 
 deploy:
   image:
-    name: google/cloud-sdk
+    name: kiwigrid/gcloud-kubectl-helm
   stage: deploy
   script:
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
