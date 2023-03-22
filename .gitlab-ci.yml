@@ -49,3 +49,6 @@ deploy:
     - cd charts/clb-charts
     - helm upgrade --install clb-be -n default .
     - kubectl rollout restart deployment clb-be
+  only:
+    - main
+    - release
