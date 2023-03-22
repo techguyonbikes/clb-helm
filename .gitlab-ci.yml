@@ -48,8 +48,8 @@ deploy:
     - gcloud config set container/cluster clb-cluster
     - gcloud config set compute/zone australia-southeast2-a
     - gcloud container clusters get-credentials clb-cluster --zone australia-southeast2-a --project cloudbet-381210
-    - kubectl config get-contexts
-    - kubectl config use-context $CI_PROJECT_PATH:cloudbet-agent
+#    - kubectl config get-contexts
+#    - kubectl config use-context $CI_PROJECT_PATH:cloudbet-agent
     - kubectl config set-context --current --namespace=default
     - kubectl get all
 #    - cd charts/clb-charts
