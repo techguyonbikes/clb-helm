@@ -12,7 +12,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.util.List;
 
@@ -30,21 +29,17 @@ public class RedisConfig {
     public ReactiveRedisTemplate<Long, List<EntrantResponseDto>> raceDetailTemplate(ReactiveRedisConnectionFactory factory) {
         ObjectMapper mapper = new ObjectMapper();
         JavaType type = mapper.getTypeFactory().constructParametricType(List.class, EntrantResponseDto.class);
-        Jackson2JsonRedisSerializer<List<EntrantResponseDto>> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(type);
-        RedisSerializationContext<Long, List<EntrantResponseDto>> serializationContext = RedisSerializationContext
-                .<Long, List<EntrantResponseDto>>newSerializationContext(new StringRedisSerializer())
-                .value(jackson2JsonRedisSerializer)
-                .build();
-        return new ReactiveRedisTemplate<>(factory, serializationContext);
+        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(type);
+        return new ReactiveRedisTemplate<Long, List<EntrantResponseDto>>(
+                factory,
+                RedisSerializationContext.fromSerializer(jackson2JsonRedisSerializer)
+        );
     }
 
     @Bean
     public ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate(ReactiveRedisConnectionFactory factory) {
-        Jackson2JsonRedisSerializer<Long> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Long.class);
-        RedisSerializationContext<String, Long> serializationContext = RedisSerializationContext
-                .<String, Long>newSerializationContext(new StringRedisSerializer())
-                .value(jackson2JsonRedisSerializer)
-                .build();
-        return new ReactiveRedisTemplate<>(factory, serializationContext);
+        return new ReactiveRedisTemplate<String, Long>(
+                factory,
+                RedisSerializationContext.fromSerializer(new Jackson2JsonRedisSerializer(Long.class)));
     }
 }
