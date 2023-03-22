@@ -69,9 +69,6 @@ deploy:
     - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
-    - ssh dukecorp@35.197.135.112
-    - pwd
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - if docker ps | grep cloudbet; then echo docker stop clb && docker rm clb;fi
-    - docker run -d -p 20001:20001 -p 20002:20002 --name clb $CI_REGISTRY_IMAGE
-    - docker ps
+    - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
+    - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+    - kubectl get all
