@@ -3,6 +3,7 @@ package com.tvf.clb.base.entity;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.utils.PgJsonObjectDeserializer;
 import com.tvf.clb.base.utils.PgJsonObjectSerializer;
 import io.r2dbc.postgresql.codec.Json;
@@ -13,8 +14,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -30,8 +33,11 @@ import java.util.Objects;
 public class Entrant {
     @Id
     private Long id;
+    @Transient
     private String entrantId;
-    private String raceId;
+    @Transient
+    private String raceUUID;
+    private Long raceId;
     private String name;
     private Integer number;
     private Integer barrier;
@@ -54,14 +60,13 @@ public class Entrant {
         Entrant entrant = (Entrant) o;
 
         if (visible != entrant.visible) return false;
-        if (!Objects.equals(entrantId, entrant.entrantId)) return false;
         if (!Objects.equals(raceId, entrant.raceId)) return false;
         if (!Objects.equals(name, entrant.name)) return false;
         if (!Objects.equals(number, entrant.number)) return false;
         if (!Objects.equals(barrier, entrant.barrier)) return false;
         Gson gson = new Gson();
-        ArrayList<Double> prices = gson.fromJson(priceFluctuations.asString(), ArrayList.class);
-        ArrayList<Double> entrantPrices = gson.fromJson(entrant.priceFluctuations.asString(), ArrayList.class);
+        ArrayList<Float> prices = gson.fromJson(priceFluctuations.asString(), ArrayList.class);
+        ArrayList<Float> entrantPrices = gson.fromJson(entrant.priceFluctuations.asString(), ArrayList.class);
         if ((prices == null || entrantPrices == null) || !compareArrayLists(prices, entrantPrices)) return false;
         if (isScratched != entrant.isScratched) return false;
         if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
@@ -69,7 +74,7 @@ public class Entrant {
         return Objects.equals(marketId, entrant.marketId);
     }
 
-    public boolean compareArrayLists(ArrayList<Double> list1, ArrayList<Double> list2) {
+    public boolean compareArrayLists(ArrayList<Float> list1, ArrayList<Float> list2) {
         // Check if both ArrayLists have the same size
         if (list1.size() != list2.size()) {
             return false;
@@ -89,8 +94,7 @@ public class Entrant {
 
     @Override
     public int hashCode() {
-        int result = entrantId != null ? entrantId.hashCode() : 0;
-        result = 31 * result + (raceId != null ? raceId.hashCode() : 0);
+        int result = raceId != null ? raceId.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (number != null ? number.hashCode() : 0);
         result = 31 * result + (barrier != null ? barrier.hashCode() : 0);
@@ -100,5 +104,14 @@ public class Entrant {
         result = 31 * result + (isScratched ? 1 : 0);
         result = 31 * result + (position != null ? position.hashCode() : 0);
         return result;
+    }
+
+    public ArrayList<Float> getPrices() {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<ArrayList<Float>>() {}.getType();
+        if (priceFluctuations == null) {
+            return new ArrayList<>();
+        }
+        return gson.fromJson(priceFluctuations.asString(), listType);
     }
 }

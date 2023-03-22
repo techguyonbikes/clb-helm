@@ -1,8 +1,9 @@
 package com.tvf.clb.scheduler;
 
-import com.tvf.clb.service.service.CrawlService;
+import com.tvf.clb.service.service.ICrawlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +13,9 @@ import java.time.LocalDate;
 @Component
 public class MeetingScheduler {
 
+    @Qualifier("ladBrokeCrawlService")
     @Autowired
-    private CrawlService crawlService;
+    private ICrawlService crawlService;
 
     /**
      * Crawling meeting data current date and two next days at 00.00AM every day.

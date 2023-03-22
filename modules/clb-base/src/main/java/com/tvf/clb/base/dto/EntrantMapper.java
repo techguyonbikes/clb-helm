@@ -2,14 +2,21 @@ package com.tvf.clb.base.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.model.EntrantSiteRawData;
+import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.model.EntrantRawData;
+import com.google.gson.reflect.TypeToken;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+@NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class EntrantMapper {
 
     public static ObjectMapper objectMapper = new ObjectMapper();
@@ -22,7 +29,7 @@ public class EntrantMapper {
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
                 .priceFluctuations(prices)
-                .isScratched(entrant.getIsScratched() ==null ? false :true)
+                .isScratched(entrant.getIsScratched() != null)
                 .scratchedTime(entrant.getScratchedTime())
                 .position(entrant.getPosition())
                 .build();
@@ -45,40 +52,46 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantSiteRawData mapPrices(EntrantRawData entrant, int siteId, String status) {
-        return EntrantSiteRawData.builder()
+    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant, Integer siteId) {
+        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
+        Gson gson = new Gson();
+        Type listType = new TypeToken<ArrayList<Float>>() {}.getType();
+        ArrayList<Float> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
+        priceFluctuations.put(siteId, prices);
+        return EntrantResponseDto.builder()
                 .id(entrant.getId())
+                .entrantId(entrant.getEntrantId())
+                .raceUUID(entrant.getRaceUUID())
                 .raceId(entrant.getRaceId())
                 .name(entrant.getName())
-                .marketId(entrant.getMarketId())
                 .number(entrant.getNumber())
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
-                .priceFluctuations(entrant.getPriceFluctuations())
-                .isScratched(entrant.getIsScratched() == null ? "titus" : entrant.getIsScratched())
-                .scratchedTime(entrant.getScratchedTime() == null ? Instant.now() : entrant.getScratchedTime())
+                .isScratched(entrant.isScratched())
+                .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
+                .priceFluctuations(priceFluctuations)
                 .position(entrant.getPosition())
-                .siteId(siteId)
-                .status(status)
                 .build();
     }
 
-    public static EntrantResponseDto toEntrantResponseDto (Entrant entrant) {
+
+    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant) {
+        Gson gson = new Gson();
+        Type listType = new TypeToken<Map<Integer, List<Float>>>() {}.getType();
+        Map<Integer, List<Float>> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
         return EntrantResponseDto.builder()
+                .id(entrant.getId())
                 .entrantId(entrant.getEntrantId())
-                .entrantName(entrant.getName())
-                .priceFluctuations(gson.fromJson(entrant.getPriceFluctuations().asString(), ArrayList.class))
-                .build();
-    }
-
-    public static EntrantResponseDto toEntrantResponseDto (EntrantDto entrant) {
-        return EntrantResponseDto.builder()
-                .entrantId(entrant.getId())
-                .entrantName(entrant.getName())
-                .priceFluctuations(entrant.getPriceFluctuations())
+                .raceUUID(entrant.getRaceUUID())
+                .raceId(entrant.getRaceId())
+                .name(entrant.getName())
+                .number(entrant.getNumber())
+                .barrier(entrant.getBarrier())
+                .visible(entrant.isVisible())
+                .isScratched(entrant.isScratched())
+                .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
+                .priceFluctuations(prices)
                 .position(entrant.getPosition())
                 .build();
     }
-
-    private static final Gson gson = new Gson();
 }

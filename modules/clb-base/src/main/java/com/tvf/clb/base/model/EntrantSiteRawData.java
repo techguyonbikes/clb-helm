@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EntrantSiteRawData extends EntrantRawData {
-    private int siteId;
+    private Integer siteId;
     private String status;
 
 }

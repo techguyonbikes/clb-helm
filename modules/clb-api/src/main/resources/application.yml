@@ -2,6 +2,9 @@ app:
   cors:
     allow-origins: ${cors.allow-origins:http://localhost:4200}
   url-crawl: https://www.ladbrokes.com.au
+reactor:
+  parallel:
+    default-threads: 20
 server:
   jetty:
     threads:
@@ -22,15 +25,16 @@ logging:
     file: "%d %p %C{1.} [%t] [%X{remoteAddr}] [%X{tenant}] %m%n"
 spring:
   redis:
-    host: redis-14403.c23894.asia-east1-mz.gcp.cloud.rlrcp.com
-    port: 14403
-    password: 3xDpHgRPbB4Kz591JZ3QNwNZPbZyepur
+    host: 34.129.76.56
+    port: 6379
+    password: password123
   main:
     allow-bean-definition-overriding: true
+    allow-circular-references: true
   webflux:
     base-path: /cloudbet/api
   r2dbc:
-    url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://104.199.244.66:5432/cloudbet}
+    url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
     pool:
       enabled: true
       max-size: 5
@@ -45,7 +49,7 @@ spring:
     out-of-order: true
     schemas:
       - ${postgresql.schema:clb_db}
-    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet}
+    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
     user: ${postgresql.datasource.username:postgres}
     password: ${postgresql.datasource.password:admin123}
   datasource:
@@ -60,7 +64,7 @@ spring:
     password: ${postgresql.datasource.password:admin123}
     driver-class-name: org.postgresql.Driver
     username: ${postgresql.datasource.username:clb_db}
-    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet}
+    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
 socket-server:
   host: localhost
   port: 20002

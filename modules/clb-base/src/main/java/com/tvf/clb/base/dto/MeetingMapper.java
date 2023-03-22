@@ -1,25 +1,26 @@
 package com.tvf.clb.base.dto;
 
 import com.google.gson.Gson;
-import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.entity.Meeting;
-import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.utils.AppConstant;
 import io.r2dbc.postgresql.codec.Json;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class MeetingMapper {
     private static final Gson gson = new Gson();
 
     public static MeetingDto toMeetingDto(MeetingRawData meeting, List<RaceRawData> races) {
         return MeetingDto.builder()
-                .id(meeting.getId().toString())
+                .id(meeting.getId())
                 .name(meeting.getName())
                 .advertisedDate(Instant.parse(meeting.getAdvertisedDate()))
                 .categoryId(meeting.getCategoryId())
@@ -39,7 +40,7 @@ public class MeetingMapper {
     public static RaceDto toRaceDto(RaceRawData race, String meetingId) {
         return RaceDto.builder()
                 .id(race.getId())
-                .meetingId(meetingId)
+                .meetingUUID(meetingId)
                 .name(race.getName())
                 .number(race.getNumber())
                 .advertisedStart(Instant.parse(race.getAdvertisedStart()))
@@ -53,13 +54,11 @@ public class MeetingMapper {
 
     public static List<RaceDto> toRaceDtoList(List<RaceRawData> races, String meetingId) {
         List<RaceDto> raceDtoList = new ArrayList<>();
-        races.stream().forEach((r) -> {
-            raceDtoList.add(toRaceDto(r, meetingId));
-        });
+        races.forEach(r -> raceDtoList.add(toRaceDto(r, meetingId)));
         return raceDtoList;
     }
 
-    private static String convertRaceType(String feedId) {
+    public static String convertRaceType(String feedId) {
         if (feedId.contains(AppConstant.GREYHOUND_FEED_TYPE)) {
             return AppConstant.GREYHOUND_RACING;
         } else if (feedId.contains(AppConstant.HORSE_FEED_TYPE)) {
@@ -93,6 +92,7 @@ public class MeetingMapper {
         return Race.builder()
                 .raceId(raceDto.getId())
                 .meetingId(raceDto.getMeetingId())
+                .meetingUUID(raceDto.getMeetingUUID())
                 .name(raceDto.getName())
                 .number(raceDto.getNumber())
                 .advertisedStart(raceDto.getAdvertisedStart())
@@ -106,17 +106,52 @@ public class MeetingMapper {
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
         return Entrant.builder()
                 .entrantId(entrantRawData.getId())
-                .raceId(entrantRawData.getRaceId())
+                .raceUUID(entrantRawData.getRaceId())
                 .name(entrantRawData.getName())
                 .number(entrantRawData.getNumber())
                 .barrier(entrantRawData.getBarrier())
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
                 .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations())))
-                .isScratched(entrantRawData.getIsScratched() == null ? false : true)
+                .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
                 .build();
     }
 
+    public static Entrant toEntrantEntity(EntrantDto entrantDto) {
+        return Entrant.builder()
+                .entrantId(entrantDto.getId())
+                .raceUUID(entrantDto.getId())
+                .name(entrantDto.getName())
+                .number(entrantDto.getNumber())
+                .barrier(entrantDto.getBarrier())
+                .visible(entrantDto.getVisible())
+                .marketId(entrantDto.getMarketId())
+                .priceFluctuations(Json.of(gson.toJson(entrantDto.getPriceFluctuations())))
+                .isScratched(entrantDto.getScratchedTime() != null)
+                .scratchedTime(entrantDto.getScratchedTime())
+                .position(entrantDto.getPosition())
+                .build();
+    }
+
+
+
+    public static EntrantSite toEntrantSite(Entrant entrant, Integer site, Long id) {
+        return EntrantSite
+                .builder()
+                .siteId(site)
+                .entrantSiteId(entrant.getEntrantId())
+                .generalEntrantId(id)
+                .priceFluctuations(entrant.getPriceFluctuations())
+                .build();
+    }
+    public static MeetingSite toMetingSite(Meeting meeting, Integer siteId,Long generalId) {
+        return MeetingSite.builder()
+                .meetingSiteId(meeting.getMeetingId())
+                .generalMeetingId(generalId)
+                .siteId(siteId)
+                .startDate(meeting.getAdvertisedDate())
+                .build();
+    }
 }
