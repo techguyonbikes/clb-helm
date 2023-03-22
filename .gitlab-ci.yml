@@ -24,7 +24,7 @@ package:
       - modules/clb-api/target/*.jar
     expire_in: 1 week
   only:
-    - main
+    - test-cicd
 
 build:
   stage: build
@@ -34,12 +34,11 @@ build:
     - docker build --no-cache -t "$CI_REGISTRY_IMAGE:latest" .
     - docker push $CI_REGISTRY_IMAGE:latest
   only:
-    - main
-    - release
+    - test-cicd
 
 deploy:
   image:
-    name: google/cloud-sdk
+    name: kiwigrid/gcloud-kubectl-helm
   stage: deploy
   script:
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
@@ -56,5 +55,4 @@ deploy:
 #    - helm upgrade --install clb-be -n default .
 #    - kubectl rollout restart deployment clb-be
   only:
-    - main
-    - release
+    - test-cicd
