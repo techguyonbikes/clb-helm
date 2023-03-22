@@ -45,13 +45,15 @@ deploy:
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
     - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
     - gcloud projects list
-#    - gcloud config set project cloudbet-381210
-#    - gcloud config set container/cluster clb-cluster
-#    - gcloud config set compute/zone australia-southeast2-a
+    - gcloud config set project cloudbet-381210
+    - gcloud config set container/cluster clb-cluster
+    - gcloud config set compute/zone australia-southeast2-a
+    - kubectl config get-contexts
+#    - kubectl config use-context $CI_PROJECT_PATH:cloudbet-agent
 #    - kubectl config set-context --current --namespace=default
-#    - cd charts/clb-charts
-#    - helm upgrade --install clb-be -n default .
-#    - kubectl rollout restart deployment clb-be
+    - cd charts/clb-charts
+    - helm upgrade --install clb-be -n default .
+    - kubectl rollout restart deployment clb-be
   only:
     - main
     - release
