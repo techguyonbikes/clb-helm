@@ -44,6 +44,7 @@ deploy:
   script:
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
     - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+    - gcloud container clusters get-credentials clb-cluster --zone australia-southeast2-a --project cloudbet-381210
 #    - kubectl config set-context --current --namespace=default
     - cd charts/clb-charts
     - helm upgrade --install clb-be -n default .
