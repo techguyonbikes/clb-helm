@@ -39,9 +39,7 @@ build:
     DOCKER_TLS_CERTDIR: ""
   stage: build
   script:
-    - ls
-    - echo $CI_REGISTRY_USER
-    - echo $CI_REGISTRY_PASSWORD
+    - docker logout
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - docker build --no-cache -t "$CI_REGISTRY_IMAGE:latest" .
     - docker push $CI_REGISTRY_IMAGE:latest
