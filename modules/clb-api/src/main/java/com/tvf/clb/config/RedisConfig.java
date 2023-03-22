@@ -1,7 +1,5 @@
 package com.tvf.clb.config;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tvf.clb.base.entity.EntrantResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,12 +25,9 @@ public class RedisConfig {
 
     @Bean
     public ReactiveRedisTemplate<Long, List<EntrantResponseDto>> raceDetailTemplate(ReactiveRedisConnectionFactory factory) {
-        ObjectMapper mapper = new ObjectMapper();
-        JavaType type = mapper.getTypeFactory().constructParametricType(List.class, EntrantResponseDto.class);
-        Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer(type);
         return new ReactiveRedisTemplate<Long, List<EntrantResponseDto>>(
                 factory,
-                RedisSerializationContext.fromSerializer(jackson2JsonRedisSerializer)
+                RedisSerializationContext.fromSerializer(new Jackson2JsonRedisSerializer(List.class))
         );
     }
 
