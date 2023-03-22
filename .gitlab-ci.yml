@@ -51,9 +51,10 @@ deploy:
     - kubectl config get-contexts
     - kubectl config use-context $CI_PROJECT_PATH:cloudbet-agent
     - kubectl config set-context --current --namespace=default
-    - cd charts/clb-charts
-    - helm upgrade --install clb-be -n default .
-    - kubectl rollout restart deployment clb-be
+    - kubectl get all
+#    - cd charts/clb-charts
+#    - helm upgrade --install clb-be -n default .
+#    - kubectl rollout restart deployment clb-be
   only:
     - main
     - release
