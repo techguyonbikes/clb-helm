@@ -38,7 +38,7 @@ build:
 
 deploy:
   image:
-    name: kiwigrid/gcloud-kubectl-helm
+    name: google/cloud-sdk
   stage: deploy
   script:
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
@@ -50,7 +50,7 @@ deploy:
 #    - kubectl config get-contexts
 #    - kubectl config use-context $CI_PROJECT_PATH:cloudbet-agent
     - kubectl config set-context --current --namespace=default
-    - kubectl get all
+    - kubectl get pod
 #    - cd charts/clb-charts
 #    - helm upgrade --install clb-be -n default .
 #    - kubectl rollout restart deployment clb-be
