@@ -45,7 +45,7 @@ public class CrawUtils {
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
 
-    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName, Integer raceNumber) {
+    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName) {
         Mono<Long> raceIdMono = raceNameAndIdTemplate.opsForValue().get(raceName);
         raceIdMono.map(raceId -> {
             Mono<List<EntrantResponseDto>> entrantStored = entrantRedisService.findEntrantByRaceId(raceId);

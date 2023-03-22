@@ -32,7 +32,7 @@ public class RaceController {
     @GetMapping("/side-bar-races")
     public Flux<RaceResponseDTO> searchRaces(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                                        @RequestParam(value = "meetingIds", required = false) List<Long> meetingIds,
-                                                       @RequestParam(value = "raceTypes", required = false, defaultValue = "Horse,Greyhound,Harness") List<RaceType> raceTypes) {
+                                                       @RequestParam(value = "raceTypes", required = false, defaultValue = "HORSE,GREYHOUND,HARNESS") List<RaceType> raceTypes) {
         return raceService.searchRaces(date, meetingIds, raceTypes);
     }
 }

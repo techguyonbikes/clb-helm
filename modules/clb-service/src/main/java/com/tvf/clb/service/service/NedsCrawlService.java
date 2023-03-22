@@ -7,18 +7,17 @@ import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
+import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.model.VenueRawData;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -26,7 +25,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,9 +54,10 @@ public class NedsCrawlService implements ICrawlService{
                     rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                log.warn("Interrupted for 20 seconds!");
+                Thread.currentThread().interrupt();
             }
             log.info("Start getting the API from Ned.");
             return getAllAusMeeting(rawData);
@@ -71,9 +70,9 @@ public class NedsCrawlService implements ICrawlService{
             JsonObject results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
             } else {
-                positions.put("position", 0);
+                positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
@@ -87,7 +86,7 @@ public class NedsCrawlService implements ICrawlService{
             });
             return result;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
     }
 
@@ -117,23 +116,23 @@ public class NedsCrawlService implements ICrawlService{
         return Flux.fromIterable(raceDtoList)
                 .parallel() // create a parallel flux
                 .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
-                .flatMap(x -> getEntrantByRaceId(x.getId(), x.getNumber(), x.getName())) // call the getRaceById method for each raceId
+                .flatMap(x -> getEntrantByRaceId(x.getId(), x.getName())) // call the getRaceById method for each raceId
                 .sequential(); // convert back to a sequential flux
     }
 
-    public Flux<EntrantDto> getEntrantByRaceId(String raceId, Integer number, String name) {
+    public Flux<EntrantDto> getEntrantByRaceId(String raceId, String name) {
         try {
             LadBrokedItRaceDto raceDto = getNedsRaceDto(raceId);
             JsonObject results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
             } else {
-                positions.put("position", 0);
+                positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            saveEntrant(allEntrant, name, number);
+            saveEntrant(allEntrant, name);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
                         List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
@@ -141,7 +140,7 @@ public class NedsCrawlService implements ICrawlService{
                         return Mono.just(entrantDto);
                     });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
     }
 
@@ -155,9 +154,9 @@ public class NedsCrawlService implements ICrawlService{
         crawUtils.saveRaceSite(newRaces, 2);
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, Integer number) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantIntoRedis(newEntrants, 2, raceName, number);
+        crawUtils.saveEntrantIntoRedis(newEntrants, 2, raceName);
     }
 
     public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {

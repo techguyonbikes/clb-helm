@@ -1,5 +1,7 @@
 package com.tvf.clb.base.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
@@ -8,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class ApiUtils {
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36";
     public static Response get(String url, Map<String, String> headers) throws IOException {
         Headers requestHeaders = getHeaders(headers);

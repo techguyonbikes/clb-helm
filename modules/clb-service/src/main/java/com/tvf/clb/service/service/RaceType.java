@@ -1,19 +1,19 @@
 package com.tvf.clb.service.service;
 
 public enum RaceType {
-    Horse {
+    HORSE {
         @Override
         public String toString() {
             return "Horse Racing";
         }
     },
-    Greyhound{
+    GREYHOUND {
         @Override
         public String toString() {
             return "Greyhound Racing";
         }
     },
-    Harness{
+    HARNESS {
         @Override
         public String toString() {
             return "Harness Racing";

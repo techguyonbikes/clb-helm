@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
+import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
@@ -28,10 +29,7 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -55,7 +53,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     private ServiceLookup serviceLookup;
 
     @Autowired
-    private EntrantRedisService  entrantRedisService;
+    private EntrantRedisService entrantRedisService;
 
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
@@ -73,7 +71,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                     rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
             }
             return getAllAusMeeting(rawData, date);
         }).flatMapMany(Flux::fromIterable);
@@ -86,9 +84,9 @@ public class LadBrokeCrawlService implements ICrawlService {
             JsonObject results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
             } else {
-                positions.put("position", 0);
+                positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
@@ -102,11 +100,11 @@ public class LadBrokeCrawlService implements ICrawlService {
             });
             return result;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
     }
 
-    private List<MeetingDto> getAllAusMeeting(LadBrokedItMeetingDto ladBrokedItMeetingDto,LocalDate date) {
+    private List<MeetingDto> getAllAusMeeting(LadBrokedItMeetingDto ladBrokedItMeetingDto, LocalDate date) {
         List<VenueRawData> ausVenues = ladBrokedItMeetingDto.getVenues().values().stream().filter(v -> v.getCountry().equals(AppConstant.AUS)).collect(Collectors.toList());
         List<String> venuesId = ausVenues.stream().map(VenueRawData::getId).collect(Collectors.toList());
         List<MeetingRawData> meetings = new ArrayList<>(ladBrokedItMeetingDto.getMeetings().values());
@@ -124,9 +122,6 @@ public class LadBrokeCrawlService implements ICrawlService {
 
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         saveMeetingAndRace(ausMeetings, raceDtoList, date);
-//        getEntrantRaceByIds(ausRace
-//                .stream()
-//                .map(RaceRawData::getId).collect(Collectors.toList()), date);
         return meetingDtoList;
     }
 
@@ -138,20 +133,20 @@ public class LadBrokeCrawlService implements ICrawlService {
             Map<String, Integer> positions = new HashMap<>();
             String statusRace = null;
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get("position").getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
                 statusRace = String.valueOf(Race.Status.F);
             } else {
-                positions.put("position", 0);
+                positions.put(AppConstant.POSITION, 0);
                 statusRace = String.valueOf(Race.Status.O);
             }
             //got null every time?
-            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject("additional_info").get("distance").getAsString();
+            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject(AppConstant.ADDITIONAL_INFO).get(AppConstant.DISTANCE).getAsString();
             raceRepository.setUpdateRaceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
             return saveEntrant(allEntrant, generalRaceId);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
     }
 
@@ -167,7 +162,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                 .subscribe(existed ->
                         {
                             newMeetings.addAll(existed);
-                            List<Meeting> meetingNeedUpdateOrInsert = newMeetings.stream().distinct().peek(m ->
+                            List<Meeting> meetingNeedUpdateOrInsert = newMeetings.stream().distinct().map(m ->
                             {
                                 if (m.getId() == null) {
                                     existed.stream()
@@ -175,6 +170,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                             .findFirst()
                                             .ifPresent(meeting -> m.setId(meeting.getId()));
                                 }
+                                return m;
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
                             log.info("Meeting need to be update or insert " + meetingNeedUpdateOrInsert.size());
                             Flux.fromIterable(meetingNeedUpdateOrInsert)
@@ -205,7 +201,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                 .subscribe(existed ->
                         {
                             newRaces.addAll(existed);
-                            List<Race> raceNeedUpdateOrInsert = newRaces.stream().distinct().peek(e ->
+                            List<Race> raceNeedUpdateOrInsert = newRaces.stream().distinct().map(e ->
                             {
                                 Meeting meeting = meetingUUIDMap.getOrDefault(e.getMeetingUUID(), null);
                                 if (meeting != null) {
@@ -218,6 +214,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                             .findFirst()
                                             .ifPresent(entrant -> e.setId(entrant.getId()));
                                 }
+                                return e;
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
                             log.info("Race need to be update is " + raceNeedUpdateOrInsert.size());
                             Flux.fromIterable(raceNeedUpdateOrInsert)
@@ -256,19 +253,20 @@ public class LadBrokeCrawlService implements ICrawlService {
                 .flatMapMany(existed ->
                         {
                             newEntrants.addAll(existed);
-                            List<Entrant> entrantNeedUpdateOrInsert = newEntrants.stream().distinct().peek(e ->
+                            List<Entrant> entrantNeedUpdateOrInsert = newEntrants.stream().distinct().map(e ->
                             {
                                 e.setRaceId(raceId);
                                 if (e.getId() == null) {
                                     existed.stream()
                                             .filter(x -> x.getName().equals(e.getName())
-                                            && x.getNumber().equals(e.getNumber())
-                                            && x.getBarrier().equals(e.getBarrier()))
+                                                    && x.getNumber().equals(e.getNumber())
+                                                    && x.getBarrier().equals(e.getBarrier()))
                                             .findFirst()
                                             .ifPresent(entrant -> e.setId(entrant.getId()));
                                 }
+                                return e;
                             }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
-                            log.info("Entrant need to be update is {}" , entrantNeedUpdateOrInsert.size());
+                            log.info("Entrant need to be update is {}", entrantNeedUpdateOrInsert.size());
                             return entrantRepository.saveAll(entrantNeedUpdateOrInsert)
                                     .collectList()
                                     .flatMapMany(saved -> {
@@ -306,7 +304,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     @SneakyThrows
     private Flux<MeetingDto> getMeetingFromAllSite(LocalDate date) {
         List<ICrawlService> crawlServices = new ArrayList<>();
-        for (String site: AppConstant.SITE_LIST) {
+        for (String site : AppConstant.SITE_LIST) {
             crawlServices.add(serviceLookup.forBean(ICrawlService.class, site));
         }
         return Flux.fromIterable(crawlServices)
