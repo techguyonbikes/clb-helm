@@ -39,15 +39,14 @@ build:
 
 deploy:
   image:
-    name: kiwigrid/gcloud-kubectl-helm
+    name: google/cloud-sdk
   stage: deploy
   script:
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
     - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-#    - gcloud projects list
-#    - gcloud config set project cloudbet-381210
-#    - gcloud config set container/cluster clb-cluster
-#    - gcloud config set compute/zone australia-southeast2-a
+    - gcloud config set project cloudbet-381210
+    - gcloud config set container/cluster clb-cluster
+    - gcloud config set compute/zone australia-southeast2-a
     - gcloud container clusters get-credentials clb-cluster --zone australia-southeast2-a --project cloudbet-381210
     - kubectl config get-contexts
     - kubectl config use-context $CI_PROJECT_PATH:cloudbet-agent
