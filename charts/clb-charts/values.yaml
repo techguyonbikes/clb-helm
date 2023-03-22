@@ -1,0 +1,26 @@
+port: 20001
+image:
+  tag: latest
+log:
+  level:
+    root: info
+    spring: info
+    app: debug
+postgresql:
+  datasource:
+    dbUrl: jdbc:postgresql://clb-shared-postgres:5432/clb_db
+    username: postgres
+    password: admin123
+redis:
+  port: 6379
+  host: clb-shared-redis-master
+  password: password123
+kubernetes:
+  useSecrets: false
+  #    imagePullSecrets:
+  imagePullPolicy: Always
+  replicaCount: 1
+appUrl:
+  socket:
+    host: 34.126.203.62
+  ui: *

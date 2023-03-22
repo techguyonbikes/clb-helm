@@ -43,16 +43,15 @@ build:
     - echo $CI_REGISTRY_USER
     - echo $CI_REGISTRY_PASSWORD
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - docker build -t "$CI_REGISTRY_IMAGE:latest" .
+    - docker build --no-cache -t "$CI_REGISTRY_IMAGE:latest" .
     - docker push $CI_REGISTRY_IMAGE:latest
   only:
     - main
-    - cicd
     - release
 
 deploy:
   image:
-    name: docker:18.09
+    name: google/cloud-sdk
   services:
     - docker:18.09-dind
   variables:
@@ -60,15 +59,10 @@ deploy:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
   stage: deploy
-  before_script:
-    - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
   script:
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
     - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-    - kubectl get all
+    - kubectl config set-context --current --namespace=default
+    - cd charts/clb-charts
+    - helm upgrade --install clb-be --namespace=default .
+    - kubectl rollout restart deployment clb-be

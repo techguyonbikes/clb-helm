@@ -66,5 +66,5 @@ spring:
     username: ${postgresql.datasource.username:clb_db}
     url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
 socket-server:
-  host: localhost
+  host: ${socket.host:localhost}
   port: 20002
