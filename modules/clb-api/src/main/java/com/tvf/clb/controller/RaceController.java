@@ -25,14 +25,19 @@ public class RaceController {
 
 
     @GetMapping("")
-    public Mono<Race> getRaceById(@RequestParam(value = "id", required = true) Long id) {
+    public Mono<Race> getRaceById(@RequestParam(value = "id") Long id) {
         return raceService.getRaceById(id);
     }
 
     @GetMapping("/side-bar-races")
-    public Flux<RaceResponseDTO> searchRaces(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                                                       @RequestParam(value = "meetingIds", required = false) List<Long> meetingIds,
-                                                       @RequestParam(value = "raceTypes", required = false, defaultValue = "HORSE,GREYHOUND,HARNESS") List<RaceType> raceTypes) {
+    public Flux<RaceResponseDTO> searchRaces(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                             @RequestParam(value = "meetingIds", required = false) List<Long> meetingIds,
+                                             @RequestParam(value = "raceTypes", required = false, defaultValue = "HORSE,GREYHOUND,HARNESS") List<RaceType> raceTypes) {
         return raceService.searchRaces(date, meetingIds, raceTypes);
+    }
+
+    @GetMapping("/get-meeting-race-number")
+    public Flux<Race> getMeetingRaceNumberByRaceId(@RequestParam(value = "id") Long id) {
+        return raceService.findAllRacesInSameMeetingByRaceId(id);
     }
 }
