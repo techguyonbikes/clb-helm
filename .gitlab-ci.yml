@@ -38,7 +38,7 @@ build:
 
 deploy:
   image:
-    name: google/cloud-sdk:slim
+    name: google/cloud-sdk
   stage: deploy
   script:
     # Install Helm
