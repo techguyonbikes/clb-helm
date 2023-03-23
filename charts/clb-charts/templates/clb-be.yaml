@@ -30,6 +30,7 @@ metadata:
 spec:
   selector:
     app: clb-be
+    type: LoadBalancer
   ports:
     - protocol: TCP
       name: backend
