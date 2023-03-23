@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clb-be
+spec:
+  replicas: {{ .Values.kubernetes.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: clb-be
+  template:
+    metadata:
+      labels:
+        app: clb-be
+    spec:
+      containers:
+        - image: ducvu123/cloudbet-be:latest
+          name: cloudbet-be
+          imagePullPolicy: {{ .Values.kubernetes.imagePullPolicy }}
+          env:
+            - name: SPRING_APPLICATION_JSON
+              valueFrom:
+                configMapKeyRef:
+                  name: clb-config
+                  key: config.json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clb-be-service
+spec:
+  selector:
+    app: clb-be
+  ports:
+    - protocol: TCP
+      name: backend
+      port: 20001
+      targetPort: {{ .Values.port | default 20001 }}
+    - protocol: TCP
+      port: 20002
+      name : socket
+      targetPort: 20002
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clb-config
+data:
+  config.json:
+    '{
+      "app.port": {{.Values.port}},
+      "redis.host" : "{{.Values.redis.host}}",
+      "redis.port" : "{{.Values.redis.port}}",
+      "redis.password" : "{{.Values.redis.password}}",
+      "cors.allow-origins" : "{{.Values.appUrl.ui}}",
+      "log.level.root" : "{{.Values.log.level.root}}",
+      "log.level.spring" : "{{.Values.log.level.spring}}",
+      "log.level.app" : "{{.Values.log.level.app}}",
+      "postgresql.datasource.password": "{{.Values.postgresql.datasource.password}}",
+      "postgresql.datasource.username": "{{.Values.postgresql.datasource.username}}",
+      "postgresql.datasource.dbUrl": "{{.Values.postgresql.datasource.dbUrl}}",
+      "postgresql.datasource.flywayUrl": "{{.Values.postgresql.datasource.flywayUrl}}",
+      "socket.host":"{{.Values.appUrl.socket.host}}"
+     }'
