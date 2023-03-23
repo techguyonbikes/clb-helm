@@ -23,4 +23,4 @@ kubernetes:
 appUrl:
   socket:
     host: 34.126.203.62
-  ui: *
+  ui: localhost:8082
