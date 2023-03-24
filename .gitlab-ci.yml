@@ -24,6 +24,7 @@ package:
       - modules/clb-api/target/*.jar
     expire_in: 1 week
   only:
+    - main
     - test-cicd
 
 build:
@@ -38,6 +39,7 @@ build:
     - docker build --no-cache -t "$CI_REGISTRY_IMAGE:latest" .
     - docker push $CI_REGISTRY_IMAGE:latest
   only:
+    - main
     - test-cicd
 
 deploy:
@@ -61,4 +63,5 @@ deploy:
     - helm upgrade --install clb-be -n default .
     - kubectl rollout restart deployment clb-be
   only:
+    - main
     - test-cicd
