@@ -8,7 +8,8 @@ log:
     app: debug
 postgresql:
   datasource:
-    dbUrl: jdbc:postgresql://clb-shared-postgres:5432/clb_db
+    dbUrl: r2dbc:postgresql://clb-shared-postgres:5432/clb_db
+    flywayUrl: jdbc:postgresql://clb-shared-postgres:5432/clb_db
     username: postgres
     password: admin123
 redis:
@@ -21,6 +22,7 @@ kubernetes:
   imagePullPolicy: Always
   replicaCount: 1
 appUrl:
+  basePath: ""
   socket:
     host: 34.126.203.62
-  ui: *
+  ui: http://localhost:8082

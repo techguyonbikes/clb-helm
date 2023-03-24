@@ -25,9 +25,14 @@ package:
     expire_in: 1 week
   only:
     - main
+    - test-cicd
 
 build:
   stage: build
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
   script:
     - docker logout
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
@@ -35,13 +40,15 @@ build:
     - docker push $CI_REGISTRY_IMAGE:latest
   only:
     - main
-    - release
+    - test-cicd
 
 deploy:
   image:
     name: google/cloud-sdk
   stage: deploy
   script:
+    # Install Helm
+    - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
     - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
     - gcloud config set project cloudbet-381210
@@ -51,10 +58,10 @@ deploy:
 #    - kubectl config get-contexts
 #    - kubectl config use-context $CI_PROJECT_PATH:cloudbet-agent
     - kubectl config set-context --current --namespace=default
-    - kubectl get all
-#    - cd charts/clb-charts
-#    - helm upgrade --install clb-be -n default .
-#    - kubectl rollout restart deployment clb-be
+    - kubectl get pod
+    - cd charts/clb-charts
+    - helm upgrade --install clb-be -n default .
+    - kubectl rollout restart deployment clb-be
   only:
     - main
-    - release
+    - test-cicd

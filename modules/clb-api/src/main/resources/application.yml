@@ -25,14 +25,14 @@ logging:
     file: "%d %p %C{1.} [%t] [%X{remoteAddr}] [%X{tenant}] %m%n"
 spring:
   redis:
-    host: 34.129.76.56
-    port: 6379
-    password: password123
+    host: ${redis.host:34.129.76.56}
+    port: ${redis.port:6379}
+    password: ${redis.password:password123}
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
   webflux:
-    base-path: /cloudbet/api
+    base-path: ${base.path:/cloudbet/api}
   r2dbc:
     url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
     pool:
@@ -49,22 +49,9 @@ spring:
     out-of-order: true
     schemas:
       - ${postgresql.schema:clb_db}
-    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
+    url: ${postgresql.datasource.flywayUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
     user: ${postgresql.datasource.username:postgres}
     password: ${postgresql.datasource.password:admin123}
-  datasource:
-    driverClassName: org.postgresql.Driver
-    hikari:
-      minimum-idle: 2 # 3 min-connection allowed in pool
-      maximum-pool-size: 5 # 6 max-connection allowed in pool
-      idle-timeout: 5000 # 2 minutes allowed for connection idle
-      keepalive-time: 60000 # each 5 minutes to re-"pinged" the connection
-      max-lifetime: 600000 # 10 minutes allowed for connection life time
-      leak-detection-threshold: 5000 # only 5 seconds allowed connection can be out of the pool
-    password: ${postgresql.datasource.password:admin123}
-    driver-class-name: org.postgresql.Driver
-    username: ${postgresql.datasource.username:clb_db}
-    url: ${postgresql.datasource.dbUrl:jdbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
 socket-server:
   host: ${socket.host:localhost}
   port: 20002
