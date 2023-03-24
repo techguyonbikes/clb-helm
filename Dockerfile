@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-alpine3.13
+FROM openjdk:11
 
 ARG BUILD_DATE
 ARG GIT_FULL_BRANCH
