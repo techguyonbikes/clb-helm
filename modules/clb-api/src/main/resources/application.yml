@@ -32,7 +32,7 @@ spring:
     allow-bean-definition-overriding: true
     allow-circular-references: true
   webflux:
-    base-path: ${redis.port:/cloudbet/api}
+    base-path: ${base.path:/cloudbet/api}
   r2dbc:
     url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://104.199.244.66:5432/cloudbet_2023_03_16}
     pool:
