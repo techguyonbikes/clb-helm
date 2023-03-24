@@ -22,6 +22,7 @@ kubernetes:
   imagePullPolicy: Always
   replicaCount: 1
 appUrl:
+  basePath: ""
   socket:
     host: 34.126.203.62
-  ui: localhost:8082
+  ui: http://localhost:8082

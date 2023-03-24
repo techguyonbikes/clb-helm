@@ -60,5 +60,6 @@ data:
       "postgresql.datasource.username": "{{.Values.postgresql.datasource.username}}",
       "postgresql.datasource.dbUrl": "{{.Values.postgresql.datasource.dbUrl}}",
       "postgresql.datasource.flywayUrl": "{{.Values.postgresql.datasource.flywayUrl}}",
-      "socket.host":"{{.Values.appUrl.socket.host}}"
+      "socket.host":"{{.Values.appUrl.socket.host}}",
+      "base.path":"{{.Values.appUrl.basePath}}"
      }'
