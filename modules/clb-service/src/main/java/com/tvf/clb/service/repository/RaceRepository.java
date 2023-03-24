@@ -12,7 +12,9 @@ import java.util.List;
 
 public interface RaceRepository extends R2dbcRepository<Race, Long> {
     Flux<Race> findAllByActualStartBetween(Instant start, Instant end);
+
     Flux<Race> findAllByActualStartAfter(Instant time);
+
     Flux<Race> findAllByIdIn(List<Long> raceIds);
 
 
@@ -26,4 +28,6 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     @Query("Update clb_db.race set distance =:distance , status =:status  WHERE id =:raceId")
     Mono<Race> setUpdateRaceById(@Param("raceId") Long raceId, @Param("distance") Integer distance, @Param("status") String status);
+
+    Flux<Race> findAllByMeetingId(Long meetingId);
 }

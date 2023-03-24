@@ -50,13 +50,18 @@ public class RaceService {
                     });
 
         } else {
-            raceResponse = meetingRepository.findByRaceTypeAndMeetingId(raceType,meetingIds,startDate)
+            raceResponse = meetingRepository.findByRaceTypeAndMeetingId(raceType, meetingIds, startDate)
                     .map(r -> {
                         r.setSideName(SIDE_NAME_PREFIX + r.getNumber() + " " + r.getMeetingName());
                         return r;
                     });
         }
         return raceResponse.sort(Comparator.comparing(RaceResponseDTO::getDate));
+    }
+
+    public Flux<Race> findAllRacesInSameMeetingByRaceId(Long raceId) {
+        Mono<Race> raceMono = raceRepository.findById(raceId);
+        return raceMono.flatMapMany(race -> raceRepository.findAllByMeetingId(race.getMeetingId()));
     }
 
 }
