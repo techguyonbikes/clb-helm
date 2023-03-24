@@ -1,4 +1,4 @@
-FROM openjdk:11
+FROM openjdk:8-jdk-alpine
 
 ARG BUILD_DATE
 ARG GIT_FULL_BRANCH
