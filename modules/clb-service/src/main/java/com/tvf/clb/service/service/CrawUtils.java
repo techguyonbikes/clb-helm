@@ -76,47 +76,40 @@ public class CrawUtils {
     }
 
     public void saveMeetingSite(List<Meeting> meetings, Integer site) {
-        if(!meetings.isEmpty()) {
-            Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
-                    r -> {
-                        //Bỏ race Type vì RaceType có thể = null
-                        Mono<Long> generalId = meetingRepository.getMeetingId(r.getName(),r.getAdvertisedDate()).switchIfEmpty(Mono.empty());
-                        return Flux.from(generalId).map(id -> MeetingMapper.toMetingSite(r, site, id));
-                    }
-            );
-            Flux<MeetingSite> existedMeetingSite = meetingSiteRepository
-                    .findAllByMeetingSiteIdInAndSiteId(meetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList()), site).switchIfEmpty(Flux.empty());
+        Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
+                r -> {
+                    Mono<Long> generalId = meetingRepository.getMeetingId(r.getName(), r.getRaceType(), r.getAdvertisedDate());
+                    return Flux.from(generalId).map(id -> MeetingMapper.toMetingSite(r, site, id));
+                }
+        );
+        Flux<MeetingSite> existedMeetingSite = meetingSiteRepository
+                .findAllByMeetingSiteIdInAndSiteId(meetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList()), site);
 
-
-            Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
-                    .doOnNext(tuple2 -> {
-                        tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
-                        log.info("Meeting site " + site + " need to be update is " + tuple2.getT1().size());
-                        meetingSiteRepository.saveAll(tuple2.getT1()).subscribe();
-                    }).subscribe();
-        }
+        Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
+                .doOnNext(tuple2 -> {
+                    tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
+                    log.info("Meeting site " + site + " need to be update is " + tuple2.getT1().size());
+                    meetingSiteRepository.saveAll(tuple2.getT1()).subscribe();
+                }).subscribe();
     }
 
     public void saveRaceSite(List<Race> races, Integer site) {
-        if (!races.isEmpty()) {
-            Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
-                    race -> {
-                        //TODO sửa chỗ này race name các site khác nhau hoặc trùng tên trung number nhưng khác meeting, phải dựa vào Meeting và number
-                        Mono<Long> generalId = raceRepository.getRaceId(race.getName(), race.getNumber(),race.getAdvertisedStart())
-                                .switchIfEmpty(Mono.empty());
-                        return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
-                    }
-            );
-            Flux<RaceSite> existedMeetingSite = raceSiteRepository
-                    .findAllByRaceSiteIdInAndSiteId(races.stream().map(Race::getRaceId).collect(Collectors.toList()), site).switchIfEmpty(Flux.empty());
+        Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
+                race -> {
+                    Mono<Long> generalId = raceRepository.getRaceId(race.getName(), race.getNumber(), race.getAdvertisedStart());
+                    return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
+                }
+        );
+        Flux<RaceSite> existedMeetingSite = raceSiteRepository
+                .findAllByRaceSiteIdInAndSiteId(races.stream().map(Race::getRaceId).collect(Collectors.toList()), site);
 
-            Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
-                    .doOnNext(tuple2 -> {
-                        tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
-                        log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
-                        raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
-                    }).subscribe();
-        }
+        Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
+                .doOnNext(tuple2 -> {
+                    tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
+                    log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
+                    raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
+                }).subscribe();
+
     }
 
     public Mono<Map<String, Map<Integer, List<Float>>>> crawlNewPriceByRaceUUID(String raceUUID){

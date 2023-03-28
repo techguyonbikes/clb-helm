@@ -5,16 +5,12 @@ import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
-import com.tvf.clb.base.model.zbet.ZBetEntrantData;
-import com.tvf.clb.base.model.zbet.ZBetMeetingRawData;
-import com.tvf.clb.base.model.zbet.ZBetRacesData;
 import com.tvf.clb.base.utils.AppConstant;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -157,53 +153,5 @@ public class MeetingMapper {
                 .siteId(siteId)
                 .startDate(meeting.getAdvertisedDate())
                 .build();
-    }
-
-    public static Meeting toMeetingEntity(ZBetMeetingRawData meeting){
-        //only get date of startDate
-        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(AppConstant.DATE_PATTERN);
-        String startDateString = meeting.getStartDate().substring(0,10);
-
-        return Meeting.builder()
-                .meetingId(meeting.getMeetingId())
-                .name(meeting.getName())
-                .advertisedDate(LocalDate.parse(startDateString, sdf).atStartOfDay(AppConstant.UTC_ZONE_ID).toInstant())
-                .raceType(convertRacesType(meeting.getType()))
-                .build();
-    }
-
-    public static Race toRaceEntity(ZBetRacesData race){
-        //only get date of startDate
-        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
-
-        return Race.builder()
-                .raceId(race.getId().toString())
-                .name(race.getName())
-                .number(race.getNumber())
-                .advertisedStart(LocalDateTime.parse(race.getStartDate(), sdf).atZone(AppConstant.AU_ZONE_ID).toInstant())
-                .build();
-    }
-
-    public static Entrant toEntrantEntity(ZBetEntrantData entrant, List<Float> prices){
-        return Entrant.builder()
-                .entrantId(entrant.getId().toString())
-                .name(entrant.getName())
-                .number(entrant.getNumber())
-                .barrier(entrant.getBarrier())
-                .priceFluctuations(Json.of(gson.toJson(prices)))
-                .build();
-    }
-
-    public static String convertRacesType(String feedId) {
-        if (AppConstant.GREYHOUND_TYPE_RACE.contains(feedId)) {
-            return AppConstant.GREYHOUND_RACING;
-        } else if (AppConstant.HORSE_TYPE_RACE.contains(feedId)) {
-            return AppConstant.HORSE_RACING;
-        }else if (AppConstant.HARNESS_TYPE_RACE.contains(feedId)) {
-            return AppConstant.HARNESS_RACING;
-        }
-        else {
-            return null;
-        }
     }
 }
