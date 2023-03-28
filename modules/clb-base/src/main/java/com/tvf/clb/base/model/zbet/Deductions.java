@@ -6,15 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class ZBetRawData {
-    private List<ZBetMeetingRawData> data;
-    @SerializedName("http_status_code")
-    private int statusCode;
-    private String timestamp;
+@AllArgsConstructor
+public class Deductions {
+    @SerializedName("selection_id")
+    private Long selectionsId;
 }
