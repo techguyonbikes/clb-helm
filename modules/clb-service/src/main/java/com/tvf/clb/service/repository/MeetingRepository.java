@@ -38,12 +38,10 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     Flux<RaceResponseDTO> findByRaceTypes(@Param("raceTypes") List<String> raceTypes,
                                           @Param("date") Instant date);
 
-    @Query("select m.id from clb_db.meeting m  where m.name = :name and m.advertised_date = :date")
-    Mono<Long> getMeetingId(@Param("name") String name, @Param("date") Instant date);
+    @Query("select m.id from clb_db.meeting m  where m.name = :name and m.race_type = :raceType and m.advertised_date = :date")
+    Mono<Long> getMeetingId(@Param("name") String name, @Param("raceType") String raceType,@Param("date") Instant date);
 
 
     Flux<Meeting> findAllByNameInAndRaceTypeInAndAdvertisedDateIn(@Param("name") List<String> name,
                                                                   @Param("raceType") List<String> raceType,@Param("date") List<Instant> date);
-
-    Flux<Meeting> findAllByNameIn(List<String> meetingNameList);
 }

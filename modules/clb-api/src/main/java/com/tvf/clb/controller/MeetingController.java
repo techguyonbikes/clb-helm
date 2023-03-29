@@ -6,7 +6,6 @@ import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.service.service.ICrawlService;
 import com.tvf.clb.service.service.MeetingService;
 import com.tvf.clb.service.service.ServiceLookup;
-import com.tvf.clb.service.service.TopSportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,18 +25,10 @@ public class MeetingController {
     @Autowired
     private MeetingService meetingService;
 
-    @Autowired
-    private TopSportService topSportService;
-
     @GetMapping("/crawl")
     public Flux<MeetingDto> crawlTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         ICrawlService crawlService = serviceLookup.forBean(ICrawlService.class, AppConstant.LAD_BROKE);
         return crawlService.getTodayMeetings(date);
-    }
-
-    @GetMapping("/topsport")
-    public Flux<MeetingDto> crawlTodayMeetingTopSport(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return topSportService.getTodayMeetings(date);
     }
 
     @GetMapping("")
