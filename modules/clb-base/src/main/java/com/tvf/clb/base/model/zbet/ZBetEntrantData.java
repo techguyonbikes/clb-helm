@@ -1,5 +1,6 @@
 package com.tvf.clb.base.model.zbet;
 
+import com.google.gson.JsonElement;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
@@ -12,14 +13,15 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ZBetRacesData {
+public class ZBetEntrantData {
+
     private Long id;
-    private Integer number;
     @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
     private String name;
-    private String meetingName;
-    @SerializedName("start_date")
-    private String startDate;
-    private String type;
-    private String status;
+    private Integer number;
+    private Integer barrier;
+    @SerializedName("scratching_time")
+    private String scratchingTime;
+    private String selectionsStatus;
+    private JsonElement prices;
 }

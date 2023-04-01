@@ -7,12 +7,17 @@ import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
+import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
@@ -122,6 +127,29 @@ public class EntrantMapper {
                 .isScratched(runner.getFixedOdds().getBettingStatus().equals(AppConstant.SCRATCHED_NAME) ? String.valueOf(true) : String.valueOf(false))
                 .scratchedTime(runner.getFixedOdds().getScratchedTime() == null ? null : Instant.parse(runner.getFixedOdds().getScratchedTime()))
                 .position(position.indexOf(runner.getRunnerNumber()) + 1)
+                .build();
+    }
+
+    public static EntrantRawData mapCrawlEntrant(String raceId, ZBetEntrantData entrant, List<Float> prices, Map<Long, Integer> position) {
+        Instant reqInstant = null;
+        if (entrant.getScratchingTime() != null) {
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime localDateTime = LocalDateTime.parse(entrant.getScratchingTime(), dateTimeFormatter);
+            ZoneId zoneId = ZoneId.of(ZoneOffset.UTC.getId());
+            reqInstant = localDateTime.atZone(zoneId).toInstant();
+        }
+        return EntrantRawData.builder()
+                .id(entrant.getId().toString())
+                .raceId(raceId)
+                .name(entrant.getName())
+                .marketId(String.valueOf(0))
+                .number(entrant.getNumber())
+                .barrier(entrant.getBarrier())
+                .visible(false)
+                .priceFluctuations(prices)
+                .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !entrant.getSelectionsStatus().equals("not scratched")))
+                .scratchedTime(reqInstant)
+                .position(position.get(entrant.getId()))
                 .build();
     }
 
