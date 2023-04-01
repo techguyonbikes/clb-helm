@@ -1,7 +1,9 @@
 package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
+import com.tvf.clb.base.dto.EntrantMapper;
 import com.tvf.clb.base.entity.EntrantResponseDto;
+import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.service.repository.EntrantRepository;
 import io.r2dbc.postgresql.codec.Json;
 import org.slf4j.LoggerFactory;
@@ -9,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CrawlPriceService {
@@ -27,17 +32,19 @@ public class CrawlPriceService {
 
     private Gson gson = new Gson();
 
-
     public Mono<List<EntrantResponseDto>> crawlPriceByRaceId(Long generalRaceId) {
-        Mono<List<EntrantResponseDto>> entrantRedis = entrantRedisService.findEntrantByRaceId(generalRaceId);
+        return entrantRedisService.findEntrantByRaceId(generalRaceId).flatMap(x -> {
+            List<EntrantResponseDto> storeRecords = EntrantMapper.convertFromRedisPriceToDTO(x);
 
-        return entrantRedis.flatMap(x -> {
+            Map<String, Long> entrantIdMapName = storeRecords.stream().collect(Collectors.toMap(id -> id.getName() + " - " +id.getNumber(), EntrantResponseDto::getId));
 
-            List<EntrantResponseDto> storeRecords = CrawUtils.convertFromRedisPriceToDTO(x);
-            String raceUUID = storeRecords.stream().map(EntrantResponseDto::getRaceUUID).findFirst().get();
-
-            return CrawUtils.crawlNewPriceByRaceUUID(raceUUID).doOnNext(newPrices -> {
-                storeRecords.forEach(entrant -> entrant.setPriceFluctuations(newPrices.get(entrant.getEntrantId())));
+            return CrawUtils.crawlNewPriceByRaceUUID(storeRecords.get(0).getRaceUUID(), entrantIdMapName).doOnNext(newPrices -> {
+                storeRecords.forEach(entrant -> {
+                            CrawlEntrantData entrantData = newPrices.get(entrantIdMapName.get(entrant.getName() + " - " + entrant.getNumber()));
+                            entrant.setPriceFluctuations(entrantData.getPriceMap());
+                            entrant.setPosition(entrantData.getPosition() == null ? 0 : entrantData.getPosition());
+                        }
+                );
 
                 if (storeRecords.stream().anyMatch(storeRecord -> storeRecord.getPosition() > 0)) {
                     log.info("-------- Save entrant price to db and remove data in redis: {}", generalRaceId);
@@ -59,10 +66,15 @@ public class CrawlPriceService {
             {
                 existed.stream()
                         .filter(x -> x.getName().equals(e.getName())
-                                && x.getNumber().equals(e.getNumber())
-                                && x.getBarrier().equals(e.getBarrier()))
+                                        && x.getNumber().equals(e.getNumber())
+                        )
                         .findFirst()
-                        .ifPresent(entrant -> entrant.setPriceFluctuations(Json.of(gson.toJson(e.getPriceFluctuations()))));
+                        .ifPresent(entrant -> {
+                                    entrant.setPriceFluctuations(Json.of(gson.toJson(e.getPriceFluctuations() == null ? new HashMap<>() : e.getPriceFluctuations())));
+                                    entrant.setPosition(e.getPosition());
+                                }
+
+                        );
             });
             entrantRepository.saveAll(existed).subscribe();
         });

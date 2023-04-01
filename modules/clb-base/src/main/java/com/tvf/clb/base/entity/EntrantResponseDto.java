@@ -15,7 +15,7 @@ import java.util.Map;
 public class EntrantResponseDto {
     private Long id;
     private String entrantId;
-    private String raceUUID;
+    private Map<Integer, String> raceUUID;
     private Long raceId;
     private String name;
     private Integer number;

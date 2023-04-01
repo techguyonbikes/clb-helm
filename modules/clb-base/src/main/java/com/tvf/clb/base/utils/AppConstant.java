@@ -3,6 +3,7 @@ package com.tvf.clb.base.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,9 +12,15 @@ import java.util.List;
 public class AppConstant {
     public static final String LAD_BROKE = "LADBROKE";
     public static final String NED = "NED";
+    public static final String TAB = "TAB";
 
     //Because we use ladbroke to store common data , bellow is list site after common data is saved
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED));
+//    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, TAB, POINT_BET));
+
+    public static final Integer LAD_BROKE_SITE_ID = 1;
+    public static final Integer NED_SITE_ID = 2;
+    public static final Integer TAB_SITE_ID = 5;
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, TAB));
 
     public static final String POSITION = "position";
 
@@ -41,4 +48,8 @@ public class AppConstant {
     public static final String GREYHOUND_FEED_TYPE = "greyhound_racing";
     public static final String DATE_TIME_FORMAT_LONG = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     public static final long TIME_VALIDATE_START = 6000;
+    public static final String TAB_BET_RACE_QUERY= "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{id}";
+
+    // Thêm NZ nếu có new zealand
+    public static final List<String> VALID_COUNTRY_CODE = new ArrayList<>(Arrays.asList("AU","AUS","NZL","NZ"));
 }

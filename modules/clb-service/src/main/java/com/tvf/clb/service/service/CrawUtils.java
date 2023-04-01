@@ -2,9 +2,12 @@ package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.tvf.clb.base.dto.EntrantMapper;
 import com.tvf.clb.base.dto.MeetingMapper;
 import com.tvf.clb.base.dto.RaceResponseMapper;
+import com.tvf.clb.base.dto.SiteEnum;
 import com.tvf.clb.base.entity.*;
+import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,9 @@ import java.util.stream.Collectors;
 public class CrawUtils {
 
     @Autowired
+    private ServiceLookup serviceLookup;
+
+    @Autowired
     private MeetingSiteRepository meetingSiteRepository;
 
     @Autowired
@@ -38,36 +44,34 @@ public class CrawUtils {
     private EntrantRedisService entrantRedisService;
 
     @Autowired
-    private List<ICrawlService> crawlServices;
-
-    private Gson gson = new Gson();
-
-    @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
 
-    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName) {
+    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName, String raceUUID) {
         Mono<Long> raceIdMono = raceNameAndIdTemplate.opsForValue().get(raceName);
         raceIdMono.map(raceId -> {
             Mono<List<EntrantResponseDto>> entrantStored = entrantRedisService.findEntrantByRaceId(raceId);
             return entrantStored.subscribe(records -> {
 
-                List<EntrantResponseDto> storeRecords = convertFromRedisPriceToDTO(records);
+                List<EntrantResponseDto> storeRecords = EntrantMapper.convertFromRedisPriceToDTO(records);
                 Map<String, Entrant> entrantMap = new HashMap<>();
-                for(Entrant entrant: entrants) {
+                for (Entrant entrant : entrants) {
                     entrantMap.put(entrant.getName(), entrant);
                 }
-                for (EntrantResponseDto entrantResponseDto: storeRecords) {
+                for (EntrantResponseDto entrantResponseDto : storeRecords) {
                     Entrant newEntrant = entrantMap.get(entrantResponseDto.getName());
-
-                    if(entrantResponseDto.getPriceFluctuations() == null) {
-                        Map<Integer, List<Float>> price = new HashMap<>();
-                        log.error("null price");
-                        entrantResponseDto.setPriceFluctuations(price);
-                    }
-                    Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
-
                     if (newEntrant != null) {
+                        if (entrantResponseDto.getPriceFluctuations() == null) {
+                            Map<Integer, List<Float>> price = new HashMap<>();
+                            log.error("null price");
+                            entrantResponseDto.setPriceFluctuations(price);
+                        }
+                        // todo: the position in neds and labBroke is not correct
+
+                        Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
                         price.put(site, newEntrant.getPrices() == null ? new ArrayList<>() : newEntrant.getPrices());
+
+                        Map<Integer, String> mapRaceUUID = entrantResponseDto.getRaceUUID();
+                        mapRaceUUID.put(site, raceUUID);
                     }
                 }
                 entrantRedisService.saveRace(raceId, storeRecords).subscribe();
@@ -112,25 +116,21 @@ public class CrawUtils {
 
     }
 
-    public Mono<Map<String, Map<Integer, List<Float>>>> crawlNewPriceByRaceUUID(String raceUUID){
-        Map<String, Map<Integer, List<Float>>> newPrices = new HashMap<>();
-        return Flux.fromIterable(crawlServices)
+    public Mono<Map<Long, CrawlEntrantData>> crawlNewPriceByRaceUUID(Map<Integer, String> mapSiteRaceUUID, Map<String, Long> entrantIdMapName) {
+        Map<Long, CrawlEntrantData> newPrices = new HashMap<>();
+        return Flux.fromIterable(mapSiteRaceUUID.entrySet())
                 .parallel().runOn(Schedulers.parallel())
-                .map(iCrawlService -> iCrawlService.getEntrantByRaceId(raceUUID))
-                .sequential().doOnNext(prices -> {
-                    prices.forEach((key, value) -> {
-                        if (newPrices.containsKey(key)) {
-                            newPrices.get(key).putAll(value);
-                        } else {
-                            newPrices.put(key, value);
-                        }
-                    });
-                }).then(Mono.just(newPrices));
+                .map(entry ->
+                        serviceLookup.forBean(ICrawlService.class, SiteEnum.getSiteNameById(entry.getKey()))
+                                .getEntrantByRaceUUID(entry.getValue(), entrantIdMapName))
+                .sequential()
+                .doOnNext(prices -> prices.forEach((key, value) -> {
+                    if (newPrices.containsKey(key)) {
+                        newPrices.get(key).getPriceMap().putAll(value.getPriceMap());
+                    } else {
+                        newPrices.put(key, value);
+                    }
+                })).then(Mono.just(newPrices));
     }
 
-    public List<EntrantResponseDto> convertFromRedisPriceToDTO(List<EntrantResponseDto> dtos){
-        Type listType = new TypeToken<List<EntrantResponseDto>>() {
-        }.getType();
-        return gson.fromJson(gson.toJson(dtos), listType);
-    }
 }
