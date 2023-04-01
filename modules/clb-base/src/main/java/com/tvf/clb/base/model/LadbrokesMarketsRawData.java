@@ -14,7 +14,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MarketsRawData {
+public class LadbrokesMarketsRawData {
 
     private String id;
     @SerializedName("race_id")

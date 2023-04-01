@@ -291,7 +291,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         return raceDto.getMarkets().values().stream()
                 .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME))
                 .findFirst()
-                .map(MarketsRawData::getRace_id)
+                .map(LadbrokesMarketsRawData::getRace_id)
                 .orElse(null)
                 .stream()
                 .map(x -> raceDto.getEntrants().get(x))

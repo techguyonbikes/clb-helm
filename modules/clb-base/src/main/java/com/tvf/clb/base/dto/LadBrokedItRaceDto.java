@@ -3,7 +3,7 @@ package com.tvf.clb.base.dto;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import com.tvf.clb.base.model.EntrantRawData;
-import com.tvf.clb.base.model.MarketsRawData;
+import com.tvf.clb.base.model.LadbrokesMarketsRawData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +21,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class LadBrokedItRaceDto {
     private JsonObject races;
-    private Map<String, MarketsRawData> markets;
+    private Map<String, LadbrokesMarketsRawData> markets;
     private Object meetings;
     private Object prices;
     private Object venues;
