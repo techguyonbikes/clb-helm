@@ -6,15 +6,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
-import com.tvf.clb.base.entity.*;
+import com.tvf.clb.base.entity.Entrant;
+import com.tvf.clb.base.entity.Meeting;
+import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
-import com.tvf.clb.base.model.EntrantRawData;
-import com.tvf.clb.base.model.MeetingRawData;
-import com.tvf.clb.base.model.RaceRawData;
-import com.tvf.clb.base.model.VenueRawData;
+import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.service.repository.*;
+import com.tvf.clb.service.repository.EntrantRepository;
+import com.tvf.clb.service.repository.MeetingRepository;
+import com.tvf.clb.service.repository.RaceRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
@@ -29,7 +30,10 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -78,7 +82,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     @Override
-    public Map<String, Map<Integer, List<Float>>> getEntrantByRaceId(String raceId) {
+    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
             JsonObject results = raceDto.getResults();
@@ -90,13 +94,13 @@ public class LadBrokeCrawlService implements ICrawlService {
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            Map<String, Map<Integer, List<Float>>> result = new HashMap<>();
+            Map<Integer, CrawlEntrantData> result = new HashMap<>();
             allEntrant.forEach(x -> {
                 List<Float> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
                         : new ArrayList<>(allEntrantPrices.get(x.getId()));
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-                priceFluctuations.put(1, entrantPrice);
-                result.put(x.getId(), priceFluctuations);
+                priceFluctuations.put(AppConstant.LAD_BROKE_SITE_ID, entrantPrice);
+                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.LAD_BROKE_SITE_ID, priceFluctuations));
             });
             return result;
         } catch (IOException e) {
@@ -105,7 +109,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     private List<MeetingDto> getAllAusMeeting(LadBrokedItMeetingDto ladBrokedItMeetingDto, LocalDate date) {
-        List<VenueRawData> ausVenues = ladBrokedItMeetingDto.getVenues().values().stream().filter(v -> v.getCountry().equals(AppConstant.AUS)).collect(Collectors.toList());
+        List<VenueRawData> ausVenues = ladBrokedItMeetingDto.getVenues().values().stream().filter(v -> AppConstant.VALID_COUNTRY_CODE.contains(v.getCountry())).collect(Collectors.toList());
         List<String> venuesId = ausVenues.stream().map(VenueRawData::getId).collect(Collectors.toList());
         List<MeetingRawData> meetings = new ArrayList<>(ladBrokedItMeetingDto.getMeetings().values());
         List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> StringUtils.hasText(m.getCountry()) && venuesId.contains(m.getVenueId())).collect(Collectors.toList());
@@ -181,7 +185,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .collectList()
                                     .subscribe(savedMeetings -> {
                                         saveRace(raceDtoList, savedMeetings, date);
-                                        crawUtils.saveMeetingSite(savedMeetings, 1);
+                                        crawUtils.saveMeetingSite(savedMeetings, AppConstant.LAD_BROKE_SITE_ID);
                                         log.info("All meetings processed successfully");
                                     });
                         }
@@ -231,10 +235,12 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                 .sequential()
                                                 .collectList()
                                                 .subscribe(x -> getMeetingFromAllSite(date).subscribe());
-                                        savedRace.forEach(x -> {
-                                            raceNameAndIdTemplate.opsForValue().set(x.getName(), x.getId()).subscribe();
+                                        savedRace.forEach(race -> {
+                                            Meeting raceMeeting = meetingUUIDMap.get(race.getMeetingUUID());
+                                            String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
+                                            raceNameAndIdTemplate.opsForValue().set(key, race.getId()).subscribe();
                                         });
-                                        crawUtils.saveRaceSite(savedRace, 1);
+                                        crawUtils.saveRaceSite(savedRace, AppConstant.LAD_BROKE_SITE_ID);
                                         log.info("All races processed successfully");
                                     });
                         }
@@ -242,7 +248,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, Long raceId) {
-        List<Entrant> newEntrants = entrantRawData.stream().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
+        List<Entrant> newEntrants = entrantRawData.stream().map(m -> MeetingMapper.toEntrantEntity(m, AppConstant.LAD_BROKE_SITE_ID)).collect(Collectors.toList());
         List<String> entrantNames = newEntrants.stream().map(Entrant::getName).collect(Collectors.toList());
         List<Integer> entrantNumbers = newEntrants.stream().map(Entrant::getNumber).collect(Collectors.toList());
         List<Integer> entrantBarriers = newEntrants.stream().map(Entrant::getBarrier).collect(Collectors.toList());
@@ -272,7 +278,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .flatMapMany(saved -> {
                                         entrantRedisService
                                                 .saveRace(raceId, saved.stream()
-                                                        .map(x -> EntrantMapper.toEntrantResponseDto(x, 1))
+                                                        .map(x -> EntrantMapper.toEntrantResponseDto(x, AppConstant.LAD_BROKE_SITE_ID))
                                                         .collect(Collectors.toList())).subscribe();
                                         log.info("{} entrants save into redis and database", saved.size());
                                         return Flux.fromIterable(saved);
@@ -282,14 +288,22 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     private List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
-        //sometime ladbrokes has duplicate entrant have different price, we just need to get the first one
-        return raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null && r.getId() != null).map(r -> {
-            List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.get(r.getId());
-            Integer entrantPosition = positions.get(r.getId()) == null ? 0 : positions.get(r.getId());
-            EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
-            entrantRawData.setRaceId(raceId);
-            return entrantRawData;
-        }).distinct().collect(Collectors.toList());
+        return raceDto.getMarkets().values().stream()
+                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME))
+                .findFirst()
+                .map(LadbrokesMarketsRawData::getRace_id)
+                .orElse(null)
+                .stream()
+                .map(x -> raceDto.getEntrants().get(x))
+                .filter(r -> r.getFormSummary() != null && r.getId() != null)
+                .map(r -> {
+                    List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.get(r.getId());
+                    Integer entrantPosition = positions.getOrDefault(r.getId(), 0);
+                    EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
+                    entrantRawData.setRaceId(raceId);
+                    return entrantRawData;
+                })
+                .collect(Collectors.toList());
     }
 
     private LadBrokedItRaceDto getLadBrokedItRaceDto(String raceId) throws IOException {

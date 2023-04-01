@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
@@ -152,6 +154,22 @@ public class MeetingMapper {
                 .generalMeetingId(generalId)
                 .siteId(siteId)
                 .startDate(meeting.getAdvertisedDate())
+                .build();
+    }
+
+    public static Entrant toEntrantEntity(EntrantRawData entrantRawData, Integer site) {
+        return Entrant.builder()
+                .entrantId(entrantRawData.getId())
+                .raceUUID(entrantRawData.getRaceId())
+                .name(entrantRawData.getName())
+                .number(entrantRawData.getNumber())
+                .barrier(entrantRawData.getBarrier())
+                .visible(entrantRawData.isVisible())
+                .marketId(entrantRawData.getMarketId())
+                .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations() == null ? new HashMap<>() : Collections.singletonMap(AppConstant.LAD_BROKE_SITE_ID, entrantRawData.getPriceFluctuations()))))
+                .isScratched(entrantRawData.getIsScratched() != null)
+                .scratchedTime(entrantRawData.getScratchedTime())
+                .position(entrantRawData.getPosition())
                 .build();
     }
 }

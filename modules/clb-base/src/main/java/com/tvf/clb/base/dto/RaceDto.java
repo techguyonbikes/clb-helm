@@ -18,8 +18,10 @@ public class RaceDto {
     private String id;
     private Long meetingId;
     private String meetingUUID;
+    private String meetingName;
     private String name;
     private Integer number;
+    private String raceType;
     private Instant advertisedStart;
     private Instant actualStart;
     private List<String> marketIds;
