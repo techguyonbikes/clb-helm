@@ -6,8 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.model.EntrantRawData;
-import com.google.gson.reflect.TypeToken;
-import com.tvf.clb.base.model.tab.RunnerRawData;
+import com.tvf.clb.base.model.tab.RunnerTabRawData;
+import com.tvf.clb.base.utils.AppConstant;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -108,7 +108,7 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantRawData toEntrantRawData(RunnerRawData runner, List<Integer> position, List<Float> listPrice, String raceId) {
+    public static EntrantRawData toEntrantRawData(RunnerTabRawData runner, List<Integer> position, List<Float> listPrice, String raceId) {
 
         return EntrantRawData.builder()
                 .id("TAB-" + runner.getRunnerName() + "-" + runner.getRunnerNumber())
@@ -119,7 +119,7 @@ public class EntrantMapper {
                 .barrier(0)
                 .visible(false)
                 .priceFluctuations(listPrice)
-                .isScratched(runner.getFixedOdds().getBettingStatus().equals("LateScratched") ? String.valueOf(true) : String.valueOf(false))
+                .isScratched(runner.getFixedOdds().getBettingStatus().equals(AppConstant.SCRATCHED_NAME) ? String.valueOf(true) : String.valueOf(false))
                 .scratchedTime(runner.getFixedOdds().getScratchedTime() == null ? null : Instant.parse(runner.getFixedOdds().getScratchedTime()))
                 .position(position.indexOf(runner.getRunnerNumber()) + 1)
                 .build();

@@ -28,6 +28,10 @@ public class AppConstant {
 
     public static final String DISTANCE = "distance";
 
+    public static final String MARKETS_NAME = "Final Field";
+
+    public static final String SCRATCHED_NAME = "LateScratched";
+
     public static final String AUS = "AUS";
     public static final String DATE_PARAM = "{date}";
 

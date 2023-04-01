@@ -82,7 +82,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     @Override
-    public Map<Long, CrawlEntrantData> getEntrantByRaceUUID(String raceId, Map<String, Long> entrantIdMapName) {
+    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
             JsonObject results = raceDto.getResults();
@@ -94,13 +94,13 @@ public class LadBrokeCrawlService implements ICrawlService {
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            Map<Long, CrawlEntrantData> result = new HashMap<>();
+            Map<Integer, CrawlEntrantData> result = new HashMap<>();
             allEntrant.forEach(x -> {
                 List<Float> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
                         : new ArrayList<>(allEntrantPrices.get(x.getId()));
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.LAD_BROKE_SITE_ID, entrantPrice);
-                result.put(entrantIdMapName.get(x.getName() + " - " + x.getNumber()), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.LAD_BROKE_SITE_ID, priceFluctuations));
             });
             return result;
         } catch (IOException e) {
@@ -289,7 +289,7 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     private List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
         return raceDto.getMarkets().values().stream()
-                .filter(m -> m.getName().equals("Final Field"))
+                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME))
                 .findFirst()
                 .map(MarketsRawData::getRace_id)
                 .orElse(null)

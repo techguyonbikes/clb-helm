@@ -66,7 +66,7 @@ public class SocketModule {
         Predicate<List<EntrantResponseDto>> stopEmittingCondition = listEntrant -> listEntrant.stream().anyMatch(entrant -> entrant.getPosition() > 0);
 
         return Flux.interval(Duration.ofSeconds(20L))
-                .flatMap(tick -> crawlPriceService.crawlPriceByRaceId(request))
+                .flatMap(tick -> crawlPriceService.crawlEntrantPricePositionByRaceId(request))
                 .doOnNext(entrantList -> senderClient.sendEvent("new_prices", entrantList))
                 .takeUntil(stopEmittingCondition) // stop emitting when race has finished
                 .doOnComplete(() -> {

@@ -8,6 +8,7 @@ import com.tvf.clb.base.dto.RaceResponseMapper;
 import com.tvf.clb.base.dto.SiteEnum;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.CrawlEntrantData;
+import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,17 +117,19 @@ public class CrawUtils {
 
     }
 
-    public Mono<Map<Long, CrawlEntrantData>> crawlNewPriceByRaceUUID(Map<Integer, String> mapSiteRaceUUID, Map<String, Long> entrantIdMapName) {
-        Map<Long, CrawlEntrantData> newPrices = new HashMap<>();
+    public Mono<Map<Integer, CrawlEntrantData>> crawlNewPriceByRaceUUID(Map<Integer, String> mapSiteRaceUUID) {
+        Map<Integer, CrawlEntrantData> newPrices = new HashMap<>();
         return Flux.fromIterable(mapSiteRaceUUID.entrySet())
                 .parallel().runOn(Schedulers.parallel())
                 .map(entry ->
                         serviceLookup.forBean(ICrawlService.class, SiteEnum.getSiteNameById(entry.getKey()))
-                                .getEntrantByRaceUUID(entry.getValue(), entrantIdMapName))
+                                .getEntrantByRaceUUID(entry.getValue()))
                 .sequential()
                 .doOnNext(prices -> prices.forEach((key, value) -> {
                     if (newPrices.containsKey(key)) {
                         newPrices.get(key).getPriceMap().putAll(value.getPriceMap());
+                        if (Objects.equals(value.getSiteId(), AppConstant.LAD_BROKE_SITE_ID))
+                            newPrices.get(key).setPosition(value.getPosition());
                     } else {
                         newPrices.put(key, value);
                     }

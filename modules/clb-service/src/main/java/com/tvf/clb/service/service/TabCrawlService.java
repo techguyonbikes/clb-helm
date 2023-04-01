@@ -40,19 +40,20 @@ public class TabCrawlService implements ICrawlService {
     }
 
     @Override
-    public Map<Long, CrawlEntrantData> getEntrantByRaceUUID(String raceId, Map<String, Long> entrantIdMapName) {
+    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
         try {
             TabRunnerRawData runnerRawData = crawlRunnerDataTAB(raceId);
             // TODO fix this bug, sometime api return null because of wrong race UUID
-            if (runnerRawData.getRunners() == null && runnerRawData.getResults() == null) {
+            if(runnerRawData.getRunners() == null && runnerRawData.getResults() == null) {
+                log.debug("Site tab get Entrant by raceUUID not found: "+raceId);
                 return new HashMap<>();
             }
             List<EntrantRawData> allEntrant = getListEntrant(raceId, runnerRawData);
-            Map<Long, CrawlEntrantData> result = new HashMap<>();
+            Map<Integer, CrawlEntrantData> result = new HashMap<>();
             allEntrant.forEach(x -> {
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.TAB_SITE_ID, x.getPriceFluctuations());
-                result.put(entrantIdMapName.get(x.getName() + " - " + x.getNumber()), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.TAB_SITE_ID, priceFluctuations));
             });
             return result;
         } catch (IOException e) {

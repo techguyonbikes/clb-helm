@@ -13,8 +13,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class CrawlPriceService {
@@ -32,15 +30,13 @@ public class CrawlPriceService {
 
     private Gson gson = new Gson();
 
-    public Mono<List<EntrantResponseDto>> crawlPriceByRaceId(Long generalRaceId) {
+    public Mono<List<EntrantResponseDto>> crawlEntrantPricePositionByRaceId(Long generalRaceId) {
         return entrantRedisService.findEntrantByRaceId(generalRaceId).flatMap(x -> {
             List<EntrantResponseDto> storeRecords = EntrantMapper.convertFromRedisPriceToDTO(x);
 
-            Map<String, Long> entrantIdMapName = storeRecords.stream().collect(Collectors.toMap(id -> id.getName() + " - " +id.getNumber(), EntrantResponseDto::getId));
-
-            return CrawUtils.crawlNewPriceByRaceUUID(storeRecords.get(0).getRaceUUID(), entrantIdMapName).doOnNext(newPrices -> {
+            return CrawUtils.crawlNewPriceByRaceUUID(storeRecords.get(0).getRaceUUID()).doOnNext(newPrices -> {
                 storeRecords.forEach(entrant -> {
-                            CrawlEntrantData entrantData = newPrices.get(entrantIdMapName.get(entrant.getName() + " - " + entrant.getNumber()));
+                            CrawlEntrantData entrantData = newPrices.get(entrant.getNumber());
                             entrant.setPriceFluctuations(entrantData.getPriceMap());
                             entrant.setPosition(entrantData.getPosition() == null ? 0 : entrantData.getPosition());
                         }
@@ -66,7 +62,7 @@ public class CrawlPriceService {
             {
                 existed.stream()
                         .filter(x -> x.getName().equals(e.getName())
-                                        && x.getNumber().equals(e.getNumber())
+                                && x.getNumber().equals(e.getNumber())
                         )
                         .findFirst()
                         .ifPresent(entrant -> {

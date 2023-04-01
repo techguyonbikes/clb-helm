@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ClbService(componentType = AppConstant.NED)
+@ClbService(componentType =  AppConstant.NED)
 @Slf4j
-public class NedsCrawlService implements ICrawlService {
+public class NedsCrawlService implements ICrawlService{
 
     @Autowired
     private CrawUtils crawUtils;
@@ -64,7 +64,7 @@ public class NedsCrawlService implements ICrawlService {
     }
 
     @Override
-    public Map<Long, CrawlEntrantData> getEntrantByRaceUUID(String raceId, Map<String, Long> entrantIdMapName) {
+    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getNedsRaceDto(raceId);
             JsonObject results = raceDto.getResults();
@@ -76,13 +76,13 @@ public class NedsCrawlService implements ICrawlService {
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            Map<Long, CrawlEntrantData> result = new HashMap<>();
+            Map<Integer, CrawlEntrantData> result = new HashMap<>();
             allEntrant.forEach(x -> {
                 List<Float> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
                         : new ArrayList<>(allEntrantPrices.get(x.getId()));
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.NED_SITE_ID, entrantPrice);
-                result.put(entrantIdMapName.get(x.getName() + " - " + x.getNumber()), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.NED_SITE_ID, priceFluctuations));
             });
             return result;
         } catch (IOException e) {
@@ -108,7 +108,7 @@ public class NedsCrawlService implements ICrawlService {
         saveMeeting(ausMeetings);
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         saveRace(raceDtoList);
-        crawlAndSaveEntrants(raceDtoList, date).subscribe();
+        crawlAndSaveEntrants(raceDtoList,  date).subscribe();
         return meetingDtoList;
     }
 

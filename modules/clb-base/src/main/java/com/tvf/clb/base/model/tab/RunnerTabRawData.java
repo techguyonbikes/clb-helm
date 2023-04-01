@@ -13,11 +13,11 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RunnerRawData {
+public class RunnerTabRawData {
 
     @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
     private String runnerName;
     private int runnerNumber;
-    private PriceRawData fixedOdds;
+    private TabPriceRawData fixedOdds;
 
 }

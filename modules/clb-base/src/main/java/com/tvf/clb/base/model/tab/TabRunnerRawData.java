@@ -15,7 +15,7 @@ import java.util.List;
 public class TabRunnerRawData {
 
     private List<List<Integer>> results;
-    private List<RunnerRawData> runners;
+    private List<RunnerTabRawData> runners;
 
     public List<Integer> getResults() {
         List<Integer> flattenedList = new ArrayList<>();
@@ -25,7 +25,7 @@ public class TabRunnerRawData {
         return flattenedList;
     }
 
-    public List<RunnerRawData> getRunners() {
+    public List<RunnerTabRawData> getRunners() {
         return runners;
     }
 }
