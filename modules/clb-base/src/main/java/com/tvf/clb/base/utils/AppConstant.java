@@ -3,7 +3,6 @@ package com.tvf.clb.base.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,14 +12,16 @@ public class AppConstant {
     public static final String LAD_BROKE = "LADBROKE";
     public static final String NED = "NED";
     public static final String TAB = "TAB";
+    public static final String POINT_BET = "POINTBET";
 
     //Because we use ladbroke to store common data , bellow is list site after common data is saved
 //    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, TAB, POINT_BET));
 
     public static final Integer LAD_BROKE_SITE_ID = 1;
     public static final Integer NED_SITE_ID = 2;
+    public static final Integer POINT_BET_SITE_ID = 4;
     public static final Integer TAB_SITE_ID = 5;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, TAB));
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, TAB, POINT_BET));
 
     public static final String POSITION = "position";
 
@@ -43,6 +44,11 @@ public class AppConstant {
     public static final String NEDS_MEETING_QUERY = "https://api.neds.com.au/v2/racing/meeting?date={date}&region=domestic&timezone=Asia%2FBangkok";
 
     public static final String NEDS_RACE_QUERY= "https://api.neds.com.au/rest/v1/racing/?method=racecard&id={id}";
+
+    public static final String POINT_BET_MEETING_QUERY = "https://api.au.pointsbet.com/api/v2/racing/meetings/index?localdate={date}&localstartoffsetmins=420&localendoffsetmins=420";
+
+    public static final String POINT_BET_RACE_QUERY= "https://api.au.pointsbet.com/api/v2/racing/races/{id}";
+
     public static final String HARNESS_RACING = "Harness Racing";
     public static final String GREYHOUND_RACING = "Greyhound Racing";
     public static final String HORSE_RACING = "Horse Racing";

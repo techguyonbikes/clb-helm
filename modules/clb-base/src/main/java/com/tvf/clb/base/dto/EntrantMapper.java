@@ -6,8 +6,10 @@ import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.model.EntrantRawData;
+import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
 import com.tvf.clb.base.utils.AppConstant;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -35,6 +37,20 @@ public class EntrantMapper {
                 .build();
     }
 
+    public static EntrantDto toEntrantDto(Entrant entrant) {
+        return EntrantDto.builder()
+                .id(entrant.getEntrantId())
+                .name(entrant.getName())
+                .marketId(entrant.getMarketId())
+                .number(entrant.getNumber())
+                .barrier(entrant.getBarrier())
+                .visible(entrant.isVisible())
+                .priceFluctuations(entrant.getPrices())
+                .isScratched(entrant.isScratched())
+                .scratchedTime(entrant.getScratchedTime())
+                .position(entrant.getPosition())
+                .build();
+    }
 
     public static EntrantRawData mapPrices(EntrantRawData entrant, List<Float> prices,Integer position) {
         return EntrantRawData.builder()
@@ -72,6 +88,29 @@ public class EntrantMapper {
                 .build();
     }
 
+    public static List<Entrant> toListEntrantEntity(List<PointBetEntrantRawData> entrantRawDataList, Map<String, List<Float>> allEntrantPrices, String raceUUID) {
+        List<Entrant> listEntrantEntity = new ArrayList<>();
+
+        entrantRawDataList.forEach(entrantRawData -> {
+            Entrant entrantEntity = toEntrantEntity(entrantRawData, allEntrantPrices.getOrDefault(entrantRawData.getId(), new ArrayList<>()), raceUUID);
+            listEntrantEntity.add(entrantEntity);
+        });
+
+        return listEntrantEntity;
+    }
+
+    public static Entrant toEntrantEntity(PointBetEntrantRawData entrantRawData, List<Float> entrantPrice, String raceUUID) {
+        return Entrant.builder()
+                .entrantId(entrantRawData.getId())
+                .raceUUID(raceUUID)
+                .name(entrantRawData.getName())
+                .number(Integer.parseInt(entrantRawData.getId()))
+                .barrier(entrantRawData.getBarrierBox())
+                .priceFluctuations(Json.of(new Gson().toJson(entrantPrice)))
+                .position(entrantRawData.getPosition())
+                .isScratched(entrantRawData.isScratched())
+                .build();
+    }
 
     public static EntrantResponseDto toEntrantResponseDto(Entrant entrant) {
         Gson gson = new Gson();
