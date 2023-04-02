@@ -69,7 +69,7 @@ public class Entrant {
         Map<Integer, List<Float>> prices = CommonUtils.getSitePriceFromJsonb(priceFluctuations);
         Map<Integer, List<Float>> entrantPrices = CommonUtils.getSitePriceFromJsonb(entrant.getPriceFluctuations());
 
-        if (Objects.equals(prices.get(LAD_BROKE_SITE_ID), entrantPrices.get(LAD_BROKE_SITE_ID))) return false;
+        if (!Objects.equals(prices.get(LAD_BROKE_SITE_ID), entrantPrices.get(LAD_BROKE_SITE_ID))) return false;
         if (isScratched != entrant.isScratched) return false;
         if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
         if (!Objects.equals(position, entrant.position)) return false;
