@@ -117,14 +117,14 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant) {
+    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant, Map<Integer, String> raceUUID) {
         Gson gson = new Gson();
         Type listType = new TypeToken<Map<Integer, List<Float>>>() {}.getType();
         Map<Integer, List<Float>> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
         return EntrantResponseDto.builder()
                 .id(entrant.getId())
                 .entrantId(entrant.getEntrantId())
-//                .raceUUID(entrant.getRaceUUID())
+                .raceUUID(raceUUID)
                 .raceId(entrant.getRaceId())
                 .name(entrant.getName())
                 .number(entrant.getNumber())
