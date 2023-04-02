@@ -9,14 +9,14 @@ import java.time.format.DateTimeFormatter;
 public class ConvertBase {
     public static String convertRaceTypeOfTab(String feedId) {
         String type = null;
-        switch (feedId){
-            case "G" :
+        switch (feedId) {
+            case "G":
                 type = AppConstant.GREYHOUND_RACING;
                 break;
-            case "R" :
+            case "R":
                 type = AppConstant.HORSE_RACING;
                 break;
-            case "H" :
+            case "H":
                 type = AppConstant.HARNESS_RACING;
                 break;
 

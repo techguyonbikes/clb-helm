@@ -7,6 +7,11 @@ import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.model.tab.TabMeetingRawData;
 import com.tvf.clb.base.model.tab.TabRacesData;
+import com.tvf.clb.base.model.zbet.ZBetEntrantData;
+import com.tvf.clb.base.model.zbet.ZBetMeetingRawData;
+import com.tvf.clb.base.model.zbet.ZBetRacesData;
+import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
+import com.tvf.clb.base.model.pointbet.PointBetRacesRawData;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.ConvertBase;
 import io.r2dbc.postgresql.codec.Json;
@@ -14,16 +19,21 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class MeetingMapper {
     private static final Gson gson = new Gson();
 
     public static MeetingDto toMeetingDto(MeetingRawData meeting, List<RaceRawData> races) {
+        String raceType = convertRaceType(meeting.getFeedId());
         return MeetingDto.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
@@ -37,17 +47,31 @@ public class MeetingMapper {
                 .regionId(meeting.getRegionId())
                 .feedId(meeting.getFeedId())
                 .compoundIds(meeting.getCompoundIds())
-                .races(toRaceDtoList(races, meeting.getId()))
-                .raceType(convertRaceType(meeting.getFeedId()))
+                .races(toRaceDtoList(races, meeting.getId(), meeting.getName(), raceType))
+                .raceType(raceType)
                 .build();
     }
 
-    public static RaceDto toRaceDto(RaceRawData race, String meetingId) {
+    public static MeetingDto toMeetingDto(PointBetMeetingRawData meeting) {
+        String raceType = convertRaceTypePointBet(meeting.getRacingType());
+        return MeetingDto.builder()
+                .id(meeting.getMasterEventID())
+                .name(meeting.getName())
+                .country(meeting.getCountryCode())
+                .advertisedDate(Instant.parse(meeting.getFirstRaceStartTimeUtc()))
+                .races(toRaceDtoListPointBet(meeting.getRaces(), meeting.getMasterEventID(), meeting.getName(), raceType))
+                .raceType(raceType)
+                .build();
+    }
+
+    public static RaceDto toRaceDto(RaceRawData race, String meetingUUID, String meetingName, String raceType) {
         return RaceDto.builder()
                 .id(race.getId())
-                .meetingUUID(meetingId)
+                .meetingUUID(meetingUUID)
+                .meetingName(meetingName)
                 .name(race.getName())
                 .number(race.getNumber())
+                .raceType(raceType)
                 .advertisedStart(Instant.parse(race.getAdvertisedStart()))
                 .actualStart(Instant.parse(race.getActualStart()))
                 .marketIds(race.getMarketIds())
@@ -76,6 +100,22 @@ public class MeetingMapper {
         }
     }
 
+    public static String convertRaceTypePointBet(Integer raceTypeId) {
+        String raceTypeName = null;
+        switch (raceTypeId) {
+            case 1:
+                raceTypeName = AppConstant.HORSE_RACING;
+                break;
+            case 2:
+                raceTypeName = AppConstant.HARNESS_RACING;
+                break;
+            case 4:
+                raceTypeName = AppConstant.GREYHOUND_RACING;
+                break;
+        }
+        return raceTypeName;
+    }
+
     public static Meeting toMeetingEntity(MeetingRawData meeting) {
         return Meeting.builder()
                 .meetingId(meeting.getId())
@@ -90,6 +130,23 @@ public class MeetingMapper {
                 .regionId(meeting.getRegionId())
                 .feedId(meeting.getFeedId())
                 .raceType(convertRaceType(meeting.getFeedId()))
+                .build();
+    }
+
+    public static Meeting toMeetingEntity(MeetingDto meeting) {
+        return Meeting.builder()
+                .meetingId(meeting.getId())
+                .name(meeting.getName())
+                .advertisedDate(meeting.getAdvertisedDate())
+                .categoryId(meeting.getCategoryId())
+                .venueId(meeting.getVenueId())
+                .trackCondition(meeting.getTrackCondition())
+                .country(meeting.getCountry())
+                .state(meeting.getState())
+                .hasFixed(meeting.getHasFixed())
+                .regionId(meeting.getRegionId())
+                .feedId(meeting.getFeedId())
+                .raceType(meeting.getRaceType())
                 .build();
     }
 
@@ -213,6 +270,53 @@ public class MeetingMapper {
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
                 .build();
+    }
+
+    public static Meeting toMeetingEntity(ZBetMeetingRawData meeting) {
+        //only get date of startDate
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(AppConstant.DATE_PATTERN);
+        String startDateString = meeting.getStartDate().substring(0, 10);
+
+        return Meeting.builder()
+                .meetingId(meeting.getMeetingId())
+                .name(meeting.getName())
+                .advertisedDate(LocalDate.parse(startDateString, sdf).atStartOfDay(AppConstant.UTC_ZONE_ID).toInstant())
+                .raceType(convertRacesType(meeting.getType()))
+                .build();
+    }
+
+    public static Race toRaceEntity(ZBetRacesData race) {
+        //only get date of startDate
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
+
+        return Race.builder()
+                .raceId(race.getId().toString())
+                .name(race.getName())
+                .number(race.getNumber())
+                .advertisedStart(LocalDateTime.parse(race.getStartDate(), sdf).atZone(AppConstant.AU_ZONE_ID).toInstant())
+                .build();
+    }
+
+    public static Entrant toEntrantEntity(ZBetEntrantData entrant, List<Float> prices) {
+        return Entrant.builder()
+                .entrantId(entrant.getId().toString())
+                .name(entrant.getName())
+                .number(entrant.getNumber())
+                .barrier(entrant.getBarrier())
+                .priceFluctuations(Json.of(gson.toJson(prices)))
+                .build();
+    }
+
+    public static String convertRacesType(String feedId) {
+        if (AppConstant.GREYHOUND_TYPE_RACE.contains(feedId)) {
+            return AppConstant.GREYHOUND_RACING;
+        } else if (AppConstant.HORSE_TYPE_RACE.contains(feedId)) {
+            return AppConstant.HORSE_RACING;
+        } else if (AppConstant.HARNESS_TYPE_RACE.contains(feedId)) {
+            return AppConstant.HARNESS_RACING;
+        } else {
+            return null;
+        }
     }
     public static String getMeetingId(TabMeetingRawData meeting){
         return meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic();

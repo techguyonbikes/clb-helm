@@ -117,6 +117,27 @@ public class CrawUtils {
 
     }
 
+    public void saveRaceSite(List<Race> races, Integer site, Meeting meeting) {
+        if (!races.isEmpty()) {
+            Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
+                    race -> {
+                        Mono<Long> generalId = raceRepository.getRaceIdByMeetingName(meeting.getName(), meeting.getRaceType(), race.getNumber(),race.getAdvertisedStart())
+                                .switchIfEmpty(Mono.empty());
+                        return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
+                    }
+            );
+            Flux<RaceSite> existedMeetingSite = raceSiteRepository
+                    .findAllByRaceSiteIdInAndSiteId(races.stream().map(Race::getRaceId).collect(Collectors.toList()), site).switchIfEmpty(Flux.empty());
+
+            Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
+                    .doOnNext(tuple2 -> {
+                        tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
+                        log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
+                        raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
+                    }).subscribe();
+        }
+    }
+
     public Mono<Map<Integer, CrawlEntrantData>> crawlNewPriceByRaceUUID(Map<Integer, String> mapSiteRaceUUID) {
         Map<Integer, CrawlEntrantData> newPrices = new HashMap<>();
         return Flux.fromIterable(mapSiteRaceUUID.entrySet())
