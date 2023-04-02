@@ -135,5 +135,23 @@ public class CrawUtils {
                     }
                 })).then(Mono.just(newPrices));
     }
+    public void saveRaceSitebyTab(List<Race> races, Integer site) {
+        Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
+                race -> {
+                    Mono<Long> generalId = raceRepository.getRaceIdbyDistance(race.getDistance(), race.getNumber(), race.getAdvertisedStart());
+                    return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
+                }
+        );
+        Flux<RaceSite> existedMeetingSite = raceSiteRepository
+                .findAllByRaceSiteIdInAndSiteId(races.stream().map(Race::getRaceId).collect(Collectors.toList()), site);
+
+        Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
+                .doOnNext(tuple2 -> {
+                    tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
+                    log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
+                    raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
+                }).subscribe();
+
+    }
 
 }

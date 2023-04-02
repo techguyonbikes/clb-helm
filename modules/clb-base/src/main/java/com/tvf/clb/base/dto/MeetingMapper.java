@@ -5,7 +5,10 @@ import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
+import com.tvf.clb.base.model.tab.TabMeetingRawData;
+import com.tvf.clb.base.model.tab.TabRacesData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.ConvertBase;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -69,7 +72,7 @@ public class MeetingMapper {
             return AppConstant.HARNESS_RACING;
         }
         else {
-            return null;
+            return AppConstant.HORSE_RACING; // racetype is null in labroker  = horse racing in other site 
         }
     }
 
@@ -156,6 +159,46 @@ public class MeetingMapper {
                 .startDate(meeting.getAdvertisedDate())
                 .build();
     }
+    public static MeetingDto toMeetingTABDto(TabMeetingRawData meeting, List<TabRacesData> races ) {
+        String raceType = ConvertBase.convertRaceTypeOfTab(meeting.getRaceType());
+        return MeetingDto.builder()
+                .id(meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic())
+                .name(meeting.getMeetingName())
+                .advertisedDate(ConvertBase.dateFormat(meeting.getMeetingDate()))
+                .state(meeting.getLocation())
+                .raceType(raceType)
+                .races(toRaceDtoListFromTab(races,meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic(), meeting.getMeetingName(), raceType, meeting.getLocation()))
+                .build();
+    }
+
+    public static Meeting toMeetingEntityFromTab(TabMeetingRawData meeting) {
+        return Meeting.builder()
+                .meetingId(meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic())
+                .name(meeting.getMeetingName())
+                .advertisedDate(ConvertBase.dateFormat(meeting.getMeetingDate()))
+                .raceType(ConvertBase.convertRaceTypeOfTab(meeting.getRaceType()))
+                .build();
+    }
+
+    public static List<RaceDto> toRaceDtoListFromTab(List<TabRacesData> races, String meetingId, String meetingName, String raceType, String location) {
+        List<RaceDto> raceDtoList = new ArrayList<>();
+        races.forEach(r -> raceDtoList.add(toRaceDtoByTab(r, meetingId, meetingName, raceType, location)));
+        return raceDtoList;
+    }
+
+    public static RaceDto toRaceDtoByTab(TabRacesData race, String meetingId, String meetingName, String raceType, String location) {
+        return RaceDto.builder()
+                .id(meetingId + "/races/"+ race.getRaceNumber())
+                .meetingUUID(meetingId)
+                .meetingName(meetingName)
+                .name(race.getRaceName())
+                .raceType(raceType)
+                .number(race.getRaceNumber())
+                .advertisedStart(Instant.parse(race.getRaceStartTime()))
+                .distance(race.getRaceDistance())
+                .build();
+    }
+
 
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData, Integer site) {
         return Entrant.builder()

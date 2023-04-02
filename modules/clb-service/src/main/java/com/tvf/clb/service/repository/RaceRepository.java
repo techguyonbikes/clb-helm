@@ -30,4 +30,7 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     Mono<Race> setUpdateRaceById(@Param("raceId") Long raceId, @Param("distance") Integer distance, @Param("status") String status);
 
     Flux<Race> findAllByMeetingId(Long meetingId);
+
+    @Query("select r.id from clb_db.race r where r.distance = :distance and r.number = :number and r.advertised_start = :date")
+    Mono<Long> getRaceIdbyDistance(@Param("distance") int name, @Param("number") Integer number, @Param("date") Instant date);
 }
