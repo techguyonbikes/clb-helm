@@ -71,7 +71,6 @@ public class MeetingMapper {
                 .meetingName(meetingName)
                 .name(race.getName())
                 .number(race.getNumber())
-                .raceType(raceType)
                 .advertisedStart(Instant.parse(race.getAdvertisedStart()))
                 .actualStart(Instant.parse(race.getActualStart()))
                 .marketIds(race.getMarketIds())
