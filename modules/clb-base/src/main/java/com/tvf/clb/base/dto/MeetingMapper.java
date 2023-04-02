@@ -81,10 +81,27 @@ public class MeetingMapper {
                 .build();
     }
 
-    public static List<RaceDto> toRaceDtoList(List<RaceRawData> races, String meetingId) {
+    public static List<RaceDto> toRaceDtoList(List<RaceRawData> races, String meetingUUID, String meetingName, String raceType) {
         List<RaceDto> raceDtoList = new ArrayList<>();
-        races.forEach(r -> raceDtoList.add(toRaceDto(r, meetingId)));
+        races.forEach(r -> raceDtoList.add(toRaceDto(r, meetingUUID, meetingName, raceType)));
         return raceDtoList;
+    }
+
+    public static List<RaceDto> toRaceDtoListPointBet(List<PointBetRacesRawData> races, String meetingUUID, String meetingName, String raceType) {
+        return races.stream().map(race -> toRaceDto(race, meetingUUID, meetingName, raceType)).collect(Collectors.toList());
+    }
+
+    public static RaceDto toRaceDto(PointBetRacesRawData race, String meetingUUID, String meetingName, String raceType) {
+        return RaceDto.builder()
+                .id(race.getEventId())
+                .meetingUUID(meetingUUID)
+                .meetingName(meetingName)
+                .name(race.getName())
+                .raceType(raceType)
+                .number(race.getRaceNumber())
+                .advertisedStart(Instant.parse(race.getAdvertisedStartDateTime()))
+                .actualStart(Instant.parse(race.getAdvertisedStartDateTime()))
+                .build();
     }
 
     public static String convertRaceType(String feedId) {
