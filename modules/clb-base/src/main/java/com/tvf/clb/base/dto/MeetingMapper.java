@@ -5,11 +5,11 @@ import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
+import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
+import com.tvf.clb.base.model.pointbet.PointBetRacesRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.model.zbet.ZBetMeetingRawData;
 import com.tvf.clb.base.model.zbet.ZBetRacesData;
-import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
-import com.tvf.clb.base.model.pointbet.PointBetRacesRawData;
 import com.tvf.clb.base.utils.AppConstant;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.AccessLevel;
@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,6 +97,18 @@ public class MeetingMapper {
                 .number(race.getRaceNumber())
                 .advertisedStart(Instant.parse(race.getAdvertisedStartDateTime()))
                 .actualStart(Instant.parse(race.getAdvertisedStartDateTime()))
+                .build();
+    }
+
+    public static RaceDto toRaceDto(ZBetRacesData race) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
+        return RaceDto.builder()
+                .id(race.getId().toString())
+                .meetingName(race.getMeetingName())
+                .name(race.getName())
+                .raceType(race.getType())
+                .number(race.getNumber())
+                .advertisedStart(LocalDateTime.parse(race.getStartDate(), dtf).atZone(AppConstant.AU_ZONE_ID).toInstant())
                 .build();
     }
 
@@ -179,6 +190,7 @@ public class MeetingMapper {
                 .distance(raceDto.getDistance())
                 .build();
     }
+
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
         return Entrant.builder()
                 .entrantId(entrantRawData.getId())
@@ -188,7 +200,7 @@ public class MeetingMapper {
                 .barrier(entrantRawData.getBarrier())
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
-                .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations())))
+                .currentSitePrice(entrantRawData.getPriceFluctuations())
                 .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
@@ -240,7 +252,7 @@ public class MeetingMapper {
                 .barrier(entrantRawData.getBarrier())
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
-                .priceFluctuations(Json.of(gson.toJson(entrantRawData.getPriceFluctuations() == null ? new HashMap<>() : Collections.singletonMap(AppConstant.LAD_BROKE_SITE_ID, entrantRawData.getPriceFluctuations()))))
+                .priceFluctuations(Json.of(gson.toJson(Collections.singletonMap(site, entrantRawData.getPriceFluctuations()))))
                 .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
@@ -278,7 +290,7 @@ public class MeetingMapper {
                 .name(entrant.getName())
                 .number(entrant.getNumber())
                 .barrier(entrant.getBarrier())
-                .priceFluctuations(Json.of(gson.toJson(prices)))
+                .currentSitePrice(prices)
                 .build();
     }
 

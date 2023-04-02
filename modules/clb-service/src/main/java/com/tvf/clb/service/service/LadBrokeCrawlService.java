@@ -297,7 +297,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                 .map(x -> raceDto.getEntrants().get(x))
                 .filter(r -> r.getFormSummary() != null && r.getId() != null)
                 .map(r -> {
-                    List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.get(r.getId());
+                    List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(r.getId(), new ArrayList<>());
                     Integer entrantPosition = positions.getOrDefault(r.getId(), 0);
                     EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
                     entrantRawData.setRaceId(raceId);

@@ -1,15 +1,13 @@
 package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.tvf.clb.base.dto.EntrantMapper;
-import com.tvf.clb.base.dto.MeetingMapper;
-import com.tvf.clb.base.dto.RaceResponseMapper;
-import com.tvf.clb.base.dto.SiteEnum;
+import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -18,8 +16,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +41,9 @@ public class CrawUtils {
 
     @Autowired
     private EntrantRedisService entrantRedisService;
+
+    @Autowired
+    private EntrantRepository entrantRepository;
 
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
@@ -69,7 +70,7 @@ public class CrawUtils {
                         // todo: the position in neds and labBroke is not correct
 
                         Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
-                        price.put(site, newEntrant.getPrices() == null ? new ArrayList<>() : newEntrant.getPrices());
+                        price.put(site, newEntrant.getPrices() == null ? new ArrayList<>() : newEntrant.getCurrentSitePrice());
 
                         Map<Integer, String> mapRaceUUID = entrantResponseDto.getRaceUUID();
                         mapRaceUUID.put(site, raceUUID);
@@ -155,6 +156,34 @@ public class CrawUtils {
                         newPrices.put(key, value);
                     }
                 })).then(Mono.just(newPrices));
+    }
+
+    public void saveEntrantsPriceIntoDB(List<Entrant> newEntrant, RaceDto raceDto, Integer siteId) {
+
+        Gson gson = new Gson();
+        Flux<Entrant> existedFlux = entrantRepository.findAllEntrantsInRace(raceDto.getMeetingName(), raceDto.getRaceType(), raceDto.getNumber(), raceDto.getAdvertisedStart());
+        List<Entrant> listNeedToUpdate = new ArrayList<>();
+        existedFlux.collectList().subscribe(listExisted -> {
+
+                Map<Integer, Entrant> mapNumberToNewEntrant = newEntrant.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity()));
+                listExisted.forEach(existed -> {
+
+                        Map<Integer, List<Float>> allExistedSitePrices = CommonUtils.getSitePriceFromJsonb(existed.getPriceFluctuations());
+
+                        List<Float> existedSitePrice = allExistedSitePrices.get(siteId);
+                        List<Float> newSitePrice = mapNumberToNewEntrant.get(existed.getNumber()).getCurrentSitePrice();
+
+                        if (! Objects.equals(existedSitePrice, newSitePrice)) {
+                            allExistedSitePrices.put(siteId, newSitePrice);
+                            existed.setPriceFluctuations(Json.of(gson.toJson(allExistedSitePrices)));
+
+                            listNeedToUpdate.add(existed);
+                        }
+                    }
+                );
+                entrantRepository.saveAll(listNeedToUpdate).subscribe();
+            }
+        );
     }
 
 }

@@ -195,11 +195,14 @@ public class PointBetCrawlService implements ICrawlService {
             });
         }
 
-        // Convert to entity and save to redis from raw data
+        // Convert to entity and save from raw data
         List<Entrant> listEntrantEntity = EntrantMapper.toListEntrantEntity(entrants, allEntrantPrices, raceUUID);
 
         String raceIdIdentifier = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
         crawUtils.saveEntrantIntoRedis(listEntrantEntity, AppConstant.POINT_BET_SITE_ID, raceIdIdentifier, raceUUID);
+
+        crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
+
         return Flux.fromIterable(listEntrantEntity.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList()));
     }
 
