@@ -172,7 +172,7 @@ public class EntrantMapper {
     public static EntrantRawData mapCrawlEntrant(String raceId, ZBetEntrantData entrant, List<Float> prices, Map<Long, Integer> position) {
         Instant reqInstant = null;
         if (entrant.getScratchingTime() != null) {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
             LocalDateTime localDateTime = LocalDateTime.parse(entrant.getScratchingTime(), dateTimeFormatter);
             ZoneId zoneId = ZoneId.of(ZoneOffset.UTC.getId());
             reqInstant = localDateTime.atZone(zoneId).toInstant();
@@ -186,7 +186,7 @@ public class EntrantMapper {
                 .barrier(entrant.getBarrier())
                 .visible(false)
                 .priceFluctuations(prices)
-                .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !entrant.getSelectionsStatus().equals("not scratched")))
+                .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !entrant.getSelectionsStatus().equals(AppConstant.NOT_SCRATCHED_NAME)))
                 .scratchedTime(reqInstant)
                 .position(position.get(entrant.getId()))
                 .build();
