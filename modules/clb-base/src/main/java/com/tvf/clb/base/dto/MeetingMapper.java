@@ -47,31 +47,17 @@ public class MeetingMapper {
                 .regionId(meeting.getRegionId())
                 .feedId(meeting.getFeedId())
                 .compoundIds(meeting.getCompoundIds())
-                .races(toRaceDtoList(races, meeting.getId(), meeting.getName(), raceType))
-                .raceType(raceType)
+                .races(toRaceDtoList(races, meeting.getId()))
+                .raceType(convertRaceType(meeting.getFeedId()))
                 .build();
     }
 
-    public static MeetingDto toMeetingDto(PointBetMeetingRawData meeting) {
-        String raceType = convertRaceTypePointBet(meeting.getRacingType());
-        return MeetingDto.builder()
-                .id(meeting.getMasterEventID())
-                .name(meeting.getName())
-                .country(meeting.getCountryCode())
-                .advertisedDate(Instant.parse(meeting.getFirstRaceStartTimeUtc()))
-                .races(toRaceDtoListPointBet(meeting.getRaces(), meeting.getMasterEventID(), meeting.getName(), raceType))
-                .raceType(raceType)
-                .build();
-    }
-
-    public static RaceDto toRaceDto(RaceRawData race, String meetingUUID, String meetingName, String raceType) {
+    public static RaceDto toRaceDto(RaceRawData race, String meetingId) {
         return RaceDto.builder()
                 .id(race.getId())
-                .meetingUUID(meetingUUID)
-                .meetingName(meetingName)
+                .meetingUUID(meetingId)
                 .name(race.getName())
                 .number(race.getNumber())
-                .raceType(raceType)
                 .advertisedStart(Instant.parse(race.getAdvertisedStart()))
                 .actualStart(Instant.parse(race.getActualStart()))
                 .marketIds(race.getMarketIds())
