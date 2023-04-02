@@ -72,7 +72,7 @@ public class MeetingMapper {
             return AppConstant.HARNESS_RACING;
         }
         else {
-            return AppConstant.HORSE_RACING; // racetype is null in labroker  = horse racing in other site 
+            return AppConstant.HORSE_RACING; // racetype is null in labroker  = horse racing in other site
         }
     }
 
@@ -162,18 +162,18 @@ public class MeetingMapper {
     public static MeetingDto toMeetingTABDto(TabMeetingRawData meeting, List<TabRacesData> races ) {
         String raceType = ConvertBase.convertRaceTypeOfTab(meeting.getRaceType());
         return MeetingDto.builder()
-                .id(meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic())
+                .id(getMeetingId(meeting))
                 .name(meeting.getMeetingName())
                 .advertisedDate(ConvertBase.dateFormat(meeting.getMeetingDate()))
                 .state(meeting.getLocation())
                 .raceType(raceType)
-                .races(toRaceDtoListFromTab(races,meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic(), meeting.getMeetingName(), raceType, meeting.getLocation()))
+                .races(toRaceDtoListFromTab(races,getMeetingId(meeting), meeting.getMeetingName(), raceType, meeting.getLocation()))
                 .build();
     }
 
     public static Meeting toMeetingEntityFromTab(TabMeetingRawData meeting) {
         return Meeting.builder()
-                .meetingId(meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic())
+                .meetingId(getMeetingId(meeting))
                 .name(meeting.getMeetingName())
                 .advertisedDate(ConvertBase.dateFormat(meeting.getMeetingDate()))
                 .raceType(ConvertBase.convertRaceTypeOfTab(meeting.getRaceType()))
@@ -188,7 +188,7 @@ public class MeetingMapper {
 
     public static RaceDto toRaceDtoByTab(TabRacesData race, String meetingId, String meetingName, String raceType, String location) {
         return RaceDto.builder()
-                .id(meetingId + "/races/"+ race.getRaceNumber())
+                .id(getRaceId(meetingId, race))
                 .meetingUUID(meetingId)
                 .meetingName(meetingName)
                 .name(race.getRaceName())
@@ -198,7 +198,6 @@ public class MeetingMapper {
                 .distance(race.getRaceDistance())
                 .build();
     }
-
 
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData, Integer site) {
         return Entrant.builder()
@@ -214,5 +213,11 @@ public class MeetingMapper {
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
                 .build();
+    }
+    public static String getMeetingId(TabMeetingRawData meeting){
+        return meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic();
+    }
+    public static String getRaceId(String meetingId, TabRacesData race){
+        return meetingId +"/races/"+ race.getRaceNumber();
     }
 }

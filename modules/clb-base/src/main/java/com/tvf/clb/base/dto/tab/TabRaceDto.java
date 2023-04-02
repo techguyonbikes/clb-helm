@@ -15,10 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TabRaceDto {
-
     private String raceName;
     List<RunnerTabRawData>  runners;
-
     List<Integer> results;
 
 
