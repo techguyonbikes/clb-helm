@@ -1,6 +1,8 @@
 package com.tvf.clb.base.model;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class MeetingRawData {
     private String id;
+    @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
     private String name;
     @SerializedName("advertised_date")
     private String advertisedDate;

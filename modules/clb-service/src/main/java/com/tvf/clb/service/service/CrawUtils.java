@@ -55,27 +55,27 @@ public class CrawUtils {
             return entrantStored.subscribe(records -> {
 
                 List<EntrantResponseDto> storeRecords = EntrantMapper.convertFromRedisPriceToDTO(records);
-                Map<String, Entrant> entrantMap = new HashMap<>();
+                Map<Integer, Entrant> entrantMap = new HashMap<>();
                 for (Entrant entrant : entrants) {
-                    entrantMap.put(entrant.getName(), entrant);
+                    entrantMap.put(entrant.getNumber(), entrant);
                 }
                 for (EntrantResponseDto entrantResponseDto : storeRecords) {
-                    Entrant newEntrant = entrantMap.get(entrantResponseDto.getName());
-                    if (newEntrant != null) {
-                        if (entrantResponseDto.getPriceFluctuations() == null) {
-                            Map<Integer, List<Float>> price = new HashMap<>();
-                            log.error("null price");
-                            entrantResponseDto.setPriceFluctuations(price);
-                        }
-                        // todo: the position in neds and labBroke is not correct
+                    Entrant newEntrant = entrantMap.get(entrantResponseDto.getNumber());
 
+                    if (entrantResponseDto.getPriceFluctuations() == null) {
+                        Map<Integer, List<Float>> price = new HashMap<>();
+                        log.error("null price");
+                        entrantResponseDto.setPriceFluctuations(price);
+                    }
+                    // todo: the position in neds and labBroke is not correct
+                    if (newEntrant != null) {
                         Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
                         price.put(site, newEntrant.getPrices() == null ? new ArrayList<>() : newEntrant.getCurrentSitePrice());
-
-                        Map<Integer, String> mapRaceUUID = entrantResponseDto.getRaceUUID();
-                        mapRaceUUID.put(site, raceUUID);
                     }
+                    Map<Integer, String> mapRaceUUID = entrantResponseDto.getRaceUUID();
+                    mapRaceUUID.put(site, raceUUID);
                 }
+
                 entrantRedisService.saveRace(raceId, storeRecords).subscribe();
             });
         }).subscribe();
