@@ -19,10 +19,13 @@ public class TabRunnerRawData {
 
     public List<Integer> getResults() {
         List<Integer> flattenedList = new ArrayList<>();
-        for (List<Integer> innerList : results) {
-            flattenedList.addAll(innerList);
+        if (results != null) {
+            for (List<Integer> innerList : results) {
+                flattenedList.addAll(innerList);
+            }
+            return flattenedList;
         }
-        return flattenedList;
+        return null;
     }
 
     public List<RunnerTabRawData> getRunners() {
