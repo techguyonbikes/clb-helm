@@ -1,6 +1,5 @@
 package com.tvf.clb.base.dto;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
@@ -10,7 +9,6 @@ import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
-import io.r2dbc.postgresql.codec.Json;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -20,13 +18,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class EntrantMapper {
 
-    public static ObjectMapper objectMapper = new ObjectMapper();
     public static Gson gson = new Gson();
+
     public static EntrantDto toEntrantDto(EntrantRawData entrant, List<Float> prices) {
         return EntrantDto.builder()
                 .id(entrant.getId())
@@ -35,7 +36,7 @@ public class EntrantMapper {
                 .number(entrant.getNumber())
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
-                .priceFluctuations(prices)
+                .currentSitePrice(prices)
                 .isScratched(entrant.getIsScratched() != null)
                 .scratchedTime(entrant.getScratchedTime())
                 .position(entrant.getPosition())
@@ -51,6 +52,7 @@ public class EntrantMapper {
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
                 .priceFluctuations(entrant.getPrices())
+                .currentSitePrice(entrant.getCurrentSitePrice())
                 .isScratched(entrant.isScratched())
                 .scratchedTime(entrant.getScratchedTime())
                 .position(entrant.getPosition())
@@ -111,7 +113,7 @@ public class EntrantMapper {
                 .name(entrantRawData.getName())
                 .number(Integer.parseInt(entrantRawData.getId()))
                 .barrier(entrantRawData.getBarrierBox())
-                .priceFluctuations(Json.of(new Gson().toJson(entrantPrice)))
+                .currentSitePrice(entrantPrice)
                 .position(entrantRawData.getPosition())
                 .isScratched(entrantRawData.isScratched())
                 .build();
@@ -145,7 +147,7 @@ public class EntrantMapper {
                 .number(entrant.getNumber())
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
-                .priceFluctuations(entrant.getPriceFluctuations())
+                .currentSitePrice(entrant.getPriceFluctuations())
                 .isScratched(entrant.getIsScratched().isEmpty())
                 .scratchedTime(entrant.getScratchedTime())
                 .position(entrant.getPosition())

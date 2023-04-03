@@ -2,8 +2,7 @@ package com.tvf.clb.base.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.PgJsonObjectDeserializer;
 import com.tvf.clb.base.utils.PgJsonObjectSerializer;
 import io.r2dbc.postgresql.codec.Json;
@@ -17,10 +16,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.lang.reflect.Type;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import static com.tvf.clb.base.utils.AppConstant.LAD_BROKE_SITE_ID;
 
 
 @Getter
@@ -48,9 +49,9 @@ public class Entrant {
     @JsonSerialize(using = PgJsonObjectSerializer.class)
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
     private Json priceFluctuations;
+    @Transient
+    private List<Float> currentSitePrice;
     private Integer position;
-
-
 
     @Override
     public boolean equals(Object o) {
@@ -64,30 +65,32 @@ public class Entrant {
         if (!Objects.equals(name, entrant.name)) return false;
         if (!Objects.equals(number, entrant.number)) return false;
         if (!Objects.equals(barrier, entrant.barrier)) return false;
-        Gson gson = new Gson();
-        ArrayList<Float> prices = gson.fromJson(priceFluctuations.asString(), ArrayList.class);
-        ArrayList<Float> entrantPrices = gson.fromJson(entrant.priceFluctuations.asString(), ArrayList.class);
-        if ((prices == null || entrantPrices == null) || !compareArrayLists(prices, entrantPrices)) return false;
+
+        Map<Integer, List<Float>> prices = CommonUtils.getSitePriceFromJsonb(priceFluctuations);
+        Map<Integer, List<Float>> entrantPrices = CommonUtils.getSitePriceFromJsonb(entrant.getPriceFluctuations());
+
+        if ((prices == null || entrantPrices == null) || !compareMaps(prices, entrantPrices)) return false;
         if (isScratched != entrant.isScratched) return false;
         if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
         if (!Objects.equals(position, entrant.position)) return false;
         return Objects.equals(marketId, entrant.marketId);
     }
 
-    public boolean compareArrayLists(ArrayList<Float> list1, ArrayList<Float> list2) {
-        // Check if both ArrayLists have the same size
-        if (list1.size() != list2.size()) {
+
+    public boolean compareMaps(Map<Integer, List<Float>> map1, Map<Integer, List<Float>> map2) {
+        if (map1.size() != map2.size()) {
             return false;
         }
-
-        // Iterate through the ArrayLists and compare the elements at each index
-        for (int i = 0; i < list1.size(); i++) {
-            if (!list1.get(i).equals(list2.get(i))) {
+        for (int key : map1.keySet()) {
+            if (!map2.containsKey(key)) {
+                return false;
+            }
+            List<Float> list1 = map1.get(key);
+            List<Float> list2 = map2.get(key);
+            if (!list1.equals(list2)) {
                 return false;
             }
         }
-
-        // All elements are equal, so the ArrayLists are equal
         return true;
     }
 
@@ -106,12 +109,8 @@ public class Entrant {
         return result;
     }
 
-    public ArrayList<Float> getPrices() {
-        Gson gson = new Gson();
-        Type listType = new TypeToken<ArrayList<Float>>() {}.getType();
-        if (priceFluctuations == null) {
-            return new ArrayList<>();
-        }
-        return gson.fromJson(priceFluctuations.asString(), listType);
+    public Map<Integer, List<Float>> getPrices() {
+        return CommonUtils.getSitePriceFromJsonb(priceFluctuations);
     }
+
 }

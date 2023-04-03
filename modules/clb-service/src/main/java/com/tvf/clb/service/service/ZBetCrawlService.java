@@ -127,7 +127,7 @@ public class ZBetCrawlService implements ICrawlService {
         if (raceDto != null) {
             List<ZBetEntrantData> allEntrant = raceDto.getSelections();
 
-            saveEntrant(allEntrant, String.format("%s - %s - %s - %s", race.getMeetingName(), race.getNumber(), race.getType(), date), raceUUID);
+            saveEntrant(allEntrant, race, date);
         } else {
             log.error("Can not found ZBet race by RaceUUID " + raceUUID);
         }
@@ -145,10 +145,14 @@ public class ZBetCrawlService implements ICrawlService {
         crawUtils.saveRaceSite(newRaces, AppConstant.ZBET_SITE_ID, MeetingMapper.toMeetingEntity(meeting));
     }
 
-    public void saveEntrant(List<ZBetEntrantData> entrantRawData, String raceName, String raceUUID) {
+    public void saveEntrant(List<ZBetEntrantData> entrantRawData, ZBetRacesData race, LocalDate date) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct()
                 .map(meeting -> MeetingMapper.toEntrantEntity(meeting, buildPriceFluctuations(meeting))).collect(Collectors.toList());
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceName, raceUUID);
+
+        String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", race.getMeetingName(), race.getNumber(), race.getType(), date);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, race.getId().toString());
+
+        crawUtils.saveEntrantsPriceIntoDB(newEntrants, MeetingMapper.toRaceDto(race) ,AppConstant.ZBET_SITE_ID);
     }
 
     private ZBetRaceRawData getZBetRaceData(String raceId) {

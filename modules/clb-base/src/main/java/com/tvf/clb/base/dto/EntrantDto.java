@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -22,7 +23,8 @@ public class EntrantDto {
     private Integer number;
     private String marketId;
     private Boolean visible;
-    private List<Float> priceFluctuations;
+    private Map<Integer, List<Float>> priceFluctuations;
+    private List<Float> currentSitePrice;
     private boolean isScratched;
     private Instant scratchedTime;
     private Integer position;
