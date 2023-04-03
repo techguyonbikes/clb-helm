@@ -5,12 +5,15 @@ import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
+import com.tvf.clb.base.model.tab.TabMeetingRawData;
+import com.tvf.clb.base.model.tab.TabRacesData;
 import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
 import com.tvf.clb.base.model.pointbet.PointBetRacesRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.model.zbet.ZBetMeetingRawData;
 import com.tvf.clb.base.model.zbet.ZBetRacesData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.ConvertBase;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -121,7 +124,7 @@ public class MeetingMapper {
             return AppConstant.HARNESS_RACING;
         }
         else {
-            return null;
+            return AppConstant.HORSE_RACING; // racetype is null in labroker  = horse racing in other site
         }
     }
 
@@ -190,7 +193,6 @@ public class MeetingMapper {
                 .distance(raceDto.getDistance())
                 .build();
     }
-
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
         return Entrant.builder()
                 .entrantId(entrantRawData.getId())
@@ -240,6 +242,45 @@ public class MeetingMapper {
                 .generalMeetingId(generalId)
                 .siteId(siteId)
                 .startDate(meeting.getAdvertisedDate())
+                .build();
+    }
+    public static MeetingDto toMeetingTABDto(TabMeetingRawData meeting, List<TabRacesData> races ) {
+        String raceType = ConvertBase.convertRaceTypeOfTab(meeting.getRaceType());
+        return MeetingDto.builder()
+                .id(getMeetingId(meeting))
+                .name(meeting.getMeetingName())
+                .advertisedDate(ConvertBase.dateFormat(meeting.getMeetingDate()))
+                .state(meeting.getLocation())
+                .raceType(raceType)
+                .races(toRaceDtoListFromTab(races,getMeetingId(meeting), meeting.getMeetingName(), raceType, meeting.getLocation()))
+                .build();
+    }
+
+    public static Meeting toMeetingEntityFromTab(TabMeetingRawData meeting) {
+        return Meeting.builder()
+                .meetingId(getMeetingId(meeting))
+                .name(meeting.getMeetingName())
+                .advertisedDate(ConvertBase.dateFormat(meeting.getMeetingDate()))
+                .raceType(ConvertBase.convertRaceTypeOfTab(meeting.getRaceType()))
+                .build();
+    }
+
+    public static List<RaceDto> toRaceDtoListFromTab(List<TabRacesData> races, String meetingId, String meetingName, String raceType, String location) {
+        List<RaceDto> raceDtoList = new ArrayList<>();
+        races.forEach(r -> raceDtoList.add(toRaceDtoByTab(r, meetingId, meetingName, raceType, location)));
+        return raceDtoList;
+    }
+
+    public static RaceDto toRaceDtoByTab(TabRacesData race, String meetingId, String meetingName, String raceType, String location) {
+        return RaceDto.builder()
+                .id(getRaceId(meetingId, race))
+                .meetingUUID(meetingId)
+                .meetingName(meetingName)
+                .name(race.getRaceName())
+                .raceType(raceType)
+                .number(race.getRaceNumber())
+                .advertisedStart(Instant.parse(race.getRaceStartTime()))
+                .distance(race.getRaceDistance())
                 .build();
     }
 
@@ -304,5 +345,11 @@ public class MeetingMapper {
         } else {
             return null;
         }
+    }
+    public static String getMeetingId(TabMeetingRawData meeting){
+        return meeting.getMeetingDate()+"/meetings/"+meeting.getRaceType()+"/"+meeting.getVenueMnemonic();
+    }
+    public static String getRaceId(String meetingId, TabRacesData race){
+        return meetingId +"/races/"+ race.getRaceNumber();
     }
 }
