@@ -81,4 +81,12 @@ public class AppConstant {
     public static final List<String> HORSE_TYPE_RACE = new ArrayList<>(Arrays.asList("horse_racing","R"));
     public static final List<String> GREYHOUND_TYPE_RACE = new ArrayList<>(Arrays.asList("greyhound_racing","G"));
     public static final List<String> VALID_LOCATION_CODE = new ArrayList<>(Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA","NZL"));
+
+    public static final String STATUS_OPEN = "OPEN";
+    public static final String STATUS_SUSPENDED = "SUSPENDED";
+    public static final String STATUS_CLOSED = "CLOSED";
+    public static final String STATUS_INTERIM = "INTERIM";
+    public static final String STATUS_FINAL = "FINAL";
+    public static final String STATUS_ABANDONED = "ABANDONED";
+
 }

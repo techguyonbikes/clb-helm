@@ -28,5 +28,6 @@ public class RaceDto {
     private String mainMarketStatusId;
     private String resultsDisplay;
     private Integer distance;
+    private String status;
 
 }

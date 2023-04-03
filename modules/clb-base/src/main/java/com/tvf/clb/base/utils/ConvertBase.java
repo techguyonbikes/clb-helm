@@ -29,4 +29,25 @@ public class ConvertBase {
         LocalDateTime startOfDay = date.atStartOfDay();
         return startOfDay.toInstant(ZoneOffset.UTC);
     }
+
+    public static String getRaceStatusById(Integer tradingStatus, Integer resultStatus) {
+        switch (tradingStatus) {
+            case 1:
+                return AppConstant.STATUS_OPEN;
+            case 2:
+                return AppConstant.STATUS_SUSPENDED;
+            case 3:
+                return AppConstant.STATUS_CLOSED;
+        }
+        switch (resultStatus) {
+            case 1:
+                return AppConstant.STATUS_INTERIM;
+            case 2:
+                return AppConstant.STATUS_FINAL;
+            case 4:
+                return AppConstant.STATUS_ABANDONED;
+        }
+        return AppConstant.STATUS_OPEN;
+    }
+
 }

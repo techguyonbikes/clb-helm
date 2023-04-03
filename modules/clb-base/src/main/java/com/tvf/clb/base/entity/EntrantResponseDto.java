@@ -25,4 +25,5 @@ public class EntrantResponseDto {
     private String scratchedTime;
     private Map<Integer, List<Float>> priceFluctuations;
     private Integer position;
+    private String statusRace;
 }
