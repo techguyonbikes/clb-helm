@@ -69,12 +69,31 @@ public class Entrant {
         Map<Integer, List<Float>> prices = CommonUtils.getSitePriceFromJsonb(priceFluctuations);
         Map<Integer, List<Float>> entrantPrices = CommonUtils.getSitePriceFromJsonb(entrant.getPriceFluctuations());
 
-        if (!Objects.equals(prices.get(LAD_BROKE_SITE_ID), entrantPrices.get(LAD_BROKE_SITE_ID))) return false;
+        if ((prices == null || entrantPrices == null) || !compareMaps(prices, entrantPrices)) return false;
         if (isScratched != entrant.isScratched) return false;
         if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
         if (!Objects.equals(position, entrant.position)) return false;
         return Objects.equals(marketId, entrant.marketId);
     }
+
+
+    public boolean compareMaps(Map<Integer, List<Float>> map1, Map<Integer, List<Float>> map2) {
+        if (map1.size() != map2.size()) {
+            return false;
+        }
+        for (int key : map1.keySet()) {
+            if (!map2.containsKey(key)) {
+                return false;
+            }
+            List<Float> list1 = map1.get(key);
+            List<Float> list2 = map2.get(key);
+            if (!list1.equals(list2)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     @Override
     public int hashCode() {
