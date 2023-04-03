@@ -72,7 +72,7 @@ public class AppConstant {
     public static final ZoneId AU_ZONE_ID = ZoneId.of("Australia/Sydney");
     public static final long TIME_VALIDATE_START = 6000;
     public static final String TAB_BET_MEETING_QUERY = "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{date}/meetings?jurisdiction=NSW&returnOffers=true&returnPromo=false";
-    public static final String TAB_BET_RACE_QUERY= "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{id}";
+    public static final String TAB_BET_RACE_QUERY= "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{id}?returnPromo=true&returnOffers=true&jurisdiction=NSW";
 
     // Thêm NZ nếu có new zealand
     public static final List<String> VALID_COUNTRY_CODE = new ArrayList<>(Arrays.asList("AU","AUS","NZL","NZ"));

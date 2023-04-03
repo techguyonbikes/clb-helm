@@ -165,14 +165,23 @@ public class NedsCrawlService implements ICrawlService{
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.NED_SITE_ID);
     }
 
-    public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
-        return raceDto.getEntrants().values().stream().filter(r -> r.getFormSummary() != null && r.getId() != null).map(r -> {
-            List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(r.getId(), new ArrayList<>());
-            Integer entrantPosition = positions.get(r.getId()) == null ? 0 : positions.get(r.getId());
-            EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
-            entrantRawData.setRaceId(raceId);
-            return entrantRawData;
-        }).collect(Collectors.toList());
+    private List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
+        return raceDto.getMarkets().values().stream()
+                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME))
+                .findFirst()
+                .map(LadbrokesMarketsRawData::getRace_id)
+                .orElse(null)
+                .stream()
+                .map(x -> raceDto.getEntrants().get(x))
+                .filter(r -> r.getFormSummary() != null && r.getId() != null)
+                .map(r -> {
+                    List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(r.getId(), new ArrayList<>());
+                    Integer entrantPosition = positions.getOrDefault(r.getId(), 0);
+                    EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
+                    entrantRawData.setRaceId(raceId);
+                    return entrantRawData;
+                })
+                .collect(Collectors.toList());
     }
 
     public LadBrokedItRaceDto getNedsRaceDto(String raceId) throws IOException {
