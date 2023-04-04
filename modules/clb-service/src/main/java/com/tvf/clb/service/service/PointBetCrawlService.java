@@ -8,7 +8,6 @@ import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.MeetingSite;
-import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
@@ -17,6 +16,7 @@ import com.tvf.clb.base.model.pointbet.PointBetPriceFluctuation;
 import com.tvf.clb.base.model.pointbet.PointBetRaceApiResponse;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.ConvertBase;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.MeetingSiteRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -88,6 +88,7 @@ public class PointBetCrawlService implements ICrawlService {
         PointBetRaceApiResponse raceRawData = crawlPointBetRaceData(raceUUID);
         List<PointBetEntrantRawData> entrants = raceRawData.getEntrants();
         Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
+        String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
 
         Map<Integer, CrawlEntrantData> result = new HashMap<>();
 
@@ -103,7 +104,7 @@ public class PointBetCrawlService implements ICrawlService {
         raceRawData.getEntrants().forEach(entrant -> {
             Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
             priceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantPrices.getOrDefault(entrant.getId(), new ArrayList<>()));
-            result.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(entrant.getPosition(), AppConstant.POINT_BET_SITE_ID, priceFluctuations));
+            result.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(entrant.getPosition(), statusRace, AppConstant.POINT_BET_SITE_ID, priceFluctuations));
         });
 
         return result;
@@ -120,7 +121,9 @@ public class PointBetCrawlService implements ICrawlService {
         saveMeeting(meetingDtoList);
 
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
-        saveRace(raceDtoList);
+
+        //save race
+        crawUtils.saveRaceSiteAndUpdateStatue(raceDtoList, AppConstant.POINT_BET_SITE_ID);
 
         crawlAndSaveAllEntrants(raceDtoList, date).subscribe();
 
@@ -162,11 +165,6 @@ public class PointBetCrawlService implements ICrawlService {
 
     }
 
-    public void saveRace(List<RaceDto> raceDtoList) {
-        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        crawUtils.saveRaceSite(newRaces, AppConstant.POINT_BET_SITE_ID);
-    }
-
     private Flux<EntrantDto> crawlAndSaveAllEntrants(List<RaceDto> raceDtoList, LocalDate date) {
         return Flux.fromIterable(raceDtoList)
                 .parallel() // create a parallel flux
@@ -181,6 +179,8 @@ public class PointBetCrawlService implements ICrawlService {
 
         PointBetRaceApiResponse raceRawData = crawlPointBetRaceData(raceUUID);
         List<PointBetEntrantRawData> entrants = raceRawData.getEntrants();
+
+        String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
 
         // Map entrant id to prices
         Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
@@ -199,7 +199,7 @@ public class PointBetCrawlService implements ICrawlService {
         List<Entrant> listEntrantEntity = EntrantMapper.toListEntrantEntity(entrants, allEntrantPrices, raceUUID);
 
         String raceIdIdentifier = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
-        crawUtils.saveEntrantIntoRedis(listEntrantEntity, AppConstant.POINT_BET_SITE_ID, raceIdIdentifier, raceUUID);
+        crawUtils.saveEntrantIntoRedis(listEntrantEntity, AppConstant.POINT_BET_SITE_ID, raceIdIdentifier, raceUUID, statusRace);
 
         crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
 

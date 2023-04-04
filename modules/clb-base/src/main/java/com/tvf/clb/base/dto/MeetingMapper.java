@@ -100,6 +100,7 @@ public class MeetingMapper {
                 .number(race.getRaceNumber())
                 .advertisedStart(Instant.parse(race.getAdvertisedStartDateTime()))
                 .actualStart(Instant.parse(race.getAdvertisedStartDateTime()))
+                .status(ConvertBase.getRaceStatusById(race.getTradingStatus(),race.getResultStatus()))
                 .build();
     }
 

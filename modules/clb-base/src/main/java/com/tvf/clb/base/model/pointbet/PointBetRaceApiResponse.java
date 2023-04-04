@@ -24,4 +24,6 @@ public class PointBetRaceApiResponse {
     private Integer racingType;
     private String advertisedStartDateTime;
     public String placing;
+    private Integer tradingStatus;
+    private Integer resultStatus;
 }

@@ -98,7 +98,7 @@ public class TabCrawlService implements ICrawlService{
             allEntrant.forEach(x -> {
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.TAB_SITE_ID, x.getPriceFluctuations());
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.TAB_SITE_ID, priceFluctuations));
+                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), null, AppConstant.TAB_SITE_ID, priceFluctuations));
             });
             return result;
         } catch (IOException e) {
@@ -134,7 +134,7 @@ public class TabCrawlService implements ICrawlService{
 
     public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID, null);
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {
