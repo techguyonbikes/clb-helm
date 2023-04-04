@@ -177,7 +177,7 @@ public class ZBetCrawlService implements ICrawlService {
                 List<ZBetPrices> listZBF = pricesMap.values().stream().filter(zBetPrices -> zBetPrices.getProductCode().equals("ZBF"))
                         .sorted(Comparator.comparing(ZBetPrices::getRequestedAt)).collect(Collectors.toList());
                 List<String> lastFluctuations = Arrays.stream(listZBF.get(listZBF.size() - 1).getFluctuations().split(",")).collect(Collectors.toList());
-                return lastFluctuations.stream().map(Float::parseFloat).collect(Collectors.toList());
+                return lastFluctuations.stream().map(Float::parseFloat).filter(x -> x != 0).collect(Collectors.toList());
             }
         }
 

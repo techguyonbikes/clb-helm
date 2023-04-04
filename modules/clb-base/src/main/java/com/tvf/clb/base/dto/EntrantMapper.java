@@ -155,7 +155,7 @@ public class EntrantMapper {
     }
 
     public static EntrantRawData toEntrantRawData(RunnerTabRawData runner, List<Integer> position, List<Float> listPrice, String raceId) {
-
+        listPrice.add(runner.getFixedOdds().getReturnWin());
         return EntrantRawData.builder()
                 .id("TAB-" + runner.getRunnerName() + "-" + runner.getRunnerNumber())
                 .raceId(raceId)
@@ -165,7 +165,7 @@ public class EntrantMapper {
                 .barrier(0)
                 .visible(false)
                 .priceFluctuations(listPrice)
-                .isScratched(runner.getFixedOdds().getBettingStatus().equals(AppConstant.SCRATCHED_NAME) ? String.valueOf(true) : String.valueOf(false))
+                .isScratched(runner.getFixedOdds().getBettingStatus() == null || !runner.getFixedOdds().getBettingStatus().equals(AppConstant.SCRATCHED_NAME) ? String.valueOf(false) : String.valueOf(true))
                 .scratchedTime(runner.getFixedOdds().getScratchedTime() == null ? null : Instant.parse(runner.getFixedOdds().getScratchedTime()))
                 .position(position.indexOf(runner.getRunnerNumber()) + 1)
                 .build();

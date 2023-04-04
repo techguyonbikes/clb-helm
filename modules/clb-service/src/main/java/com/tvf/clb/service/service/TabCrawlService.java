@@ -138,12 +138,10 @@ public class TabCrawlService implements ICrawlService{
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {
-        return runnerRawData.getRunners().stream().filter(
-                        f -> f.getFixedOdds() != null
-                                && f.getFixedOdds().getFlucs() != null
-                                && !f.getFixedOdds().getFlucs().isEmpty())
+        return runnerRawData.getRunners().stream().filter(f -> f.getFixedOdds() != null)
                 .map(x -> {
-                    List<Float> listPrice = x.getFixedOdds().getFlucs().stream().map(f -> f.getReturnWin() == null ? 0f : f.getReturnWin())
+                    List<Float> listPrice = x.getFixedOdds().getFlucs() == null ? new ArrayList<>() :
+                            x.getFixedOdds().getFlucs().stream().map(f -> f.getReturnWin() == null ? 0f : f.getReturnWin())
                             .collect(Collectors.toList());
                     return EntrantMapper.toEntrantRawData(x, runnerRawData.getResults(), listPrice, raceId);
                 }).collect(Collectors.toList());
