@@ -8,8 +8,18 @@ reactor:
 server:
   port: ${app.port:20001}
 logging:
+  file:
+    name: ./logs/cloudbet.log
+  level:
+    root: ${log.level.root:info}
+    org:
+      springframework: ${log.level.spring:info}
+    com:
+      tvf:
+        cloudbet: ${log.level.app:debug}
   pattern:
     console: "%d{ISO8601} %highlight(%-5level) [%blue(%t)] [%blue(%X{remoteAddr})] [%cyan(%X{tenant})] %yellow(%C{1.}): %msg%n%throwable"
+    file: "%d %p %C{1.} [%t] [%X{remoteAddr}] [%X{tenant}] %m%n"
 spring:
   redis:
     host: ${redis.host:34.129.203.3}
