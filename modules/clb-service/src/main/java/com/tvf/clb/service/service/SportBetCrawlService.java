@@ -75,7 +75,6 @@ public class SportBetCrawlService implements ICrawlService{
             List<RaceDto> meetingRaces = meeting.getRaces();
             meetingRaces.forEach(race -> {
                 race.setMeetingName(meeting.getName());
-                race.setRaceType(ConvertBase.convertRaceTypeOfTab(race.getRaceType()));
             });
             raceDtoList.addAll(meetingRaces);
             saveRace(raceDtoList, meeting);
@@ -152,7 +151,7 @@ public class SportBetCrawlService implements ICrawlService{
             Entrant entrant = MeetingMapper.toEntrantEntity(rawData,prices);
             newEntrants.add(entrant);
         }
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceUUID);
     }
 
     public SportBetRaceDto crawlEntrantDataSportBet(String raceId) throws IOException {
