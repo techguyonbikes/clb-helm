@@ -34,8 +34,8 @@ public class AppConstant {
 
     public static final String MARKETS_NAME = "Final Field";
 
-    public static final String DEFAULT_LOG_FILE = "./logs/cloudbet.log";
-    public static final String DEFAULT_LOG_PATH = "./logs/";
+    public static final String DEFAULT_LOG_FILE = "logs/cloudbet.log";
+    public static final String DEFAULT_LOG_PATH = "logs/";
     public static final String NOT_FOUND = "Not Found";
 
     public static final String LINE_BREAK_HTML = "<br>";

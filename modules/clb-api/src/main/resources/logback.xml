@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
-    <property name="logs.path" value="./logs" />
+    <property name="logs.path" value="logs" />
 
     <appender name="ALL-LEVEL-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${logs.path}/cloudbet.log</file>
@@ -60,5 +60,5 @@
     </root>
 
     <logger name="org.springframework" level="INFO"/>
-    <logger name="com.tvf.cloubet" level="DEBUG"/>
+    <logger name="com.tvf.clb" level="DEBUG"/>
 </configuration>
