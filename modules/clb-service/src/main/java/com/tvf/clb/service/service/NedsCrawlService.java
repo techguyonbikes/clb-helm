@@ -18,7 +18,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -130,8 +129,8 @@ public class NedsCrawlService implements ICrawlService{
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
-
-            saveEntrant(allEntrant, raceDto, date);
+            String distance = raceRawData.getRaces().getAsJsonObject(raceUUID).getAsJsonObject(AppConstant.ADDITIONAL_INFO).get(AppConstant.DISTANCE).getAsString();
+            saveEntrant(allEntrant, raceDto, date, distance);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
                         List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
@@ -153,11 +152,12 @@ public class NedsCrawlService implements ICrawlService{
         crawUtils.saveRaceSite(newRaces, AppConstant.NED_SITE_ID);
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto, LocalDate date) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto, LocalDate date, String distance) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
 
         String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.NED_SITE_ID, raceIdIdentifierInRedis, raceDto.getId(), null);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.NED_SITE_ID, raceIdIdentifierInRedis, raceDto.getId(),
+                null, raceDto.getAdvertisedStart(), raceDto.getNumber(), Integer.parseInt(distance));
 
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.NED_SITE_ID);
     }

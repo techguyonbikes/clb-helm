@@ -28,7 +28,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -127,7 +130,7 @@ public class ZBetCrawlService implements ICrawlService {
         if (raceDto != null) {
             List<ZBetEntrantData> allEntrant = raceDto.getSelections();
 
-            saveEntrant(allEntrant, race, date);
+            saveEntrant(allEntrant, race, date, raceDto.getDistance());
         } else {
             log.error("Can not found ZBet race by RaceUUID " + raceUUID);
         }
@@ -145,12 +148,19 @@ public class ZBetCrawlService implements ICrawlService {
         crawUtils.saveRaceSite(newRaces, AppConstant.ZBET_SITE_ID, MeetingMapper.toMeetingEntity(meeting));
     }
 
-    public void saveEntrant(List<ZBetEntrantData> entrantRawData, ZBetRacesData race, LocalDate date) {
+    public void saveEntrant(List<ZBetEntrantData> entrantRawData, ZBetRacesData race, LocalDate date, int distance) {
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
+
+        Instant startTime = LocalDateTime.parse(race.getStartDate(), dtf).atZone(AppConstant.AU_ZONE_ID).toInstant();
+
         List<Entrant> newEntrants = entrantRawData.stream().distinct()
                 .map(meeting -> MeetingMapper.toEntrantEntity(meeting, buildPriceFluctuations(meeting))).collect(Collectors.toList());
 
         String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", race.getMeetingName(), race.getNumber(), race.getType(), date);
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, race.getId().toString(), null);
+
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, race.getId().toString(),
+                null, startTime, race.getNumber(), distance);
 
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, MeetingMapper.toRaceDto(race) ,AppConstant.ZBET_SITE_ID);
     }

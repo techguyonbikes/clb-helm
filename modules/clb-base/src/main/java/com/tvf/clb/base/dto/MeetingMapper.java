@@ -192,6 +192,7 @@ public class MeetingMapper {
                 .mainMarketStatusId(raceDto.getMainMarketStatusId())
                 .resultsDisplay(raceDto.getResultsDisplay())
                 .distance(raceDto.getDistance())
+                .raceType(raceDto.getRaceType())
                 .build();
     }
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
