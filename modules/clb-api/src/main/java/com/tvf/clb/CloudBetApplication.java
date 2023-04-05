@@ -6,7 +6,7 @@ import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableScheduling
+//@EnableScheduling
 @EnableR2dbcRepositories(basePackages = "com.tvf.clb")
 public class CloudBetApplication {
 
