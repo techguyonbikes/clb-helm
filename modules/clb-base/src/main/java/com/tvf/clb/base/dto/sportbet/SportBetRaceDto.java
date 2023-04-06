@@ -18,7 +18,7 @@ import java.util.List;
 public class SportBetRaceDto {
     private String name;
     List<MarketRawData>  markets;
-    //List<ResultsRawData> results;
+    List<ResultsRawData> results;
 
 
 

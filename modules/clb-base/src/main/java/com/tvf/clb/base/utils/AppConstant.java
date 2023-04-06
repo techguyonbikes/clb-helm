@@ -26,7 +26,7 @@ public class AppConstant {
     public static final Integer ZBET_SITE_ID = 3;
     public static final Integer TAB_SITE_ID = 5;
     public static final Integer SPORTBET_SITE_ID = 6;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(SPORT_BET));
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(POINT_BET, SPORT_BET));
 
     public static final String POSITION = "position";
 

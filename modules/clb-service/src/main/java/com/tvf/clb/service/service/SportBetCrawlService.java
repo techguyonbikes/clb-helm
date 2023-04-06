@@ -12,6 +12,7 @@ import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
+import com.tvf.clb.base.model.sportbet.ResultsRawData;
 import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
 import com.tvf.clb.base.model.sportbet.MarketRawData;
 import com.tvf.clb.base.model.sportbet.SportBetMeetingRawData;
@@ -71,7 +72,6 @@ public class SportBetCrawlService implements ICrawlService{
         saveMeeting(meetingDtoList);
         List<RaceDto> raceDtoList = new ArrayList<>();
         meetingDtoList.forEach(meeting -> {
-
             List<RaceDto> meetingRaces = meeting.getRaces();
             meetingRaces.forEach(race -> {
                 race.setMeetingName(meeting.getName());
@@ -96,15 +96,23 @@ public class SportBetCrawlService implements ICrawlService{
     public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
         try {
             SportBetRaceDto sportBetRaceDto = crawlEntrantDataSportBet(raceId);
-            List<MarketRawData>  markets = sportBetRaceDto.getMarkets().stream().filter(r ->r.getName().equals("Win or Place")).collect(Collectors.toList());
+            MarketRawData  markets = sportBetRaceDto.getMarkets().get(0);
+            List<ResultsRawData>  resultsRawData= sportBetRaceDto.getResults();
             // TODO fix this bug, sometime api return null because of wrong race UUID
-            //List<EntrantRawData> allEntrant = getListEntrant(raceId, runnerRawData);
+            List<SportBetEntrantRawData> allEntrant = markets.getSelections();
             Map<Integer, CrawlEntrantData> result = new HashMap<>();
-           /* allEntrant.forEach(x -> {
+           allEntrant.forEach(x -> {
+               List<Float> prices = new ArrayList<>();
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-                priceFluctuations.put(AppConstant.TAB_SITE_ID, x.getPriceFluctuations());
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.SPORTBET_SITE_ID, priceFluctuations));
-            });*/
+               prices.add(x.getStatistics().getOpenPrice());
+               prices.add(x.getStatistics().getFluc1());
+               prices.add(x.getStatistics().getFluc2());
+               x.getPrices().stream().filter(r->"L".equals(r.getPriceCode())).findFirst().ifPresent(
+                       r->prices.add(r.getWinPrice())
+               );
+                priceFluctuations.put(AppConstant.SPORTBET_SITE_ID, prices);
+                result.put(x.getRunnerNumber(), new CrawlEntrantData(0, null, AppConstant.SPORTBET_SITE_ID, priceFluctuations));
+            });
             return result;
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
@@ -140,18 +148,18 @@ public class SportBetCrawlService implements ICrawlService{
 
     public void saveEntrant(List<SportBetEntrantRawData> entrantRawData, String raceName, String raceUUID) {
         List<Entrant> newEntrants = new ArrayList<>();
-        List<Float> prices = new ArrayList<>();
         for(SportBetEntrantRawData rawData :entrantRawData){
+            List<Float> prices = new ArrayList<>();
             prices.add(rawData.getStatistics().getOpenPrice());
             prices.add(rawData.getStatistics().getFluc1());
             prices.add(rawData.getStatistics().getFluc2());
-            rawData.getPrices().stream().filter(r->r.getPriceCode()=="L").findFirst().ifPresent(
+            rawData.getPrices().stream().filter(r->"L".equals(r.getPriceCode())).findFirst().ifPresent(
                     x->prices.add(x.getWinPrice())
             );
             Entrant entrant = MeetingMapper.toEntrantEntity(rawData,prices);
             newEntrants.add(entrant);
         }
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceUUID);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceUUID,null);
     }
 
     public SportBetRaceDto crawlEntrantDataSportBet(String raceId) throws IOException {
