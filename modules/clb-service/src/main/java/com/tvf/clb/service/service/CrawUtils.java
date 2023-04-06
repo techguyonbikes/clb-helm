@@ -90,12 +90,8 @@ public class CrawUtils {
     }
 
     public void saveMeetingSite(List<Meeting> meetings, Integer site) {
-        System.out.println("save meeting site: "+site);
         Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
                 r -> {
-                    if (r.getState() == null){
-                        System.out.println("check state null: "+r.getName()+" - "+site);
-                    }
                     Mono<Long> generalId = meetingRepository.getMeetingId(r.getName(), r.getRaceType(), r.getAdvertisedDate())
                             .switchIfEmpty(
                                         meetingRepository.getMeetingIdDiffName(CommonUtils.checkDiffStateMeeting(r.getState()), r.getRaceType(), r.getAdvertisedDate())
