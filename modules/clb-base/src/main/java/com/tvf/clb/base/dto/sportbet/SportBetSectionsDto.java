@@ -16,5 +16,4 @@ import java.util.List;
 public class SportBetSectionsDto {
     private List<SportBetMeetingDto> sections;
     private String meetingDate;
-
 }

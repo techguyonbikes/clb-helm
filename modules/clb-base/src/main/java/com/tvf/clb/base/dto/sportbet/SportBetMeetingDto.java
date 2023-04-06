@@ -19,6 +19,4 @@ public class SportBetMeetingDto {
     private Integer displayOrder;
     private String raceType;
     private List<SportBetMeetingRawData> meetings;
-
-
 }

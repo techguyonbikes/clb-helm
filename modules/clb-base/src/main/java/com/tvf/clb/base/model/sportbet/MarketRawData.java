@@ -17,5 +17,4 @@ public class MarketRawData {
     private Long id;
     private String name;
     private List<SportBetEntrantRawData> selections;
-
 }

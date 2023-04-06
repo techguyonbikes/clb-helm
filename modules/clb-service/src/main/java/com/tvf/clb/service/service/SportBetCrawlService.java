@@ -97,8 +97,6 @@ public class SportBetCrawlService implements ICrawlService{
         try {
             SportBetRaceDto sportBetRaceDto = crawlEntrantDataSportBet(raceId);
             MarketRawData  markets = sportBetRaceDto.getMarkets().get(0);
-            List<ResultsRawData>  resultsRawData= sportBetRaceDto.getResults();
-            // TODO fix this bug, sometime api return null because of wrong race UUID
             List<SportBetEntrantRawData> allEntrant = markets.getSelections();
             Map<Integer, CrawlEntrantData> result = new HashMap<>();
            allEntrant.forEach(x -> {
@@ -107,7 +105,7 @@ public class SportBetCrawlService implements ICrawlService{
                prices.add(x.getStatistics().getOpenPrice());
                prices.add(x.getStatistics().getFluc1());
                prices.add(x.getStatistics().getFluc2());
-               x.getPrices().stream().filter(r->"L".equals(r.getPriceCode())).findFirst().ifPresent(
+               x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
                        r->prices.add(r.getWinPrice())
                );
                 priceFluctuations.put(AppConstant.SPORTBET_SITE_ID, prices);
@@ -137,7 +135,7 @@ public class SportBetCrawlService implements ICrawlService{
                 String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
                 saveEntrant(allEntrant, raceIdIdentifierInRedis, raceUUID);
             } else {
-                log.error("Can not found ZBet race by RaceUUID " + raceUUID);
+                log.error("Can not found SportBet race by RaceUUID " + raceUUID);
             }
 
             return Flux.empty();
@@ -153,7 +151,7 @@ public class SportBetCrawlService implements ICrawlService{
             prices.add(rawData.getStatistics().getOpenPrice());
             prices.add(rawData.getStatistics().getFluc1());
             prices.add(rawData.getStatistics().getFluc2());
-            rawData.getPrices().stream().filter(r->"L".equals(r.getPriceCode())).findFirst().ifPresent(
+            rawData.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
                     x->prices.add(x.getWinPrice())
             );
             Entrant entrant = MeetingMapper.toEntrantEntity(rawData,prices);
@@ -167,7 +165,7 @@ public class SportBetCrawlService implements ICrawlService{
         Response response = ApiUtils.get(url);
         JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
         Gson gson = new GsonBuilder().create();
-        return gson.fromJson(jsonObject.get("racecardEvent"), SportBetRaceDto.class);
+        return gson.fromJson(jsonObject.get(AppConstant.RACECARD_EVENT), SportBetRaceDto.class);
     }
 
 }

@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SportBetPriceRawData {
-
     private String priceCode;
     private Float winPrice;
     private Float placePrice;

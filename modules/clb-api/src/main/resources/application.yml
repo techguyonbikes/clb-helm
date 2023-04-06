@@ -22,16 +22,16 @@ logging:
     file: "%d %p %C{1.} [%t] [%X{remoteAddr}] [%X{tenant}] %m%n"
 spring:
   redis:
-    host: ${redis.host:127.0.0.1}
+    host: ${redis.host:34.129.203.3}
     port: ${redis.port:6379}
-    #password: ${redis.password:password123}
+    password: ${redis.password:password123}
   main:
     allow-bean-definition-overriding: true
     allow-circular-references: true
   webflux:
     base-path: ${base.path:/cloudbet/api}
   r2dbc:
-    url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://localhost:5432/postgres}
+    url: ${postgresql.datasource.dbUrl:r2dbc:postgresql://34.129.10.71:5432/clb_db}
     pool:
       enabled: true
       max-size: 5
@@ -46,9 +46,9 @@ spring:
     out-of-order: true
     schemas:
       - ${postgresql.schema:clb_db}
-    url: ${postgresql.datasource.flywayUrl:jdbc:postgresql://localhost:5432/postgres}
+    url: ${postgresql.datasource.flywayUrl:jdbc:postgresql://34.129.10.71:5432/clb_db}
     user: ${postgresql.datasource.username:postgres}
     password: ${postgresql.datasource.password:admin123}
 socket-server:
-  host: ${socket.host:localhost}
+  host: ${socket.host:34.129.159.192}
   port: 20002

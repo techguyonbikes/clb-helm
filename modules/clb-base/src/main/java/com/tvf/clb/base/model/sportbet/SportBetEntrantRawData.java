@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SportBetEntrantRawData {
-
     private Long id;
     private String name;
     private Integer runnerNumber;

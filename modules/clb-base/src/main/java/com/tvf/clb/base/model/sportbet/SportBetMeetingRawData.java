@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SportBetMeetingRawData {
-
     private Long id;
     @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
     private String name;

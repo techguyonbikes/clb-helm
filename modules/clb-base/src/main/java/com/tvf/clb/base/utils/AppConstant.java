@@ -26,7 +26,7 @@ public class AppConstant {
     public static final Integer ZBET_SITE_ID = 3;
     public static final Integer TAB_SITE_ID = 5;
     public static final Integer SPORTBET_SITE_ID = 6;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(POINT_BET, SPORT_BET));
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET));
 
     public static final String POSITION = "position";
 
@@ -97,12 +97,13 @@ public class AppConstant {
     public static final String HORSE_RACE_TYPE = "horse";
     public static final String GREYHOUND_RACE_TYPE = "greyhound";
     public static final List<String> VALID_COUNTRY_SPORT_BET = new ArrayList<>(Arrays.asList("Australia","New Zealand"));
-
     public static final String STATUS_OPEN = "OPEN";
     public static final String STATUS_SUSPENDED = "SUSPENDED";
     public static final String STATUS_CLOSED = "CLOSED";
     public static final String STATUS_INTERIM = "INTERIM";
     public static final String STATUS_FINAL = "FINAL";
     public static final String STATUS_ABANDONED = "ABANDONED";
+    public static final String PRICE_CODE = "L";
+    public static final String RACECARD_EVENT="racecardEvent";
 
 }
