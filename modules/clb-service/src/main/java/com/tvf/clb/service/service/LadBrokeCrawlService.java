@@ -100,7 +100,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                         : new ArrayList<>(allEntrantPrices.get(x.getId()));
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.LAD_BROKE_SITE_ID, entrantPrice);
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.LAD_BROKE_SITE_ID, priceFluctuations));
+                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), null, AppConstant.LAD_BROKE_SITE_ID, priceFluctuations));
             });
             return result;
         } catch (IOException e) {
@@ -112,7 +112,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         List<VenueRawData> ausVenues = ladBrokedItMeetingDto.getVenues().values().stream().filter(v -> AppConstant.VALID_COUNTRY_CODE.contains(v.getCountry())).collect(Collectors.toList());
         List<String> venuesId = ausVenues.stream().map(VenueRawData::getId).collect(Collectors.toList());
         List<MeetingRawData> meetings = new ArrayList<>(ladBrokedItMeetingDto.getMeetings().values());
-        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> StringUtils.hasText(m.getCountry()) && venuesId.contains(m.getVenueId())).collect(Collectors.toList());
+        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> venuesId.contains(m.getVenueId())).collect(Collectors.toList());
         List<String> raceIds = ausMeetings.stream().map(MeetingRawData::getRaceIds).flatMap(List::stream)
                 .collect(Collectors.toList());
         List<RaceRawData> ausRace = ladBrokedItMeetingDto.getRaces()
@@ -124,7 +124,7 @@ public class LadBrokeCrawlService implements ICrawlService {
             meetingDtoList.add(meetingDto);
         }
 
-        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
+        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).filter(x -> x.getNumber() != null).collect(Collectors.toList());
         saveMeetingAndRace(ausMeetings, raceDtoList, date);
         return meetingDtoList;
     }
@@ -135,17 +135,14 @@ public class LadBrokeCrawlService implements ICrawlService {
             LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
             JsonObject results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
-            String statusRace = null;
             if (results != null) {
                 positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
-                statusRace = String.valueOf(Race.Status.F);
             } else {
                 positions.put(AppConstant.POSITION, 0);
-                statusRace = String.valueOf(Race.Status.O);
             }
             //got null every time?
             String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject(AppConstant.ADDITIONAL_INFO).get(AppConstant.DISTANCE).getAsString();
-            raceRepository.setUpdateRaceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), statusRace).subscribe();
+            raceRepository.setUpdateRaceDistanceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance)).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
             return saveEntrant(allEntrant, generalRaceId);

@@ -17,6 +17,7 @@ import java.util.Map;
 public class CrawlEntrantData {
 
     private Integer position;
+    private String statusRace;
     private Integer siteId;
     private Map<Integer, List<Float>> priceMap;
 }

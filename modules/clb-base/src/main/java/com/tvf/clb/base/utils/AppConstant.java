@@ -36,6 +36,12 @@ public class AppConstant {
 
     public static final String MARKETS_NAME = "Final Field";
 
+    public static final String DEFAULT_LOG_FILE = "logs/cloudbet.log";
+    public static final String DEFAULT_LOG_PATH = "logs/";
+    public static final String NOT_FOUND = "Not Found";
+
+    public static final String LINE_BREAK_HTML = "<br>";
+
     public static final String SCRATCHED_NAME = "LateScratched";
     public static final String NOT_SCRATCHED_NAME = "not scratched";
 
@@ -91,4 +97,12 @@ public class AppConstant {
     public static final String HORSE_RACE_TYPE = "horse";
     public static final String GREYHOUND_RACE_TYPE = "greyhound";
     public static final List<String> VALID_COUNTRY_SPORT_BET = new ArrayList<>(Arrays.asList("Australia","New Zealand"));
+
+    public static final String STATUS_OPEN = "OPEN";
+    public static final String STATUS_SUSPENDED = "SUSPENDED";
+    public static final String STATUS_CLOSED = "CLOSED";
+    public static final String STATUS_INTERIM = "INTERIM";
+    public static final String STATUS_FINAL = "FINAL";
+    public static final String STATUS_ABANDONED = "ABANDONED";
+
 }

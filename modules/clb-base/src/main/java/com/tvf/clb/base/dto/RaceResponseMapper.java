@@ -17,4 +17,13 @@ public class RaceResponseMapper {
                 .build();
     }
 
+    public static RaceSite toRaceSiteDto(RaceDto race, Integer siteId, Long generalId) {
+        return RaceSite.builder()
+                .raceSiteId(race.getId())
+                .generalRaceId(generalId)
+                .siteId(siteId)
+                .startDate(race.getAdvertisedStart())
+                .build();
+    }
+
 }

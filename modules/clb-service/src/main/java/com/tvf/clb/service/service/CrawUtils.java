@@ -48,7 +48,7 @@ public class CrawUtils {
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
 
-    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName, String raceUUID) {
+    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName, String raceUUID, String statusRace) {
         Mono<Long> raceIdMono = raceNameAndIdTemplate.opsForValue().get(raceName);
         raceIdMono.map(raceId -> {
             Mono<List<EntrantResponseDto>> entrantStored = entrantRedisService.findEntrantByRaceId(raceId);
@@ -67,6 +67,10 @@ public class CrawUtils {
                         log.error("null price");
                         entrantResponseDto.setPriceFluctuations(price);
                     }
+                    if (site.equals(AppConstant.POINT_BET_SITE_ID)){
+                        entrantResponseDto.setStatusRace(statusRace);
+                    }
+
                     // todo: the position in neds and labBroke is not correct
                     if (newEntrant != null) {
                         Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
@@ -139,6 +143,32 @@ public class CrawUtils {
         }
     }
 
+
+    public void saveRaceSiteAndUpdateStatue(List<RaceDto> raceDtoList, Integer site) {
+        if (!raceDtoList.isEmpty()) {
+            Flux<RaceSite> newMeetingSite = Flux.fromIterable(raceDtoList.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
+                    race -> {
+                        Mono<Long> generalId = raceRepository.getRaceIdByMeetingName(race.getMeetingName(), race.getRaceType(), race.getNumber(), race.getAdvertisedStart())
+                                .switchIfEmpty(Mono.empty());
+                        return Flux.from(generalId).map(id -> {
+                                    raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
+                                    return RaceResponseMapper.toRaceSiteDto(race, site, id);
+                                }
+                        );
+                    }
+            );
+            Flux<RaceSite> existedMeetingSite = raceSiteRepository
+                    .findAllByRaceSiteIdInAndSiteId(raceDtoList.stream().map(RaceDto::getId).collect(Collectors.toList()), site).switchIfEmpty(Flux.empty());
+
+            Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
+                    .doOnNext(tuple2 -> {
+                        tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
+                        log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
+                        raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
+                    }).subscribe();
+        }
+    }
+
     public Mono<Map<Integer, CrawlEntrantData>> crawlNewPriceByRaceUUID(Map<Integer, String> mapSiteRaceUUID) {
         Map<Integer, CrawlEntrantData> newPrices = new HashMap<>();
         return Flux.fromIterable(mapSiteRaceUUID.entrySet())
@@ -152,6 +182,8 @@ public class CrawUtils {
                         newPrices.get(key).getPriceMap().putAll(value.getPriceMap());
                         if (Objects.equals(value.getSiteId(), AppConstant.LAD_BROKE_SITE_ID))
                             newPrices.get(key).setPosition(value.getPosition());
+                        if (Objects.equals(value.getSiteId(), AppConstant.POINT_BET_SITE_ID))
+                            newPrices.get(key).setStatusRace(value.getStatusRace());
                     } else {
                         newPrices.put(key, value);
                     }

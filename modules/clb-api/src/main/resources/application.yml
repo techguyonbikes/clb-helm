@@ -3,12 +3,9 @@ app:
     allow-origins: ${cors.allow-origins:http://localhost:8082}
   url-crawl: https://www.ladbrokes.com.au
 reactor:
-  parallel:
-    default-threads: 20
+  netty:
+    ioWorkerCount: 50
 server:
-  jetty:
-    threads:
-      max: 50
   port: ${app.port:20001}
 logging:
   file:

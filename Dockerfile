@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM adoptopenjdk/openjdk11:alpine-jre
 
 ARG BUILD_DATE
 ARG GIT_FULL_BRANCH

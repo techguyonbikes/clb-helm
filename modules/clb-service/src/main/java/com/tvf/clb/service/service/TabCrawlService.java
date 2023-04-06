@@ -98,7 +98,7 @@ public class TabCrawlService implements ICrawlService{
             allEntrant.forEach(x -> {
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.TAB_SITE_ID, x.getPriceFluctuations());
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.TAB_SITE_ID, priceFluctuations));
+                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), null, AppConstant.TAB_SITE_ID, priceFluctuations));
             });
             return result;
         } catch (IOException e) {
@@ -134,16 +134,14 @@ public class TabCrawlService implements ICrawlService{
 
     public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID, null);
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {
-        return runnerRawData.getRunners().stream().filter(
-                        f -> f.getFixedOdds() != null
-                                && f.getFixedOdds().getFlucs() != null
-                                && !f.getFixedOdds().getFlucs().isEmpty())
+        return runnerRawData.getRunners().stream().filter(f -> f.getFixedOdds() != null)
                 .map(x -> {
-                    List<Float> listPrice = x.getFixedOdds().getFlucs().stream().map(f -> f.getReturnWin() == null ? 0f : f.getReturnWin())
+                    List<Float> listPrice = x.getFixedOdds().getFlucs() == null ? new ArrayList<>() :
+                            x.getFixedOdds().getFlucs().stream().map(f -> f.getReturnWin() == null ? 0f : f.getReturnWin())
                             .collect(Collectors.toList());
                     return EntrantMapper.toEntrantRawData(x, runnerRawData.getResults(), listPrice, raceId);
                 }).collect(Collectors.toList());

@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.tvf.clb.base.dto.EntrantMapper;
 import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.model.CrawlEntrantData;
+import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.service.repository.EntrantRepository;
+import com.tvf.clb.service.repository.RaceRepository;
 import io.r2dbc.postgresql.codec.Json;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class CrawlPriceService {
@@ -29,6 +32,8 @@ public class CrawlPriceService {
     private EntrantRepository entrantRepository;
 
     private Gson gson = new Gson();
+    @Autowired
+    private RaceRepository raceRepository;
 
     public Mono<List<EntrantResponseDto>> crawlEntrantPricePositionByRaceId(Long generalRaceId) {
         return entrantRedisService.findEntrantByRaceId(generalRaceId).flatMap(x -> {
@@ -39,12 +44,15 @@ public class CrawlPriceService {
                             CrawlEntrantData entrantData = newPrices.get(entrant.getNumber());
                             entrant.setPriceFluctuations(entrantData.getPriceMap());
                             entrant.setPosition(entrantData.getPosition() == null ? 0 : entrantData.getPosition());
+                            entrant.setStatusRace(entrantData.getStatusRace());
                         }
                 );
 
-                if (storeRecords.stream().anyMatch(storeRecord -> storeRecord.getPosition() > 0)) {
+                if (Objects.equals(storeRecords.get(0).getStatusRace(), AppConstant.STATUS_FINAL)
+                        || Objects.equals(storeRecords.get(0).getStatusRace(), AppConstant.STATUS_ABANDONED)) {
                     log.info("-------- Save entrant price to db and remove data in redis: {}", generalRaceId);
                     // save to db and remove data in redis
+                    raceRepository.setUpdateRaceStatusById(generalRaceId, storeRecords.get(0).getStatusRace()).subscribe();
                     saveEntrantToDb(generalRaceId, storeRecords);
                     entrantRedisService.delete(generalRaceId).subscribe();
                 } else {

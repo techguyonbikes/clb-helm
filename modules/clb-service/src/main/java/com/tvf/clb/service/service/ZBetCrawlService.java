@@ -72,7 +72,7 @@ public class ZBetCrawlService implements ICrawlService {
             allEntrant.forEach(x -> {
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.ZBET_SITE_ID, x.getPriceFluctuations());
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), AppConstant.ZBET_SITE_ID, priceFluctuations));
+                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), null, AppConstant.ZBET_SITE_ID, priceFluctuations));
             });
             return result;
         } else {
@@ -150,7 +150,7 @@ public class ZBetCrawlService implements ICrawlService {
                 .map(meeting -> MeetingMapper.toEntrantEntity(meeting, buildPriceFluctuations(meeting))).collect(Collectors.toList());
 
         String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", race.getMeetingName(), race.getNumber(), race.getType(), date);
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, race.getId().toString());
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, race.getId().toString(), null);
 
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, MeetingMapper.toRaceDto(race) ,AppConstant.ZBET_SITE_ID);
     }
@@ -177,7 +177,7 @@ public class ZBetCrawlService implements ICrawlService {
                 List<ZBetPrices> listZBF = pricesMap.values().stream().filter(zBetPrices -> zBetPrices.getProductCode().equals("ZBF"))
                         .sorted(Comparator.comparing(ZBetPrices::getRequestedAt)).collect(Collectors.toList());
                 List<String> lastFluctuations = Arrays.stream(listZBF.get(listZBF.size() - 1).getFluctuations().split(",")).collect(Collectors.toList());
-                return lastFluctuations.stream().map(Float::parseFloat).collect(Collectors.toList());
+                return lastFluctuations.stream().map(Float::parseFloat).filter(x -> x != 0).collect(Collectors.toList());
             }
         }
 
