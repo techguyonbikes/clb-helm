@@ -89,8 +89,12 @@ public class NedsCrawlService implements ICrawlService{
     private List<MeetingDto> getAllAusMeeting(LadBrokedItMeetingDto ladBrokedItMeetingDto, LocalDate date) {
         List<VenueRawData> ausVenues = ladBrokedItMeetingDto.getVenues().values().stream().filter(v -> AppConstant.VALID_COUNTRY_CODE.contains(v.getCountry())).collect(Collectors.toList());
         List<String> venuesId = ausVenues.stream().map(VenueRawData::getId).collect(Collectors.toList());
+
+        Map<String, String> meetingState = ausVenues.stream().collect(Collectors.toMap(VenueRawData::getId, VenueRawData::getState));
+
         List<MeetingRawData> meetings = new ArrayList<>(ladBrokedItMeetingDto.getMeetings().values());
-        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> venuesId.contains(m.getVenueId())).collect(Collectors.toList());
+        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> venuesId.contains(m.getVenueId()))
+                .peek(x -> x.setState(meetingState.get(x.getVenueId()))).collect(Collectors.toList());
         List<String> raceIds = ausMeetings.stream().map(MeetingRawData::getRaceIds).flatMap(List::stream)
                 .collect(Collectors.toList());
         List<RaceRawData> ausRace = ladBrokedItMeetingDto.getRaces()
@@ -129,8 +133,7 @@ public class NedsCrawlService implements ICrawlService{
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
-            String distance = raceRawData.getRaces().getAsJsonObject(raceUUID).getAsJsonObject(AppConstant.ADDITIONAL_INFO).get(AppConstant.DISTANCE).getAsString();
-            saveEntrant(allEntrant, raceDto, date, distance);
+            saveEntrant(allEntrant, raceDto, date);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
                         List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
@@ -152,12 +155,12 @@ public class NedsCrawlService implements ICrawlService{
         crawUtils.saveRaceSite(newRaces, AppConstant.NED_SITE_ID);
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto, LocalDate date, String distance) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto, LocalDate date) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
 
         String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
         crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.NED_SITE_ID, raceIdIdentifierInRedis, raceDto.getId(),
-                null, raceDto.getAdvertisedStart(), raceDto.getNumber(), Integer.parseInt(distance));
+                null, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType());
 
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.NED_SITE_ID);
     }

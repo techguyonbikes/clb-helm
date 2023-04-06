@@ -126,7 +126,7 @@ public class TabCrawlService implements ICrawlService{
             }
             List<EntrantRawData> allEntrant = getListEntrant(raceUUID, runnerRawData);
             saveEntrant(allEntrant, String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(),
-                    raceDto.getRaceType(), date), raceUUID, raceDto.getAdvertisedStart(), raceDto.getNumber(), runnerRawData.getRaceDistance());
+                    raceDto.getRaceType(), date), raceUUID, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType());
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> Mono.just(EntrantMapper.toEntrantDto(r)));
         } catch (IOException e) {
@@ -134,9 +134,9 @@ public class TabCrawlService implements ICrawlService{
         }
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID, Instant advertisedStart, Integer raceNumber, Integer raceDistance) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID, Instant advertisedStart, Integer raceNumber, String raceType) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID, null, advertisedStart, raceNumber, raceDistance);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID, null, advertisedStart, raceNumber, raceType);
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {

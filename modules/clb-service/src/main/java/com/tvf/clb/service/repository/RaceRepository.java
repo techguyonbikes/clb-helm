@@ -15,9 +15,6 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     Flux<Race> findAllByActualStartAfter(Instant time);
 
-    @Query("select r.id from clb_db.race r where r.distance = :distance and r.number = :number and r.advertised_start = :date")
-    Mono<Long> getRaceIdbyAdvertisedStart(@Param("distance") int distance, @Param("number") Integer number, @Param("date") Instant date);
-
     Flux<Race> findAllByNameInAndNumberInAndAdvertisedStartIn(@Param("name") List<String> name, @Param("number") List<Integer> number, @Param("date") List<Instant> date);
 
     @Query("Update clb_db.race set distance =:distance  WHERE id =:raceId")
