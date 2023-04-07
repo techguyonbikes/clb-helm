@@ -91,7 +91,10 @@ public class AppConstant {
     public static final List<String> HORSE_TYPE_RACE = new ArrayList<>(Arrays.asList("horse_racing","R"));
     public static final List<String> GREYHOUND_TYPE_RACE = new ArrayList<>(Arrays.asList("greyhound_racing","G"));
     public static final List<String> VALID_LOCATION_CODE = new ArrayList<>(Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA","NZL"));
+    public static final List<String> VALID_CHECK_CODE_STATE_DIFF = Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA", "NZ", "NZL");
 
+    public static final String CODE_NZ =  "NZ";
+    public static final String CODE_NZL =  "NZL";
     //racetpye by sportBet
     public static final String HARNESS_RACE_TYPE = "harness";
     public static final String HORSE_RACE_TYPE = "horse";

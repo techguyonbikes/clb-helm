@@ -16,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,11 +49,14 @@ public class CrawUtils {
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
 
-    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName, String raceUUID, String statusRace) {
-        Mono<Long> raceIdMono = raceNameAndIdTemplate.opsForValue().get(raceName);
-        raceIdMono.map(raceId -> {
+    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName, String raceUUID,
+                                     String statusRace, Instant advertisedStart, Integer raceNumber, String meetingType) {
+        Mono<Long> raceIdMono = raceNameAndIdTemplate.opsForValue().get(raceName).switchIfEmpty(
+                raceRepository.getRaceIdByMeetingType(meetingType, raceNumber, advertisedStart)
+        );
+        raceIdMono.subscribe(raceId -> {
             Mono<List<EntrantResponseDto>> entrantStored = entrantRedisService.findEntrantByRaceId(raceId);
-            return entrantStored.subscribe(records -> {
+            entrantStored.subscribe(records -> {
 
                 List<EntrantResponseDto> storeRecords = EntrantMapper.convertFromRedisPriceToDTO(records);
                 Map<Integer, Entrant> entrantMap = new HashMap<>();
@@ -82,13 +86,16 @@ public class CrawUtils {
 
                 entrantRedisService.saveRace(raceId, storeRecords).subscribe();
             });
-        }).subscribe();
+        });
     }
 
     public void saveMeetingSite(List<Meeting> meetings, Integer site) {
         Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
                 r -> {
-                    Mono<Long> generalId = meetingRepository.getMeetingId(r.getName(), r.getRaceType(), r.getAdvertisedDate());
+                    Mono<Long> generalId = meetingRepository.getMeetingId(r.getName(), r.getRaceType(), r.getAdvertisedDate())
+                            .switchIfEmpty(
+                                        meetingRepository.getMeetingIdDiffName(CommonUtils.checkDiffStateMeeting(r.getState()), r.getRaceType(), r.getAdvertisedDate())
+                            );
                     return Flux.from(generalId).map(id -> MeetingMapper.toMetingSite(r, site, id));
                 }
         );
@@ -106,7 +113,7 @@ public class CrawUtils {
     public void saveRaceSite(List<Race> races, Integer site) {
         Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                 race -> {
-                    Mono<Long> generalId = raceRepository.getRaceId(race.getName(), race.getNumber(), race.getAdvertisedStart());
+                    Mono<Long> generalId = raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart());
                     return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
                 }
         );
@@ -126,7 +133,7 @@ public class CrawUtils {
         if (!races.isEmpty()) {
             Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                     race -> {
-                        Mono<Long> generalId = raceRepository.getRaceIdByMeetingName(meeting.getName(), meeting.getRaceType(), race.getNumber(),race.getAdvertisedStart())
+                        Mono<Long> generalId = raceRepository.getRaceIdByMeetingType(meeting.getRaceType(), race.getNumber(),race.getAdvertisedStart())
                                 .switchIfEmpty(Mono.empty());
                         return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
                     }
@@ -148,7 +155,7 @@ public class CrawUtils {
         if (!raceDtoList.isEmpty()) {
             Flux<RaceSite> newMeetingSite = Flux.fromIterable(raceDtoList.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                     race -> {
-                        Mono<Long> generalId = raceRepository.getRaceIdByMeetingName(race.getMeetingName(), race.getRaceType(), race.getNumber(), race.getAdvertisedStart())
+                        Mono<Long> generalId = raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart())
                                 .switchIfEmpty(Mono.empty());
                         return Flux.from(generalId).map(id -> {
                                     raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
@@ -192,6 +199,9 @@ public class CrawUtils {
     public void saveRaceSitebyTab(List<Race> races, Integer site) {
         Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                 race -> {
+                    if (race.getDistance() == null){
+                        System.out.println();
+                    }
                     Mono<Long> generalId = raceRepository.getRaceIdbyDistance(race.getDistance(), race.getNumber(), race.getAdvertisedStart());
                     return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
                 }

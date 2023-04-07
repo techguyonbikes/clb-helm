@@ -196,6 +196,7 @@ public class MeetingMapper {
                 .mainMarketStatusId(raceDto.getMainMarketStatusId())
                 .resultsDisplay(raceDto.getResultsDisplay())
                 .distance(raceDto.getDistance())
+                .raceType(raceDto.getRaceType())
                 .build();
     }
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
@@ -237,6 +238,7 @@ public class MeetingMapper {
         return Meeting.builder()
                 .meetingId(getMeetingId(meeting))
                 .name(meeting.getMeetingName())
+                .state(meeting.getLocation())
                 .advertisedDate(ConvertBase.dateFormat(meeting.getMeetingDate()))
                 .raceType(ConvertBase.convertRaceTypeOfTab(meeting.getRaceType()))
                 .build();
@@ -285,6 +287,7 @@ public class MeetingMapper {
         return Meeting.builder()
                 .meetingId(meeting.getMeetingId())
                 .name(meeting.getName())
+                .state(meeting.getState())
                 .advertisedDate(LocalDate.parse(startDateString, sdf).atStartOfDay(AppConstant.UTC_ZONE_ID).toInstant())
                 .raceType(convertRacesType(meeting.getType()))
                 .build();

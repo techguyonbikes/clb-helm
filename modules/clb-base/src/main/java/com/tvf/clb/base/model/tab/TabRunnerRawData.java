@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TabRunnerRawData {
 
+    private Integer raceDistance;
     private List<List<Integer>> results;
     private List<RunnerTabRawData> runners;
 
@@ -30,5 +31,9 @@ public class TabRunnerRawData {
 
     public List<RunnerTabRawData> getRunners() {
         return runners;
+    }
+
+    public Integer getRaceDistance() {
+        return raceDistance;
     }
 }

@@ -31,6 +31,8 @@ public class Race {
     private String raceId;
     @Transient
     private String meetingUUID;
+    @Transient
+    private String raceType;
     private Long meetingId;
     private String name;
     private Integer number;

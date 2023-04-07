@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -133,7 +134,7 @@ public class SportBetCrawlService implements ICrawlService{
             if (markets != null) {
                 List<SportBetEntrantRawData> allEntrant = markets.getSelections();
                 String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
-                saveEntrant(allEntrant, raceIdIdentifierInRedis, raceUUID);
+                saveEntrant(allEntrant, raceIdIdentifierInRedis, raceDto);
             } else {
                 log.error("Can not found SportBet race by RaceUUID " + raceUUID);
             }
@@ -144,7 +145,7 @@ public class SportBetCrawlService implements ICrawlService{
         }
     }
 
-    public void saveEntrant(List<SportBetEntrantRawData> entrantRawData, String raceName, String raceUUID) {
+    public void saveEntrant(List<SportBetEntrantRawData> entrantRawData, String raceName, RaceDto raceDto) {
         List<Entrant> newEntrants = new ArrayList<>();
         for(SportBetEntrantRawData rawData :entrantRawData){
             List<Float> prices = new ArrayList<>();
@@ -157,7 +158,8 @@ public class SportBetCrawlService implements ICrawlService{
             Entrant entrant = MeetingMapper.toEntrantEntity(rawData,prices);
             newEntrants.add(entrant);
         }
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceUUID,null);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceDto.getId(),null,
+                raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType());
     }
 
     public SportBetRaceDto crawlEntrantDataSportBet(String raceId) throws IOException {
