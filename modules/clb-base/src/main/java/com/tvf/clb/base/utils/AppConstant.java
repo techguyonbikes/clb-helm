@@ -15,6 +15,7 @@ public class AppConstant {
     public static final String TAB = "TAB";
     public static final String POINT_BET = "POINTBET";
     public static final String ZBET = "ZBET";
+    public static final String SPORT_BET = "SPORTBET";
 
     //Because we use ladbroke to store common data , bellow is list site after common data is saved
 //    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, TAB, POINT_BET));
@@ -24,7 +25,8 @@ public class AppConstant {
     public static final Integer POINT_BET_SITE_ID = 4;
     public static final Integer ZBET_SITE_ID = 3;
     public static final Integer TAB_SITE_ID = 5;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET));
+    public static final Integer SPORTBET_SITE_ID = 6;
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET));
 
     public static final String POSITION = "position";
 
@@ -79,6 +81,8 @@ public class AppConstant {
     public static final long TIME_VALIDATE_START = 6000;
     public static final String TAB_BET_MEETING_QUERY = "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{date}/meetings?jurisdiction=NSW&returnOffers=true&returnPromo=false";
     public static final String TAB_BET_RACE_QUERY= "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{id}?returnPromo=true&returnOffers=true&jurisdiction=NSW";
+    public static final String SPORT_BET_MEETING_QUERY= "https://www.sportsbet.com.au/apigw/sportsbook-racing/Sportsbook/Racing/AllRacing/{date}";
+    public static final String SPORT_BET_RACE_QUERY="https://www.sportsbet.com.au/apigw/sportsbook-racing/Sportsbook/Racing/Events/{id}/RacecardWithContext";
 
     // Thêm NZ nếu có new zealand
     public static final List<String> VALID_COUNTRY_CODE = new ArrayList<>(Arrays.asList("AU","AUS","NZL","NZ"));
@@ -91,11 +95,18 @@ public class AppConstant {
 
     public static final String CODE_NZ =  "NZ";
     public static final String CODE_NZL =  "NZL";
+    //racetpye by sportBet
+    public static final String HARNESS_RACE_TYPE = "harness";
+    public static final String HORSE_RACE_TYPE = "horse";
+    public static final String GREYHOUND_RACE_TYPE = "greyhound";
+    public static final List<String> VALID_COUNTRY_SPORT_BET = new ArrayList<>(Arrays.asList("Australia","New Zealand"));
     public static final String STATUS_OPEN = "OPEN";
     public static final String STATUS_SUSPENDED = "SUSPENDED";
     public static final String STATUS_CLOSED = "CLOSED";
     public static final String STATUS_INTERIM = "INTERIM";
     public static final String STATUS_FINAL = "FINAL";
     public static final String STATUS_ABANDONED = "ABANDONED";
+    public static final String PRICE_CODE = "L";
+    public static final String RACECARD_EVENT="racecardEvent";
 
 }

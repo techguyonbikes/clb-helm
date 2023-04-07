@@ -1,10 +1,14 @@
 package com.tvf.clb.base.dto;
 
 import com.google.gson.Gson;
+import com.tvf.clb.base.dto.sportbet.SportBetMeetingDto;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
+import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
+import com.tvf.clb.base.model.sportbet.SportBetMeetingRawData;
+import com.tvf.clb.base.model.sportbet.SportBetRacesData;
 import com.tvf.clb.base.model.tab.TabMeetingRawData;
 import com.tvf.clb.base.model.tab.TabRacesData;
 import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
@@ -210,34 +214,6 @@ public class MeetingMapper {
                 .position(entrantRawData.getPosition())
                 .build();
     }
-
-    public static Entrant toEntrantEntity(EntrantDto entrantDto) {
-        return Entrant.builder()
-                .entrantId(entrantDto.getId())
-                .raceUUID(entrantDto.getId())
-                .name(entrantDto.getName())
-                .number(entrantDto.getNumber())
-                .barrier(entrantDto.getBarrier())
-                .visible(entrantDto.getVisible())
-                .marketId(entrantDto.getMarketId())
-                .priceFluctuations(Json.of(gson.toJson(entrantDto.getPriceFluctuations())))
-                .isScratched(entrantDto.getScratchedTime() != null)
-                .scratchedTime(entrantDto.getScratchedTime())
-                .position(entrantDto.getPosition())
-                .build();
-    }
-
-
-
-    public static EntrantSite toEntrantSite(Entrant entrant, Integer site, Long id) {
-        return EntrantSite
-                .builder()
-                .siteId(site)
-                .entrantSiteId(entrant.getEntrantId())
-                .generalEntrantId(id)
-                .priceFluctuations(entrant.getPriceFluctuations())
-                .build();
-    }
     public static MeetingSite toMetingSite(Meeting meeting, Integer siteId,Long generalId) {
         return MeetingSite.builder()
                 .meetingSiteId(meeting.getMeetingId())
@@ -355,5 +331,51 @@ public class MeetingMapper {
     }
     public static String getRaceId(String meetingId, TabRacesData race){
         return meetingId +"/races/"+ race.getRaceNumber();
+    }
+
+    public static List<MeetingDto> toMeetingSportDtoList(SportBetMeetingDto sportBetMeetingDto, List<SportBetMeetingRawData> meetingRawData, LocalDate date) {
+        List<MeetingDto> meetingDtoList = new ArrayList<>();
+        String raceType = ConvertBase.convertRaceTypeOfSportBet(sportBetMeetingDto.getRaceType());
+        meetingRawData.forEach(r -> meetingDtoList.add(toMeetingdToBySport(r, raceType, date)));
+        return meetingDtoList;
+    }
+
+    public static MeetingDto toMeetingdToBySport(SportBetMeetingRawData meeting, String raceType,LocalDate date) {
+        return MeetingDto.builder()
+                .id(meeting.getId().toString())
+                .name(meeting.getName())
+                .advertisedDate(ConvertBase.dateFormat(date))
+                //.state(meeting.getLocation())
+                .raceType(raceType)
+                .races(toRaceDtoListFromSport(meeting, raceType))
+                .build();
+    }
+    public static List<RaceDto> toRaceDtoListFromSport(SportBetMeetingRawData meeting, String raceType) {
+        List<RaceDto> raceDtoList = new ArrayList<>();
+        List<SportBetRacesData> races = meeting.getEvents();
+        races.forEach(r -> raceDtoList.add(toRaceDtoByTab(r,meeting, raceType)));
+        return raceDtoList;
+    }
+
+    public static RaceDto toRaceDtoByTab(SportBetRacesData race,SportBetMeetingRawData meeting, String raceType) {
+        return RaceDto.builder()
+                .id(race.getId().toString())
+                .meetingUUID(meeting.getId().toString())
+                .meetingName(meeting.getName())
+                .name(race.getName())
+                .raceType(raceType)
+                .number(race.getRaceNumber())
+                .advertisedStart(Instant.ofEpochMilli(race.getStartTime()*1000))
+                .distance(race.getDistance())
+                .build();
+    }
+    public static Entrant toEntrantEntity(SportBetEntrantRawData entrant, List<Float> prices) {
+        return Entrant.builder()
+                .entrantId(entrant.getId().toString())
+                .name(entrant.getName())
+                .number(entrant.getRunnerNumber())
+                .barrier(entrant.getDrawNumber())
+                .currentSitePrice(prices)
+                .build();
     }
 }

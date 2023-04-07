@@ -50,4 +50,20 @@ public class ConvertBase {
         return AppConstant.STATUS_OPEN;
     }
 
+    public static String convertRaceTypeOfSportBet(String raceType) {
+        if (AppConstant.GREYHOUND_RACE_TYPE.contains(raceType)) {
+            return AppConstant.GREYHOUND_RACING;
+        } else if (AppConstant.HORSE_RACE_TYPE.contains(raceType)) {
+            return AppConstant.HORSE_RACING;
+        } else if (AppConstant.HARNESS_RACE_TYPE.contains(raceType)) {
+            return AppConstant.HARNESS_RACING;
+        } else {
+            return null;
+        }
+    }
+    public static Instant dateFormat(LocalDate date){
+        LocalDateTime startOfDay = date.atStartOfDay();
+        return startOfDay.toInstant(ZoneOffset.UTC);
+    }
+
 }
