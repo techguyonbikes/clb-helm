@@ -22,8 +22,7 @@ public class CommonUtils {
 
     // "NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA","NZL"
     public static String checkDiffStateMeeting(String state){
-        List<String> stateList = Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA", "NZ", "NZL");
-        return stateList.contains(state) ? (state.equals("NZL") ? "NZ" : state) : null;
+        return AppConstant.VALID_CHECK_CODE_STATE_DIFF.contains(state) ? (state.equals(AppConstant.CODE_NZL) ? AppConstant.CODE_NZ : state) : null;
     }
 
 }
