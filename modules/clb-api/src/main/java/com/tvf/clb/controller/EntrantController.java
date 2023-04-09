@@ -1,7 +1,7 @@
 package com.tvf.clb.controller;
 
 import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.entity.EntrantResponseDto;
+import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.service.service.EntrantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

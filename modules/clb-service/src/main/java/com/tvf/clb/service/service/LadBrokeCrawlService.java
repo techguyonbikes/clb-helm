@@ -22,7 +22,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -30,10 +29,7 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -57,7 +53,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     private ServiceLookup serviceLookup;
 
     @Autowired
-    private EntrantRedisService entrantRedisService;
+    private RaceRedisService raceRedisService;
 
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
@@ -82,7 +78,7 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     @Override
-    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
+    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
             JsonObject results = raceDto.getResults();
@@ -94,14 +90,20 @@ public class LadBrokeCrawlService implements ICrawlService {
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            Map<Integer, CrawlEntrantData> result = new HashMap<>();
+
+            Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
             allEntrant.forEach(x -> {
                 List<Float> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
                         : new ArrayList<>(allEntrantPrices.get(x.getId()));
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.LAD_BROKE_SITE_ID, entrantPrice);
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), null, AppConstant.LAD_BROKE_SITE_ID, priceFluctuations));
+                entrantMap.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
             });
+
+            CrawlRaceData result = new CrawlRaceData();
+            result.setSiteId(SiteEnum.LAD_BROKE.getId());
+            result.setMapEntrants(entrantMap);
+
             return result;
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
@@ -277,12 +279,12 @@ public class LadBrokeCrawlService implements ICrawlService {
                             return entrantRepository.saveAll(entrantNeedUpdateOrInsert)
                                     .collectList()
                                     .flatMapMany(saved -> {
-                                        entrantRedisService
-                                                .saveRace(raceId, saved.stream()
-                                                        .map(x -> EntrantMapper.toEntrantResponseDto(x, AppConstant.LAD_BROKE_SITE_ID))
-                                                        .collect(Collectors.toList())).subscribe();
+                                        List<EntrantResponseDto> entrantResponseDtoList = saved.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList());
                                         log.info("{} entrants save into redis and database", saved.size());
-                                        return Flux.fromIterable(saved);
+                                        return raceRedisService
+                                                .saveRace(raceId, new RaceResponseDto(raceId, null, Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), saved.get(0).getRaceUUID()),entrantResponseDtoList))
+                                                .thenMany(Flux.fromIterable(saved));
+
                                     });
                         }
                 );

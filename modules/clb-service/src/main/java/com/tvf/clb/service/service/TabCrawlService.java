@@ -12,6 +12,7 @@ import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
+import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.tab.TabMeetingRawData;
 import com.tvf.clb.base.model.tab.TabRacesData;
@@ -29,7 +30,10 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @ClbService(componentType = AppConstant.TAB)
@@ -86,21 +90,28 @@ public class TabCrawlService implements ICrawlService{
     }
 
     @Override
-    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
+    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
         try {
             TabRunnerRawData runnerRawData = crawlRunnerDataTAB(raceId);
             // TODO fix this bug, sometime api return null because of wrong race UUID
             if(runnerRawData.getRunners() == null && runnerRawData.getResults() == null) {
-                log.debug("Site tab get Entrant by raceUUID not found: "+raceId);
-                return new HashMap<>();
+                log.debug("Null runner data at site Tab, raceUUID = {}: ", raceId);
+                return new CrawlRaceData();
             }
+
             List<EntrantRawData> allEntrant = getListEntrant(raceId, runnerRawData);
-            Map<Integer, CrawlEntrantData> result = new HashMap<>();
+
+            Map<Integer, CrawlEntrantData> mapEtrants = new HashMap<>();
             allEntrant.forEach(x -> {
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.TAB_SITE_ID, x.getPriceFluctuations());
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), null, AppConstant.TAB_SITE_ID, priceFluctuations));
+                mapEtrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
             });
+
+            CrawlRaceData result = new CrawlRaceData();
+            result.setSiteId(SiteEnum.TAB.getId());
+            result.setMapEntrants(mapEtrants);
+
             return result;
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
