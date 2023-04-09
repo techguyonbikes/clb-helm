@@ -107,9 +107,8 @@ public class ZBetCrawlService implements ICrawlService {
                 race.setType(ConvertBase.convertRaceTypeOfTab(race.getType()));
             });
             racesData.addAll(meetingRaces);
-
-            saveRaceSite(racesData, meeting);
         });
+        saveRaceSite(racesData);
 
         crawlAndSaveEntrants(racesData, date).subscribe();
         return Collections.emptyList();
@@ -143,9 +142,9 @@ public class ZBetCrawlService implements ICrawlService {
         crawUtils.saveMeetingSite(newMeetings, AppConstant.ZBET_SITE_ID);
     }
 
-    public void saveRaceSite(List<ZBetRacesData> raceDtoList, ZBetMeetingRawData meeting) {
+    public void saveRaceSite(List<ZBetRacesData> raceDtoList) {
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        crawUtils.saveRaceSite(newRaces, AppConstant.ZBET_SITE_ID, MeetingMapper.toMeetingEntity(meeting));
+        crawUtils.saveRaceSite(newRaces, AppConstant.ZBET_SITE_ID);
     }
 
     public void saveEntrant(List<ZBetEntrantData> entrantRawData, ZBetRacesData race, LocalDate date) {
