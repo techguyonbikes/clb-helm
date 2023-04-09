@@ -1,6 +1,6 @@
 package com.tvf.clb.service.service;
 
-import com.tvf.clb.base.entity.EntrantResponseDto;
+import com.tvf.clb.base.dto.RaceResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -13,16 +13,16 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class EntrantRedisService {
+public class RaceRedisService {
 
     @Autowired
-    private ReactiveRedisTemplate<Long, List<EntrantResponseDto>> raceDetailTemplate;
+    private ReactiveRedisTemplate<Long, RaceResponseDto> raceDetailTemplate;
 
-    public Mono<Boolean> saveRace(Long raceId, List<EntrantResponseDto> entrants){
-        return this.raceDetailTemplate.opsForValue().set(raceId, entrants);
+    public Mono<Boolean> saveRace(Long raceId, RaceResponseDto race){
+        return this.raceDetailTemplate.opsForValue().set(raceId, race);
     }
 
-    public Mono<List<EntrantResponseDto>> findEntrantByRaceId(Long key){
+    public Mono<RaceResponseDto> findByRaceId(Long key){
         return this.raceDetailTemplate.opsForValue().get(key);
     }
 

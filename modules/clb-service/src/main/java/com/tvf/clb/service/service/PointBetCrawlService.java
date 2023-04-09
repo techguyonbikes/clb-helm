@@ -10,6 +10,7 @@ import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.MeetingSite;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
+import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
 import com.tvf.clb.base.model.pointbet.PointBetPriceFluctuation;
@@ -84,13 +85,10 @@ public class PointBetCrawlService implements ICrawlService {
      * This function crawl and get all entrants price
      */
     @Override
-    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceUUID) {
+    public CrawlRaceData getEntrantByRaceUUID(String raceUUID) {
         PointBetRaceApiResponse raceRawData = crawlPointBetRaceData(raceUUID);
         List<PointBetEntrantRawData> entrants = raceRawData.getEntrants();
         Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
-        String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
-
-        Map<Integer, CrawlEntrantData> result = new HashMap<>();
 
         if (StringUtils.hasText(raceRawData.placing)) {
             List<String> winnersId = Arrays.asList(raceRawData.getPlacing().split(","));
@@ -101,11 +99,18 @@ public class PointBetCrawlService implements ICrawlService {
             });
         }
 
+        Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
+
         raceRawData.getEntrants().forEach(entrant -> {
             Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
             priceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantPrices.getOrDefault(entrant.getId(), new ArrayList<>()));
-            result.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(entrant.getPosition(), statusRace, AppConstant.POINT_BET_SITE_ID, priceFluctuations));
+            mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(entrant.getPosition(), priceFluctuations));
         });
+
+        CrawlRaceData result = new CrawlRaceData();
+        result.setSiteId(SiteEnum.POINT_BET.getId());
+        result.setStatus(ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus()));
+        result.setMapEntrants(mapEntrants);
 
         return result;
     }

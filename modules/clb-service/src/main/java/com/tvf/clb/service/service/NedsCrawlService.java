@@ -24,7 +24,10 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,7 +63,7 @@ public class NedsCrawlService implements ICrawlService{
     }
 
     @Override
-    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
+    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getNedsRaceDto(raceId);
             JsonObject results = raceDto.getResults();
@@ -72,14 +75,20 @@ public class NedsCrawlService implements ICrawlService{
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            Map<Integer, CrawlEntrantData> result = new HashMap<>();
+
+            Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
             allEntrant.forEach(x -> {
                 List<Float> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
                         : new ArrayList<>(allEntrantPrices.get(x.getId()));
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.NED_SITE_ID, entrantPrice);
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), null, AppConstant.NED_SITE_ID, priceFluctuations));
+                mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
             });
+
+            CrawlRaceData result = new CrawlRaceData();
+            result.setSiteId(SiteEnum.NED.getId());
+            result.setMapEntrants(mapEntrants);
+
             return result;
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);

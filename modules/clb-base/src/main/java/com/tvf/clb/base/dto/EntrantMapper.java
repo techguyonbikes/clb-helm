@@ -3,7 +3,6 @@ package com.tvf.clb.base.dto;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
@@ -19,7 +18,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -75,15 +73,13 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant, Integer siteId) {
+    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant) {
         Gson gson = new Gson();
         Type listType = new TypeToken<Map<Integer, List<Float>>>() {}.getType();
         Map<Integer, List<Float>> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
         return EntrantResponseDto.builder()
                 .id(entrant.getId())
                 .entrantId(entrant.getEntrantId())
-                .raceUUID(Collections.singletonMap(siteId, entrant.getRaceUUID()))
-                .raceId(entrant.getRaceId())
                 .name(entrant.getName())
                 .number(entrant.getNumber())
                 .barrier(entrant.getBarrier())
@@ -116,26 +112,6 @@ public class EntrantMapper {
                 .currentSitePrice(entrantPrice)
                 .position(entrantRawData.getPosition())
                 .isScratched(entrantRawData.isScratched())
-                .build();
-    }
-
-    public static EntrantResponseDto toEntrantResponseDto(Entrant entrant, Map<Integer, String> raceUUID) {
-        Gson gson = new Gson();
-        Type listType = new TypeToken<Map<Integer, List<Float>>>() {}.getType();
-        Map<Integer, List<Float>> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
-        return EntrantResponseDto.builder()
-                .id(entrant.getId())
-                .entrantId(entrant.getEntrantId())
-                .raceUUID(raceUUID)
-                .raceId(entrant.getRaceId())
-                .name(entrant.getName())
-                .number(entrant.getNumber())
-                .barrier(entrant.getBarrier())
-                .visible(entrant.isVisible())
-                .isScratched(entrant.isScratched())
-                .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
-                .priceFluctuations(prices)
-                .position(entrant.getPosition())
                 .build();
     }
 

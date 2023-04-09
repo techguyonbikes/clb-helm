@@ -3,9 +3,15 @@ package com.tvf.clb.service.service;
 import com.tvf.clb.base.dto.RaceEntrantDto;
 import com.tvf.clb.base.dto.RaceResponseDTO;
 import com.tvf.clb.base.entity.EntrantResponseDto;
+import com.tvf.clb.base.dto.RaceBaseResponseDTO;
+import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.dto.RaceResponseMapper;
 import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.entity.RaceSite;
+import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
+import com.tvf.clb.service.repository.RaceSiteRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,18 +22,27 @@ import reactor.core.publisher.Mono;
 import java.time.*;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class RaceService {
+
     @Autowired
     private RaceRepository raceRepository;
 
     @Autowired
     private MeetingRepository meetingRepository;
+
     @Autowired
-    private MeetingService meetingService;
+    private RaceRedisService raceRedisService;
+
+    @Autowired
+    private RaceSiteRepository raceSiteRepository;
+
+    @Autowired
+    private EntrantRepository entrantRepository;
 
     @Autowired
     private EntrantService entrantService;
@@ -38,11 +53,23 @@ public class RaceService {
         return raceRepository.findById(raceId);
     }
 
-    public Flux<RaceResponseDTO> searchRaces(LocalDate date, List<Long> meetingIds, List<RaceType> raceTypes) {
+    public Mono<RaceResponseDto> getRaceNewDataById(Long raceId) {
+
+        return raceRedisService.findByRaceId(raceId)
+                .switchIfEmpty(raceSiteRepository.getAllByGeneralRaceId(raceId).collectList().flatMap(raceSites -> {
+                    Map<Integer, String> mapRaceSiteToUUID = raceSites.stream().collect(Collectors.toMap(RaceSite::getSiteId, RaceSite::getRaceSiteId));
+                    return getRaceById(raceId)
+                            .flatMap(race -> entrantRepository.getAllByRaceId(raceId)
+                                    .collectList()
+                                    .map(entrants -> RaceResponseMapper.toraceResponseDto(race, mapRaceSiteToUUID, entrants)));
+        }));
+    }
+
+    public Flux<RaceBaseResponseDTO> searchRaces(LocalDate date, List<Long> meetingIds, List<RaceType> raceTypes) {
         List<String> raceType = raceTypes.stream()
                 .map(RaceType::toString)
                 .collect(Collectors.toList());
-        Flux<RaceResponseDTO> raceResponse;
+        Flux<RaceBaseResponseDTO> raceResponse;
         LocalDateTime dateTime = date.atTime(LocalTime.MIN);
         Instant startDate = dateTime.atOffset(ZoneOffset.UTC).toInstant();
         if (CollectionUtils.isEmpty(meetingIds)) {
@@ -59,7 +86,7 @@ public class RaceService {
                         return r;
                     });
         }
-        return raceResponse.sort(Comparator.comparing(RaceResponseDTO::getDate));
+        return raceResponse.sort(Comparator.comparing(RaceBaseResponseDTO::getDate));
     }
 
     public Flux<Race> findAllRacesInSameMeetingByRaceId(Long raceId) {

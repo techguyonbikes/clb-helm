@@ -1,4 +1,4 @@
-package com.tvf.clb.base.entity;
+package com.tvf.clb.base.dto;
 
 import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
@@ -11,12 +11,9 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RedisHash("race")
 public class EntrantResponseDto {
     private Long id;
     private String entrantId;
-    private Map<Integer, String> raceUUID;
-    private Long raceId;
     private String name;
     private Integer number;
     private Integer barrier;
@@ -25,5 +22,4 @@ public class EntrantResponseDto {
     private String scratchedTime;
     private Map<Integer, List<Float>> priceFluctuations;
     private Integer position;
-    private String statusRace;
 }
