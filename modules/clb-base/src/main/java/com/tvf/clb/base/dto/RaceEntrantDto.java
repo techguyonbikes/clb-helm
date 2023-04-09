@@ -1,6 +1,5 @@
 package com.tvf.clb.base.dto;
 
-import com.tvf.clb.base.entity.EntrantResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

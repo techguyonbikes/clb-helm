@@ -1,8 +1,7 @@
 package com.tvf.clb.service.service;
 
 import com.tvf.clb.base.dto.RaceEntrantDto;
-import com.tvf.clb.base.dto.RaceResponseDTO;
-import com.tvf.clb.base.entity.EntrantResponseDto;
+import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.base.dto.RaceBaseResponseDTO;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.dto.RaceResponseMapper;
@@ -95,21 +94,21 @@ public class RaceService {
     }
 
     public Flux<RaceEntrantDto> getAllMeetingRaceByRaceId(Long raceId) {
-                Flux<EntrantResponseDto> entrantFlux = entrantService.getEntrantsByRaceId(raceId).switchIfEmpty(Flux.empty());
-                Flux<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceByIdAndAllMeeting(raceId).switchIfEmpty(Flux.empty());
+        Flux<EntrantResponseDto> entrantFlux = entrantService.getEntrantsByRaceId(raceId).switchIfEmpty(Flux.empty());
+        Flux<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceByIdAndAllMeeting(raceId).switchIfEmpty(Flux.empty());
 
-                        return Flux.zip(entrantFlux.collectList(), raceMeetingFlux.collectList())
-                                .flatMap(tuple -> {
-                                List<EntrantResponseDto> entrants = tuple.getT1();
-                                List<RaceEntrantDto> meetings = tuple.getT2();
-                                for (RaceEntrantDto m : meetings) {
-                                        if (raceId.equals(m.getId())) {
-                                                m.setEntrants(entrants);
-                                           }
-                                    }
-                                return Flux.fromIterable(meetings)
-                                                .sort(Comparator.comparing(RaceEntrantDto::getNumber));
-                           });
-            }
+        return Flux.zip(entrantFlux.collectList(), raceMeetingFlux.collectList())
+                .flatMap(tuple -> {
+                    List<EntrantResponseDto> entrants = tuple.getT1();
+                    List<RaceEntrantDto> meetings = tuple.getT2();
+                    for (RaceEntrantDto m : meetings) {
+                        if (raceId.equals(m.getId())) {
+                            m.setEntrants(entrants);
+                        }
+                    }
+                    return Flux.fromIterable(meetings)
+                            .sort(Comparator.comparing(RaceEntrantDto::getNumber));
+                });
+    }
 
 }
