@@ -1,8 +1,8 @@
 package com.tvf.clb.service.service;
 
+import com.tvf.clb.base.dto.RaceEntrantDto;
 import com.tvf.clb.base.dto.RaceResponseDTO;
-import com.tvf.clb.base.dto.RaceResponseMapper;
-import com.tvf.clb.base.entity.Meeting;
+import com.tvf.clb.base.entity.EntrantResponseDto;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -28,6 +28,9 @@ public class RaceService {
     private MeetingRepository meetingRepository;
     @Autowired
     private MeetingService meetingService;
+
+    @Autowired
+    private EntrantService entrantService;
 
     private static final String SIDE_NAME_PREFIX = "R";
 
@@ -63,5 +66,23 @@ public class RaceService {
         Mono<Race> raceMono = raceRepository.findById(raceId);
         return raceMono.flatMapMany(race -> raceRepository.findAllByMeetingId(race.getMeetingId()));
     }
+
+    public Flux<RaceEntrantDto> getAllMeetingRaceByRaceId(Long raceId) {
+                Flux<EntrantResponseDto> entrantFlux = entrantService.getEntrantsByRaceId(raceId).switchIfEmpty(Flux.empty());
+                Flux<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceByIdAndAllMeeting(raceId).switchIfEmpty(Flux.empty());
+
+                        return Flux.zip(entrantFlux.collectList(), raceMeetingFlux.collectList())
+                                .flatMap(tuple -> {
+                                List<EntrantResponseDto> entrants = tuple.getT1();
+                                List<RaceEntrantDto> meetings = tuple.getT2();
+                                for (RaceEntrantDto m : meetings) {
+                                        if (raceId.equals(m.getId())) {
+                                                m.setEntrants(entrants);
+                                           }
+                                    }
+                                return Flux.fromIterable(meetings)
+                                                .sort(Comparator.comparing(RaceEntrantDto::getNumber));
+                           });
+            }
 
 }

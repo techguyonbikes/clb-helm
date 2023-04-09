@@ -1,5 +1,6 @@
 package com.tvf.clb.controller;
 
+import com.tvf.clb.base.dto.RaceEntrantDto;
 import com.tvf.clb.base.dto.RaceResponseDTO;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.service.service.RaceService;
@@ -39,5 +40,10 @@ public class RaceController {
     @GetMapping("/get-meeting-race-number")
     public Flux<Race> getMeetingRaceNumberByRaceId(@RequestParam(value = "id") Long id) {
         return raceService.findAllRacesInSameMeetingByRaceId(id);
+    }
+
+    @GetMapping("/meeting/all")
+    public Flux<RaceEntrantDto> getAllMeetingRaceByRaceId(@RequestParam("id") Long id) {
+        return raceService.getAllMeetingRaceByRaceId(id);
     }
 }
