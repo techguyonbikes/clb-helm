@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.tvf.clb.base.utils.AppConstant.STATUS_ABANDONED;
@@ -52,7 +52,7 @@ public class RaceScheduler {
                  return crawlPriceService.crawlRaceNewDataByRaceId(race.getId());
              })
              .doOnNext(raceResponseDto -> {
-                 if (raceResponseDto.getStatus() != null && (raceResponseDto.getStatus().equals(STATUS_FINAL) || raceResponseDto.getStatus().equals(STATUS_ABANDONED))) {
+                 if (raceResponseDto.getStatus().equals(STATUS_FINAL) || raceResponseDto.getStatus().equals(STATUS_ABANDONED)) {
                     todayData.removeRaceById(raceResponseDto.getId());
                     log.info("Race id = {} is completed or abandoned, so remove from todayRaces", raceResponseDto.getId());
                  }
@@ -88,24 +88,24 @@ public class RaceScheduler {
 
     public Flux<Race> getTodayNonFinalAndAbandonedRaceStartBefore(Instant time) {
         return getTodayNonFinalAndAbandonedRace()
-                .filter(race -> race.getAdvertisedStart().isBefore(time));
+                .filter(race -> race.getAdvertisedStart().isBefore(time) && !race.getStatus().equals(STATUS_FINAL) && !race.getStatus().equals(STATUS_ABANDONED));
     }
 
     public Flux<Race> getTodayNonFinalAndAbandonedRaceStartAfter(Instant time) {
         return getTodayNonFinalAndAbandonedRace()
-                .filter(race -> race.getAdvertisedStart().isAfter(time));
+                .filter(race -> race.getAdvertisedStart().isAfter(time) && !race.getStatus().equals(STATUS_FINAL) && !race.getStatus().equals(STATUS_ABANDONED));
     }
 
     public Flux<Race> getTodayNonFinalAndAbandonedRace() {
-        if (todayData == null) {
+        if (todayData.getRaces() == null) {
             log.info("TodayRaces has no data so need to search in DB");
             todayData.setRaces(new ConcurrentHashMap<>());
             Instant startTime = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minusHours(3).toInstant();
             Instant endOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
-            return raceRepository.findAllByAdvertisedStartBetweenAndStatusNotIn(startTime, endOfToday, new ArrayList<>())
+            return raceRepository.findAllByAdvertisedStartBetweenAndStatusNotIn(startTime, endOfToday, Arrays.asList(STATUS_FINAL, STATUS_ABANDONED))
                     .doOnNext(race -> todayData.addRace(race.getId(), race));
         } else {
-            log.info("TodayRaces has data so no need to search in DB, map size = {}", todayData.getRaces().size());
+            log.info("TodayRaces has data so no need to search in DB, map race size = {}", todayData.getRaces().size());
             return Flux.fromIterable(todayData.getRaces().values());
         }
 

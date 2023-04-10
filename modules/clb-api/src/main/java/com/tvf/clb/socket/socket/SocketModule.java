@@ -16,10 +16,11 @@ import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 @Slf4j
@@ -30,7 +31,7 @@ public class SocketModule {
     @Autowired
     private RaceRedisService raceRedisService;
 
-    private final Map<Long, List<SocketIOClient>> raceSubscribers = new ConcurrentHashMap<>();
+    private final Map<Long, Set<SocketIOClient>> raceSubscribers = new ConcurrentHashMap<>();
 
     private final Map<Long, RaceResponseDto> subscribedRaces = new ConcurrentHashMap<>();
 
@@ -49,10 +50,16 @@ public class SocketModule {
             if (raceSubscribers.containsKey(raceId)) {
                 raceSubscribers.get(raceId).add(senderClient);
             } else {
-                List<SocketIOClient> listClient = new CopyOnWriteArrayList<>();
+                Set<SocketIOClient> listClient = new HashSet<>();
                 listClient.add(senderClient);
                 raceSubscribers.put(raceId, listClient);
             }
+
+            if (subscribedRaces.containsKey(raceId)) {
+                senderClient.sendEvent("new_prices", subscribedRaces.get(raceId).getEntrants());
+                senderClient.sendEvent("new_status", subscribedRaces.get(raceId).getStatus());
+            }
+
         };
     }
 
@@ -60,7 +67,7 @@ public class SocketModule {
         return (senderClient, raceId, ackSender) -> {
             String sessionId = senderClient.getSessionId().toString();
 
-            List<SocketIOClient> clients = raceSubscribers.get(raceId);
+            Set<SocketIOClient> clients = raceSubscribers.get(raceId);
             if (clients != null) {
                 clients.remove(senderClient);
 
@@ -89,24 +96,24 @@ public class SocketModule {
     private void getRaceInfoAndSendToClient(Long raceId) {
         raceRedisService.findByRaceId(raceId)
                 .subscribe(newRaceInfo -> {
-                    List<SocketIOClient> clients = raceSubscribers.get(raceId);
+                    Set<SocketIOClient> clients = raceSubscribers.get(raceId);
 
-                    if (subscribedRaces.get(raceId) == null) {
+                    clients.forEach(client -> {
+                        client.sendEvent("new_prices", newRaceInfo.getEntrants());
+                        log.info("Send race[id={}] new price to client ID[{}]", raceId, client.getSessionId().toString());
+                    });
+
+                    if (subscribedRaces.get(raceId) == null || ! subscribedRaces.get(raceId).getStatus().equals(newRaceInfo.getStatus())) {
                         clients.forEach(client -> {
-                            client.sendEvent("new_prices", newRaceInfo.getEntrants());
                             client.sendEvent("new_status", newRaceInfo.getStatus());
+                            log.info("Send race[id={}] new status to client ID[{}]", raceId, client.getSessionId().toString());
                         });
-                    } else {
-                        if (subscribedRaces.get(raceId).getStatus().equals(newRaceInfo.getStatus())) {
-                            clients.forEach(client -> client.sendEvent("new_status", newRaceInfo.getStatus()));
-                        }
-                        clients.forEach(client -> client.sendEvent("new_prices", newRaceInfo.getEntrants()));
                     }
 
                     subscribedRaces.put(raceId, newRaceInfo);
 
                     if (newRaceInfo.getStatus().equals(AppConstant.STATUS_FINAL) || newRaceInfo.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
-                        clients.forEach(client -> client.sendEvent("subscription", "race completed or abandoned"));
+                        clients.forEach(client -> client.sendEvent("subscription", "Race completed or abandoned"));
                         raceSubscribers.remove(raceId);
                         subscribedRaces.remove(raceId);
                     }
@@ -126,6 +133,16 @@ public class SocketModule {
         return client -> {
             log.info("Socket ID[{}] -  disconnected", client.getSessionId().toString());
             log.info("Number of clients left: {}" , server.getAllClients().size());
+
+            Iterator<Map.Entry<Long, Set<SocketIOClient>>> iterator = raceSubscribers.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<Long, Set<SocketIOClient>> entry = iterator.next();
+                entry.getValue().remove(client);
+                if (entry.getValue().isEmpty()) {
+                    subscribedRaces.remove(entry.getKey());
+                    iterator.remove();
+                }
+            }
         };
     }
 
