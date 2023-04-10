@@ -100,15 +100,18 @@ public class RaceService {
         return Flux.zip(entrantFlux.collectList(), raceMeetingFlux.collectList())
                 .flatMap(tuple -> {
                     List<EntrantResponseDto> entrants = tuple.getT1();
-                    List<RaceEntrantDto> meetings = tuple.getT2();
-                    for (RaceEntrantDto m : meetings) {
-                        if (raceId.equals(m.getId())) {
-                            m.setEntrants(entrants);
-                        }
-                    }
-                    return Flux.fromIterable(meetings)
-                            .sort(Comparator.comparing(RaceEntrantDto::getNumber));
+                    List<RaceEntrantDto> meetings = tuple.getT2().stream()
+                            .sorted(Comparator.comparing(RaceEntrantDto::getNumber))
+                            .peek(meeting -> {
+                                if (raceId.equals(meeting.getId())) {
+                                    meeting.setEntrants(entrants);
+                                }
+                            })
+                            .collect(Collectors.toList());
+
+                    return Flux.fromIterable(meetings);
                 });
     }
+
 
 }
