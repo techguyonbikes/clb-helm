@@ -28,10 +28,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -259,21 +259,8 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     private void saveRaceToTodayData(List<Race> savedRace) {
-        if (todayData.getRaces() == null) {
-            todayData.setRaces(new ConcurrentHashMap<>());
-        }
-
-        // remove old data
-        Iterator<Map.Entry<Long, Race>> iterator = todayData.getRaces().entrySet().iterator();
-
-        while (iterator.hasNext()) {
-            Race race = iterator.next().getValue();
-            if (race.getStatus().equals(AppConstant.STATUS_ABANDONED) || race.getStatus().equals(AppConstant.STATUS_FINAL)) {
-                iterator.remove();
-            }
-        }
-
-        savedRace.forEach(race -> todayData.addRace(race.getId(), race));
+        todayData.setRaces(new TreeMap<>());
+        savedRace.forEach(race -> todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId()));
     }
 
     public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, Long raceId) {

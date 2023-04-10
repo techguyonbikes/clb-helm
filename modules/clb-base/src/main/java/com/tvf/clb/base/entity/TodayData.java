@@ -2,25 +2,23 @@ package com.tvf.clb.base.entity;
 
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.TreeMap;
 
 @Component
 public class TodayData {
-    private Map<Long, Race> races;
 
-    public void addRace(Long id, Race race) {
-        races.put(id, race);
+    // Map race advertised start (timestamp) to race id
+    private TreeMap<Long, Long> races;
+
+    public void addRace(Long advertisedStart, Long raceId) {
+        races.put(advertisedStart, raceId);
     }
 
-    public void removeRaceById(Long id) {
-        races.remove(id);
-    }
-
-    public Map<Long, Race> getRaces() {
-        return races;
-    }
-
-    public void setRaces(Map<Long, Race> races) {
+    public void setRaces(TreeMap<Long, Long> races) {
         this.races = races;
+    }
+
+    public TreeMap<Long, Long> getRaces() {
+        return races;
     }
 }

@@ -1,6 +1,5 @@
 package com.tvf.clb.scheduler;
 
-import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.service.repository.RaceRepository;
 import com.tvf.clb.service.service.CrawlPriceService;
@@ -9,14 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.TreeMap;
 
 import static com.tvf.clb.base.utils.AppConstant.STATUS_ABANDONED;
 import static com.tvf.clb.base.utils.AppConstant.STATUS_FINAL;
@@ -43,23 +44,22 @@ public class RaceScheduler {
         log.info("Start crawl race data start in 1 hour.");
         long startTime = System.currentTimeMillis();
 
-        Flux<Race> races = getTodayNonFinalAndAbandonedRaceStartBefore(Instant.now().plus(1, ChronoUnit.HOURS));
+        Long raceStartTimeFrom = Timestamp.from(Instant.now().minus(1, ChronoUnit.HOURS)).getTime();
+        Long raceStartTimeTo = Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)).getTime();
 
-        races.parallel()
+        Flux<Long> raceIds = getTodayNonFinalAndAbandonedRace()
+                                .map(treeMap -> treeMap.subMap(raceStartTimeFrom, raceStartTimeTo))
+                                .flatMapMany(treeMap -> Flux.fromIterable(treeMap.values()));
+
+        raceIds.parallel()
              .runOn(Schedulers.parallel())
-             .flatMap(race -> {
-                 log.info("Crawl data race id = {} start at {}", race.getId(), race.getActualStart());
-                 return crawlPriceService.crawlRaceNewDataByRaceId(race.getId());
-             })
-             .doOnNext(raceResponseDto -> {
-                 if (raceResponseDto.getStatus().equals(STATUS_FINAL) || raceResponseDto.getStatus().equals(STATUS_ABANDONED)) {
-                    todayData.removeRaceById(raceResponseDto.getId());
-                    log.info("Race id = {} is completed or abandoned, so remove from todayRaces", raceResponseDto.getId());
-                 }
+             .flatMap(raceId -> {
+                 log.info("Crawl data race id = {}", raceId);
+                 return crawlPriceService.crawlRaceNewDataByRaceId(raceId);
              })
              .sequential()
              .doFinally(signalType -> log.info("------ All races start in 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
-             .then(races.count())
+             .then(raceIds.count())
              .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
     }
 
@@ -72,41 +72,37 @@ public class RaceScheduler {
         log.info("Start crawl race data start after 1 hour.");
         long startTime = System.currentTimeMillis();
 
-        Flux<Race> races = getTodayNonFinalAndAbandonedRaceStartAfter(Instant.now().plus(1, ChronoUnit.HOURS));
+        Long raceStartTimeFrom = Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)).getTime();
 
-        races.parallel()
+        Flux<Long> raceIds = getTodayNonFinalAndAbandonedRace()
+                                .map(treeMap -> treeMap.tailMap(raceStartTimeFrom))
+                                .flatMapMany(treeMap -> Flux.fromIterable(treeMap.values()));
+
+        raceIds.parallel()
                 .runOn(Schedulers.parallel())
-                .flatMap(race -> {
-                    log.info("Crawl data race id = {} start at {}", race.getId(), race.getActualStart());
-                    return crawlPriceService.crawlRaceNewDataByRaceId(race.getId());
+                .flatMap(raceId -> {
+                    log.info("Crawl data race id = {}", raceId);
+                    return crawlPriceService.crawlRaceNewDataByRaceId(raceId);
                 })
                 .sequential()
                 .doFinally(signalType -> log.info("------ All races start after 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
-                .then(races.count())
+                .then(raceIds.count())
                 .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
     }
 
-    public Flux<Race> getTodayNonFinalAndAbandonedRaceStartBefore(Instant time) {
-        return getTodayNonFinalAndAbandonedRace()
-                .filter(race -> race.getAdvertisedStart().isBefore(time) && !race.getStatus().equals(STATUS_FINAL) && !race.getStatus().equals(STATUS_ABANDONED));
-    }
-
-    public Flux<Race> getTodayNonFinalAndAbandonedRaceStartAfter(Instant time) {
-        return getTodayNonFinalAndAbandonedRace()
-                .filter(race -> race.getAdvertisedStart().isAfter(time) && !race.getStatus().equals(STATUS_FINAL) && !race.getStatus().equals(STATUS_ABANDONED));
-    }
-
-    public Flux<Race> getTodayNonFinalAndAbandonedRace() {
+    public Mono<TreeMap<Long, Long>> getTodayNonFinalAndAbandonedRace() {
         if (todayData.getRaces() == null) {
             log.info("TodayRaces has no data so need to search in DB");
-            todayData.setRaces(new ConcurrentHashMap<>());
+            todayData.setRaces(new TreeMap<>());
             Instant startTime = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minusHours(3).toInstant();
             Instant endOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
+
             return raceRepository.findAllByAdvertisedStartBetweenAndStatusNotIn(startTime, endOfToday, Arrays.asList(STATUS_FINAL, STATUS_ABANDONED))
-                    .doOnNext(race -> todayData.addRace(race.getId(), race));
+                    .doOnNext(race -> todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId()))
+                    .then(Mono.just(todayData.getRaces()));
         } else {
             log.info("TodayRaces has data so no need to search in DB, map race size = {}", todayData.getRaces().size());
-            return Flux.fromIterable(todayData.getRaces().values());
+            return Mono.just(todayData.getRaces());
         }
 
     }
