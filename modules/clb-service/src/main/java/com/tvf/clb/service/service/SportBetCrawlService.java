@@ -1,11 +1,12 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.tvf.clb.base.anotation.ClbService;
-import com.tvf.clb.base.dto.*;
+import com.tvf.clb.base.dto.EntrantDto;
+import com.tvf.clb.base.dto.MeetingDto;
+import com.tvf.clb.base.dto.MeetingMapper;
+import com.tvf.clb.base.dto.RaceDto;
+import com.tvf.clb.base.dto.SiteEnum;
 import com.tvf.clb.base.dto.sportbet.SportBetDataDto;
 import com.tvf.clb.base.dto.sportbet.SportBetMeetingDto;
 import com.tvf.clb.base.dto.sportbet.SportBetRaceDto;
@@ -77,10 +78,11 @@ public class SportBetCrawlService implements ICrawlService{
             List<RaceDto> meetingRaces = meeting.getRaces();
             meetingRaces.forEach(race -> {
                 race.setMeetingName(meeting.getName());
+                race.setRaceType(meeting.getRaceType());
             });
             raceDtoList.addAll(meetingRaces);
-            saveRace(raceDtoList, meeting);
         });
+        saveRace(raceDtoList);
         crawlAndSaveAllEntrants(raceDtoList, date).subscribe();
         return Collections.emptyList();
     }
@@ -89,9 +91,9 @@ public class SportBetCrawlService implements ICrawlService{
         crawUtils.saveMeetingSite(newMeetings, AppConstant.SPORTBET_SITE_ID);
     }
 
-    public void saveRace(List<RaceDto> raceDtoList, MeetingDto meetingDto) {
+    public void saveRace(List<RaceDto> raceDtoList) {
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        crawUtils.saveRaceSite(newRaces, AppConstant.SPORTBET_SITE_ID,MeetingMapper.toMeetingEntity(meetingDto));
+        crawUtils.saveRaceSite(newRaces, AppConstant.SPORTBET_SITE_ID);
     }
 
     @Override
