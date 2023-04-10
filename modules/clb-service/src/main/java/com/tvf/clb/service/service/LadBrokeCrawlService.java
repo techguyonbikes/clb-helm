@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -259,7 +261,15 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     private void saveRaceToTodayData(List<Race> savedRace) {
-        todayData.setRaces(new TreeMap<>());
+        if (todayData.getRaces() == null) {
+            todayData.setRaces(new TreeMap<>());
+        }
+        // remove yesterday data
+        if (! todayData.getRaces().isEmpty()) {
+            Timestamp startOfToday = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant());
+            todayData.setRaces(new TreeMap<>(todayData.getRaces().tailMap(startOfToday.getTime())));
+        }
+
         savedRace.forEach(race -> todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId()));
     }
 
