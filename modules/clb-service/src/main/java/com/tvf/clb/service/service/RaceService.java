@@ -1,5 +1,7 @@
 package com.tvf.clb.service.service;
 
+import com.tvf.clb.base.dto.RaceEntrantDto;
+import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.base.dto.RaceBaseResponseDTO;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.dto.RaceResponseMapper;
@@ -40,6 +42,9 @@ public class RaceService {
 
     @Autowired
     private EntrantRepository entrantRepository;
+
+    @Autowired
+    private EntrantService entrantService;
 
     private static final String SIDE_NAME_PREFIX = "R";
 
@@ -87,5 +92,26 @@ public class RaceService {
         Mono<Race> raceMono = raceRepository.findById(raceId);
         return raceMono.flatMapMany(race -> raceRepository.findAllByMeetingId(race.getMeetingId()));
     }
+
+    public Flux<RaceEntrantDto> getAllMeetingRaceByRaceId(Long raceId) {
+        Flux<EntrantResponseDto> entrantFlux = entrantService.getEntrantsByRaceId(raceId).switchIfEmpty(Flux.empty());
+        Flux<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceByIdAndAllMeeting(raceId).switchIfEmpty(Flux.empty());
+
+        return Flux.zip(entrantFlux.collectList(), raceMeetingFlux.collectList())
+                .flatMap(tuple -> {
+                    List<EntrantResponseDto> entrants = tuple.getT1();
+                    List<RaceEntrantDto> meetings = tuple.getT2().stream()
+                            .sorted(Comparator.comparing(RaceEntrantDto::getNumber))
+                            .peek(meeting -> {
+                                if (raceId.equals(meeting.getId())) {
+                                    meeting.setEntrants(entrants);
+                                }
+                            })
+                            .collect(Collectors.toList());
+
+                    return Flux.fromIterable(meetings);
+                });
+    }
+
 
 }
