@@ -6,14 +6,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.anotation.ClbService;
-import com.tvf.clb.base.dto.EntrantDto;
-import com.tvf.clb.base.dto.EntrantMapper;
-import com.tvf.clb.base.dto.MeetingDto;
-import com.tvf.clb.base.dto.MeetingMapper;
+import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.CrawlEntrantData;
+import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.zbet.*;
 import com.tvf.clb.base.utils.ApiUtils;
@@ -67,16 +65,22 @@ public class ZBetCrawlService implements ICrawlService {
     }
 
     @Override
-    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
+    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
         ZBetRaceRawData raceDto = getZBetRaceData(raceId);
         if (raceDto != null) {
             List<EntrantRawData> allEntrant = getListEntrant(raceId, raceDto);
-            Map<Integer, CrawlEntrantData> result = new HashMap<>();
+
+            Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
             allEntrant.forEach(x -> {
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                 priceFluctuations.put(AppConstant.ZBET_SITE_ID, x.getPriceFluctuations());
-                result.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), null, AppConstant.ZBET_SITE_ID, priceFluctuations));
+                mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
             });
+
+            CrawlRaceData result = new CrawlRaceData();
+            result.setSiteId(SiteEnum.ZBET.getId());
+            result.setMapEntrants(mapEntrants);
+
             return result;
         } else {
             log.error("Can not found ZBet race by RaceId " + raceId);
@@ -107,9 +111,8 @@ public class ZBetCrawlService implements ICrawlService {
                 race.setType(ConvertBase.convertRaceTypeOfTab(race.getType()));
             });
             racesData.addAll(meetingRaces);
-
-            saveRaceSite(racesData, meeting);
         });
+        saveRaceSite(racesData);
 
         crawlAndSaveEntrants(racesData, date).subscribe();
         return Collections.emptyList();
@@ -143,9 +146,9 @@ public class ZBetCrawlService implements ICrawlService {
         crawUtils.saveMeetingSite(newMeetings, AppConstant.ZBET_SITE_ID);
     }
 
-    public void saveRaceSite(List<ZBetRacesData> raceDtoList, ZBetMeetingRawData meeting) {
+    public void saveRaceSite(List<ZBetRacesData> raceDtoList) {
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        crawUtils.saveRaceSite(newRaces, AppConstant.ZBET_SITE_ID, MeetingMapper.toMeetingEntity(meeting));
+        crawUtils.saveRaceSite(newRaces, AppConstant.ZBET_SITE_ID);
     }
 
     public void saveEntrant(List<ZBetEntrantData> entrantRawData, ZBetRacesData race, LocalDate date) {

@@ -1,6 +1,8 @@
 package com.tvf.clb.controller;
 
-import com.tvf.clb.base.dto.RaceResponseDTO;
+import com.tvf.clb.base.dto.RaceBaseResponseDTO;
+import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.dto.RaceEntrantDto;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.service.service.RaceService;
 import com.tvf.clb.service.service.RaceType;
@@ -29,10 +31,15 @@ public class RaceController {
         return raceService.getRaceById(id);
     }
 
+    @GetMapping("/new-data")
+    public Mono<RaceResponseDto> getRaceNewDataById(@RequestParam(value = "id") Long id) {
+        return raceService.getRaceNewDataById(id);
+    }
+
     @GetMapping("/side-bar-races")
-    public Flux<RaceResponseDTO> searchRaces(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                                             @RequestParam(value = "meetingIds", required = false) List<Long> meetingIds,
-                                             @RequestParam(value = "raceTypes", required = false, defaultValue = "HORSE,GREYHOUND,HARNESS") List<RaceType> raceTypes) {
+    public Flux<RaceBaseResponseDTO> searchRaces(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                                 @RequestParam(value = "meetingIds", required = false) List<Long> meetingIds,
+                                                 @RequestParam(value = "raceTypes", required = false, defaultValue = "HORSE,GREYHOUND,HARNESS") List<RaceType> raceTypes) {
         return raceService.searchRaces(date, meetingIds, raceTypes);
     }
 

@@ -5,8 +5,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import com.tvf.clb.base.entity.EntrantResponseDto;
-import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.service.service.CrawlPriceService;
 import lombok.extern.slf4j.Slf4j;
@@ -65,12 +64,15 @@ public class SocketModule {
 
     private Disposable sendNewPriceFromRedis(SocketIOClient senderClient, Long request) {
 
-        Predicate<List<EntrantResponseDto>> stopEmittingCondition = listEntrant -> (Objects.equals(listEntrant.get(0).getStatusRace(), AppConstant.STATUS_FINAL)
-                || Objects.equals(listEntrant.get(0).getStatusRace(), AppConstant.STATUS_ABANDONED));
+        Predicate<RaceResponseDto> stopEmittingCondition = raceResponseDto -> (Objects.equals(raceResponseDto.getStatus(), AppConstant.STATUS_FINAL)
+                || Objects.equals(raceResponseDto.getStatus(), AppConstant.STATUS_ABANDONED));
 
         return Flux.interval(Duration.ofSeconds(5L))
-                .flatMap(tick -> crawlPriceService.crawlEntrantPricePositionByRaceId(request))
-                .doOnNext(entrantList -> senderClient.sendEvent("new_prices", entrantList))
+                .flatMap(tick -> crawlPriceService.crawlRaceNewDataByRaceId(request))
+                .doOnNext(raceNewData -> {
+                    senderClient.sendEvent("new_prices", raceNewData.getEntrants());
+                    senderClient.sendEvent("new_status", raceNewData.getStatus());
+                })
                 .takeUntil(stopEmittingCondition) // stop emitting when race has finished
                 .doOnComplete(() -> {
                     senderClient.sendEvent("subscription", "race has finished");

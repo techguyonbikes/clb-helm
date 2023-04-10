@@ -39,7 +39,7 @@ public class RaceScheduler {
              .runOn(Schedulers.parallel())
              .flatMap(race -> {
                  log.info("Crawl data race id = {} start at {}", race.getId(), race.getActualStart());
-                 return crawlPriceService.crawlEntrantPricePositionByRaceId(race.getId());
+                 return crawlPriceService.crawlRaceNewDataByRaceId(race.getId());
              })
              .sequential()
              .doFinally(signalType -> log.info("------ All races start in 1 hours are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
@@ -62,7 +62,7 @@ public class RaceScheduler {
                 .runOn(Schedulers.parallel())
                 .flatMap(race -> {
                     log.info("Crawl data race id = {} start at {}", race.getId(), race.getActualStart());
-                    return crawlPriceService.crawlEntrantPricePositionByRaceId(race.getId());
+                    return crawlPriceService.crawlRaceNewDataByRaceId(race.getId());
                 })
                 .sequential()
                 .doFinally(signalType -> log.info("------ All races start after 1 hours are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
