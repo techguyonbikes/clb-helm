@@ -114,16 +114,16 @@ public class RaceService {
     }
 
 
-    public Flux<RaceResponseDTO> getListRaceDefault(LocalDate date) {
+    public Flux<RaceBaseResponseDTO> getListRaceDefault(LocalDate date) {
         LocalDateTime maxDateTime = date.plusDays(3).atTime(23, 59, 59);
         LocalDateTime minDateTime = date.plusDays(-3).atTime(00, 00, 00);
         Instant endTime = maxDateTime.atOffset(ZoneOffset.UTC).toInstant();
         Instant startTime = minDateTime.atOffset(ZoneOffset.UTC).toInstant();
-        Flux<RaceResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).map(r -> {
+        Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).map(r -> {
             r.setSideName(SIDE_NAME_PREFIX + r.getNumber() + " " + r.getMeetingName());
             return r;
         });
-        return raceResponse.sort(Comparator.comparing(RaceResponseDTO::getDate));
+        return raceResponse.sort(Comparator.comparing(RaceBaseResponseDTO::getDate));
     }
 
 }

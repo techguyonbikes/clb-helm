@@ -52,6 +52,6 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     @Query("SELECT r.id, r.number, r.actual_start as date, r.name as race_name, r.distance, r.meeting_id , m.race_type as type, m.name as meeting_name , m.state as state" +
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.id = r.meeting_id" +
             " WHERE m.advertised_Date between :startTime and :endTime " )
-    Flux<RaceResponseDTO> findByRaceTypeBetweenDate(@Param("startTime") Instant  startTime,
+    Flux<RaceBaseResponseDTO> findByRaceTypeBetweenDate(@Param("startTime") Instant  startTime,
                                           @Param("endTime") Instant endTime);
 }
