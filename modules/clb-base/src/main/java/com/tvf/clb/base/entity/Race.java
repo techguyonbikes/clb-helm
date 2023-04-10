@@ -43,7 +43,7 @@ public class Race {
     private Json marketIds;
     private String mainMarketStatusId;
     private String resultsDisplay;
-
+    private String status;
     private Integer distance;
 
     @Override

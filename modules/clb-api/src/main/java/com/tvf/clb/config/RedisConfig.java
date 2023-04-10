@@ -1,6 +1,6 @@
 package com.tvf.clb.config;
 
-import com.tvf.clb.base.entity.EntrantResponseDto;
+import com.tvf.clb.base.dto.RaceResponseDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -10,8 +10,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
-
-import java.util.List;
 
 @Configuration
 @Slf4j
@@ -24,10 +22,10 @@ public class RedisConfig {
     }
 
     @Bean
-    public ReactiveRedisTemplate<Long, List<EntrantResponseDto>> raceDetailTemplate(ReactiveRedisConnectionFactory factory) {
-        return new ReactiveRedisTemplate<Long, List<EntrantResponseDto>>(
+    public ReactiveRedisTemplate<Long, RaceResponseDto> raceDetailTemplate(ReactiveRedisConnectionFactory factory) {
+        return new ReactiveRedisTemplate<Long, RaceResponseDto>(
                 factory,
-                RedisSerializationContext.fromSerializer(new Jackson2JsonRedisSerializer(List.class))
+                RedisSerializationContext.fromSerializer(new Jackson2JsonRedisSerializer(RaceResponseDto.class))
         );
     }
 

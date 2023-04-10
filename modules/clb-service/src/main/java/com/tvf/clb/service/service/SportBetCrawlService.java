@@ -1,9 +1,6 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.EntrantDto;
 import com.tvf.clb.base.dto.MeetingDto;
@@ -18,6 +15,7 @@ import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
+import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.sportbet.MarketRawData;
 import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
 import com.tvf.clb.base.model.sportbet.SportBetMeetingRawData;
@@ -98,24 +96,30 @@ public class SportBetCrawlService implements ICrawlService{
     }
 
     @Override
-    public Map<Integer, CrawlEntrantData> getEntrantByRaceUUID(String raceId) {
+    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
         try {
             SportBetRaceDto sportBetRaceDto = crawlEntrantDataSportBet(raceId);
             MarketRawData  markets = sportBetRaceDto.getMarkets().get(0);
             List<SportBetEntrantRawData> allEntrant = markets.getSelections();
-            Map<Integer, CrawlEntrantData> result = new HashMap<>();
-           allEntrant.forEach(x -> {
-               List<Float> prices = new ArrayList<>();
+
+            Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
+            allEntrant.forEach(x -> {
+                List<Float> prices = new ArrayList<>();
                 Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-               prices.add(x.getStatistics().getOpenPrice());
-               prices.add(x.getStatistics().getFluc1());
-               prices.add(x.getStatistics().getFluc2());
-               x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
+                prices.add(x.getStatistics().getOpenPrice());
+                prices.add(x.getStatistics().getFluc1());
+                prices.add(x.getStatistics().getFluc2());
+                x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
                        r->prices.add(r.getWinPrice())
-               );
+                );
                 priceFluctuations.put(AppConstant.SPORTBET_SITE_ID, prices);
-                result.put(x.getRunnerNumber(), new CrawlEntrantData(0, null, AppConstant.SPORTBET_SITE_ID, priceFluctuations));
+                entrantMap.put(x.getRunnerNumber(), new CrawlEntrantData(0, priceFluctuations));
             });
+
+            CrawlRaceData result = new CrawlRaceData();
+            result.setSiteId(SiteEnum.SPORT_BET.getId());
+            result.setMapEntrants(entrantMap);
+
             return result;
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);

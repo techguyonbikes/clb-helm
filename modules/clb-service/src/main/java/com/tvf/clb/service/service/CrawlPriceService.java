@@ -1,8 +1,8 @@
 package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
-import com.tvf.clb.base.dto.EntrantMapper;
-import com.tvf.clb.base.entity.EntrantResponseDto;
+import com.tvf.clb.base.dto.EntrantResponseDto;
+import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.service.repository.EntrantRepository;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 @Service
 public class CrawlPriceService {
@@ -23,7 +23,7 @@ public class CrawlPriceService {
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private EntrantRedisService entrantRedisService;
+    private RaceRedisService raceRedisService;
 
     @Autowired
     private CrawUtils CrawUtils;
@@ -31,55 +31,54 @@ public class CrawlPriceService {
     @Autowired
     private EntrantRepository entrantRepository;
 
-    private Gson gson = new Gson();
     @Autowired
     private RaceRepository raceRepository;
 
-    public Mono<List<EntrantResponseDto>> crawlEntrantPricePositionByRaceId(Long generalRaceId) {
-        return entrantRedisService.findEntrantByRaceId(generalRaceId).flatMap(x -> {
-            List<EntrantResponseDto> storeRecords = EntrantMapper.convertFromRedisPriceToDTO(x);
+    public Mono<RaceResponseDto> crawlRaceNewDataByRaceId(Long generalRaceId) {
+        return raceRedisService.findByRaceId(generalRaceId).flatMap(storedRace ->
 
-            return CrawUtils.crawlNewPriceByRaceUUID(storeRecords.get(0).getRaceUUID()).doOnNext(newPrices -> {
-                storeRecords.forEach(entrant -> {
-                            CrawlEntrantData entrantData = newPrices.get(entrant.getNumber());
-                            entrant.setPriceFluctuations(entrantData.getPriceMap());
-                            entrant.setPosition(entrantData.getPosition() == null ? 0 : entrantData.getPosition());
-                            entrant.setStatusRace(entrantData.getStatusRace());
-                        }
-                );
+                CrawUtils.crawlNewDataByRaceUUID(storedRace.getMapSiteUUID()).doOnNext(raceNewData -> {
+                    Map<Integer, CrawlEntrantData> mapEntrants = raceNewData.getMapEntrants();
+                    storedRace.setStatus(raceNewData.getStatus());
+                    storedRace.getEntrants().forEach(entrant -> {
+                        CrawlEntrantData entrantNewData = mapEntrants.get(entrant.getNumber());
+                        entrant.setPosition(entrantNewData.getPosition() == null ? 0 : entrantNewData.getPosition());
+                        entrant.setPriceFluctuations(entrant.getPriceFluctuations());
+                    });
 
-                if (Objects.equals(storeRecords.get(0).getStatusRace(), AppConstant.STATUS_FINAL)
-                        || Objects.equals(storeRecords.get(0).getStatusRace(), AppConstant.STATUS_ABANDONED)) {
-                    log.info("-------- Save entrant price to db and remove data in redis: {}", generalRaceId);
-                    // save to db and remove data in redis
-                    raceRepository.setUpdateRaceStatusById(generalRaceId, storeRecords.get(0).getStatusRace()).subscribe();
-                    saveEntrantToDb(generalRaceId, storeRecords);
-                    entrantRedisService.delete(generalRaceId).subscribe();
-                } else {
-                    log.info("-------- Save entrant price to redis: {}", generalRaceId);
-                    entrantRedisService.saveRace(generalRaceId, storeRecords).subscribe();
-                }
+                })
+                .then(saveRaceInfoToDBOrRedis(storedRace, generalRaceId))
+                .then(Mono.just(storedRace)));
+    }
 
-            }).then(Mono.just(storeRecords));
-        });
+    private Mono<?> saveRaceInfoToDBOrRedis(RaceResponseDto race, Long generalRaceId) {
+        if (race.getStatus().equals(AppConstant.STATUS_FINAL)
+                || race.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
+            log.info("Save race[id={}] data to db and remove in redis", generalRaceId);
+
+            saveEntrantToDb(generalRaceId, race.getEntrants());
+            return raceRepository.setUpdateRaceStatusById(generalRaceId, race.getStatus())
+                                 .then(raceRedisService.delete(generalRaceId));
+        } else {
+            log.info(" Save data race[id={}] to redis", generalRaceId);
+            return raceRedisService.saveRace(generalRaceId, race);
+        }
     }
 
     public void saveEntrantToDb(Long generalRaceId, List<EntrantResponseDto> storeRecords) {
         entrantRepository.getAllByRaceId(generalRaceId).collectList().subscribe(existed -> {
             storeRecords.forEach(e ->
-            {
-                existed.stream()
-                        .filter(x -> x.getName().equals(e.getName())
-                                && x.getNumber().equals(e.getNumber())
-                        )
-                        .findFirst()
-                        .ifPresent(entrant -> {
-                                    entrant.setPriceFluctuations(Json.of(gson.toJson(e.getPriceFluctuations() == null ? new HashMap<>() : e.getPriceFluctuations())));
-                                    entrant.setPosition(e.getPosition());
-                                }
+                    existed.stream()
+                            .filter(x -> x.getName().equals(e.getName())
+                                    && x.getNumber().equals(e.getNumber())
+                            )
+                            .findFirst()
+                            .ifPresent(entrant -> {
+                                        entrant.setPriceFluctuations(Json.of(new Gson().toJson(e.getPriceFluctuations() == null ? new HashMap<>() : e.getPriceFluctuations())));
+                                        entrant.setPosition(e.getPosition());
+                                    }
 
-                        );
-            });
+                    ));
             entrantRepository.saveAll(existed).subscribe();
         });
     }
