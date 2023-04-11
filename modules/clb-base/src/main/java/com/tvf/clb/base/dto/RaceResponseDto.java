@@ -3,6 +3,7 @@ package com.tvf.clb.base.dto;
 import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 public class RaceResponseDto {
     private Long id;
     private String status;
+    private String advertisedStart;
     private Map<Integer, String> mapSiteUUID;
     private List<EntrantResponseDto> entrants;
 }
