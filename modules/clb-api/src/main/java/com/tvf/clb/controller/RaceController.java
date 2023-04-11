@@ -48,8 +48,8 @@ public class RaceController {
         return raceService.findAllRacesInSameMeetingByRaceId(id);
     }
 
-    @GetMapping("/meeting/all")
-    public Mono<RaceEntrantDto> getAllMeetingRaceByRaceId(@RequestParam("id") Long id) {
-        return raceService.getAllMeetingRaceByRaceId(id);
+    @GetMapping("/entrant")
+    public Mono<RaceEntrantDto> getRaceEntrantByRaceId(@RequestParam("id") Long id) {
+        return raceService.getRaceEntrantByRaceId(id);
     }
 }

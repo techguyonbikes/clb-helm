@@ -93,7 +93,7 @@ public class RaceService {
         return raceMono.flatMapMany(race -> raceRepository.findAllByMeetingId(race.getMeetingId()));
     }
 
-    public Mono<RaceEntrantDto> getAllMeetingRaceByRaceId(Long raceId) {
+    public Mono<RaceEntrantDto> getRaceEntrantByRaceId(Long raceId) {
         Flux<EntrantResponseDto> entrantFlux = entrantService.getEntrantsByRaceId(raceId).switchIfEmpty(Flux.empty());
         Mono<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceEntrantByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<Race> raceNumberId = raceRepository.getRaceIDNumberByRaceId(raceId).switchIfEmpty(Mono.empty());
