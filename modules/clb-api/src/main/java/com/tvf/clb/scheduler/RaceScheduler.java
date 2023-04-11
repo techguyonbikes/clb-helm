@@ -36,16 +36,16 @@ public class RaceScheduler {
     private TodayData todayData;
 
     /**
-     * Crawling race data start in 1 hour - every 10 seconds.
+     * Crawling race data start in 30 minutes - every 15 seconds.
      */
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "*/15 * * * * *")
     public void crawlRaceDataStartIn1Hour() {
 
-        log.info("Start crawl race data start in 1 hour.");
+        log.info("Start crawl race data start in 30 minutes.");
         long startTime = System.currentTimeMillis();
 
         Long raceStartTimeFrom = Timestamp.from(Instant.now().minus(30, ChronoUnit.MINUTES)).getTime();
-        Long raceStartTimeTo = Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)).getTime();
+        Long raceStartTimeTo = Timestamp.from(Instant.now().plus(30, ChronoUnit.MINUTES)).getTime();
 
         Flux<Long> raceIds = getTodayNonFinalAndAbandonedRace()
                                 .map(treeMap -> treeMap.subMap(raceStartTimeFrom, raceStartTimeTo))
@@ -63,21 +63,21 @@ public class RaceScheduler {
                  }
              })
              .sequential()
-             .doFinally(signalType -> log.info("------ All races start in 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
+             .doFinally(signalType -> log.info("------ All races start in 30 minutes are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
              .then(raceIds.count())
              .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
     }
 
     /**
-     * Crawling race data start after 1 hour - every 5 minutes.
+     * Crawling race data start after 30 minutes - every 5 minutes.
      */
     @Scheduled(cron = "0 */5 * ? * *")
     public void crawlRaceDataStartAfter1Hour() {
 
-        log.info("Start crawl race data start after 1 hour.");
+        log.info("Start crawl race data start after 30 minutes.");
         long startTime = System.currentTimeMillis();
 
-        Long raceStartTimeFrom = Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)).getTime();
+        Long raceStartTimeFrom = Timestamp.from(Instant.now().plus(30, ChronoUnit.MINUTES)).getTime();
 
         Flux<Long> raceIds = getTodayNonFinalAndAbandonedRace()
                                 .map(treeMap -> treeMap.tailMap(raceStartTimeFrom))
@@ -90,7 +90,7 @@ public class RaceScheduler {
                     return crawlPriceService.crawlRaceNewDataByRaceId(raceId);
                 })
                 .sequential()
-                .doFinally(signalType -> log.info("------ All races start after 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
+                .doFinally(signalType -> log.info("------ All races start after 30 minutes are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
                 .then(raceIds.count())
                 .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
     }
