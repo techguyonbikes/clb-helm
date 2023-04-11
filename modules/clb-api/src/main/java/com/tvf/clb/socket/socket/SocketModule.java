@@ -7,7 +7,7 @@ import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.service.service.RaceRedisService;
+import com.tvf.clb.service.service.RaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ public class SocketModule {
     private final SocketIOServer server;
 
     @Autowired
-    private RaceRedisService raceRedisService;
+    private RaceService raceService;
 
     private final Map<Long, Set<SocketIOClient>> raceSubscribers = new ConcurrentHashMap<>();
 
@@ -94,7 +94,7 @@ public class SocketModule {
     }
 
     private void getRaceInfoAndSendToClient(Long raceId) {
-        raceRedisService.findByRaceId(raceId)
+        raceService.getRaceNewDataById(raceId)
                 .subscribe(newRaceInfo -> {
                     Set<SocketIOClient> clients = raceSubscribers.get(raceId);
 

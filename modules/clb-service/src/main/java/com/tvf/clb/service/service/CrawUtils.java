@@ -3,7 +3,6 @@ package com.tvf.clb.service.service;
 import com.google.gson.Gson;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
-import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
@@ -160,6 +159,7 @@ public class CrawUtils {
 
     public Mono<CrawlRaceData> crawlNewDataByRaceUUID(Map<Integer, String> mapSiteRaceUUID) {
         CrawlRaceData result = new CrawlRaceData();
+        result.setMapEntrants(new HashMap<>());
         return Flux.fromIterable(mapSiteRaceUUID.entrySet())
                 .parallel().runOn(Schedulers.parallel())
                 .map(entry ->
@@ -172,21 +172,18 @@ public class CrawUtils {
                         result.setStatus(raceNewData.getStatus());
                     }
 
-                    Map<Integer, CrawlEntrantData> entrantNewData = new HashMap<>();
-
                     raceNewData.getMapEntrants().forEach((key, value) -> {
-                        if (entrantNewData.containsKey(key)) {
-                            entrantNewData.get(key).getPriceMap().putAll(value.getPriceMap());
+                        if (result.getMapEntrants().containsKey(key)) {
+                            result.getMapEntrants().get(key).getPriceMap().putAll(value.getPriceMap());
                             if (raceNewData.getSiteId().equals(SiteEnum.LAD_BROKE.getId())) {
-                                entrantNewData.get(key).setPosition(value.getPosition());
+                                result.getMapEntrants().get(key).setPosition(value.getPosition());
                             }
                         } else {
-                            entrantNewData.put(key, value);
+                            result.getMapEntrants().put(key, value);
                         }
                     });
-
-                    result.setMapEntrants(entrantNewData);
-                }).then(Mono.just(result));
+                })
+                .then(Mono.just(result));
     }
     public void saveRaceSitebyTab(List<Race> races, Integer site) {
         Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(

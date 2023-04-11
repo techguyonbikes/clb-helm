@@ -36,15 +36,15 @@ public class RaceScheduler {
     private TodayData todayData;
 
     /**
-     * Crawling race data start in 1 hour - every 30 seconds.
+     * Crawling race data start in 1 hour - every 10 seconds.
      */
-    @Scheduled(cron = "*/30 * * * * *")
+    @Scheduled(cron = "*/10 * * * * *")
     public void crawlRaceDataStartIn1Hour() {
 
         log.info("Start crawl race data start in 1 hour.");
         long startTime = System.currentTimeMillis();
 
-        Long raceStartTimeFrom = Timestamp.from(Instant.now().minus(1, ChronoUnit.HOURS)).getTime();
+        Long raceStartTimeFrom = Timestamp.from(Instant.now().minus(30, ChronoUnit.MINUTES)).getTime();
         Long raceStartTimeTo = Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)).getTime();
 
         Flux<Long> raceIds = getTodayNonFinalAndAbandonedRace()
@@ -56,6 +56,11 @@ public class RaceScheduler {
              .flatMap(raceId -> {
                  log.info("Crawl data race id = {}", raceId);
                  return crawlPriceService.crawlRaceNewDataByRaceId(raceId);
+             })
+             .doOnNext(race -> {
+                 if (race.getStatus().equals(STATUS_FINAL) || race.getStatus().equals(STATUS_ABANDONED)) {
+                     todayData.getRaces().remove(Timestamp.from(Instant.parse(race.getAdvertisedStart())).getTime());
+                 }
              })
              .sequential()
              .doFinally(signalType -> log.info("------ All races start in 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
@@ -94,7 +99,7 @@ public class RaceScheduler {
         if (todayData.getRaces() == null) {
             log.info("TodayRaces has no data so need to search in DB");
             todayData.setRaces(new TreeMap<>());
-            Instant startTime = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minusHours(3).toInstant();
+            Instant startTime = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minusHours(1).toInstant();
             Instant endOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
 
             return raceRepository.findAllByAdvertisedStartBetweenAndStatusNotIn(startTime, endOfToday, Arrays.asList(STATUS_FINAL, STATUS_ABANDONED))
