@@ -49,7 +49,7 @@ public class RaceController {
     }
 
     @GetMapping("/meeting/all")
-    public Flux<RaceEntrantDto> getAllMeetingRaceByRaceId(@RequestParam("id") Long id) {
+    public Mono<RaceEntrantDto> getAllMeetingRaceByRaceId(@RequestParam("id") Long id) {
         return raceService.getAllMeetingRaceByRaceId(id);
     }
 }
