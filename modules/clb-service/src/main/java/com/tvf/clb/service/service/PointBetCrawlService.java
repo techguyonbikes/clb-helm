@@ -128,7 +128,7 @@ public class PointBetCrawlService implements ICrawlService {
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
 
         //save race
-        crawUtils.saveRaceSiteAndUpdateStatue(raceDtoList, AppConstant.POINT_BET_SITE_ID);
+        crawUtils.saveRaceSiteAndUpdateStatus(raceDtoList, AppConstant.POINT_BET_SITE_ID);
 
         crawlAndSaveAllEntrants(raceDtoList, date).subscribe();
 

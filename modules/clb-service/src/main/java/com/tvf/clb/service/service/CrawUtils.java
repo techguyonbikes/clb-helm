@@ -5,7 +5,6 @@ import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
-import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
 import io.r2dbc.postgresql.codec.Json;
@@ -81,7 +80,7 @@ public class CrawUtils {
                     }
                 }
 
-                if (site.equals(AppConstant.POINT_BET_SITE_ID)){
+                if (raceStored.getStatus() == null && statusRace != null) {
                     raceStored.setStatus(statusRace);
                 }
 
@@ -133,7 +132,7 @@ public class CrawUtils {
 
     }
 
-    public void saveRaceSiteAndUpdateStatue(List<RaceDto> raceDtoList, Integer site) {
+    public void saveRaceSiteAndUpdateStatus(List<RaceDto> raceDtoList, Integer site) {
         if (!raceDtoList.isEmpty()) {
             Flux<RaceSite> newMeetingSite = Flux.fromIterable(raceDtoList.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                     race -> {
@@ -168,7 +167,7 @@ public class CrawUtils {
                 .sequential()
                 .doOnNext(raceNewData -> {
 
-                    if (raceNewData.getSiteId().equals(SiteEnum.POINT_BET.getId())) {
+                    if (result.getStatus() == null && raceNewData.getStatus() != null) {
                         result.setStatus(raceNewData.getStatus());
                     }
 

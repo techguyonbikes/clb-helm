@@ -17,6 +17,7 @@ public class ZBetRaceRawData {
     private Integer number;
     private String name;
     private Integer distance;
+    private String status;
     private List<Deductions> deductions;
     private List<ZBetEntrantData> selections;
 
