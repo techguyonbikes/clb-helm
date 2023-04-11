@@ -21,6 +21,7 @@ public class RaceEntrantDto {
     private Long meetingId;
     private String meetingName;
     private String raceType;
+    private String state;
     private Instant advertisedStart;
     private Instant actualStart;
     private String name;
