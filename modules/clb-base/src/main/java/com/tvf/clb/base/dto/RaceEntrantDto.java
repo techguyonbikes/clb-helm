@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -16,10 +18,17 @@ import java.util.List;
 public class RaceEntrantDto {
 
     private Long id;
-    private String meetingId;
+    private Long meetingId;
+    private String meetingName;
+    private String raceType;
+    private String state;
+    private Instant advertisedStart;
+    private Instant actualStart;
     private String name;
     private Integer number;
     private String distance;
     private String status;
+    private Map<Integer, Long> raceIdNumber;
+    private Map<Integer, String> raceSiteUUID;
     private List<EntrantResponseDto> entrants;
 }
