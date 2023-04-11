@@ -9,6 +9,7 @@ import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.ApiUtils;
@@ -27,8 +28,11 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,6 +61,9 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
+
+    @Autowired
+    private TodayData todayData;
 
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
@@ -243,11 +250,27 @@ public class LadBrokeCrawlService implements ICrawlService {
                                             String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
                                             raceNameAndIdTemplate.opsForValue().set(key, race.getId()).subscribe();
                                         });
+
+                                        saveRaceToTodayData(savedRace);
+
                                         crawUtils.saveRaceSite(savedRace, AppConstant.LAD_BROKE_SITE_ID);
                                         log.info("All races processed successfully");
                                     });
                         }
                 );
+    }
+
+    private void saveRaceToTodayData(List<Race> savedRace) {
+        if (todayData.getRaces() == null) {
+            todayData.setRaces(new TreeMap<>());
+        }
+        // remove yesterday data
+        if (! todayData.getRaces().isEmpty()) {
+            Timestamp startOfToday = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant());
+            todayData.setRaces(new TreeMap<>(todayData.getRaces().tailMap(startOfToday.getTime())));
+        }
+
+        savedRace.forEach(race -> todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId()));
     }
 
     public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, Long raceId) {
