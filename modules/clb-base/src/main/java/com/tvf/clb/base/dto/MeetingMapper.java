@@ -119,6 +119,7 @@ public class MeetingMapper {
                 .name(race.getName())
                 .raceType(race.getType())
                 .number(race.getNumber())
+                .status(race.getStatus())
                 .advertisedStart(LocalDateTime.parse(race.getStartDate(), dtf).atZone(AppConstant.AU_ZONE_ID).toInstant())
                 .build();
     }
