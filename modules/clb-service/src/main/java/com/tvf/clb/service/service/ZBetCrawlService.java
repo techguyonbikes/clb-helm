@@ -109,7 +109,7 @@ public class ZBetCrawlService implements ICrawlService {
             meetingRaces.forEach(race -> {
                 race.setMeetingName(meeting.getName());
                 race.setType(ConvertBase.convertRaceTypeOfTab(race.getType()));
-                race.setType(ConvertBase.getZBetRaceStatus(race.getStatus()));
+                race.setStatus(ConvertBase.getZBetRaceStatus(race.getStatus()));
             });
             racesData.addAll(meetingRaces);
         });
