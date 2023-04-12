@@ -43,7 +43,7 @@ public class CrawlPriceService {
                     storedRace.getEntrants().forEach(entrant -> {
                         CrawlEntrantData entrantNewData = mapEntrants.get(entrant.getNumber());
                         entrant.setPosition(entrantNewData.getPosition() == null ? 0 : entrantNewData.getPosition());
-                        entrant.setPriceFluctuations(entrant.getPriceFluctuations());
+                        entrant.setPriceFluctuations(entrantNewData.getPriceMap());
                     });
 
                 })
