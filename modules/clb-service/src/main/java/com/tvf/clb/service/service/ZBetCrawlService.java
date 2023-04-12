@@ -9,7 +9,6 @@ import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
-import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
@@ -79,6 +78,7 @@ public class ZBetCrawlService implements ICrawlService {
 
             CrawlRaceData result = new CrawlRaceData();
             result.setSiteId(SiteEnum.ZBET.getId());
+            result.setStatus(ConvertBase.getZBetRaceStatus(raceDto.getStatus()));
             result.setMapEntrants(mapEntrants);
 
             return result;
@@ -109,6 +109,7 @@ public class ZBetCrawlService implements ICrawlService {
             meetingRaces.forEach(race -> {
                 race.setMeetingName(meeting.getName());
                 race.setType(ConvertBase.convertRaceTypeOfTab(race.getType()));
+                race.setStatus(ConvertBase.getZBetRaceStatus(race.getStatus()));
             });
             racesData.addAll(meetingRaces);
         });
@@ -147,8 +148,8 @@ public class ZBetCrawlService implements ICrawlService {
     }
 
     public void saveRaceSite(List<ZBetRacesData> raceDtoList) {
-        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        crawUtils.saveRaceSite(newRaces, AppConstant.ZBET_SITE_ID);
+        List<RaceDto> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceDto).collect(Collectors.toList());
+        crawUtils.saveRaceSiteAndUpdateStatus(newRaces, AppConstant.ZBET_SITE_ID);
     }
 
     public void saveEntrant(List<ZBetEntrantData> entrantRawData, ZBetRacesData race, LocalDate date) {
@@ -163,7 +164,7 @@ public class ZBetCrawlService implements ICrawlService {
         String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", race.getMeetingName(), race.getNumber(), race.getType(), date);
 
         crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, race.getId().toString(),
-                null, startTime, race.getNumber(), race.getType());
+                race.getStatus(), startTime, race.getNumber(), race.getType());
 
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, MeetingMapper.toRaceDto(race) ,AppConstant.ZBET_SITE_ID);
     }

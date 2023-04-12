@@ -48,9 +48,9 @@ public class RaceController {
         return raceService.findAllRacesInSameMeetingByRaceId(id);
     }
 
-    @GetMapping("/meeting/all")
-    public Flux<RaceEntrantDto> getAllMeetingRaceByRaceId(@RequestParam("id") Long id) {
-        return raceService.getAllMeetingRaceByRaceId(id);
+    @GetMapping("/entrant")
+    public Mono<RaceEntrantDto> getRaceEntrantByRaceId(@RequestParam("id") Long id) {
+        return raceService.getRaceEntrantByRaceId(id);
     }
     @GetMapping("/side-bar-races-default")
     public Flux<RaceBaseResponseDTO> searchRacesByDate(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){

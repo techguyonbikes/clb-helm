@@ -111,5 +111,10 @@ public class AppConstant {
     public static final String STATUS_ABANDONED = "ABANDONED";
     public static final String PRICE_CODE = "L";
     public static final String RACECARD_EVENT="racecardEvent";
+    public static final String ZBET_SELLING_STATUS = "selling";
+    public static final String ZBET_PAID_STATUS = "paid";
+    public static final String ZBET_ABANDONED_STATUS = "abandoned";
+    public static final String ZBET_INTERIM_STATUS = "interim";
+    public static final String ZBET_CLOSED_STATUS = "close";
 
 }

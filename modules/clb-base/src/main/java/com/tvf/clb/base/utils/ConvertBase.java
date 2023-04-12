@@ -65,5 +65,20 @@ public class ConvertBase {
         LocalDateTime startOfDay = date.atStartOfDay();
         return startOfDay.toInstant(ZoneOffset.UTC);
     }
+    public static String getZBetRaceStatus(String status) {
+        switch (status) {
+            case AppConstant.ZBET_SELLING_STATUS:
+                return AppConstant.STATUS_OPEN;
+            case AppConstant.ZBET_PAID_STATUS:
+                return AppConstant.STATUS_FINAL;
+            case AppConstant.ZBET_ABANDONED_STATUS:
+                return AppConstant.STATUS_ABANDONED;
+            case AppConstant.ZBET_INTERIM_STATUS:
+                return AppConstant.STATUS_INTERIM;
+            case AppConstant.ZBET_CLOSED_STATUS:
+                return AppConstant.STATUS_CLOSED;
+            default: return null;
+        }
+    }
 
 }

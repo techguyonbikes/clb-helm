@@ -33,6 +33,9 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     @Query("select r.id from clb_db.race r where r.distance = :distance and r.number = :number and r.advertised_start = :date")
     Mono<Long> getRaceIdbyDistance(@Param("distance") int name, @Param("number") Integer number, @Param("date") Instant date);
 
-    @Query("select s.id, s.meeting_id, s.name, s.number, s.distance, s.status from clb_db.race s where s.meeting_id = (select rs.meeting_id from clb_db.race rs where rs.id = :raceId)")
-    Flux<RaceEntrantDto> getRaceByIdAndAllMeeting(@Param("raceId") Long raceId);
+    @Query("select s.id, s.meeting_id, m.name as meeting_name, m.race_type, m.state, s.advertised_start, s.actual_start, s.name, s.number, s.distance, s.status from clb_db.race s join clb_db.meeting m on m.id = s.meeting_id where s.id = :raceId")
+    Mono<RaceEntrantDto> getRaceEntrantByRaceId(@Param("raceId") Long raceId);
+
+    @Query("select * from clb_db.race s where s.meeting_id = (select rs.meeting_id from clb_db.race rs where rs.id = :raceId)")
+    Flux<Race> getRaceIDNumberByRaceId(@Param("raceId") Long raceId);
 }

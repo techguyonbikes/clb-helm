@@ -93,24 +93,25 @@ public class RaceService {
         return raceMono.flatMapMany(race -> raceRepository.findAllByMeetingId(race.getMeetingId()));
     }
 
-    public Flux<RaceEntrantDto> getAllMeetingRaceByRaceId(Long raceId) {
+    public Mono<RaceEntrantDto> getRaceEntrantByRaceId(Long raceId) {
         Flux<EntrantResponseDto> entrantFlux = entrantService.getEntrantsByRaceId(raceId).switchIfEmpty(Flux.empty());
-        Flux<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceByIdAndAllMeeting(raceId).switchIfEmpty(Flux.empty());
+        Mono<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceEntrantByRaceId(raceId).switchIfEmpty(Mono.empty());
+        Flux<Race> raceNumberId = raceRepository.getRaceIDNumberByRaceId(raceId).switchIfEmpty(Mono.empty());
+        Flux<RaceSite> raceSiteUUID = raceSiteRepository.getAllByGeneralRaceId(raceId).switchIfEmpty(Mono.empty());
 
-        return Flux.zip(entrantFlux.collectList(), raceMeetingFlux.collectList())
-                .flatMap(tuple -> {
-                    List<EntrantResponseDto> entrants = tuple.getT1();
-                    List<RaceEntrantDto> meetings = tuple.getT2().stream()
-                            .sorted(Comparator.comparing(RaceEntrantDto::getNumber))
-                            .peek(meeting -> {
-                                if (raceId.equals(meeting.getId())) {
-                                    meeting.setEntrants(entrants);
-                                }
-                            })
-                            .collect(Collectors.toList());
+        return Mono.zip(entrantFlux.collectList(), raceMeetingFlux,
+                        raceNumberId.collectMap(Race::getNumber, Race::getId),
+                        raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteId))
+                .map(tuple -> {
+                    RaceEntrantDto raceEntrantDTO = tuple.getT2();
 
-                    return Flux.fromIterable(meetings);
+                    raceEntrantDTO.setEntrants(tuple.getT1());
+                    raceEntrantDTO.setRaceIdNumber(tuple.getT3());
+                    raceEntrantDTO.setRaceSiteUUID(tuple.getT4());
+
+                    return raceEntrantDTO;
                 });
+
     }
 
 

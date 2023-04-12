@@ -19,4 +19,5 @@ public class RaceBaseResponseDTO {
     String stateName;
     String raceName;
     Integer distance;
+    String status;
 }
