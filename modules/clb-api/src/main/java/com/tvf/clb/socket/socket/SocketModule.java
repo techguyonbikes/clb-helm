@@ -7,7 +7,8 @@ import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.service.service.RaceService;
+import com.tvf.clb.service.service.CrawlPriceService;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,12 +25,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
+@Getter
 public class SocketModule {
 
     private final SocketIOServer server;
 
     @Autowired
-    private RaceService raceService;
+    private CrawlPriceService crawlPriceService;
 
     private final Map<Long, Set<SocketIOClient>> raceSubscribers = new ConcurrentHashMap<>();
 
@@ -85,16 +87,17 @@ public class SocketModule {
      * This function get subscribed races from redis and send to clients each 5 seconds
      */
     @PostConstruct
-    public void getSubscribedRaces() {
+    public void crawlSubscribedRaces() {
         Flux.interval(Duration.ofSeconds(5L))
                 .flatMap(tick -> Flux.fromIterable(raceSubscribers.keySet()))
-                .parallel()
+                .parallel(12) //(int) (Schedulers.DEFAULT_POOL_SIZE * 0.1)
                 .runOn(Schedulers.parallel())
-                .subscribe(this::getRaceInfoAndSendToClient);
+                .doOnNext(this::getRaceInfoAndSendToClient)
+                .subscribe();
     }
 
     private void getRaceInfoAndSendToClient(Long raceId) {
-        raceService.getRaceNewDataById(raceId)
+        crawlPriceService.crawlRaceNewDataByRaceId(raceId)
                 .subscribe(newRaceInfo -> {
                     Set<SocketIOClient> clients = raceSubscribers.get(raceId);
 
