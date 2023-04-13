@@ -87,7 +87,7 @@ public class RaceScheduler {
         isCrawlingRaceStartIn30Minutes = true;
         long startTime = System.currentTimeMillis();
 
-        Long raceStartTimeFrom = Timestamp.from(Instant.now().minus(1, ChronoUnit.HOURS)).getTime();
+        Long raceStartTimeFrom = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant()).getTime();
         Long raceStartTimeTo = Timestamp.from(Instant.now().plus(30, ChronoUnit.MINUTES)).getTime();
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
@@ -199,7 +199,7 @@ public class RaceScheduler {
         if (todayData.getRaces() == null) {
             log.info("TodayRaces has no data so need to search in DB");
             todayData.setRaces(new TreeMap<>());
-            Instant startTime = Instant.now().atZone(ZoneOffset.UTC).minusHours(1).toInstant();
+            Instant startTime = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant();
             Instant endOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
 
             return raceRepository.findAllByAdvertisedStartBetweenAndStatusNotIn(startTime, endOfToday, Arrays.asList(STATUS_FINAL, STATUS_ABANDONED))
