@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +35,6 @@ public class CrawlPriceService {
     private RaceRepository raceRepository;
 
     public Mono<RaceResponseDto> crawlRaceNewDataByRaceId(Long generalRaceId) {
-        log.info("Socket start crawl race data id = {}", generalRaceId);
         return raceRedisService.findByRaceId(generalRaceId).flatMap(storedRace ->
 
                 CrawUtils.crawlNewDataByRaceUUID(storedRace.getMapSiteUUID()).doOnNext(raceNewData -> {
@@ -48,20 +46,23 @@ public class CrawlPriceService {
                         entrant.setPriceFluctuations(entrantNewData.getPriceMap());
                     });
 
-                    if (storedRace.getStatus().equals(AppConstant.STATUS_FINAL)
-                            || storedRace.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
-                        log.info("Save race[id={}] data to db and remove in redis", generalRaceId);
-
-                        saveEntrantToDb(generalRaceId, storedRace.getEntrants());
-                        raceRepository.setUpdateRaceStatusById(generalRaceId, storedRace.getStatus())
-                                .then(raceRedisService.delete(generalRaceId)).subscribeOn(Schedulers.newParallel("Kepler")).subscribe(x -> log.info("Current thread"));
-                    } else {
-                        log.info(" Save data race[id={}] to redis", generalRaceId);
-                        raceRedisService.saveRace(generalRaceId, storedRace).subscribe(x -> log.info("Current thread")); //.subscribeOn(Schedulers.newParallel("Kepler"))
-                    }
-
                 })
+                .then(saveRaceInfoToDBOrRedis(storedRace, generalRaceId))
                 .then(Mono.just(storedRace)));
+    }
+
+    private Mono<?> saveRaceInfoToDBOrRedis(RaceResponseDto race, Long generalRaceId) {
+        if (race.getStatus().equals(AppConstant.STATUS_FINAL)
+                || race.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
+            log.info("Save race[id={}] data to db and remove in redis", generalRaceId);
+
+            saveEntrantToDb(generalRaceId, race.getEntrants());
+            return raceRepository.setUpdateRaceStatusById(generalRaceId, race.getStatus())
+                                 .then(raceRedisService.delete(generalRaceId));
+        } else {
+            log.info(" Save data race[id={}] to redis", generalRaceId);
+            return raceRedisService.saveRace(generalRaceId, race);
+        }
     }
 
     public void saveEntrantToDb(Long generalRaceId, List<EntrantResponseDto> storeRecords) {

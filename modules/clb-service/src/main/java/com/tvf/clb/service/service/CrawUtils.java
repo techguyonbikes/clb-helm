@@ -159,15 +159,11 @@ public class CrawUtils {
     public Mono<CrawlRaceData> crawlNewDataByRaceUUID(Map<Integer, String> mapSiteRaceUUID) {
         CrawlRaceData result = new CrawlRaceData();
         result.setMapEntrants(new HashMap<>());
-        log.info("Socket start crawl race data id = {}", mapSiteRaceUUID);
         return Flux.fromIterable(mapSiteRaceUUID.entrySet())
                 .parallel().runOn(Schedulers.parallel())
                 .map(entry ->
-                {
-//                    log.info("Calling {} api", SiteEnum.getSiteNameById(entry.getKey()));
-                    return serviceLookup.forBean(ICrawlService.class, SiteEnum.getSiteNameById(entry.getKey()))
-                            .getEntrantByRaceUUID(entry.getValue());
-                })
+                        serviceLookup.forBean(ICrawlService.class, SiteEnum.getSiteNameById(entry.getKey()))
+                                .getEntrantByRaceUUID(entry.getValue()))
                 .sequential()
                 .doOnNext(raceNewData -> {
 
