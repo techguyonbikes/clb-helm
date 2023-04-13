@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -44,6 +45,34 @@ public class RaceScheduler {
     private boolean isCrawlingRaceStartAfter30MinutesAndIn1Hour = false;
     private boolean isCrawlingRaceStartAfter1Hour = false;
 
+    @Scheduled(cron = "*/4 * * * * *")
+    public void crawlSubscribedRace() {
+
+        log.info("Start crawl subscribed race data.");
+        long startTime = System.currentTimeMillis();
+
+        if (CollectionUtils.isEmpty(socketModule.getSubscribedRaces())) {
+            log.info("No race is subscribed");
+            return;
+        }
+
+        Flux<Long> raceIds = Flux.fromIterable(socketModule.getSubscribedRaces().keySet());
+
+        raceIds.parallel()
+                .runOn(Schedulers.parallel())
+                .flatMap(raceId -> {
+                    log.info("Crawl data subscribed race id = {}", raceId);
+                    return crawlPriceService.crawlRaceNewDataByRaceId(raceId);
+                })
+                .sequential()
+                .doFinally(signalType -> {
+                    log.info("------ All subscribed races are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
+                    isCrawlingRaceStartAfter1Hour = false;
+                })
+                .then(raceIds.count())
+                .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
+    }
+
     /**
      * Crawling race data start in 30 minutes - every 30 seconds.
      */
@@ -64,7 +93,7 @@ public class RaceScheduler {
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
 
-        raceIds.parallel(6) //(int) (Schedulers.DEFAULT_POOL_SIZE * 0.4/6)
+        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.3/6))
              .runOn(Schedulers.parallel())
              .flatMap(raceId -> {
                  log.info("Crawl data race id = {} start in 30 minutes", raceId);
@@ -87,7 +116,7 @@ public class RaceScheduler {
     /**
      * Crawling race data start after 30 minutes and in 1 hour - every 60 seconds.
      */
-//    @Scheduled(cron = "*/60 * * * * *")
+    @Scheduled(cron = "*/60 * * * * *")
     public void crawlRaceDataStartAfter30MinutesAndIn1Hour() {
 
         if (isCrawlingRaceStartAfter30MinutesAndIn1Hour) {
@@ -104,7 +133,7 @@ public class RaceScheduler {
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
-        raceIds.parallel(6)// (int) (Schedulers.DEFAULT_POOL_SIZE * 0.2/6)
+        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.2/6))
                 .runOn(Schedulers.parallel())
                 .flatMap(raceId -> {
                     log.info("Crawl data race id = {} start after 30 minutes and in 1 hour", raceId);
@@ -122,7 +151,7 @@ public class RaceScheduler {
     /**
      * Crawling race data start after 1 hour - every 8 minutes.
      */
-//    @Scheduled(cron = "0 */8 * ? * *")
+    @Scheduled(cron = "0 */8 * ? * *")
     public void crawlRaceDataStartAfter1Hour() {
 
         if (isCrawlingRaceStartAfter1Hour) {
@@ -137,7 +166,7 @@ public class RaceScheduler {
 
         Flux<Long> raceIds = getAllRaceIdsStartAfter(raceStartTimeFrom);
 
-        raceIds.parallel(2) //(int) (Schedulers.DEFAULT_POOL_SIZE * 0.1/6)
+        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.1/6))
                 .runOn(Schedulers.parallel())
                 .flatMap(raceId -> {
                     log.info("Crawl data race id = {} start after 1 hour", raceId);
