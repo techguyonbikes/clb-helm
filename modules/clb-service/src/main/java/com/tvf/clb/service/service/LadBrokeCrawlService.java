@@ -80,7 +80,6 @@ public class LadBrokeCrawlService implements ICrawlService {
             } catch (IOException e) {
                 throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
             }
-            todayData.setLastTimeCrawl(Instant.now());
             return getAllAusMeeting(rawData, date);
         }).flatMapMany(Flux::fromIterable);
     }
