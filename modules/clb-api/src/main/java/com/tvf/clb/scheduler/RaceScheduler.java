@@ -51,7 +51,7 @@ public class RaceScheduler {
         log.info("Start crawl subscribed race data.");
         long startTime = System.currentTimeMillis();
 
-        if (CollectionUtils.isEmpty(socketModule.getSubscribedRaces())) {
+        if (CollectionUtils.isEmpty(socketModule.getRaceSubscribers().keySet())) {
             log.info("No race is subscribed");
             return;
         }
@@ -74,9 +74,9 @@ public class RaceScheduler {
     }
 
     /**
-     * Crawling race data start in 30 minutes - every 30 seconds.
+     * Crawling race data start in 30 minutes - every 10 seconds.
      */
-    @Scheduled(cron = "*/30 * * * * *")
+    @Scheduled(cron = "*/10 * * * * *")
     public void crawlRaceDataStartIn30Minutes() {
 
         if (isCrawlingRaceStartIn30Minutes) {
@@ -114,9 +114,9 @@ public class RaceScheduler {
     }
 
     /**
-     * Crawling race data start after 30 minutes and in 1 hour - every 60 seconds.
+     * Crawling race data start after 30 minutes and in 1 hour - every 15 seconds.
      */
-    @Scheduled(cron = "*/60 * * * * *")
+    @Scheduled(cron = "*/15 * * * * *")
     public void crawlRaceDataStartAfter30MinutesAndIn1Hour() {
 
         if (isCrawlingRaceStartAfter30MinutesAndIn1Hour) {
@@ -149,9 +149,9 @@ public class RaceScheduler {
     }
 
     /**
-     * Crawling race data start after 1 hour - every 8 minutes.
+     * Crawling race data start after 1 hour - every 5 minutes.
      */
-    @Scheduled(cron = "0 */8 * ? * *")
+    @Scheduled(cron = "0 */5 * ? * *")
     public void crawlRaceDataStartAfter1Hour() {
 
         if (isCrawlingRaceStartAfter1Hour) {
