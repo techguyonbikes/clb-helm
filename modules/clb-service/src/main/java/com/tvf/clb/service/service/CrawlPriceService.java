@@ -52,7 +52,7 @@ public class CrawlPriceService {
     }
 
     private Mono<?> saveRaceInfoToDBOrRedis(RaceResponseDto race, Long generalRaceId) {
-        if (race.getStatus() != null && (race.getStatus().equals(AppConstant.STATUS_FINAL)
+        if (race.getStatus() != null && ((race.getStatus().equals(AppConstant.STATUS_FINAL) && race.getEntrants().stream().anyMatch(x -> x.getPosition() > 0))
                 || race.getStatus().equals(AppConstant.STATUS_ABANDONED))) {
             log.info("Save race[id={}] data to db and remove in redis", generalRaceId);
 

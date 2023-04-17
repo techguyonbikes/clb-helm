@@ -174,7 +174,7 @@ public class CrawUtils {
                     raceNewData.getMapEntrants().forEach((key, value) -> {
                         if (result.getMapEntrants().containsKey(key)) {
                             result.getMapEntrants().get(key).getPriceMap().putAll(value.getPriceMap());
-                            if (raceNewData.getSiteId().equals(SiteEnum.LAD_BROKE.getId())) {
+                            if (raceNewData.getSiteId().equals(SiteEnum.ZBET.getId())) {
                                 result.getMapEntrants().get(key).setPosition(value.getPosition());
                             }
                         } else {

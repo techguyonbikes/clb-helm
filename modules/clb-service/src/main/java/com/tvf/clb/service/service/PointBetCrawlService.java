@@ -109,7 +109,6 @@ public class PointBetCrawlService implements ICrawlService {
 
         CrawlRaceData result = new CrawlRaceData();
         result.setSiteId(SiteEnum.POINT_BET.getId());
-        result.setStatus(ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus()));
         result.setMapEntrants(mapEntrants);
 
         return result;
