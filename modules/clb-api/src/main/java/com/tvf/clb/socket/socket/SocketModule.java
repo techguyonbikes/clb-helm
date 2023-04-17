@@ -116,8 +116,9 @@ public class SocketModule {
 
                         subscribedRaces.put(raceId, newRaceInfo);
 
-                        if (newRaceInfo.getStatus().equals(AppConstant.STATUS_FINAL) || newRaceInfo.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
-                            clients.forEach(client -> client.sendEvent("subscription", "Race " + newRaceInfo.getStatus()));
+                        if ((newRaceInfo.getStatus().equals(AppConstant.STATUS_FINAL) && newRaceInfo.getEntrants().stream().anyMatch(x -> x.getPosition() > 0))
+                                || newRaceInfo.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
+                            clients.forEach(client -> client.sendEvent("subscription", "Race completed or abandoned"));
                             raceSubscribers.remove(raceId);
                             subscribedRaces.remove(raceId);
                         }
