@@ -79,7 +79,7 @@ public class RaceScheduler {
     @Scheduled(cron = "*/10 * * * * *")
     public void crawlRaceDataStartIn30Minutes() {
 
-        if (isCrawlingRaceStartIn30Minutes) {
+        if (isCrawlingRaceStartIn30Minutes || todayData.getLastTimeCrawl().plus(10, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             return;
         }
 
@@ -100,7 +100,7 @@ public class RaceScheduler {
                  return crawlPriceService.crawlRaceNewDataByRaceId(raceId);
              })
              .doOnNext(race -> {
-                 if (race.getStatus().equals(STATUS_FINAL) || race.getStatus().equals(STATUS_ABANDONED)) {
+                 if (race.getStatus() != null && (race.getStatus().equals(STATUS_FINAL) || race.getStatus().equals(STATUS_ABANDONED))) {
                      todayData.getRaces().remove(Timestamp.from(Instant.parse(race.getAdvertisedStart())).getTime());
                  }
              })
@@ -119,7 +119,7 @@ public class RaceScheduler {
     @Scheduled(cron = "*/15 * * * * *")
     public void crawlRaceDataStartAfter30MinutesAndIn1Hour() {
 
-        if (isCrawlingRaceStartAfter30MinutesAndIn1Hour) {
+        if (isCrawlingRaceStartAfter30MinutesAndIn1Hour || todayData.getLastTimeCrawl().plus(10, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             return;
         }
 
@@ -154,7 +154,7 @@ public class RaceScheduler {
     @Scheduled(cron = "0 */5 * ? * *")
     public void crawlRaceDataStartAfter1Hour() {
 
-        if (isCrawlingRaceStartAfter1Hour) {
+        if (isCrawlingRaceStartAfter1Hour || todayData.getLastTimeCrawl().plus(10, ChronoUnit.MINUTES).isAfter(Instant.now())) {
             return;
         }
 
