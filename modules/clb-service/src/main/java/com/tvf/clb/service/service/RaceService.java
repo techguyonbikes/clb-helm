@@ -60,7 +60,7 @@ public class RaceService {
                     return getRaceById(raceId)
                             .flatMap(race -> entrantRepository.getAllByRaceId(raceId)
                                     .collectList()
-                                    .map(entrants -> RaceResponseMapper.toraceResponseDto(race, mapRaceSiteToUUID, entrants)));
+                                    .map(entrants -> RaceResponseMapper.toRaceResponseDto(race, mapRaceSiteToUUID, entrants)));
         }));
     }
 

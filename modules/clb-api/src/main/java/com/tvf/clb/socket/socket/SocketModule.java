@@ -6,8 +6,10 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.dto.RaceStatusDto;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.service.service.RaceRedisService;
+import com.tvf.clb.service.service.RaceService;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,12 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
+@Getter
 public class SocketModule {
 
     private final SocketIOServer server;
 
     @Autowired
-    private RaceRedisService raceRedisService;
+    private RaceService raceService;
 
     private final Map<Long, Set<SocketIOClient>> raceSubscribers = new ConcurrentHashMap<>();
 
@@ -85,8 +88,8 @@ public class SocketModule {
      * This function get subscribed races from redis and send to clients each 5 seconds
      */
     @PostConstruct
-    public void getSubscribedRaces() {
-        Flux.interval(Duration.ofSeconds(5L))
+    public void crawlSubscribedRaces() {
+        Flux.interval(Duration.ofSeconds(4L))
                 .flatMap(tick -> Flux.fromIterable(raceSubscribers.keySet()))
                 .parallel()
                 .runOn(Schedulers.parallel())
@@ -94,28 +97,30 @@ public class SocketModule {
     }
 
     private void getRaceInfoAndSendToClient(Long raceId) {
-        raceRedisService.findByRaceId(raceId)
+        raceService.getRaceNewDataById(raceId)
                 .subscribe(newRaceInfo -> {
                     Set<SocketIOClient> clients = raceSubscribers.get(raceId);
 
-                    clients.forEach(client -> {
-                        client.sendEvent("new_prices", newRaceInfo.getEntrants());
-                        log.info("Send race[id={}] new price to client ID[{}]", raceId, client.getSessionId().toString());
-                    });
-
-                    if (subscribedRaces.get(raceId) == null || ! subscribedRaces.get(raceId).getStatus().equals(newRaceInfo.getStatus())) {
+                    if (clients != null) {
                         clients.forEach(client -> {
-                            client.sendEvent("new_status", newRaceInfo.getStatus());
-                            log.info("Send race[id={}] new status to client ID[{}]", raceId, client.getSessionId().toString());
+                            client.sendEvent("new_prices", newRaceInfo.getEntrants());
+                            log.info("Send race[id={}] new price to client ID[{}]", raceId, client.getSessionId().toString());
                         });
-                    }
 
-                    subscribedRaces.put(raceId, newRaceInfo);
+                        if (subscribedRaces.get(raceId) == null || ! subscribedRaces.get(raceId).getStatus().equals(newRaceInfo.getStatus())) {
+                            clients.forEach(client -> {
+                                client.sendEvent("new_status", new RaceStatusDto(raceId, newRaceInfo.getStatus()));
+                                log.info("Send race[id={}] new status to client ID[{}]", raceId, client.getSessionId().toString());
+                            });
+                        }
 
-                    if (newRaceInfo.getStatus().equals(AppConstant.STATUS_FINAL) || newRaceInfo.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
-                        clients.forEach(client -> client.sendEvent("subscription", "Race completed or abandoned"));
-                        raceSubscribers.remove(raceId);
-                        subscribedRaces.remove(raceId);
+                        subscribedRaces.put(raceId, newRaceInfo);
+
+                        if (newRaceInfo.getStatus().equals(AppConstant.STATUS_FINAL) || newRaceInfo.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
+                            clients.forEach(client -> client.sendEvent("subscription", "Race " + newRaceInfo.getStatus()));
+                            raceSubscribers.remove(raceId);
+                            subscribedRaces.remove(raceId);
+                        }
                     }
                 });
 

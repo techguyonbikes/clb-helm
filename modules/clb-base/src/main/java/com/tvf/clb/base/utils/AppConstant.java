@@ -34,6 +34,9 @@ public class AppConstant {
 
     public static final String DISTANCE = "distance";
 
+    public static final String ADVERTISED_START = "advertised_start";
+    public static final String SECONDS = "seconds";
+
     public static final String MARKETS_NAME = "Final Field";
 
     public static final String DEFAULT_LOG_FILE = "logs/cloudbet.log";

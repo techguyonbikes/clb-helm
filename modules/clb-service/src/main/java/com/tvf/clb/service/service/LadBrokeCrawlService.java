@@ -80,6 +80,7 @@ public class LadBrokeCrawlService implements ICrawlService {
             } catch (IOException e) {
                 throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
             }
+            todayData.setLastTimeCrawl(Instant.now());
             return getAllAusMeeting(rawData, date);
         }).flatMapMany(Flux::fromIterable);
     }
@@ -158,7 +159,7 @@ public class LadBrokeCrawlService implements ICrawlService {
             raceRepository.setUpdateRaceDistanceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance)).subscribe();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            return saveEntrant(allEntrant, generalRaceId);
+            return saveEntrant(allEntrant, raceId, generalRaceId, raceDto);
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
@@ -273,7 +274,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         savedRace.forEach(race -> todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId()));
     }
 
-    public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, Long raceId) {
+    public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto) {
         List<Entrant> newEntrants = entrantRawData.stream().map(m -> MeetingMapper.toEntrantEntity(m, AppConstant.LAD_BROKE_SITE_ID)).collect(Collectors.toList());
         List<String> entrantNames = newEntrants.stream().map(Entrant::getName).collect(Collectors.toList());
         List<Integer> entrantNumbers = newEntrants.stream().map(Entrant::getNumber).collect(Collectors.toList());
@@ -302,10 +303,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                             return entrantRepository.saveAll(entrantNeedUpdateOrInsert)
                                     .collectList()
                                     .flatMapMany(saved -> {
-                                        List<EntrantResponseDto> entrantResponseDtoList = saved.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList());
                                         log.info("{} entrants save into redis and database", saved.size());
                                         return raceRedisService
-                                                .saveRace(raceId, new RaceResponseDto(raceId, null, Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), saved.get(0).getRaceUUID()),entrantResponseDtoList))
+                                                .saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto))
                                                 .thenMany(Flux.fromIterable(saved));
 
                                     });

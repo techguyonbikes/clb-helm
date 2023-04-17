@@ -43,7 +43,7 @@ public class CrawlPriceService {
                     storedRace.getEntrants().forEach(entrant -> {
                         CrawlEntrantData entrantNewData = mapEntrants.get(entrant.getNumber());
                         entrant.setPosition(entrantNewData.getPosition() == null ? 0 : entrantNewData.getPosition());
-                        entrant.setPriceFluctuations(entrant.getPriceFluctuations());
+                        entrant.setPriceFluctuations(entrantNewData.getPriceMap());
                     });
 
                 })
@@ -52,8 +52,8 @@ public class CrawlPriceService {
     }
 
     private Mono<?> saveRaceInfoToDBOrRedis(RaceResponseDto race, Long generalRaceId) {
-        if (race.getStatus().equals(AppConstant.STATUS_FINAL)
-                || race.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
+        if (race.getStatus() != null && (race.getStatus().equals(AppConstant.STATUS_FINAL)
+                || race.getStatus().equals(AppConstant.STATUS_ABANDONED))) {
             log.info("Save race[id={}] data to db and remove in redis", generalRaceId);
 
             saveEntrantToDb(generalRaceId, race.getEntrants());

@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class CloudBetApplication {
 
     public static void main(String[] args) {
+        System.setProperty("reactor.schedulers.defaultPoolSize", "200");
         SpringApplication.run(CloudBetApplication.class, args);
     }
 

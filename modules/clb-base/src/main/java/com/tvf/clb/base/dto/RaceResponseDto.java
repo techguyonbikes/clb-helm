@@ -15,6 +15,7 @@ import java.util.Map;
 public class RaceResponseDto {
     private Long id;
     private String status;
+    private String advertisedStart;
     private Map<Integer, String> mapSiteUUID;
     private List<EntrantResponseDto> entrants;
 }
