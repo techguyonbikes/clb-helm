@@ -51,10 +51,10 @@ deploy:
     - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
     - echo $GCLOUD_SERVICE_KEY |  base64 -d > ${HOME}/gcloud-service-key.json
     - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-    - gcloud config set project cloudbet-381210
-    - gcloud config set container/cluster clb-cluster
-    - gcloud config set compute/zone australia-southeast2-a
-    - gcloud container clusters get-credentials clb-cluster --zone australia-southeast2-a --project cloudbet-381210
+    - gcloud config set project watch-bet-383403
+    - gcloud config set container/cluster cloudbet-cluster
+    - gcloud config set compute/zone australia-southeast1-a
+    - gcloud container clusters get-credentials cloudbet-cluster --zone australia-southeast1-a --project watch-bet-383403
 #    - kubectl config get-contexts
 #    - kubectl config use-context $CI_PROJECT_PATH:cloudbet-agent
     - kubectl config set-context --current --namespace=default
