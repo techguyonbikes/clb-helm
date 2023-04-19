@@ -38,4 +38,7 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     @Query("select * from clb_db.race s where s.meeting_id = (select rs.meeting_id from clb_db.race rs where rs.id = :raceId)")
     Flux<Race> getRaceIDNumberByRaceId(@Param("raceId") Long raceId);
+
+    @Query("delete from clb_db.race r where r.advertised_start between :startTime and :endTime")
+    Mono<Long> deleteAllByAdvertisedStartBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 }

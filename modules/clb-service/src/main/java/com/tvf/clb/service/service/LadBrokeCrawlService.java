@@ -29,10 +29,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -249,7 +246,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                         savedRace.forEach(race -> {
                                             Meeting raceMeeting = meetingUUIDMap.get(race.getMeetingUUID());
                                             String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
-                                            raceNameAndIdTemplate.opsForValue().set(key, race.getId()).subscribe();
+                                            raceNameAndIdTemplate.opsForValue().set(key, race.getId(), Duration.ofDays(1)).subscribe();
                                         });
 
                                         saveRaceToTodayData(savedRace);

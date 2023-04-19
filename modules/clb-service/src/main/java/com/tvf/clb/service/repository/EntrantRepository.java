@@ -3,6 +3,7 @@ package com.tvf.clb.service.repository;
 import com.tvf.clb.base.entity.Entrant;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import org.springframework.data.repository.query.Param;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -34,4 +35,7 @@ public interface EntrantRepository extends R2dbcRepository<Entrant, Long> {
             "\nJOIN clb_db.meeting m ON r.meeting_id = m.id" +
             "\nWHERE m.name = :meetingName AND m.race_type = :raceType AND r.number = :raceNumber AND advertised_start = :advertisedStart")
     Flux<Entrant> findAllEntrantsInRace(String meetingName, String raceType, Integer raceNumber, Instant advertisedStart);
+
+    @Query("delete from clb_db.entrant e where e.race_id in (select r.id from clb_db.race r where r.advertised_start between :startTime and :endTime)")
+    Mono<Long> deleteAllByAdvertisedStartBetween(@Param("startTime") Instant  startTime, @Param("endTime") Instant endTime);
 }

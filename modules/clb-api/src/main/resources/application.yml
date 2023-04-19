@@ -52,3 +52,7 @@ spring:
 socket-server:
   host: ${socket.host:34.129.159.192}
   port: 20002
+scheduler:
+    remove-data:
+      cron: "0 0 0 ? * *"
+

@@ -116,5 +116,12 @@ public class AppConstant {
     public static final String ZBET_ABANDONED_STATUS = "abandoned";
     public static final String ZBET_INTERIM_STATUS = "interim";
     public static final String ZBET_CLOSED_STATUS = "close";
+    public static final int DATE_REMOVE_DATA = 7;
+
+    // Time
+    public static final int HOUR_TIME = 23;
+    public static final int MINUTE_TIME = 59;
+    public static final int SECOND_TIME = 59;
+    public static final int ZERO_TIME = 0;
 
 }

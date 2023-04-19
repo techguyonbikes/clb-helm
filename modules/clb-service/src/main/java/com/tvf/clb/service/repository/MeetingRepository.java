@@ -54,4 +54,7 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
             " WHERE m.advertised_Date between :startTime and :endTime " )
     Flux<RaceBaseResponseDTO> findByRaceTypeBetweenDate(@Param("startTime") Instant  startTime,
                                           @Param("endTime") Instant endTime);
+
+    @Query("delete from clb_db.meeting m where m.advertised_date between :startTime and :endTime")
+    Mono<Long> deleteAllByAdvertisedDateBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 }
