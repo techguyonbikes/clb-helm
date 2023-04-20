@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -27,6 +27,7 @@
         <netty-socketio.version>1.7.17</netty-socketio.version>
         <spring.fox.version>2.9.2</spring.fox.version>
         <spring.fox.webflux.version>3.0.0</spring.fox.webflux.version>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
     </properties>
 
     <dependencyManagement>
@@ -92,7 +93,8 @@
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp.version}</version>
-                <!-- weird case, must force client to explicitly give the version, otherwise fall back to 3.14.9 -->
+                <!-- weird case, must force client to explicitly give the version, otherwise fall
+                back to 3.14.9 -->
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
@@ -119,7 +121,11 @@
                 <artifactId>netty-socketio</artifactId>
                 <version>${netty-socketio.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

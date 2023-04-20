@@ -1,6 +1,20 @@
 image: docker:19
+
 services:
   - docker:19-dind
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME == "main" 
+      variables:
+        PIPELINE_NAME: CI
+    - if: $CI_COMMIT_REF_NAME == 'main'
+      variables:
+        PIPELINE_NAME: CD
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_REF_NAME == 'main'
+      variables:
+        PIPELINE_NAME: CD
+    - when: never
 
 cache:
   paths:
@@ -9,9 +23,34 @@ cache:
   key: "$CI_BUILD_REF_NAME"
 
 stages:
+  - ci
   - package
   - build
   - deploy
+
+sonarqube:
+  image: maven:3.8.5-jdk-11
+  stage: ci
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
+    GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the analysis task
+  cache:
+    key: "${CI_JOB_NAME}-sonarqube"
+    policy: pull-push
+    paths:
+      - "${SONAR_USER_HOME}/cache"
+  script: 
+    - |
+      mvn verify sonar:sonar \
+      -Dsonar.qualitygate.wait=true \
+      -Dsonar.projectKey=${CI_PROJECT_NAME} \
+      -Dsonar.projectName=${CI_PROJECT_PATH_SLUG} \
+      -Dsonar.projectVersion=${CI_COMMIT_SHA:0:7} \
+      -DsourceEncoding=UTF-8 
+  allow_failure: true
+  rules:
+    - if: $PIPELINE_NAME == "CI"
+    - when: never
 
 package:
   image: maven:3.8.5-jdk-11
@@ -22,10 +61,10 @@ package:
     when: always
     paths:
       - modules/clb-api/target/*.jar
-    expire_in: 1 week
-  only:
-    - main
-    - test-cicd
+    expire_in: 1 hr
+  rules:
+    - if: $PIPELINE_NAME == "CD"
+    - when: never
 
 build:
   stage: build
@@ -38,9 +77,9 @@ build:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - docker build --no-cache -t "$CI_REGISTRY_IMAGE:latest" .
     - docker push $CI_REGISTRY_IMAGE:latest
-  only:
-    - main
-    - test-cicd
+  rules:
+    - if: $PIPELINE_NAME == "CD"
+    - when: never
 
 deploy:
   image:
@@ -62,6 +101,6 @@ deploy:
     - cd charts/clb-charts
     - helm upgrade --install clb-be -n default .
     - kubectl rollout restart deployment clb-be
-  only:
-    - main
-    - test-cicd
+  rules:
+    - if: $PIPELINE_NAME == "CD"
+    - when: never
