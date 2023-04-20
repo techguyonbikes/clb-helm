@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.CrawlRaceData;
+import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
 import io.r2dbc.postgresql.codec.Json;
@@ -138,7 +139,9 @@ public class CrawUtils {
                         Mono<Long> generalId = raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart())
                                 .switchIfEmpty(Mono.empty());
                         return Flux.from(generalId).map(id -> {
-                                    raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
+                                    if (site.equals(AppConstant.ZBET_SITE_ID)) {
+                                        raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
+                                    }
                                     return RaceResponseMapper.toRaceSiteDto(race, site, id);
                                 }
                         );
@@ -187,10 +190,8 @@ public class CrawUtils {
     public void saveRaceSitebyTab(List<Race> races, Integer site) {
         Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                 race -> {
-                    if (race.getDistance() == null){
-                        System.out.println();
-                    }
-                    Mono<Long> generalId = raceRepository.getRaceIdbyDistance(race.getDistance(), race.getNumber(), race.getAdvertisedStart());
+                    Mono<Long> generalId = raceRepository.getRaceIdbyDistance(race.getDistance(), race.getNumber(), race.getAdvertisedStart())
+                            .switchIfEmpty(raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart()));
                     return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
                 }
         );

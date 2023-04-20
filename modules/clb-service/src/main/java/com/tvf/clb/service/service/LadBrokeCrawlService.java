@@ -122,7 +122,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         Map<String, String> meetingState = ausVenues.stream().collect(Collectors.toMap(VenueRawData::getId, VenueRawData::getState));
 
         List<MeetingRawData> meetings = new ArrayList<>(ladBrokedItMeetingDto.getMeetings().values());
-        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> venuesId.contains(m.getVenueId()))
+        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> venuesId.contains(m.getVenueId()) && m.getTrackCondition() != null)
                 .peek(x -> x.setState(meetingState.get(x.getVenueId()))).collect(Collectors.toList());
         List<String> raceIds = ausMeetings.stream().map(MeetingRawData::getRaceIds).flatMap(List::stream)
                 .collect(Collectors.toList());
@@ -217,6 +217,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                             {
                                 Meeting meeting = meetingUUIDMap.getOrDefault(e.getMeetingUUID(), null);
                                 if (meeting != null) {
+                                    if (meeting.getId() == null){
+                                        log.error("LadBroke null ID");
+                                    }
                                     e.setMeetingId(meeting.getId());
                                 }
                                 if (e.getId() == null) {
@@ -311,11 +314,11 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     private List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
-        return raceDto.getMarkets().values().stream()
-                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME))
-                .findFirst()
-                .map(LadbrokesMarketsRawData::getRace_id)
-                .orElse(null)
+        return Objects.requireNonNull(raceDto.getMarkets().values().stream()
+                        .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME))
+                        .findFirst()
+                        .map(LadbrokesMarketsRawData::getRace_id)
+                        .orElse(null))
                 .stream()
                 .map(x -> raceDto.getEntrants().get(x))
                 .filter(r -> r.getFormSummary() != null && r.getId() != null)
