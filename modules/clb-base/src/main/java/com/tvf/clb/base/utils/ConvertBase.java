@@ -70,6 +70,7 @@ public class ConvertBase {
             case AppConstant.ZBET_SELLING_STATUS:
                 return AppConstant.STATUS_OPEN;
             case AppConstant.ZBET_PAID_STATUS:
+            case AppConstant.ZBET_PAYING_STATUS:
                 return AppConstant.STATUS_FINAL;
             case AppConstant.ZBET_ABANDONED_STATUS:
                 return AppConstant.STATUS_ABANDONED;

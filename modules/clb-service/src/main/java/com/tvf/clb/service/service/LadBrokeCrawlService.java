@@ -98,7 +98,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                 positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+            List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
 
             Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
             allEntrant.forEach(x -> {
@@ -132,7 +132,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         Map<String, String> meetingState = ausVenues.stream().collect(Collectors.toMap(VenueRawData::getId, VenueRawData::getState));
 
         List<MeetingRawData> meetings = new ArrayList<>(ladBrokedItMeetingDto.getMeetings().values());
-        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> venuesId.contains(m.getVenueId()))
+        List<MeetingRawData> ausMeetings = meetings.stream().filter(m -> venuesId.contains(m.getVenueId()) && m.getTrackCondition() != null)
                 .peek(x -> x.setState(meetingState.get(x.getVenueId()))).collect(Collectors.toList());
         List<String> raceIds = ausMeetings.stream().map(MeetingRawData::getRaceIds).flatMap(List::stream)
                 .collect(Collectors.toList());
@@ -166,7 +166,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                 positions.put(AppConstant.POSITION, 0);
             }
 
-            List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+            List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
 
             if (isRaceCompleted(results, raceDto.getRaces().get(raceId).getDividends())) {
                 String top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
@@ -349,25 +349,6 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     });
                         }
                 );
-    }
-
-    private List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
-        return raceDto.getMarkets().values().stream()
-                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME))
-                .findFirst()
-                .map(LadbrokesMarketsRawData::getRace_id)
-                .orElse(null)
-                .stream()
-                .map(x -> raceDto.getEntrants().get(x))
-                .filter(r -> r.getFormSummary() != null && r.getId() != null)
-                .map(r -> {
-                    List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(r.getId(), new ArrayList<>());
-                    Integer entrantPosition = positions.getOrDefault(r.getId(), 0);
-                    EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
-                    entrantRawData.setRaceId(raceId);
-                    return entrantRawData;
-                })
-                .collect(Collectors.toList());
     }
 
     private LadBrokedItRaceDto getLadBrokedItRaceDto(String raceId) throws IOException {

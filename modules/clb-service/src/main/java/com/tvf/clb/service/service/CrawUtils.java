@@ -5,6 +5,9 @@ import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.CrawlRaceData;
+import com.tvf.clb.base.model.EntrantRawData;
+import com.tvf.clb.base.model.LadbrokesMarketsRawData;
+import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
 import io.r2dbc.postgresql.codec.Json;
@@ -142,7 +145,9 @@ public class CrawUtils {
                                 .switchIfEmpty(raceRepository.getRaceByNameAndNumberAndStartTime(race.getAdvertisedStart().minus(1, ChronoUnit.HOURS),
                                         race.getAdvertisedStart().plus(1, ChronoUnit.HOURS), race.getName(), race.getNumber()));
                         return Flux.from(generalId).map(id -> {
-                                    raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
+                                    if (site.equals(AppConstant.ZBET_SITE_ID)) {
+                                        raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
+                                    }
                                     return RaceResponseMapper.toRaceSiteDto(race, site, id);
                                 }
                         );
@@ -191,10 +196,8 @@ public class CrawUtils {
     public void saveRaceSitebyTab(List<Race> races, Integer site) {
         Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                 race -> {
-                    if (race.getDistance() == null){
-                        System.out.println();
-                    }
-                    Mono<Long> generalId = raceRepository.getRaceIdbyDistance(race.getDistance(), race.getNumber(), race.getAdvertisedStart());
+                    Mono<Long> generalId = raceRepository.getRaceIdbyDistance(race.getDistance(), race.getNumber(), race.getAdvertisedStart())
+                            .switchIfEmpty(raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart()));
                     return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
                 }
         );
@@ -236,6 +239,29 @@ public class CrawUtils {
                 entrantRepository.saveAll(listNeedToUpdate).subscribe();
             }
         );
+    }
+
+    public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
+        LadbrokesMarketsRawData marketsRawData = raceDto.getMarkets().values().stream()
+                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME)).findFirst()
+                .orElseThrow(() -> new RuntimeException("No markets found"));;
+
+        List<EntrantRawData> result = new ArrayList<>();
+
+        marketsRawData.getRace_id().forEach(x -> {
+            EntrantRawData data = raceDto.getEntrants().get(x);
+            if (data.getFormSummary() != null && data.getId() != null) {
+                EntrantRawData entrantRawData = EntrantMapper.mapPrices(
+                        data,
+                        allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(data.getId(), new ArrayList<>()),
+                        positions.getOrDefault(data.getId(), 0)
+                );
+                entrantRawData.setRaceId(raceId);
+                result.add(entrantRawData);
+            }
+        });
+
+        return result;
     }
 
     public void updateRaceFinalResultIntoDB(RaceDto raceDto, Integer siteId, String finalResult) {
