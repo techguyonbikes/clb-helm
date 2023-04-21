@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.CrawlRaceData;
+import com.tvf.clb.base.model.EntrantRawData;
+import com.tvf.clb.base.model.LadbrokesMarketsRawData;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
@@ -233,6 +235,29 @@ public class CrawUtils {
                 entrantRepository.saveAll(listNeedToUpdate).subscribe();
             }
         );
+    }
+
+    public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
+        LadbrokesMarketsRawData marketsRawData = raceDto.getMarkets().values().stream()
+                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME)).findFirst()
+                .orElseThrow(() -> new RuntimeException("No markets found"));;
+
+        List<EntrantRawData> result = new ArrayList<>();
+
+        marketsRawData.getRace_id().forEach(x -> {
+            EntrantRawData data = raceDto.getEntrants().get(x);
+            if (data.getFormSummary() != null && data.getId() != null) {
+                EntrantRawData entrantRawData = EntrantMapper.mapPrices(
+                        data,
+                        allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(data.getId(), new ArrayList<>()),
+                        positions.getOrDefault(data.getId(), 0)
+                );
+                entrantRawData.setRaceId(raceId);
+                result.add(entrantRawData);
+            }
+        });
+
+        return result;
     }
 
 }

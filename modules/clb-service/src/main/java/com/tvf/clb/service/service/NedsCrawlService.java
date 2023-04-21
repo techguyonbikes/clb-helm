@@ -74,7 +74,7 @@ public class NedsCrawlService implements ICrawlService{
                 positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+            List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
 
             Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
             allEntrant.forEach(x -> {
@@ -141,7 +141,7 @@ public class NedsCrawlService implements ICrawlService{
                 positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
+            List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
             saveEntrant(allEntrant, raceDto, date);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
@@ -174,24 +174,6 @@ public class NedsCrawlService implements ICrawlService{
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.NED_SITE_ID);
     }
 
-    private List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
-        return raceDto.getMarkets().values().stream()
-                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME))
-                .findFirst()
-                .map(LadbrokesMarketsRawData::getRace_id)
-                .orElse(null)
-                .stream()
-                .map(x -> raceDto.getEntrants().get(x))
-                .filter(r -> r.getFormSummary() != null && r.getId() != null)
-                .map(r -> {
-                    List<Float> entrantPrices = allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(r.getId(), new ArrayList<>());
-                    Integer entrantPosition = positions.getOrDefault(r.getId(), 0);
-                    EntrantRawData entrantRawData = EntrantMapper.mapPrices(r, entrantPrices, entrantPosition);
-                    entrantRawData.setRaceId(raceId);
-                    return entrantRawData;
-                })
-                .collect(Collectors.toList());
-    }
 
     public LadBrokedItRaceDto getNedsRaceDto(String raceId) throws IOException {
         String url = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
