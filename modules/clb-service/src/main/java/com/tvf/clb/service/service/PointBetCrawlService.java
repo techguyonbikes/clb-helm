@@ -111,6 +111,11 @@ public class PointBetCrawlService implements ICrawlService {
         result.setSiteId(SiteEnum.POINT_BET.getId());
         result.setMapEntrants(mapEntrants);
 
+        String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
+        if (statusRace.equals(AppConstant.STATUS_FINAL)) {
+            result.setFinalResult(Collections.singletonMap(AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing()));
+        }
+
         return result;
     }
 
@@ -197,6 +202,9 @@ public class PointBetCrawlService implements ICrawlService {
                     entrant.setPosition(winnersId.indexOf(entrant.getId()) + 1);
                 }
             });
+            if (statusRace.equals(AppConstant.STATUS_FINAL)) {
+                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing());
+            }
         }
 
         // Convert to entity and save from raw data
