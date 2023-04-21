@@ -217,9 +217,6 @@ public class LadBrokeCrawlService implements ICrawlService {
                             {
                                 Meeting meeting = meetingUUIDMap.getOrDefault(e.getMeetingUUID(), null);
                                 if (meeting != null) {
-                                    if (meeting.getId() == null){
-                                        log.error("LadBroke null ID");
-                                    }
                                     e.setMeetingId(meeting.getId());
                                 }
                                 if (e.getId() == null) {
