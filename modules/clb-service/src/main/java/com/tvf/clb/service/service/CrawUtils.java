@@ -18,6 +18,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -138,7 +139,8 @@ public class CrawUtils {
             Flux<RaceSite> newMeetingSite = Flux.fromIterable(raceDtoList.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                     race -> {
                         Mono<Long> generalId = raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart())
-                                .switchIfEmpty(Mono.empty());
+                                .switchIfEmpty(raceRepository.getRaceByNameAndNumberAndStartTime(race.getAdvertisedStart().minus(1, ChronoUnit.HOURS),
+                                        race.getAdvertisedStart().plus(1, ChronoUnit.HOURS), race.getName(), race.getNumber()));
                         return Flux.from(generalId).map(id -> {
                                     raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
                                     return RaceResponseMapper.toRaceSiteDto(race, site, id);
