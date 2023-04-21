@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.tvf.clb.base.LadbrokesDividendStatus;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
@@ -24,12 +25,10 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ClbService(componentType =  AppConstant.NED)
 @Slf4j
@@ -66,10 +65,10 @@ public class NedsCrawlService implements ICrawlService{
     public CrawlRaceData getEntrantByRaceUUID(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getNedsRaceDto(raceId);
-            JsonObject results = raceDto.getResults();
+            Map<String, LadbrokesRaceResult> results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
             } else {
                 positions.put(AppConstant.POSITION, 0);
             }
@@ -88,6 +87,14 @@ public class NedsCrawlService implements ICrawlService{
             CrawlRaceData result = new CrawlRaceData();
             result.setSiteId(SiteEnum.NED.getId());
             result.setMapEntrants(mapEntrants);
+
+            if (isRaceCompleted(results, raceDto.getRaces().get(raceId).getDividends())) {
+                String top4Entrants = getWinnerEntrants(allEntrant)
+                                            .map(entrant -> String.valueOf(entrant.getNumber()))
+                                            .collect(Collectors.joining(","));
+
+                result.setFinalResult(Collections.singletonMap(AppConstant.NED_SITE_ID, top4Entrants));
+            }
 
             return result;
         } catch (IOException e) {
@@ -133,15 +140,24 @@ public class NedsCrawlService implements ICrawlService{
         try {
             String raceUUID = raceDto.getId();
             LadBrokedItRaceDto raceRawData = getNedsRaceDto(raceUUID);
-            JsonObject results = raceRawData.getResults();
+            Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
             Map<String, Integer> positions = new HashMap<>();
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
             } else {
                 positions.put(AppConstant.POSITION, 0);
             }
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
             List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
+
+            if (isRaceCompleted(results, raceRawData.getRaces().get(raceUUID).getDividends())) {
+                String top4Entrants = getWinnerEntrants(allEntrant)
+                                            .map(entrant -> String.valueOf(entrant.getNumber()))
+                                            .collect(Collectors.joining(","));
+
+                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.NED_SITE_ID, top4Entrants);
+            }
+
             saveEntrant(allEntrant, raceDto, date);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
@@ -152,6 +168,26 @@ public class NedsCrawlService implements ICrawlService{
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
+    }
+
+    private Stream<EntrantRawData> getWinnerEntrants(List<EntrantRawData> entrants) {
+        return entrants.stream().parallel()
+                .filter(entrant -> entrant.getPosition() > 0)
+                .sorted(Comparator.comparing(EntrantRawData::getPosition))
+                .limit(4);
+    }
+
+    private boolean isRaceCompleted(Map<String, LadbrokesRaceResult> results, List<LadbrokesRaceDividend> dividends) {
+        if (results == null || CollectionUtils.isEmpty(dividends)) {
+            return false;
+        }
+
+        List<LadbrokesDividendStatus> dividendsStatus = dividends.stream().map(LadbrokesRaceDividend::getStatus).collect(Collectors.toList());
+
+        return results.values().stream()
+                .map(LadbrokesRaceResult::getResultStatusId)
+                .allMatch(statusId -> dividendsStatus.stream().anyMatch(status -> status.getId().equals(statusId)
+                                                                        && status.getName().equalsIgnoreCase(AppConstant.STATUS_FINAL)));
     }
 
     public void saveMeeting(List<MeetingRawData> meetingRawData) {

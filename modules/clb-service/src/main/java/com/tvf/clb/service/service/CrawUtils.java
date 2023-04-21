@@ -1,6 +1,7 @@
 package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.model.CrawlRaceData;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
@@ -258,6 +260,30 @@ public class CrawUtils {
         });
 
         return result;
+    }
+
+    public void updateRaceFinalResultIntoDB(RaceDto raceDto, Integer siteId, String finalResult) {
+        Mono<Race> raceMono = raceRepository.getRaceByTypeAndNumberAndAdvertisedStart(raceDto.getRaceType(), raceDto.getNumber(), raceDto.getAdvertisedStart());
+        raceMono.subscribe(race -> checkRaceFinalResultThenSave(race, finalResult, siteId));
+    }
+
+    public void updateRaceFinalResultIntoDB(Long raceId, Integer siteId, String finalResult) {
+        raceRepository.findById(raceId).subscribe(race -> checkRaceFinalResultThenSave(race, finalResult, siteId));
+    }
+
+    private void checkRaceFinalResultThenSave(Race race, String finalResult, Integer siteId) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<Map<Integer, String>>() {}.getType();
+
+        Map<Integer, String> existedFinalResult;
+        if (race.getResultsDisplay() != null) {
+            existedFinalResult = gson.fromJson(race.getResultsDisplay().asString(), type);
+        } else {
+            existedFinalResult = new HashMap<>();
+        }
+        existedFinalResult.put(siteId, finalResult);
+
+        raceRepository.updateRaceFinalResultById(Json.of(gson.toJson(existedFinalResult)), race.getId()).subscribe();
     }
 
 }

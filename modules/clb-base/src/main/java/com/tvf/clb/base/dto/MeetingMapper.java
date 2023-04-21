@@ -198,7 +198,6 @@ public class MeetingMapper {
                 .actualStart(raceDto.getActualStart())
                 .marketIds(Json.of(gson.toJson(raceDto.getMarketIds())))
                 .mainMarketStatusId(raceDto.getMainMarketStatusId())
-                .resultsDisplay(raceDto.getResultsDisplay())
                 .distance(raceDto.getDistance())
                 .raceType(raceDto.getRaceType())
                 .build();
