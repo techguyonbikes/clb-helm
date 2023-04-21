@@ -81,6 +81,11 @@ public class ZBetCrawlService implements ICrawlService {
             result.setStatus(ConvertBase.getZBetRaceStatus(raceDto.getStatus()));
             result.setMapEntrants(mapEntrants);
 
+            if (result.getStatus().equals(AppConstant.STATUS_FINAL)) {
+                String raceFinalResult = raceDto.getFinalResult().replace('/', ',');
+                result.setFinalResult(Collections.singletonMap(AppConstant.ZBET_SITE_ID, raceFinalResult));
+            }
+
             return result;
         } else {
             log.error("Can not found ZBet race by RaceId " + raceId);
@@ -133,6 +138,10 @@ public class ZBetCrawlService implements ICrawlService {
         ZBetRaceRawData raceDto = getZBetRaceData(raceUUID);
         if (raceDto != null) {
             List<ZBetEntrantData> allEntrant = raceDto.getSelections();
+
+            if (race.getStatus().equals(AppConstant.STATUS_FINAL)) {
+                crawUtils.updateRaceFinalResultIntoDB(MeetingMapper.toRaceDto(race), AppConstant.ZBET_SITE_ID, raceDto.getFinalResult().replace('/', ','));
+            }
 
             saveEntrant(allEntrant, race, date);
         } else {

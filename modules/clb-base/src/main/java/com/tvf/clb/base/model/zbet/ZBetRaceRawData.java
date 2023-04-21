@@ -23,6 +23,9 @@ public class ZBetRaceRawData {
 
     @SerializedName("displayed_results")
     private List<ZBetResultsRawData> displayedResults;
+
+    @SerializedName("result_string")
+    private String finalResult;
 }
 
 
