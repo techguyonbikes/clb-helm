@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.tvf.clb.base.LadbrokesDividendStatus;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
@@ -17,12 +18,14 @@ import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
+import io.r2dbc.postgresql.codec.Json;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -33,6 +36,7 @@ import java.time.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ClbService(componentType = AppConstant.LAD_BROKE)
 @Slf4j
@@ -86,10 +90,10 @@ public class LadBrokeCrawlService implements ICrawlService {
     public CrawlRaceData getEntrantByRaceUUID(String raceId) {
         try {
             LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
-            JsonObject results = raceDto.getResults();
+            Map<String, LadbrokesRaceResult> results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
             } else {
                 positions.put(AppConstant.POSITION, 0);
             }
@@ -108,6 +112,12 @@ public class LadBrokeCrawlService implements ICrawlService {
             CrawlRaceData result = new CrawlRaceData();
             result.setSiteId(SiteEnum.LAD_BROKE.getId());
             result.setMapEntrants(entrantMap);
+
+            if (isRaceCompleted(results, raceDto.getRaces().get(raceId).getDividends())) {
+                String top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
+                                                                   .collect(Collectors.joining(","));
+                result.setFinalResult(Collections.singletonMap(AppConstant.LAD_BROKE_SITE_ID, top4Entrants));
+            }
 
             return result;
         } catch (IOException e) {
@@ -144,22 +154,53 @@ public class LadBrokeCrawlService implements ICrawlService {
     private Flux<Entrant> getEntrantByRaceId(String raceId, Long generalRaceId) {
         try {
             LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
-            JsonObject results = raceDto.getResults();
+            Map<String, LadbrokesRaceResult> results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
+
+            String distance = raceDto.getRaces().get(raceId).getAdditionalInfo().get(AppConstant.DISTANCE).getAsString();
+            HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
+
             if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.getAsJsonObject(key).get(AppConstant.POSITION).getAsInt()));
+                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
             } else {
                 positions.put(AppConstant.POSITION, 0);
             }
-            //got null every time?
-            String distance = raceDto.getRaces().getAsJsonObject(raceId).getAsJsonObject(AppConstant.ADDITIONAL_INFO).get(AppConstant.DISTANCE).getAsString();
-            raceRepository.setUpdateRaceDistanceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance)).subscribe();
-            HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
+
             List<EntrantRawData> allEntrant = getListEntrant(raceDto, allEntrantPrices, raceId, positions);
-            return saveEntrant(allEntrant, raceId, generalRaceId, raceDto);
+
+            if (isRaceCompleted(results, raceDto.getRaces().get(raceId).getDividends())) {
+                String top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
+                                                                   .collect(Collectors.joining(","));
+
+                crawUtils.updateRaceFinalResultIntoDB(generalRaceId, SiteEnum.LAD_BROKE.getId(), top4Entrants);
+            }
+
+            return raceRepository.setUpdateRaceDistanceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance))
+                    .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto));
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
+    }
+
+    private boolean isRaceCompleted(Map<String, LadbrokesRaceResult> results, List<LadbrokesRaceDividend> dividends) {
+
+        if (results == null || CollectionUtils.isEmpty(dividends)) {
+            return false;
+        }
+
+        List<LadbrokesDividendStatus> dividendsStatus = dividends.stream().map(LadbrokesRaceDividend::getStatus).collect(Collectors.toList());
+
+        return results.values().stream()
+                .map(LadbrokesRaceResult::getResultStatusId)
+                .allMatch(statusId -> dividendsStatus.stream().anyMatch(status -> status.getId().equals(statusId)
+                                                                        && status.getName().equalsIgnoreCase(AppConstant.STATUS_FINAL)));
+    }
+
+    private Stream<EntrantRawData> getWinnerEntrants(List<EntrantRawData> entrants) {
+        return entrants.stream().parallel()
+                .filter(entrant -> entrant.getPosition() > 0)
+                .sorted(Comparator.comparing(EntrantRawData::getPosition))
+                .limit(4);
     }
 
     private void saveMeetingAndRace(List<MeetingRawData> meetingRawData, List<RaceDto> raceDtoList, LocalDate date) {
