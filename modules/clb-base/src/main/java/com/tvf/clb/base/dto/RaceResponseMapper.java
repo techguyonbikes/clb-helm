@@ -6,14 +6,10 @@ import com.tvf.clb.base.entity.RaceSite;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.tvf.clb.base.utils.AppConstant.ADVERTISED_START;
-import static com.tvf.clb.base.utils.AppConstant.SECONDS;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class RaceResponseMapper {
@@ -52,7 +48,7 @@ public class RaceResponseMapper {
                 .id(raceId)
                 .mapSiteUUID(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), entrants.get(0).getRaceUUID()))
                 .entrants(entrants.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList()))
-                .advertisedStart(Instant.ofEpochSecond(raceDto.getRaces().getAsJsonObject(raceUUID).getAsJsonObject(ADVERTISED_START).get(SECONDS).getAsLong()).toString())
+                .advertisedStart(raceDto.getRaces().get(raceUUID).getAdvertisedStart().toString())
                 .build();
     }
 

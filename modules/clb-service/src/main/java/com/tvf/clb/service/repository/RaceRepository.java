@@ -2,6 +2,7 @@ package com.tvf.clb.service.repository;
 
 import com.tvf.clb.base.dto.RaceEntrantDto;
 import com.tvf.clb.base.entity.Race;
+import io.r2dbc.postgresql.codec.Json;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,9 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     @Query("Update clb_db.race set distance =:distance  WHERE id =:raceId")
     Mono<Race> setUpdateRaceDistanceById(@Param("raceId") Long raceId, @Param("distance") Integer distance);
+
+    @Query("Update clb_db.race set results_display = :result WHERE id = :raceId")
+    Mono<Race> updateRaceFinalResultById(@Param("result") Json result, @Param("raceId") Long raceId);
 
     @Query("Update clb_db.race set status =:status  WHERE id =:raceId")
     Mono<Race> setUpdateRaceStatusById(@Param("raceId") Long raceId, @Param("status") String status);
@@ -41,4 +45,7 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     @Query("delete from clb_db.race r where r.advertised_start between :startTime and :endTime")
     Mono<Long> deleteAllByAdvertisedStartBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
+
+    @Query("select r.* from clb_db.race r join clb_db.meeting m ON r.meeting_id = m.id where m.race_type = :raceType and r.number = :number and r.advertised_start = :date")
+    Mono<Race> getRaceByTypeAndNumberAndAdvertisedStart(@Param("raceType") String raceType, @Param("number") Integer number, @Param("date") Instant date);
 }

@@ -42,7 +42,7 @@ public class Race {
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
     private Json marketIds;
     private String mainMarketStatusId;
-    private String resultsDisplay;
+    private Json resultsDisplay;
     private String status;
     private Integer distance;
 
