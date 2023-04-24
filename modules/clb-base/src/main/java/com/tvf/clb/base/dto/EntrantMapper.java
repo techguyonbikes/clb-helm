@@ -131,7 +131,9 @@ public class EntrantMapper {
     }
 
     public static EntrantRawData toEntrantRawData(RunnerTabRawData runner, List<Integer> position, List<Float> listPrice, String raceId) {
-        listPrice.add(runner.getFixedOdds().getReturnWin());
+        if (runner.getFixedOdds().getReturnWin() != null) {
+            listPrice.add(runner.getFixedOdds().getReturnWin());
+        }
         return EntrantRawData.builder()
                 .id("TAB-" + runner.getRunnerName() + "-" + runner.getRunnerNumber())
                 .raceId(raceId)
