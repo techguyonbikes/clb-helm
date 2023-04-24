@@ -149,7 +149,7 @@ public class CrawUtils {
                                 .switchIfEmpty(raceRepository.getRaceByNameAndNumberAndStartTime(race.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
                                         race.getAdvertisedStart().plus(30, ChronoUnit.MINUTES), race.getName(), race.getNumber()));
                         return Flux.from(generalId).map(id -> {
-                                    if (site.equals(AppConstant.ZBET_SITE_ID)) {
+                                    if (AppConstant.ZBET_SITE_ID.equals(site)) {
                                         raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
                                     }
                                     return RaceResponseMapper.toRaceSiteDto(race, site, id);
@@ -270,7 +270,7 @@ public class CrawUtils {
 
     public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
         LadbrokesMarketsRawData marketsRawData = raceDto.getMarkets().values().stream()
-                .filter(m -> m.getName().equals(AppConstant.MARKETS_NAME)).findFirst()
+                .filter(m -> AppConstant.MARKETS_NAME.equals(m.getName())).findFirst()
                 .orElseThrow(() -> new RuntimeException("No markets found"));;
 
         List<EntrantRawData> result = new ArrayList<>();

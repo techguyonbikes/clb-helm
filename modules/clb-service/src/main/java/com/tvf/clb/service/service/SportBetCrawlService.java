@@ -176,7 +176,7 @@ public class SportBetCrawlService implements ICrawlService{
 
     private boolean isRaceStatusFinal(SportBetRaceDto sportBetRaceDto) {
         return ! CollectionUtils.isEmpty(sportBetRaceDto.getResults())
-                && sportBetRaceDto.getBettingStatus().equals(SPORT_BET_BETTING_STATUS_RESULTED);
+                && SPORT_BET_BETTING_STATUS_RESULTED.equals(sportBetRaceDto.getBettingStatus());
     }
 
     private Stream<ResultsRawData> getWinnerEntrants(List<ResultsRawData> result) {

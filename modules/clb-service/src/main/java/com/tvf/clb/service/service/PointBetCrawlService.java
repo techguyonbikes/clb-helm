@@ -112,7 +112,7 @@ public class PointBetCrawlService implements ICrawlService {
         result.setMapEntrants(mapEntrants);
 
         String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
-        if (statusRace.equals(AppConstant.STATUS_FINAL)) {
+        if (AppConstant.STATUS_FINAL.equals(statusRace)) {
             result.setFinalResult(Collections.singletonMap(AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing()));
         }
 
@@ -202,7 +202,7 @@ public class PointBetCrawlService implements ICrawlService {
                     entrant.setPosition(winnersId.indexOf(entrant.getId()) + 1);
                 }
             });
-            if (statusRace.equals(AppConstant.STATUS_FINAL)) {
+            if (AppConstant.STATUS_FINAL.equals(statusRace)) {
                 raceDto.setDistance(raceRawData.getRaceDistance());
                 crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing());
             }
@@ -232,7 +232,7 @@ public class PointBetCrawlService implements ICrawlService {
         for (PointBetEntrantRawData entrant : raceRawData.getEntrants()) {
 
             entrant.getPrices().stream()
-                    .filter(price -> price.getMarketTypeCode().equals(WIN_MARKET))
+                    .filter(price -> WIN_MARKET.equals(price.getMarketTypeCode()))
                     .findFirst()
                     .ifPresent(winPrice -> {
                         if (! CollectionUtils.isEmpty(winPrice.getFlucs())) {

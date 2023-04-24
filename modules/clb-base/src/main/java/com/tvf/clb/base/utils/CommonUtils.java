@@ -22,8 +22,11 @@ public class CommonUtils {
     }
 
     // "NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA","NZL"
-    public static String checkDiffStateMeeting(String state){
-        return AppConstant.VALID_CHECK_CODE_STATE_DIFF.contains(state) ? (state.equals(AppConstant.CODE_NZL) ? AppConstant.CODE_NZ : state) : null;
+    public static String checkDiffStateMeeting(String state) {
+        if (AppConstant.VALID_CHECK_CODE_STATE_DIFF.contains(state)) {
+            return AppConstant.CODE_NZL.equals(state) ? AppConstant.CODE_NZ : state;
+        }
+        return null;
     }
 
     public static Map<Integer, String> getMapRaceFinalResultFromJsonb(Json json) {
@@ -39,9 +42,9 @@ public class CommonUtils {
 
         if (race.getStatus() == null) {
             return false;
-        } else if (raceStatus.equals(AppConstant.STATUS_ABANDONED)) {
+        } else if (AppConstant.STATUS_ABANDONED.equals(raceStatus)) {
             return true;
-        } else if (raceStatus.equals(AppConstant.STATUS_FINAL)) {
+        } else if (AppConstant.STATUS_FINAL.equals(raceStatus)) {
             return race.getFinalResult().size() == race.getMapSiteUUID().size(); // check all site have final result
         }
 

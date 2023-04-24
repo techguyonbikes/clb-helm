@@ -81,7 +81,7 @@ public class ZBetCrawlService implements ICrawlService {
             result.setStatus(ConvertBase.getZBetRaceStatus(raceDto.getStatus()));
             result.setMapEntrants(mapEntrants);
 
-            if (result.getStatus().equals(AppConstant.STATUS_FINAL)) {
+            if (AppConstant.STATUS_FINAL.equals(result.getStatus())) {
                 String raceFinalResult = raceDto.getFinalResult().replace('/', ',');
                 result.setFinalResult(Collections.singletonMap(AppConstant.ZBET_SITE_ID, raceFinalResult));
             }
@@ -139,7 +139,7 @@ public class ZBetCrawlService implements ICrawlService {
         if (raceDto != null) {
             List<ZBetEntrantData> allEntrant = raceDto.getSelections();
 
-            if (race.getStatus().equals(AppConstant.STATUS_FINAL)) {
+            if (AppConstant.STATUS_FINAL.equals(race.getStatus())) {
                 crawUtils.updateRaceFinalResultIntoDB(MeetingMapper.toRaceDto(race, raceDto.getDistance()), AppConstant.ZBET_SITE_ID, raceDto.getFinalResult().replace('/', ','));
             }
 
@@ -197,7 +197,7 @@ public class ZBetCrawlService implements ICrawlService {
             Map<Integer, ZBetPrices> pricesMap = new Gson().fromJson(entrantData.getPrices(), new TypeToken<Map<Integer, ZBetPrices>>() {
             }.getType());
             if (!pricesMap.isEmpty()) {
-                List<ZBetPrices> listZBF = pricesMap.values().stream().filter(zBetPrices -> zBetPrices.getProductCode().equals("ZBF"))
+                List<ZBetPrices> listZBF = pricesMap.values().stream().filter(zBetPrices -> AppConstant.VALID_CHECK_PRODUCT_CODE.equals(zBetPrices.getProductCode()))
                         .sorted(Comparator.comparing(ZBetPrices::getRequestedAt)).collect(Collectors.toList());
                 List<String> lastFluctuations = Arrays.stream(listZBF.get(listZBF.size() - 1).getFluctuations().split(",")).collect(Collectors.toList());
                 return lastFluctuations.stream().map(Float::parseFloat).filter(x -> x != 0).collect(Collectors.toList());

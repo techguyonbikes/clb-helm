@@ -156,7 +156,7 @@ public class TabCrawlService implements ICrawlService{
 
     private boolean isRaceStatusFinal(TabRunnerRawData runnerRawData) {
         return runnerRawData.getRaceStatus() != null
-                && runnerRawData.getRaceStatus().equalsIgnoreCase(AppConstant.TAB_RACE_STATUS_FINAL);
+                && AppConstant.TAB_RACE_STATUS_FINAL.equalsIgnoreCase(runnerRawData.getRaceStatus());
     }
 
     public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID,

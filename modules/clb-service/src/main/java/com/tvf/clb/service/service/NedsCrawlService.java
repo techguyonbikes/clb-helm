@@ -190,7 +190,7 @@ public class NedsCrawlService implements ICrawlService{
         return results.values().stream()
                 .map(LadbrokesRaceResult::getResultStatusId)
                 .allMatch(statusId -> dividendsStatus.stream().anyMatch(status -> status.getId().equals(statusId)
-                                                                        && status.getName().equalsIgnoreCase(AppConstant.STATUS_FINAL)));
+                                                                        && AppConstant.STATUS_FINAL.equalsIgnoreCase(status.getName())));
     }
 
     public void saveMeeting(List<MeetingRawData> meetingRawData) {

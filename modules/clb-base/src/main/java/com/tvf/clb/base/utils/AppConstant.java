@@ -96,6 +96,8 @@ public class AppConstant {
     public static final List<String> VALID_LOCATION_CODE = new ArrayList<>(Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA","NZL","ACT"));
     public static final List<String> VALID_CHECK_CODE_STATE_DIFF = Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA", "NZ", "NZL");
 
+    public static final String VALID_CHECK_PRODUCT_CODE = "ZBF";
+
     public static final String CODE_NZ =  "NZ";
     public static final String CODE_NZL =  "NZL";
     //racetpye by sportBet

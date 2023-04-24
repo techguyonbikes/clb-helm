@@ -143,7 +143,7 @@ public class EntrantMapper {
                 .barrier(0)
                 .visible(false)
                 .priceFluctuations(listPrice)
-                .isScratched(runner.getFixedOdds().getBettingStatus() == null || !runner.getFixedOdds().getBettingStatus().equals(AppConstant.SCRATCHED_NAME) ? String.valueOf(false) : String.valueOf(true))
+                .isScratched(runner.getFixedOdds().getBettingStatus() == null || !AppConstant.SCRATCHED_NAME.equals(runner.getFixedOdds().getBettingStatus()) ? String.valueOf(false) : String.valueOf(true))
                 .scratchedTime(runner.getFixedOdds().getScratchedTime() == null ? null : Instant.parse(runner.getFixedOdds().getScratchedTime()))
                 .position(position.indexOf(runner.getRunnerNumber()) + 1)
                 .build();
@@ -166,7 +166,7 @@ public class EntrantMapper {
                 .barrier(entrant.getBarrier())
                 .visible(false)
                 .priceFluctuations(prices)
-                .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !entrant.getSelectionsStatus().equals(AppConstant.NOT_SCRATCHED_NAME)))
+                .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !AppConstant.NOT_SCRATCHED_NAME.equals(entrant.getSelectionsStatus())))
                 .scratchedTime(reqInstant)
                 .position(position.get(entrant.getNumber()))
                 .build();
