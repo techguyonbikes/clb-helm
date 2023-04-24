@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -16,5 +17,12 @@ import java.util.Map;
 @NoArgsConstructor
 public class CrawlEntrantData {
     private Integer position;
+    private Boolean isScratched;
+    private Instant scratchTime;
     private Map<Integer, List<Float>> priceMap;
+
+    public CrawlEntrantData(Integer position, Map<Integer, List<Float>> priceMap) {
+        this.position = position;
+        this.priceMap = priceMap;
+    }
 }

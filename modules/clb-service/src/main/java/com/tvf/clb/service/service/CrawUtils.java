@@ -200,6 +200,8 @@ public class CrawUtils {
                                     mapEntrants.get(entrantNumber).getPriceMap().putAll(entrantNewData.getPriceMap());
                                     if (raceNewData.getSiteId().equals(SiteEnum.ZBET.getId())) {
                                         mapEntrants.get(entrantNumber).setPosition(entrantNewData.getPosition());
+                                        mapEntrants.get(entrantNumber).setIsScratched(entrantNewData.getIsScratched());
+                                        mapEntrants.get(entrantNumber).setScratchTime(entrantNewData.getScratchTime());
                                     }
                                 } else {
                                     mapEntrants.put(entrantNumber, entrantNewData);

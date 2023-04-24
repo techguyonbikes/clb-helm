@@ -90,6 +90,11 @@ public class CrawlPriceService {
                 if (storedEntrant.getPriceFluctuations() == null) {
                     storedEntrant.setPriceFluctuations(new HashMap<>());
                 }
+                //update scratch
+                if (Boolean.TRUE.equals(storedEntrant.getIsScratched())){
+                    storedEntrant.setIsScratched(entrantNewData.getIsScratched());
+                    storedEntrant.setScratchedTime(entrantNewData.getScratchTime().toString());
+                }
                 Map<Integer, List<Float>> newPriceMap = entrantNewData.getPriceMap();
                 newPriceMap.forEach((siteId, newPrice) -> storedEntrant.getPriceFluctuations().put(siteId, newPrice));
             }
