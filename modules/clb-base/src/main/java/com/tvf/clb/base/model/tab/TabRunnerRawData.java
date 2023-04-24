@@ -1,6 +1,7 @@
 package com.tvf.clb.base.model.tab;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -12,9 +13,11 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class TabRunnerRawData {
 
     private Integer raceDistance;
+    private String raceStatus;
     private List<List<Integer>> results;
     private List<RunnerTabRawData> runners;
 

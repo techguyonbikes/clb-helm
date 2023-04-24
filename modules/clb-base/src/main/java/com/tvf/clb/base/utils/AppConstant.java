@@ -125,4 +125,5 @@ public class AppConstant {
     public static final int SECOND_TIME = 59;
     public static final int ZERO_TIME = 0;
 
+    public static final String TAB_RACE_STATUS_FINAL = "Paying";
 }

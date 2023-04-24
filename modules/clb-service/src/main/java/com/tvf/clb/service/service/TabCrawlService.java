@@ -30,10 +30,7 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @ClbService(componentType = AppConstant.TAB)
@@ -112,6 +109,11 @@ public class TabCrawlService implements ICrawlService{
             result.setSiteId(SiteEnum.TAB.getId());
             result.setMapEntrants(mapEtrants);
 
+            if (isRaceStatusFinal(runnerRawData)) {
+                String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
+                result.setFinalResult(Collections.singletonMap(AppConstant.TAB_SITE_ID, finalResult));
+            }
+
             return result;
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
@@ -136,6 +138,12 @@ public class TabCrawlService implements ICrawlService{
                 return Flux.empty();
             }
             List<EntrantRawData> allEntrant = getListEntrant(raceUUID, runnerRawData);
+
+            if (isRaceStatusFinal(runnerRawData)) {
+                String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
+                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.TAB_SITE_ID, finalResult);
+            }
+
             saveEntrant(allEntrant, String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(),
                     raceDto.getRaceType(), date), raceUUID, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType());
             return Flux.fromIterable(allEntrant)
@@ -143,6 +151,11 @@ public class TabCrawlService implements ICrawlService{
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
         }
+    }
+
+    private boolean isRaceStatusFinal(TabRunnerRawData runnerRawData) {
+        return runnerRawData.getRaceStatus() != null
+                && runnerRawData.getRaceStatus().equalsIgnoreCase(AppConstant.TAB_RACE_STATUS_FINAL);
     }
 
     public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID, Instant advertisedStart, Integer raceNumber, String raceType) {
