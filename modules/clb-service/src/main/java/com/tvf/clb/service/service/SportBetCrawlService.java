@@ -1,12 +1,11 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
-import com.tvf.clb.base.dto.EntrantDto;
-import com.tvf.clb.base.dto.MeetingDto;
-import com.tvf.clb.base.dto.MeetingMapper;
-import com.tvf.clb.base.dto.RaceDto;
-import com.tvf.clb.base.dto.SiteEnum;
+import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.dto.sportbet.SportBetDataDto;
 import com.tvf.clb.base.dto.sportbet.SportBetMeetingDto;
 import com.tvf.clb.base.dto.sportbet.SportBetRaceDto;
@@ -18,6 +17,7 @@ import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.sportbet.MarketRawData;
+import com.tvf.clb.base.model.sportbet.ResultsRawData;
 import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
 import com.tvf.clb.base.model.sportbet.SportBetMeetingRawData;
 import com.tvf.clb.base.utils.ApiUtils;
@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -34,6 +35,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.tvf.clb.base.utils.AppConstant.SPORT_BET_BETTING_STATUS_RESULTED;
 
 @ClbService(componentType = AppConstant.SPORT_BET)
 @Slf4j
@@ -121,6 +125,14 @@ public class SportBetCrawlService implements ICrawlService{
             result.setSiteId(SiteEnum.SPORT_BET.getId());
             result.setMapEntrants(entrantMap);
 
+            if (isRaceStatusFinal(sportBetRaceDto)) {
+                String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
+                        .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
+                        .collect(Collectors.joining(","));
+
+                result.setFinalResult(Collections.singletonMap(AppConstant.SPORTBET_SITE_ID, top4Entrants));
+            }
+
             return result;
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
@@ -148,10 +160,28 @@ public class SportBetCrawlService implements ICrawlService{
                 log.error("Can not found SportBet race by RaceUUID " + raceUUID);
             }
 
+            if (isRaceStatusFinal(sportBetRaceDto)) {
+                String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
+                                            .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
+                                            .collect(Collectors.joining(","));
+
+                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.SPORTBET_SITE_ID, top4Entrants);
+            }
+
             return Flux.empty();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean isRaceStatusFinal(SportBetRaceDto sportBetRaceDto) {
+        return ! CollectionUtils.isEmpty(sportBetRaceDto.getResults())
+                && sportBetRaceDto.getBettingStatus().equals(SPORT_BET_BETTING_STATUS_RESULTED);
+    }
+
+    private Stream<ResultsRawData> getWinnerEntrants(List<ResultsRawData> result) {
+        return result.stream()
+                .sorted(Comparator.comparing(ResultsRawData::getPlace));
     }
 
     public void saveEntrant(List<SportBetEntrantRawData> entrantRawData, String raceName, RaceDto raceDto) {

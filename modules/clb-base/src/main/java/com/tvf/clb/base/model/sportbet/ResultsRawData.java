@@ -21,5 +21,6 @@ public class ResultsRawData {
     private List<String> dividend;
     private Float winPrice;
     private Float placePrice;
+    private Integer runnerNumber;
 
 }

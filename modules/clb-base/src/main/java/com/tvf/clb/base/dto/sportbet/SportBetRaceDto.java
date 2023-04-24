@@ -19,4 +19,5 @@ public class SportBetRaceDto {
     private String name;
     List<MarketRawData>  markets;
     List<ResultsRawData> results;
+    private String bettingStatus;
 }
