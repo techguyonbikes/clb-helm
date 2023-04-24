@@ -7,6 +7,7 @@ import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.dto.RaceResponseMapper;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.entity.RaceSite;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -101,10 +102,11 @@ public class RaceService {
 
         return Mono.zip(entrantFlux.collectList(), raceMeetingFlux,
                         raceNumberId.collectMap(Race::getNumber, Race::getId),
-                        raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteId))
+                        raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteId),
+                        raceNumberId.collectMap(Race::getId, Race::getResultsDisplay))
                 .map(tuple -> {
                     RaceEntrantDto raceEntrantDTO = tuple.getT2();
-
+                    raceEntrantDTO.setFinalResult(CommonUtils.getMapRaceFinalResultFromJsonb(tuple.getT5().get(raceId)));
                     raceEntrantDTO.setEntrants(tuple.getT1());
                     raceEntrantDTO.setRaceIdNumber(tuple.getT3());
                     raceEntrantDTO.setRaceSiteUUID(tuple.getT4());

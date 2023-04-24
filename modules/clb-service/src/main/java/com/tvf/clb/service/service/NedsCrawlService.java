@@ -147,6 +147,9 @@ public class NedsCrawlService implements ICrawlService{
             } else {
                 positions.put(AppConstant.POSITION, 0);
             }
+
+            raceDto.setDistance(Integer.valueOf(raceRawData.getRaces().get(raceUUID).getAdditionalInfo().get(AppConstant.DISTANCE).getAsString()));
+
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
             List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
 
@@ -205,7 +208,7 @@ public class NedsCrawlService implements ICrawlService{
 
         String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
         crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.NED_SITE_ID, raceIdIdentifierInRedis, raceDto.getId(),
-                null, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType());
+                null, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType(), raceDto.getDistance());
 
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.NED_SITE_ID);
     }

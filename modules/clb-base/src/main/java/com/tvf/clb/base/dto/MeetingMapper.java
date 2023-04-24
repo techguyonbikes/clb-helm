@@ -124,6 +124,20 @@ public class MeetingMapper {
                 .build();
     }
 
+    public static RaceDto toRaceDto(ZBetRacesData race, Integer distance) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
+        return RaceDto.builder()
+                .id(race.getId().toString())
+                .meetingName(race.getMeetingName())
+                .name(race.getName())
+                .raceType(race.getType())
+                .number(race.getNumber())
+                .status(race.getStatus())
+                .distance(distance)
+                .advertisedStart(LocalDateTime.parse(race.getStartDate(), dtf).atZone(AppConstant.AU_ZONE_ID).toInstant())
+                .build();
+    }
+
     public static String convertRaceType(String feedId) {
         if (feedId.contains(AppConstant.GREYHOUND_FEED_TYPE)) {
             return AppConstant.GREYHOUND_RACING;

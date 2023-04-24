@@ -203,6 +203,7 @@ public class PointBetCrawlService implements ICrawlService {
                 }
             });
             if (statusRace.equals(AppConstant.STATUS_FINAL)) {
+                raceDto.setDistance(raceRawData.getRaceDistance());
                 crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing());
             }
         }
@@ -212,7 +213,7 @@ public class PointBetCrawlService implements ICrawlService {
 
         String raceIdIdentifier = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
         crawUtils.saveEntrantIntoRedis(listEntrantEntity, AppConstant.POINT_BET_SITE_ID, raceIdIdentifier, raceUUID, null,
-                raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType());
+                raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType(), raceRawData.getRaceDistance());
 
         crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
 

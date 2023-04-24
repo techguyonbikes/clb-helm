@@ -141,11 +141,12 @@ public class TabCrawlService implements ICrawlService{
 
             if (isRaceStatusFinal(runnerRawData)) {
                 String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
+                raceDto.setDistance(runnerRawData.getRaceDistance());
                 crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.TAB_SITE_ID, finalResult);
             }
 
             saveEntrant(allEntrant, String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(),
-                    raceDto.getRaceType(), date), raceUUID, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType());
+                    raceDto.getRaceType(), date), raceUUID, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType(), runnerRawData.getRaceDistance());
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> Mono.just(EntrantMapper.toEntrantDto(r)));
         } catch (IOException e) {
@@ -158,9 +159,11 @@ public class TabCrawlService implements ICrawlService{
                 && runnerRawData.getRaceStatus().equalsIgnoreCase(AppConstant.TAB_RACE_STATUS_FINAL);
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID, Instant advertisedStart, Integer raceNumber, String raceType) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID,
+                            Instant advertisedStart, Integer raceNumber, String raceType, Integer raceDistance) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID, null, advertisedStart, raceNumber, raceType);
+        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID, null,
+                advertisedStart, raceNumber, raceType, raceDistance);
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {

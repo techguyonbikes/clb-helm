@@ -198,7 +198,7 @@ public class SportBetCrawlService implements ICrawlService{
             newEntrants.add(entrant);
         }
         crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceDto.getId(),null,
-                raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType());
+                raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType(), raceDto.getDistance());
     }
 
     public SportBetRaceDto crawlEntrantDataSportBet(String raceId) throws IOException {

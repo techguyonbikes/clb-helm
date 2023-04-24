@@ -28,6 +28,7 @@ public class RaceEntrantDto {
     private Integer number;
     private String distance;
     private String status;
+    private Map<Integer, String> finalResult;
     private Map<Integer, Long> raceIdNumber;
     private Map<Integer, String> raceSiteUUID;
     private List<EntrantResponseDto> entrants;

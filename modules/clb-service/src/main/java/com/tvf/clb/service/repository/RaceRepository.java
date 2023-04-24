@@ -31,8 +31,10 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     Mono<Race> getRaceByMeetingIdInAndNumberAndAdvertisedStart(List<Long> meetingIds, Integer number, Instant advertisedStart);
 
 
-    @Query("select r.id from clb_db.race r join clb_db.meeting m ON r.meeting_id = m.id where m.race_type =:meetingType and r.number = :number and r.advertised_start = :date")
-    Mono<Long> getRaceIdByMeetingType(@Param("meetingType") String meetingType, @Param("number") Integer number, @Param("date") Instant date);
+    @Query("select r.id from clb_db.race r join clb_db.meeting m ON r.meeting_id = m.id where m.race_type =:meetingType and r.number = :number and r.advertised_start between :startTime and :endTime and r.distance = :distanceRace")
+    Mono<Long> getRaceIdByMeetingType(@Param("meetingType") String meetingType, @Param("number") Integer number,
+                                      @Param("startTime") Instant startTime, @Param("endTime") Instant endTime,
+                                      @Param("distanceRace") Integer distanceRace);
 
     @Query("select r.id from clb_db.race r where r.distance = :distance and r.number = :number and r.advertised_start = :date")
     Mono<Long> getRaceIdbyDistance(@Param("distance") int name, @Param("number") Integer number, @Param("date") Instant date);
@@ -46,8 +48,10 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     @Query("delete from clb_db.race r where r.advertised_start between :startTime and :endTime")
     Mono<Long> deleteAllByAdvertisedStartBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 
-    @Query("select r.* from clb_db.race r join clb_db.meeting m ON r.meeting_id = m.id where m.race_type = :raceType and r.number = :number and r.advertised_start = :date")
-    Mono<Race> getRaceByTypeAndNumberAndAdvertisedStart(@Param("raceType") String raceType, @Param("number") Integer number, @Param("date") Instant date);
+    @Query("select r.* from clb_db.race r join clb_db.meeting m ON r.meeting_id = m.id where m.race_type = :raceType and r.number = :number and r.advertised_start between :startTime and :endTime and r.distance = :distanceRace")
+    Mono<Race> getRaceByTypeAndNumberAndAdvertisedStart(@Param("raceType") String raceType, @Param("number") Integer number,
+                                                        @Param("startTime") Instant startTime, @Param("endTime") Instant endTime,
+                                                        @Param("distanceRace") Integer distanceRace);
 
     @Query("select r.id from clb_db.race r where r.advertised_start between :startTime and :endTime and r.name = :name and r.number = :number")
     Mono<Long> getRaceByNameAndNumberAndStartTime(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime,
