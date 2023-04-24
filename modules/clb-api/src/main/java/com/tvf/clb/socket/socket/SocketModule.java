@@ -5,14 +5,16 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
+import com.tvf.clb.base.dto.RaceFinalResultDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.dto.RaceStatusDto;
-import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.service.RaceService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -59,8 +61,14 @@ public class SocketModule {
             }
 
             if (subscribedRaces.containsKey(raceId)) {
-                senderClient.sendEvent("new_prices", subscribedRaces.get(raceId).getEntrants());
-                senderClient.sendEvent("new_status", subscribedRaces.get(raceId).getStatus());
+                RaceResponseDto subscribedRace = subscribedRaces.get(raceId);
+
+                senderClient.sendEvent("new_prices", subscribedRace.getEntrants());
+                senderClient.sendEvent("new_status", subscribedRace.getStatus());
+
+                if (CollectionUtils.isEmpty(subscribedRace.getFinalResult())) {
+                    senderClient.sendEvent("new_final_result", subscribedRace.getFinalResult());
+                }
             }
 
         };
@@ -107,17 +115,29 @@ public class SocketModule {
                             log.info("Send race[id={}] new price to client ID[{}]", raceId, client.getSessionId().toString());
                         });
 
-                        if (subscribedRaces.get(raceId) == null || ! subscribedRaces.get(raceId).getStatus().equals(newRaceInfo.getStatus())) {
+                        RaceResponseDto subscribedRace = subscribedRaces.get(raceId);
+
+                        if (subscribedRace == null || ! subscribedRace.getStatus().equals(newRaceInfo.getStatus())) {
                             clients.forEach(client -> {
                                 client.sendEvent("new_status", new RaceStatusDto(raceId, newRaceInfo.getStatus()));
                                 log.info("Send race[id={}] new status to client ID[{}]", raceId, client.getSessionId().toString());
                             });
                         }
 
+                        Map<Integer, String> newFinalResult = newRaceInfo.getFinalResult();
+                        if (newFinalResult != null &&
+                                (subscribedRace == null || subscribedRace.getFinalResult() == null
+                                    || subscribedRace.getFinalResult().size() != newFinalResult.size()))
+                        {
+                            clients.forEach(client -> {
+                                client.sendEvent("new_final_result", new RaceFinalResultDto(raceId, newFinalResult));
+                                log.info("Send race[id={}] new final result to client ID[{}]", raceId, client.getSessionId().toString());
+                            });
+                        }
+
                         subscribedRaces.put(raceId, newRaceInfo);
 
-                        if ((newRaceInfo.getStatus().equals(AppConstant.STATUS_FINAL) && newRaceInfo.getEntrants().stream().anyMatch(x -> x.getPosition() > 0))
-                                || newRaceInfo.getStatus().equals(AppConstant.STATUS_ABANDONED)) {
+                        if (CommonUtils.isRaceFinalOrAbandonedInAllSite(newRaceInfo)) {
                             clients.forEach(client -> client.sendEvent("subscription", "Race completed or abandoned"));
                             raceSubscribers.remove(raceId);
                             subscribedRaces.remove(raceId);

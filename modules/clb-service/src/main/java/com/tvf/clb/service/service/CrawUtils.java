@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
+import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.LadbrokesMarketsRawData;
@@ -166,32 +167,52 @@ public class CrawUtils {
     }
 
     public Mono<CrawlRaceData> crawlNewDataByRaceUUID(Map<Integer, String> mapSiteRaceUUID) {
-        CrawlRaceData result = new CrawlRaceData();
-        result.setMapEntrants(new HashMap<>());
+
         return Flux.fromIterable(mapSiteRaceUUID.entrySet())
                 .parallel().runOn(Schedulers.parallel())
                 .map(entry ->
                         serviceLookup.forBean(ICrawlService.class, SiteEnum.getSiteNameById(entry.getKey()))
                                 .getEntrantByRaceUUID(entry.getValue()))
                 .sequential()
-                .doOnNext(raceNewData -> {
+                .collectList()
+                .map(listRaceNewData -> {
 
-                    if (result.getStatus() == null && raceNewData.getStatus() != null) {
-                        result.setStatus(raceNewData.getStatus());
+                    CrawlRaceData result = new CrawlRaceData();
+                    Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
+                    Map<Integer, String> mapRaceResult = new HashMap<>();
+
+                    for (CrawlRaceData raceNewData : listRaceNewData) {
+                        // Set race status
+                        if (result.getStatus() == null && raceNewData.getStatus() != null) {
+                            result.setStatus(raceNewData.getStatus());
+                        }
+
+                        // Set race final result
+                        if (raceNewData.getFinalResult() != null) {
+                            mapRaceResult.putAll(raceNewData.getFinalResult());
+                        }
+
+                        // Set entrants position and price
+                        if (raceNewData.getMapEntrants() != null) {
+                            raceNewData.getMapEntrants().forEach((entrantNumber, entrantNewData) -> {
+
+                                if (mapEntrants.containsKey(entrantNumber)) {
+                                    mapEntrants.get(entrantNumber).getPriceMap().putAll(entrantNewData.getPriceMap());
+                                    if (raceNewData.getSiteId().equals(SiteEnum.ZBET.getId())) {
+                                        mapEntrants.get(entrantNumber).setPosition(entrantNewData.getPosition());
+                                    }
+                                } else {
+                                    mapEntrants.put(entrantNumber, entrantNewData);
+                                }
+                            });
+                        }
                     }
 
-                    raceNewData.getMapEntrants().forEach((key, value) -> {
-                        if (result.getMapEntrants().containsKey(key)) {
-                            result.getMapEntrants().get(key).getPriceMap().putAll(value.getPriceMap());
-                            if (raceNewData.getSiteId().equals(SiteEnum.ZBET.getId())) {
-                                result.getMapEntrants().get(key).setPosition(value.getPosition());
-                            }
-                        } else {
-                            result.getMapEntrants().put(key, value);
-                        }
-                    });
-                })
-                .then(Mono.just(result));
+                    result.setMapEntrants(mapEntrants);
+                    result.setFinalResult(mapRaceResult);
+
+                    return result;
+                });
     }
     public void saveRaceSitebyTab(List<Race> races, Integer site) {
         Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(

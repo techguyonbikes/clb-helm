@@ -17,5 +17,6 @@ public class RaceResponseDto {
     private String status;
     private String advertisedStart;
     private Map<Integer, String> mapSiteUUID;
+    private Map<Integer, String> finalResult;
     private List<EntrantResponseDto> entrants;
 }

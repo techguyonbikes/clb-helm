@@ -3,6 +3,7 @@ package com.tvf.clb.base.dto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.entity.RaceSite;
+import com.tvf.clb.base.utils.CommonUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -37,6 +38,7 @@ public class RaceResponseMapper {
                 .id(race.getId())
                 .mapSiteUUID(mapSiteUUID)
                 .advertisedStart(race.getAdvertisedStart().toString())
+                .finalResult(CommonUtils.getMapRaceFinalResultFromJsonb(race.getResultsDisplay()))
                 .entrants(entrants.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList()))
                 .status(race.getStatus())
                 .build();

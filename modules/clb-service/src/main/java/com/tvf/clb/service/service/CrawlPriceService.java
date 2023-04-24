@@ -3,8 +3,10 @@ package com.tvf.clb.service.service;
 import com.google.gson.Gson;
 import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.base.model.CrawlEntrantData;
-import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.model.CrawlRaceData;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.RaceRepository;
 import io.r2dbc.postgresql.codec.Json;
@@ -13,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,30 +38,77 @@ public class CrawlPriceService {
     @Autowired
     private RaceRepository raceRepository;
 
-    public Mono<RaceResponseDto> crawlRaceNewDataByRaceId(Long generalRaceId) {
-        return raceRedisService.findByRaceId(generalRaceId).flatMap(storedRace ->
+    @Autowired
+    private TodayData todayData;
 
-                CrawUtils.crawlNewDataByRaceUUID(storedRace.getMapSiteUUID()).doOnNext(raceNewData -> {
-                    Map<Integer, CrawlEntrantData> mapEntrants = raceNewData.getMapEntrants();
-                    storedRace.setStatus(raceNewData.getStatus());
-                    storedRace.getEntrants().forEach(entrant -> {
-                        CrawlEntrantData entrantNewData = mapEntrants.get(entrant.getNumber());
-                        entrant.setPosition(entrantNewData.getPosition() == null ? 0 : entrantNewData.getPosition());
-                        entrant.setPriceFluctuations(entrantNewData.getPriceMap());
-                    });
-
-                })
-                .then(saveRaceInfoToDBOrRedis(storedRace, generalRaceId))
-                .then(Mono.just(storedRace)));
+    public Mono<?> crawlRaceThenSave(Long generalRaceId) {
+        return crawlRaceNewDataByRaceId(generalRaceId)
+                .flatMap(this::saveRaceInfoToDBOrRedis);
     }
 
-    private Mono<?> saveRaceInfoToDBOrRedis(RaceResponseDto race, Long generalRaceId) {
-        if (race.getStatus() != null && ((race.getStatus().equals(AppConstant.STATUS_FINAL) && race.getEntrants().stream().anyMatch(x -> x.getPosition() > 0))
-                || race.getStatus().equals(AppConstant.STATUS_ABANDONED))) {
+    private Mono<RaceResponseDto> crawlRaceNewDataByRaceId(Long generalRaceId) {
+        return raceRedisService.findByRaceId(generalRaceId).flatMap(storedRace ->
+
+                CrawUtils.crawlNewDataByRaceUUID(storedRace.getMapSiteUUID())
+                        .map(raceNewData -> {
+                            updateRaceStatusAndFinalResult(storedRace, raceNewData);
+                            updateEntrantsInRace(storedRace.getEntrants(), raceNewData.getMapEntrants());
+
+                            return storedRace;
+                        })
+        );
+    }
+
+    private void updateRaceStatusAndFinalResult(RaceResponseDto storedRace, CrawlRaceData raceNewData) {
+
+        String newStatus = raceNewData.getStatus();
+        Map<Integer, String> finalResult = raceNewData.getFinalResult();
+
+        // Do not update if new status is null
+        if (newStatus != null) {
+            storedRace.setStatus(newStatus);
+        }
+
+        if (storedRace.getFinalResult() == null) {
+            storedRace.setFinalResult(new HashMap<>());
+        }
+        storedRace.getFinalResult().putAll(finalResult);
+    }
+
+    private void updateEntrantsInRace(List<EntrantResponseDto> storedEntrantList, Map<Integer, CrawlEntrantData> mapNewEntrants) {
+
+        for (EntrantResponseDto storedEntrant : storedEntrantList) {
+            CrawlEntrantData entrantNewData = mapNewEntrants.get(storedEntrant.getNumber());
+
+            if (entrantNewData != null) {
+                // update entrant position
+                if (entrantNewData.getPosition() != null) {
+                    storedEntrant.setPosition(entrantNewData.getPosition());
+                }
+
+                // update entrant price
+                if (storedEntrant.getPriceFluctuations() == null) {
+                    storedEntrant.setPriceFluctuations(new HashMap<>());
+                }
+                Map<Integer, List<Float>> newPriceMap = entrantNewData.getPriceMap();
+                newPriceMap.forEach((siteId, newPrice) -> storedEntrant.getPriceFluctuations().put(siteId, newPrice));
+            }
+        }
+    }
+
+    private Mono<?> saveRaceInfoToDBOrRedis(RaceResponseDto race) {
+        long generalRaceId = race.getId();
+
+        if (CommonUtils.isRaceFinalOrAbandonedInAllSite(race)) {
             log.info("Save race[id={}] data to db and remove in redis", generalRaceId);
 
+            todayData.getRaces().remove(Timestamp.from(Instant.parse(race.getAdvertisedStart())).getTime());
+
             saveEntrantToDb(generalRaceId, race.getEntrants());
-            return raceRepository.setUpdateRaceStatusById(generalRaceId, race.getStatus())
+
+            Json raceFinalResult = Json.of(new Gson().toJson(race.getFinalResult()));
+
+            return raceRepository.updateRaceStatusAndFinalResultById(generalRaceId, race.getStatus(), raceFinalResult)
                                  .then(raceRedisService.delete(generalRaceId));
         } else {
             log.info(" Save data race[id={}] to redis", generalRaceId);
@@ -78,7 +129,7 @@ public class CrawlPriceService {
                                         entrant.setPosition(e.getPosition());
                                     }
 
-                    ));
+                            ));
             entrantRepository.saveAll(existed).subscribe();
         });
     }
