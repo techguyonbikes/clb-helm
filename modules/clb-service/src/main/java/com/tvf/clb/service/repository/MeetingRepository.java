@@ -38,11 +38,8 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     Flux<RaceBaseResponseDTO> findByRaceTypes(@Param("raceTypes") List<String> raceTypes,
                                               @Param("date") Instant date);
 
-    @Query("select m.id from clb_db.meeting m  where m.name = :name and m.race_type = :raceType and m.advertised_date = :date")
-    Mono<Long> getMeetingId(@Param("name") String name, @Param("raceType") String raceType,@Param("date") Instant date);
-
-    @Query("select m.id from clb_db.meeting m  where m.state = :state and m.race_type = :raceType and m.advertised_date = :date")
-    Mono<Long> getMeetingIdDiffName(@Param("state") String state, @Param("raceType") String raceType,@Param("date") Instant date);
+    @Query("select * from clb_db.meeting m  where (:state is null or m.state = :state) and m.race_type = :raceType and m.advertised_date = :date")
+    Flux<Meeting> getMeetingDiffName(@Param("state") String state, @Param("raceType") String raceType,@Param("date") Instant date);
 
     @Query("select m.id from clb_db.meeting m where m.name = :name and m.race_type = :raceType and m.advertised_date >= :date")
     Flux<Long> getMeetingIdsByNameAndRaceTypeAndAdvertisedDateFrom(@Param("name") String name, @Param("raceType") String raceType, @Param("date") Instant date);

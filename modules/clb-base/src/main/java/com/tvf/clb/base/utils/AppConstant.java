@@ -94,7 +94,7 @@ public class AppConstant {
     public static final List<String> HORSE_TYPE_RACE = new ArrayList<>(Arrays.asList("horse_racing","R"));
     public static final List<String> GREYHOUND_TYPE_RACE = new ArrayList<>(Arrays.asList("greyhound_racing","G"));
     public static final List<String> VALID_LOCATION_CODE = new ArrayList<>(Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA","NZL","ACT"));
-    public static final List<String> VALID_CHECK_CODE_STATE_DIFF = Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA", "NZ", "NZL");
+    public static final List<String> VALID_CHECK_CODE_STATE_DIFF = Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA", "NZ", "NZL","ACT");
 
     public static final String VALID_CHECK_PRODUCT_CODE = "ZBF";
 

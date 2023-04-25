@@ -54,4 +54,13 @@ public class RaceResponseMapper {
                 .build();
     }
 
+    public static RaceDto toRaceDTO(Race r){
+        return RaceDto.builder()
+                .raceType(r.getRaceType())
+                .number(r.getNumber())
+                .advertisedStart(r.getAdvertisedStart())
+                .name(r.getName())
+                .build();
+    }
+
 }

@@ -15,8 +15,6 @@ import java.util.List;
 public interface MeetingSiteRepository extends R2dbcRepository<MeetingSite, Long> {
     Flux<MeetingSite> findAllByMeetingSiteIdInAndSiteId(List<String> meetingIds, Integer siteId);
 
-    Flux<MeetingSite> findAllByMeetingSiteIdIn(List<String> meetingSiteId);
-
     @Query("delete from clb_db.meeting_site m where m.start_date between :startTime and :endTime")
     Mono<Long> deleteAllByStartDateBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 

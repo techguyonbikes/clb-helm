@@ -28,7 +28,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -83,7 +82,7 @@ public class TabCrawlService implements ICrawlService{
 
     public void saveRace(List<RaceDto> raceDtoList) {
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        crawUtils.saveRaceSitebyTab(newRaces, AppConstant.TAB_SITE_ID);
+        crawUtils.saveRaceSite(newRaces, AppConstant.TAB_SITE_ID);
     }
 
     @Override
@@ -144,9 +143,9 @@ public class TabCrawlService implements ICrawlService{
                 raceDto.setDistance(runnerRawData.getRaceDistance());
                 crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.TAB_SITE_ID, finalResult);
             }
-
+            raceDto.setDistance(runnerRawData.getRaceDistance());
             saveEntrant(allEntrant, String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(),
-                    raceDto.getRaceType(), date), raceUUID, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType(), runnerRawData.getRaceDistance());
+                    raceDto.getRaceType(), date), raceDto);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> Mono.just(EntrantMapper.toEntrantDto(r)));
         } catch (IOException e) {
@@ -159,11 +158,9 @@ public class TabCrawlService implements ICrawlService{
                 && AppConstant.TAB_RACE_STATUS_FINAL.equalsIgnoreCase(runnerRawData.getRaceStatus());
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, String raceUUID,
-                            Instant advertisedStart, Integer raceNumber, String raceType, Integer raceDistance) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, RaceDto raceDto) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceUUID, null,
-                advertisedStart, raceNumber, raceType, raceDistance);
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceDto);
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {

@@ -9,7 +9,4 @@ import java.util.List;
 
 @Repository
 public interface EntrantSiteRepository extends R2dbcRepository<EntrantSite, Long> {
-    Flux<EntrantSite> findAllByEntrantSiteIdInAndSiteId(List<String> entrantIds, Integer siteId);
-
-    Flux<EntrantSite> findAllByEntrantSiteIdIn(List<String> entrantIds);
 }

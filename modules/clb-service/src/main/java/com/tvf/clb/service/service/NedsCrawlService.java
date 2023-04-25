@@ -207,8 +207,7 @@ public class NedsCrawlService implements ICrawlService{
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
 
         String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.NED_SITE_ID, raceIdIdentifierInRedis, raceDto.getId(),
-                null, raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType(), raceDto.getDistance());
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.NED_SITE_ID, raceIdIdentifierInRedis, raceDto);
 
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.NED_SITE_ID);
     }

@@ -21,7 +21,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
-import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
@@ -55,57 +54,62 @@ public class CrawUtils {
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
 
-    public void saveEntrantIntoRedis(List<Entrant> entrants, Integer site, String raceName, String raceUUID,
-                                     String statusRace, Instant advertisedStart, Integer raceNumber, String meetingType, Integer distanceRace) {
+    public void saveEntrantCrawlDataToRedis(List<Entrant> entrants, Integer site, String raceRedisKey, RaceDto raceDto) {
 
-        Mono<Long> raceIdMono = raceNameAndIdTemplate.opsForValue().get(raceName).switchIfEmpty(
-                raceRepository.getRaceIdByMeetingType(meetingType, raceNumber, advertisedStart.minus(30, ChronoUnit.MINUTES),
-                        advertisedStart.plus(30, ChronoUnit.MINUTES), distanceRace)
-        );
-
-        raceIdMono.subscribe(raceId -> {
+        raceNameAndIdTemplate.opsForValue().get(raceRedisKey).switchIfEmpty(getRaceByTypeAndNumberAndRangeAdvertisedStart(raceDto))
+            .subscribe(raceId -> {
             Mono<RaceResponseDto> raceStoredMono = raceRedisService.findByRaceId(raceId);
 
-            raceStoredMono.subscribe(raceStored -> {
-
-                Map<Integer, Entrant> newEntrantMap = new HashMap<>();
-                for (Entrant entrant : entrants) {
-                    newEntrantMap.put(entrant.getNumber(), entrant);
-                }
-                for (EntrantResponseDto entrantResponseDto : raceStored.getEntrants()) {
-                    Entrant newEntrant = newEntrantMap.get(entrantResponseDto.getNumber());
-
-                    if (entrantResponseDto.getPriceFluctuations() == null) {
-                        Map<Integer, List<Float>> price = new HashMap<>();
-                        log.error("Entrant id = {} in race id = {} null price", entrantResponseDto.getId(), raceStored.getId());
-                        entrantResponseDto.setPriceFluctuations(price);
-                    }
-
-                    if (newEntrant != null) {
-                        Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
-                        price.put(site, newEntrant.getCurrentSitePrice() == null ? new ArrayList<>() : newEntrant.getCurrentSitePrice());
-                    }
-                }
-
-                if (raceStored.getStatus() == null && statusRace != null) {
-                    raceStored.setStatus(statusRace);
-                }
-
-                Map<Integer, String> mapRaceUUID = raceStored.getMapSiteUUID();
-                mapRaceUUID.put(site, raceUUID);
-
-                raceRedisService.saveRace(raceId, raceStored).subscribe();
-            });
+            raceStoredMono.subscribe(raceStored -> saveEntrantDataToRedis(entrants, site, raceStored, raceDto, raceId));
         });
+    }
+
+    public void saveEntrantDataToRedis(List<Entrant> entrants, Integer site, RaceResponseDto raceStored, RaceDto raceDto, Long raceId){
+        Map<Integer, Entrant> newEntrantMap = new HashMap<>();
+        for (Entrant entrant : entrants) {
+            newEntrantMap.put(entrant.getNumber(), entrant);
+        }
+        for (EntrantResponseDto entrantResponseDto : raceStored.getEntrants()) {
+            Entrant newEntrant = newEntrantMap.get(entrantResponseDto.getNumber());
+
+            if (entrantResponseDto.getPriceFluctuations() == null) {
+                Map<Integer, List<Float>> price = new HashMap<>();
+                log.error("Entrant id = {} in race id = {} null price", entrantResponseDto.getId(), raceStored.getId());
+                entrantResponseDto.setPriceFluctuations(price);
+            }
+
+            if (newEntrant != null) {
+                Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
+                price.put(site, newEntrant.getCurrentSitePrice() == null ? new ArrayList<>() : newEntrant.getCurrentSitePrice());
+            }
+        }
+
+        if (raceStored.getStatus() == null && raceDto.getStatus() != null) {
+            raceStored.setStatus(raceDto.getStatus());
+        }
+
+        raceStored.getMapSiteUUID().put(site, raceDto.getId());
+
+        raceRedisService.saveRace(raceId, raceStored).subscribe();
     }
 
     public void saveMeetingSite(List<Meeting> meetings, Integer site) {
         Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
                 r -> {
-                    Mono<Long> generalId = meetingRepository.getMeetingId(r.getName(), r.getRaceType(), r.getAdvertisedDate())
-                            .switchIfEmpty(
-                                        meetingRepository.getMeetingIdDiffName(CommonUtils.checkDiffStateMeeting(r.getState()), r.getRaceType(), r.getAdvertisedDate())
-                            );
+                    Mono<Long> generalId = meetingRepository.getMeetingDiffName(
+                                CommonUtils.checkDiffStateMeeting(r.getState()),
+                                r.getRaceType(),
+                                r.getAdvertisedDate()
+                            )
+                            .collectList()
+                            .mapNotNull(m -> {
+                                Meeting result = CommonUtils.checkDiffMeetingName(m, r.getName());
+                                if (result == null) {
+                                    return null;
+                                } else {
+                                    return result.getId();
+                                }
+                            });
                     return Flux.from(generalId).map(id -> MeetingMapper.toMetingSite(r, site, id));
                 }
         );
@@ -123,8 +127,7 @@ public class CrawUtils {
     public void saveRaceSite(List<Race> races, Integer site) {
         Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                 race -> {
-                    Mono<Long> generalId = raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
-                            race.getAdvertisedStart().plus(30, ChronoUnit.MINUTES), race.getDistance());
+                    Mono<Long> generalId = getRaceByTypeAndNumberAndRangeAdvertisedStart(RaceResponseMapper.toRaceDTO(race));
                     return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
                 }
         );
@@ -144,10 +147,7 @@ public class CrawUtils {
         if (!raceDtoList.isEmpty()) {
             Flux<RaceSite> newMeetingSite = Flux.fromIterable(raceDtoList.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                     race -> {
-                        Mono<Long> generalId = raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
-                                        race.getAdvertisedStart().plus(30, ChronoUnit.MINUTES), race.getDistance())
-                                .switchIfEmpty(raceRepository.getRaceByNameAndNumberAndStartTime(race.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
-                                        race.getAdvertisedStart().plus(30, ChronoUnit.MINUTES), race.getName(), race.getNumber()));
+                        Mono<Long> generalId = getRaceByTypeAndNumberAndRangeAdvertisedStart(race);
                         return Flux.from(generalId).map(id -> {
                                     if (AppConstant.ZBET_SITE_ID.equals(site)) {
                                         raceRepository.setUpdateRaceStatusById(id, race.getStatus()).subscribe();
@@ -219,31 +219,11 @@ public class CrawUtils {
                     return result;
                 });
     }
-    public void saveRaceSitebyTab(List<Race> races, Integer site) {
-        Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
-                race -> {
-                    Mono<Long> generalId = raceRepository.getRaceIdbyDistance(race.getDistance(), race.getNumber(), race.getAdvertisedStart())
-                            .switchIfEmpty(raceRepository.getRaceIdByMeetingType(race.getRaceType(), race.getNumber(), race.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
-                                    race.getAdvertisedStart().plus(30, ChronoUnit.MINUTES), race.getDistance()));
-                    return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
-                }
-        );
-        Flux<RaceSite> existedMeetingSite = raceSiteRepository
-                .findAllByRaceSiteIdInAndSiteId(races.stream().map(Race::getRaceId).collect(Collectors.toList()), site);
-
-        Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
-                .doOnNext(tuple2 -> {
-                    tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
-                    log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
-                    raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
-                }).subscribe();
-
-    }
 
     public void saveEntrantsPriceIntoDB(List<Entrant> newEntrant, RaceDto raceDto, Integer siteId) {
 
         Gson gson = new Gson();
-        Flux<Entrant> existedFlux = entrantRepository.findAllEntrantsInRace(raceDto.getMeetingName(), raceDto.getRaceType(), raceDto.getNumber(), raceDto.getAdvertisedStart());
+        Flux<Entrant> existedFlux = getRaceByTypeAndNumberAndRangeAdvertisedStart(raceDto).flatMapMany(id -> entrantRepository.findByRaceId(id));
         List<Entrant> listNeedToUpdate = new ArrayList<>();
         existedFlux.collectList().subscribe(listExisted -> {
 
@@ -271,7 +251,7 @@ public class CrawUtils {
     public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
         LadbrokesMarketsRawData marketsRawData = raceDto.getMarkets().values().stream()
                 .filter(m -> AppConstant.MARKETS_NAME.equals(m.getName())).findFirst()
-                .orElseThrow(() -> new RuntimeException("No markets found"));;
+                .orElseThrow(() -> new RuntimeException("No markets found"));
 
         List<EntrantRawData> result = new ArrayList<>();
 
@@ -292,8 +272,12 @@ public class CrawUtils {
     }
 
     public void updateRaceFinalResultIntoDB(RaceDto raceDto, Integer siteId, String finalResult) {
-        Mono<Race> raceMono = raceRepository.getRaceByTypeAndNumberAndAdvertisedStart(raceDto.getRaceType(), raceDto.getNumber(), raceDto.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
-                raceDto.getAdvertisedStart().plus(30, ChronoUnit.MINUTES), raceDto.getDistance());
+        Mono<Race> raceMono = raceRepository.getRaceByTypeAndNumberAndRangeAdvertisedStart(
+                raceDto.getRaceType(),
+                raceDto.getNumber(),
+                raceDto.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
+                raceDto.getAdvertisedStart().plus(30, ChronoUnit.MINUTES)
+        ).collectList().mapNotNull(r -> CommonUtils.checkDiffRaceName(r, raceDto.getName()));
         raceMono.subscribe(race -> checkRaceFinalResultThenSave(race, finalResult, siteId));
     }
 
@@ -330,5 +314,21 @@ public class CrawUtils {
         }
         return output;
     }
+
+    public Mono<Long> getRaceByTypeAndNumberAndRangeAdvertisedStart(RaceDto race){
+        return raceRepository.getRaceByTypeAndNumberAndRangeAdvertisedStart(
+                race.getRaceType(), race.getNumber(),
+                race.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
+                race.getAdvertisedStart().plus(30, ChronoUnit.MINUTES)
+        ).collectList().mapNotNull(races -> {
+            Race result = CommonUtils.checkDiffRaceName(races, race.getName());
+            if (result == null) {
+                return null;
+            } else {
+                return result.getId();
+            }
+        }) ;
+    }
+
 
 }

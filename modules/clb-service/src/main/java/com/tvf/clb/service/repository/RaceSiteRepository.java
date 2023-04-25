@@ -16,8 +16,6 @@ public interface RaceSiteRepository extends R2dbcRepository<RaceSite, Long> {
 
     Flux<RaceSite> findAllByRaceSiteIdInAndSiteId(List<String> raceId, Integer siteId);
 
-    Flux<RaceSite> findAllByRaceSiteIdIn(List<String> raceId);
-
     Flux<RaceSite> getAllByGeneralRaceId(Long generalRaceId);
 
     @Query("delete from clb_db.race_site r where r.start_date between :startTime and :endTime")

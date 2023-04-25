@@ -197,8 +197,7 @@ public class SportBetCrawlService implements ICrawlService{
             Entrant entrant = MeetingMapper.toEntrantEntity(rawData,prices);
             newEntrants.add(entrant);
         }
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceDto.getId(),null,
-                raceDto.getAdvertisedStart(), raceDto.getNumber(), raceDto.getRaceType(), raceDto.getDistance());
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceDto);
     }
 
     public SportBetRaceDto crawlEntrantDataSportBet(String raceId) throws IOException {

@@ -25,10 +25,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,7 +78,7 @@ public class ZBetCrawlService implements ICrawlService {
             result.setStatus(ConvertBase.getZBetRaceStatus(raceDto.getStatus()));
             result.setMapEntrants(mapEntrants);
 
-            if (AppConstant.STATUS_FINAL.equals(result.getStatus())) {
+            if (AppConstant.STATUS_FINAL.equals(result.getStatus()) && raceDto.getFinalResult() != null) {
                 String raceFinalResult = raceDto.getFinalResult().replace('/', ',');
                 result.setFinalResult(Collections.singletonMap(AppConstant.ZBET_SITE_ID, raceFinalResult));
             }
@@ -139,7 +136,7 @@ public class ZBetCrawlService implements ICrawlService {
         if (raceDto != null) {
             List<ZBetEntrantData> allEntrant = raceDto.getSelections();
 
-            if (AppConstant.STATUS_FINAL.equals(race.getStatus())) {
+            if (AppConstant.STATUS_FINAL.equals(race.getStatus()) && raceDto.getFinalResult() != null) {
                 crawUtils.updateRaceFinalResultIntoDB(MeetingMapper.toRaceDto(race, raceDto.getDistance()), AppConstant.ZBET_SITE_ID, raceDto.getFinalResult().replace('/', ','));
             }
 
@@ -163,17 +160,12 @@ public class ZBetCrawlService implements ICrawlService {
 
     public void saveEntrant(List<ZBetEntrantData> entrantRawData, ZBetRacesData race, LocalDate date, Integer distance) {
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
-
-        Instant startTime = LocalDateTime.parse(race.getStartDate(), dtf).atZone(AppConstant.AU_ZONE_ID).toInstant();
-
         List<Entrant> newEntrants = entrantRawData.stream().distinct()
                 .map(meeting -> MeetingMapper.toEntrantEntity(meeting, buildPriceFluctuations(meeting))).collect(Collectors.toList());
 
         String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", race.getMeetingName(), race.getNumber(), race.getType(), date);
 
-        crawUtils.saveEntrantIntoRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, race.getId().toString(),
-                race.getStatus(), startTime, race.getNumber(), race.getType(), distance);
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, MeetingMapper.toRaceDto(race, distance));
 
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, MeetingMapper.toRaceDto(race) ,AppConstant.ZBET_SITE_ID);
     }
