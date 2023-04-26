@@ -26,6 +26,10 @@ public class RaceRedisService {
         return this.raceDetailTemplate.opsForValue().get(key);
     }
 
+    public Mono<List<RaceResponseDto>> findAllByKeysRaceResponseDto(List<Long> keys){
+        return this.raceDetailTemplate.opsForValue().multiGet(keys);
+    }
+
     public Mono<Long> delete(List<Long> raceIds){
         return Flux.fromIterable(raceIds)
                 .flatMap(raceDetailTemplate::delete).count();

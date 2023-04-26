@@ -8,6 +8,8 @@ import com.tvf.clb.service.service.RaceService;
 import com.tvf.clb.service.service.RaceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/race")
@@ -49,12 +52,28 @@ public class RaceController {
     }
 
     @GetMapping("/entrant")
-    public Mono<RaceEntrantDto> getRaceEntrantByRaceId(@RequestParam("id") Long id) {
-        return raceService.getRaceEntrantByRaceId(id);
+    public Mono<ResponseEntity<RaceEntrantDto>> getRaceEntrantByRaceId(@RequestParam("id") Long id) {
+        return raceService.getRaceEntrantByRaceId(id).map(raceIdAndStatus -> {
+            if (raceIdAndStatus == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok().body(raceIdAndStatus);
+        });
     }
     @GetMapping("/side-bar-races-default")
     public Flux<RaceBaseResponseDTO> searchRacesByDate(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
         return raceService.getListRaceDefault(date);
+    }
+
+    @GetMapping("/status")
+    public Mono<ResponseEntity<Map<Long, String>>> getAllStatusRaceIds(@RequestParam String ids) {
+        return raceService.mapRaceIdAndStatusFromDbOrRedis(ids)
+                .map(raceIdAndStatus -> {
+                    if (CollectionUtils.isEmpty(raceIdAndStatus)) {
+                        return ResponseEntity.notFound().build();
+                    }
+                    return ResponseEntity.ok().body(raceIdAndStatus);
+                });
     }
 
 }

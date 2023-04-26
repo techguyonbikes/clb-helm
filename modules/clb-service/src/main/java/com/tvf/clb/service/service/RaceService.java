@@ -20,9 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.*;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -95,17 +93,23 @@ public class RaceService {
     }
 
     public Mono<RaceEntrantDto> getRaceEntrantByRaceId(Long raceId) {
+        if (raceId == null){
+            return null;
+        }
         Flux<EntrantResponseDto> entrantFlux = entrantService.getEntrantsByRaceId(raceId).switchIfEmpty(Flux.empty());
         Mono<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceEntrantByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<Race> raceNumberId = raceRepository.getRaceIDNumberByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<RaceSite> raceSiteUUID = raceSiteRepository.getAllByGeneralRaceId(raceId).switchIfEmpty(Mono.empty());
+        Mono<Map<Long, String>> raceIDAndRaceStatus = mapRaceIdAndStatusFromDbOrRedis(raceId.toString()).switchIfEmpty(Mono.empty());
 
         return Mono.zip(entrantFlux.collectList(), raceMeetingFlux,
                         raceNumberId.collectMap(Race::getNumber, Race::getId),
                         raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteId),
-                        raceNumberId.collectMap(Race::getId, Race::getResultsDisplay))
+                        raceNumberId.collectMap(Race::getId, Race::getResultsDisplay),
+                        raceIDAndRaceStatus)
                 .map(tuple -> {
                     RaceEntrantDto raceEntrantDTO = tuple.getT2();
+                    raceEntrantDTO.setStatus(tuple.getT6().get(raceId));
                     raceEntrantDTO.setFinalResult(CommonUtils.getMapRaceFinalResultFromJsonb(tuple.getT5().get(raceId)));
                     raceEntrantDTO.setEntrants(tuple.getT1());
                     raceEntrantDTO.setRaceIdNumber(tuple.getT3());
@@ -129,4 +133,55 @@ public class RaceService {
         return raceResponse.sort(Comparator.comparing(RaceBaseResponseDTO::getDate));
     }
 
+    public Mono<Map<Long, String>> mapRaceIdAndStatusFromDbOrRedis(String ids) {
+        if (ids == null || ids.isEmpty()){
+            return Mono.just(Collections.emptyMap());
+        }
+        List<Long> idList = Arrays.stream(ids.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+
+        Mono<List<RaceResponseDto>> raceResponseDtoMono = raceRedisService.findAllByKeysRaceResponseDto(idList);
+
+        return raceResponseDtoMono.flatMap(response -> {
+            List<RaceResponseDto> raceResponseDtoList = response.stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            if (!raceResponseDtoList.isEmpty()) {
+                List<Long> raceIdList = compareListId(raceResponseDtoList.stream()
+                                .map(RaceResponseDto::getId)
+                                .collect(Collectors.toList()),
+                        idList);
+                return raceIdList.isEmpty() ? Mono.just(raceResponseDtoList.stream()
+                        .collect(Collectors.toMap(RaceResponseDto::getId,
+                                RaceResponseDto::getStatus)))
+                        : zipDataFromListRaceDbAndRedis(raceIdList, raceResponseDtoList);
+            }
+
+            return raceRepository.findAllById(idList)
+                    .collectList()
+                    .map(raceResponseDto -> raceResponseDto.stream()
+                            .collect(Collectors.toMap(Race::getId,
+                                    Race::getStatus)));
+        });
+    }
+
+    public List<Long> compareListId(List<Long> listIds1, List<Long> listIds2) {
+        if (CollectionUtils.isEmpty(listIds1) || CollectionUtils.isEmpty(listIds2)) {
+            return Collections.emptyList();
+        }
+        return listIds2.stream().filter(x -> !listIds1.contains(x)).collect(Collectors.toList());
+    }
+
+    public Mono<Map<Long, String>> zipDataFromListRaceDbAndRedis(List<Long> raceIdList, List<RaceResponseDto> raceResponseDtoList) {
+        if (CollectionUtils.isEmpty(raceIdList) || CollectionUtils.isEmpty(raceResponseDtoList)) {
+            return Mono.just(Collections.emptyMap());
+        }
+        return Mono.zip(raceRepository.findAllById(raceIdList).collectList(), Mono.just(raceResponseDtoList))
+                .map(tuple -> {
+                    Map<Long, String> map = tuple.getT1().stream().collect(Collectors.toMap(Race::getId, Race::getStatus));
+                    map.putAll(tuple.getT2().stream().collect(Collectors.toMap(RaceResponseDto::getId, RaceResponseDto::getStatus)));
+                    return map;
+                });
+    }
 }

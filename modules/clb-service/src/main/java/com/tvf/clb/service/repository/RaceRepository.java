@@ -13,6 +13,8 @@ import java.time.Instant;
 import java.util.List;
 
 public interface RaceRepository extends R2dbcRepository<Race, Long> {
+
+    Flux<Race> findAllById(List<Long> ids);
     Flux<Race> findAllByAdvertisedStartBetweenAndStatusNotIn(Instant start, Instant end, List<String> statuses);
 
     Flux<Race> findAllByNameInAndNumberInAndAdvertisedStartIn(@Param("name") List<String> name, @Param("number") List<Integer> number, @Param("date") List<Instant> date);
