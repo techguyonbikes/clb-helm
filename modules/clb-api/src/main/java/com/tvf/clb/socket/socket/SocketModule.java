@@ -117,9 +117,10 @@ public class SocketModule {
 
                         RaceResponseDto subscribedRace = subscribedRaces.get(raceId);
 
-                        if (subscribedRace == null || ! subscribedRace.getStatus().equals(newRaceInfo.getStatus())) {
+                        String newStatus = newRaceInfo.getStatus();
+                        if (newStatus != null && (subscribedRace == null || ! newStatus.equals(subscribedRace.getStatus()))) {
                             clients.forEach(client -> {
-                                client.sendEvent("new_status", new RaceStatusDto(raceId, newRaceInfo.getStatus()));
+                                client.sendEvent("new_status", new RaceStatusDto(raceId, newStatus));
                                 log.info("Send race[id={}] new status to client ID[{}]", raceId, client.getSessionId().toString());
                             });
                         }

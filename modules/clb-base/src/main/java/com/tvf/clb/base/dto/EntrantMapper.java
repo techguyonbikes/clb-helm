@@ -153,7 +153,11 @@ public class EntrantMapper {
         Instant reqInstant = null;
         if (entrant.getScratchingTime() != null) {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
-            LocalDateTime localDateTime = LocalDateTime.parse(entrant.getScratchingTime().substring(0, entrant.getScratchingTime().lastIndexOf(".")), dateTimeFormatter);
+            String dateTimeString = entrant.getScratchingTime();
+            if (dateTimeString.contains(".")) {
+                dateTimeString = dateTimeString.substring(0, entrant.getScratchingTime().lastIndexOf("."));
+            }
+            LocalDateTime localDateTime = LocalDateTime.parse(dateTimeString, dateTimeFormatter);
             ZoneId zoneId = ZoneId.of(ZoneOffset.UTC.getId());
             reqInstant = localDateTime.atZone(zoneId).toInstant();
         }
