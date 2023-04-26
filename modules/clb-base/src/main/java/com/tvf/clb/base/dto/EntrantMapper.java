@@ -172,7 +172,7 @@ public class EntrantMapper {
                 .priceFluctuations(prices)
                 .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !AppConstant.NOT_SCRATCHED_NAME.equals(entrant.getSelectionsStatus())))
                 .scratchedTime(reqInstant)
-                .position(position.get(entrant.getNumber()))
+                .position(position == null ? 0 : position.get(entrant.getNumber()))
                 .build();
     }
 

@@ -8,6 +8,7 @@ import com.tvf.clb.base.entity.Race;
 import io.r2dbc.postgresql.codec.Json;
 
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.util.*;
 
 
@@ -53,7 +54,7 @@ public class CommonUtils {
     }
 
 
-    public static Race checkDiffRaceName(List<Race> races, String raceNameCompare) {
+    public static Race getRaceDiffRaceName(List<Race> races, String raceNameCompare, Instant advertisedStart) {
         if (races.isEmpty() || raceNameCompare == null) {
             return null;
         }
@@ -62,23 +63,41 @@ public class CommonUtils {
         }
         Race result = races.get(0);
         int wordMax = compareName(races.get(0).getName(), raceNameCompare);
+        Map<Race, Integer> mapRaceIdAndWordSame = new HashMap<>();
         for (Race race : races) {
-            if (race.getName() != null) {
-                if (race.getName().equals(raceNameCompare)) {
-                    return race;
-                } else {
-                    int numberOfSameWord = compareName(race.getName(), raceNameCompare);
-                    if (wordMax < numberOfSameWord) {
-                        wordMax = numberOfSameWord;
-                        result = race;
-                    }
+            if (race.getName() == null) {
+                continue;
+            }
+            if (race.getName().equals(raceNameCompare)) {
+                return race;
+            } else {
+                int numberOfSameWord = compareName(race.getName(), raceNameCompare);
+                if (wordMax < numberOfSameWord) {
+                    wordMax = numberOfSameWord;
+                    result = race;
                 }
+                mapRaceIdAndWordSame.put(race, numberOfSameWord);
             }
         }
-        return result;
+        Race raceSameWithAdvertisedStart = getRaceSameWithAdvertisedStart(mapRaceIdAndWordSame, wordMax, advertisedStart);
+        return raceSameWithAdvertisedStart != null ? raceSameWithAdvertisedStart : result;
     }
 
-    public static Meeting checkDiffMeetingName(List<Meeting> meetings, String meetingNameCompare) {
+    public static Race getRaceSameWithAdvertisedStart(Map<Race, Integer> mapRaceIdAndWordSame, int wordMax, Instant advertisedStart){
+        if (mapRaceIdAndWordSame == null || mapRaceIdAndWordSame.isEmpty() || advertisedStart == null){
+            return null;
+        }
+        for (Map.Entry<Race, Integer> entry : mapRaceIdAndWordSame.entrySet()) {
+            Race race = entry.getKey();
+            Integer word = entry.getValue();
+            if (word.equals(wordMax) && race.getAdvertisedStart().equals(advertisedStart)){
+                return race;
+            }
+        }
+        return null;
+    }
+
+    public static Meeting getMeetingDiffMeetingName(List<Meeting> meetings, String meetingNameCompare) {
         if (meetings.isEmpty() || meetingNameCompare == null){
             return null;
         }

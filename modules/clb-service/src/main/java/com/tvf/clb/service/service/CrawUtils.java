@@ -103,7 +103,7 @@ public class CrawUtils {
                             )
                             .collectList()
                             .mapNotNull(m -> {
-                                Meeting result = CommonUtils.checkDiffMeetingName(m, r.getName());
+                                Meeting result = CommonUtils.getMeetingDiffMeetingName(m, r.getName());
                                 if (result == null) {
                                     return null;
                                 } else {
@@ -277,7 +277,7 @@ public class CrawUtils {
                 raceDto.getNumber(),
                 raceDto.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
                 raceDto.getAdvertisedStart().plus(30, ChronoUnit.MINUTES)
-        ).collectList().mapNotNull(r -> CommonUtils.checkDiffRaceName(r, raceDto.getName()));
+        ).collectList().mapNotNull(r -> CommonUtils.getRaceDiffRaceName(r, raceDto.getName(), raceDto.getAdvertisedStart()));
         raceMono.subscribe(race -> checkRaceFinalResultThenSave(race, finalResult, siteId));
     }
 
@@ -301,6 +301,9 @@ public class CrawUtils {
     }
 
     public Map<Integer, Integer> getPositionInResult(String input){
+        if (input == null) {
+            return null;
+        }
         String[] groups = input.split("/");
         Map<Integer, Integer> output = new HashMap<>();
         int currentIndex = 1;
@@ -321,7 +324,7 @@ public class CrawUtils {
                 race.getAdvertisedStart().minus(30, ChronoUnit.MINUTES),
                 race.getAdvertisedStart().plus(30, ChronoUnit.MINUTES)
         ).collectList().mapNotNull(races -> {
-            Race result = CommonUtils.checkDiffRaceName(races, race.getName());
+            Race result = CommonUtils.getRaceDiffRaceName(races, race.getName(), race.getAdvertisedStart());
             if (result == null) {
                 return null;
             } else {
