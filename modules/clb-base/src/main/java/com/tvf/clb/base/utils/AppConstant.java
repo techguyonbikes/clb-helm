@@ -130,4 +130,9 @@ public class AppConstant {
     public static final String SPORT_BET_BETTING_STATUS_RESULTED = "RESULTED";
 
     public static final String TAB_RACE_STATUS_FINAL = "Paying";
+
+    public static final Integer MAX_RETRIES = 2;
+
+    public static final long RETRY_DELAY_TIME = 1000L;
+
 }

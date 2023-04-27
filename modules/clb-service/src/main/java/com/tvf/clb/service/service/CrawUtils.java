@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
+import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
@@ -21,10 +22,14 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.tvf.clb.base.utils.AppConstant.MAX_RETRIES;
+import static com.tvf.clb.base.utils.AppConstant.RETRY_DELAY_TIME;
 
 @Service
 @Slf4j
@@ -53,6 +58,9 @@ public class CrawUtils {
 
     @Autowired
     private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
+
+    @Autowired
+    private FailedApiCallService failedApiCallService;
 
     public void saveEntrantCrawlDataToRedis(List<Entrant> entrants, Integer site, String raceRedisKey, RaceDto raceDto) {
 
@@ -318,6 +326,66 @@ public class CrawUtils {
         return output;
     }
 
+    public Flux<MeetingDto> crawlMeeting(CrawlMeetingFunction crawlFunction, LocalDate date, Long delayCrawlTime, String className)  {
+
+        String simpleClassName = className.substring(className.lastIndexOf(".") + 1);
+
+        int retryCount = 0;
+        while (retryCount <= MAX_RETRIES) {
+            try {
+                Thread.sleep(delayCrawlTime);
+                List<MeetingDto> meetingDtoList = crawlFunction.crawl(date);
+                if (meetingDtoList != null) {
+                    return Flux.fromIterable(meetingDtoList);
+                }
+                ++ retryCount;
+                log.info("[{}] Got null data while crawl meetings {}, retry attempt {}", simpleClassName, date.toString(), retryCount);
+            } catch (InterruptedException interruptedException) {
+                log.warn("[{}] Got InterruptedException {} while crawl meeting data", simpleClassName, interruptedException.getMessage());
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                ++ retryCount;
+                delayCrawlTime = RETRY_DELAY_TIME * retryCount;
+                log.info("[{}] Got exception \"{}\" while crawl meetings data {}, retry attempt {}", simpleClassName, e.getMessage(), date.toString(), retryCount);
+            }
+        }
+
+        log.error("[{}] Crawling meetings data {} failed after {} retries", simpleClassName, date.toString(), MAX_RETRIES);
+        this.saveFailedCrawlMeeting(className, date);
+
+        throw new ApiRequestFailedException();
+    }
+
+    public Object crawlRace(CrawlRaceFunction crawlFunction, String raceUUID, String className) {
+
+        String simpleClassName = className.substring(className.lastIndexOf(".") + 1);
+
+        int retryCount = 0;
+
+        while (retryCount <= MAX_RETRIES) {
+            try {
+                Object raceRawData = crawlFunction.crawl(raceUUID);
+                if (raceRawData != null) {
+                    return raceRawData;
+                }
+                ++ retryCount;
+                log.info("[{}] Got null data while crawl race (uuid = {}), retry attempt {}", simpleClassName, raceUUID, retryCount);
+            } catch (Exception e) {
+                ++ retryCount;
+                try {
+                    Thread.sleep(RETRY_DELAY_TIME * retryCount);
+                } catch (InterruptedException interruptedException) {
+                    log.warn("[{}] Got InterruptedException {} while crawl meeting data", simpleClassName, interruptedException.getMessage());
+                    Thread.currentThread().interrupt();
+                }
+                log.info("[{}] Got exception \"{}\" while crawl race data (uuid = {}), retry attempt {}", simpleClassName, e.getMessage(), raceUUID, retryCount);
+            }
+        }
+        log.error("[{}] Crawling race data (uuid = {}) failed after {} retries", simpleClassName, raceUUID, MAX_RETRIES);
+
+        return null;
+    }
+
     public Mono<Long> getRaceByTypeAndNumberAndRangeAdvertisedStart(RaceDto race){
         return raceRepository.getRaceByTypeAndNumberAndRangeAdvertisedStart(
                 race.getRaceType(), race.getNumber(),
@@ -333,5 +401,17 @@ public class CrawUtils {
         }) ;
     }
 
+    public void saveFailedCrawlMeeting(String className, LocalDate crawlDate) {
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put(LocalDate.class.getName(), new Gson().toJson(crawlDate));
+        failedApiCallService.saveFailedApiCallInfoToDB(className, "getTodayMeetings", params);
+    }
+
+    public void saveFailedCrawlRace(String className, RaceDto raceDto, LocalDate crawlTime) {
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put(RaceDto.class.getName(), new Gson().toJson(raceDto));
+        params.put(LocalDate.class.getName(), new Gson().toJson(crawlTime));
+        failedApiCallService.saveFailedApiCallInfoToDB(className, "crawlAndSaveEntrantsInRace", params);
+    }
 
 }

@@ -146,4 +146,13 @@ public class CommonUtils {
         return commonWords;
     }
 
+    public static Json toJsonb(Object source) {
+        return Json.of(new Gson().toJson(source));
+    }
+
+    public static <T> T fromJsonbToObject(Json json, TypeToken<T> typeToken) {
+        Gson gson = new Gson();
+        return gson.fromJson(json.asString(), typeToken.getType());
+    }
+
 }

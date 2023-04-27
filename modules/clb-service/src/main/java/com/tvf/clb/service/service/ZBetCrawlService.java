@@ -9,6 +9,7 @@ import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
+import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
@@ -21,10 +22,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,26 +36,23 @@ public class ZBetCrawlService implements ICrawlService {
 
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
-        return Mono.fromSupplier(() -> {
-            List<ZBetMeetingRawData> rawData = null;
-            try {
-                Thread.sleep(20000);
-                String url = AppConstant.ZBET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
-                Response response = ApiUtils.get(url);
-                ResponseBody body = response.body();
-                JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
-                Gson gson = new GsonBuilder().create();
-                if (body != null)
-                    rawData = gson.fromJson(jsonObject.get("data"), new TypeToken<List<ZBetMeetingRawData>>() {
-                    }.getType());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        log.info("Start getting the API from ZBet.");
+
+        CrawlMeetingFunction crawlFunction = crawlDate -> {
+            String url = AppConstant.ZBET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
+            Response response = ApiUtils.get(url);
+            ResponseBody body = response.body();
+            JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
+            Gson gson = new GsonBuilder().create();
+            if (body != null) {
+                List<ZBetMeetingRawData> rawData = gson.fromJson(jsonObject.get("data"), new TypeToken<List<ZBetMeetingRawData>>() {}.getType());
+                return getAllAusMeeting(rawData, date);
             }
-            log.info("Start getting the API from ZBet.");
-            return getAllAusMeeting(rawData, date);
-        }).flatMapMany(Flux::fromIterable);
+
+            return null;
+        };
+
+        return crawUtils.crawlMeeting(crawlFunction, date, 20000L, this.getClass().getName());
     }
 
     @Override
@@ -84,10 +79,10 @@ public class ZBetCrawlService implements ICrawlService {
             }
 
             return result;
+
         } else {
-            log.error("Can not found ZBet race by RaceId " + raceId);
+            return new CrawlRaceData();
         }
-        return null;
     }
 
 
@@ -115,34 +110,32 @@ public class ZBetCrawlService implements ICrawlService {
             });
             racesData.addAll(meetingRaces);
         });
-        saveRaceSite(racesData);
 
-        crawlAndSaveEntrants(racesData, date).subscribe();
+        List<RaceDto> raceDtoList = racesData.stream().map(MeetingMapper::toRaceDto).collect(Collectors.toList());
+
+        saveRaceSite(raceDtoList);
+
+        crawlAndSaveEntrants(raceDtoList, date).subscribe();
         return Collections.emptyList();
     }
 
-    private Flux<EntrantDto> crawlAndSaveEntrants(List<ZBetRacesData> raceDtoList, LocalDate date) {
-        return Flux.fromIterable(raceDtoList)
-                .parallel() // create a parallel flux
-                .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
-                .flatMap(race -> crawlAndSaveEntrantsInRace(race, date)) // call the getRaceById method for each raceId
-                .sequential(); // convert back to a sequential flux
-    }
+    @Override
+    public Flux<EntrantDto> crawlAndSaveEntrantsInRace(RaceDto raceDto, LocalDate date) {
+        String raceUUID = raceDto.getId();
 
-    public Flux<EntrantDto> crawlAndSaveEntrantsInRace(ZBetRacesData race, LocalDate date) {
-        String raceUUID = race.getId().toString();
-
-        ZBetRaceRawData raceDto = getZBetRaceData(raceUUID);
-        if (raceDto != null) {
-            List<ZBetEntrantData> allEntrant = raceDto.getSelections();
-
-            if (AppConstant.STATUS_FINAL.equals(race.getStatus()) && raceDto.getFinalResult() != null) {
-                crawUtils.updateRaceFinalResultIntoDB(MeetingMapper.toRaceDto(race, raceDto.getDistance()), AppConstant.ZBET_SITE_ID, raceDto.getFinalResult().replace('/', ','));
+        ZBetRaceRawData raceRawData = getZBetRaceData(raceUUID);
+        if (raceRawData != null) {
+            List<ZBetEntrantData> allEntrant = raceRawData.getSelections();
+            raceDto.setDistance(raceRawData.getDistance());
+            if (AppConstant.STATUS_FINAL.equals(raceDto.getStatus()) && raceRawData.getFinalResult() != null) {
+                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.ZBET_SITE_ID, raceRawData.getFinalResult().replace('/', ','));
             }
 
-            saveEntrant(allEntrant, race, date, raceDto.getDistance());
+            saveEntrant(allEntrant, raceDto, date);
+
         } else {
-            log.error("Can not found ZBet race by RaceUUID " + raceUUID);
+            crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date);
+            throw new ApiRequestFailedException();
         }
 
         return Flux.empty();
@@ -153,35 +146,33 @@ public class ZBetCrawlService implements ICrawlService {
         crawUtils.saveMeetingSite(newMeetings, AppConstant.ZBET_SITE_ID);
     }
 
-    public void saveRaceSite(List<ZBetRacesData> raceDtoList) {
-        List<RaceDto> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceDto).collect(Collectors.toList());
-        crawUtils.saveRaceSiteAndUpdateStatus(newRaces, AppConstant.ZBET_SITE_ID);
+    public void saveRaceSite(List<RaceDto> raceDtoList) {
+        crawUtils.saveRaceSiteAndUpdateStatus(raceDtoList, AppConstant.ZBET_SITE_ID);
     }
 
-    public void saveEntrant(List<ZBetEntrantData> entrantRawData, ZBetRacesData race, LocalDate date, Integer distance) {
+    public void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto, LocalDate date) {
 
         List<Entrant> newEntrants = entrantRawData.stream().distinct()
                 .map(meeting -> MeetingMapper.toEntrantEntity(meeting, buildPriceFluctuations(meeting))).collect(Collectors.toList());
 
-        String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", race.getMeetingName(), race.getNumber(), race.getType(), date);
+        String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
 
-        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, MeetingMapper.toRaceDto(race, distance));
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, raceDto);
 
-        crawUtils.saveEntrantsPriceIntoDB(newEntrants, MeetingMapper.toRaceDto(race) ,AppConstant.ZBET_SITE_ID);
+        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.ZBET_SITE_ID);
     }
 
     private ZBetRaceRawData getZBetRaceData(String raceId) {
-        try {
+
+        CrawlRaceFunction crawlFunction = raceUUID -> {
             String url = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
             Response response = ApiUtils.get(url);
             JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
             Gson gson = new GsonBuilder().create();
             return gson.fromJson(jsonObject.get("data"), ZBetRaceRawData.class);
-        } catch (IOException e) {
-            log.error("Got error while get ZBet Race Data raceId: " + raceId);
-            log.error(e.getMessage());
-        }
-        return new ZBetRaceRawData();
+        };
+
+        return (ZBetRaceRawData) crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
     }
 
     private List<Float> buildPriceFluctuations(ZBetEntrantData entrantData) {

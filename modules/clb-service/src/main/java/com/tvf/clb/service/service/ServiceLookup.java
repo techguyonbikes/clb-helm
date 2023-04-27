@@ -30,4 +30,8 @@ public class ServiceLookup {
         ClbService componentType = applicationContext.findAnnotationOnBean(beanName, ClbService.class);
         return componentType == null ? "" : componentType.componentType();
     }
+
+    public <T> T forBean(Class<T> serviceClass) {
+        return applicationContext.getBean(serviceClass);
+    }
 }

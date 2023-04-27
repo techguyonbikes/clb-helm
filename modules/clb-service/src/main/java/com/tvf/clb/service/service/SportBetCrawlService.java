@@ -28,10 +28,7 @@ import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -41,33 +38,31 @@ import static com.tvf.clb.base.utils.AppConstant.SPORT_BET_BETTING_STATUS_RESULT
 
 @ClbService(componentType = AppConstant.SPORT_BET)
 @Slf4j
-public class SportBetCrawlService implements ICrawlService{
+public class SportBetCrawlService implements ICrawlService {
 
     @Autowired
     private CrawUtils crawUtils;
 
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
-        return Mono.fromSupplier(() -> {
-            SportBetDataDto rawData = null;
-            try {
-                Thread.sleep(20000);
-                String url = AppConstant.SPORT_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
-                Response response = ApiUtils.get(url);
-                ResponseBody body = response.body();
-                Gson gson = new GsonBuilder().setDateFormat(AppConstant.DATE_TIME_FORMAT_LONG).create();
-                if (body != null) {
-                    rawData = gson.fromJson(body.string(), SportBetDataDto.class);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+        log.info("Start getting the API from SportBet.");
+
+        CrawlMeetingFunction crawlFunction = crawlDate -> {
+            String url = AppConstant.SPORT_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
+            Response response = ApiUtils.get(url);
+            ResponseBody body = response.body();
+            Gson gson = new GsonBuilder().setDateFormat(AppConstant.DATE_TIME_FORMAT_LONG).create();
+            if (body != null) {
+                SportBetDataDto rawData = gson.fromJson(body.string(), SportBetDataDto.class);
+                return getAllAusMeeting(rawData,date);
             }
-            log.info("Start getting the API from SportBet.");
-            return getAllAusMeeting(rawData,date);
-        }).flatMapMany(Flux::fromIterable);
+
+            return null;
+        };
+
+        return crawUtils.crawlMeeting(crawlFunction, date, 20000L, this.getClass().getName());
     }
+
     private List<MeetingDto> getAllAusMeeting(SportBetDataDto sportBetDataDto, LocalDate date) {
         List<SportBetSectionsDto> sportBetSectionsDtos = sportBetDataDto.getDates();
         List<SportBetMeetingDto> sportBetMeetingDtoList = sportBetSectionsDtos.get(0).getSections();
@@ -87,9 +82,10 @@ public class SportBetCrawlService implements ICrawlService{
             raceDtoList.addAll(meetingRaces);
         });
         saveRace(raceDtoList);
-        crawlAndSaveAllEntrants(raceDtoList, date).subscribe();
+        crawlAndSaveEntrants(raceDtoList, date).subscribe();
         return Collections.emptyList();
     }
+
     public void saveMeeting(List<MeetingDto> meetingDtoList) {
         List<Meeting> newMeetings = meetingDtoList.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
         crawUtils.saveMeetingSite(newMeetings, AppConstant.SPORTBET_SITE_ID);
@@ -102,55 +98,50 @@ public class SportBetCrawlService implements ICrawlService{
 
     @Override
     public CrawlRaceData getEntrantByRaceUUID(String raceId) {
-        try {
-            SportBetRaceDto sportBetRaceDto = crawlEntrantDataSportBet(raceId);
-            MarketRawData  markets = sportBetRaceDto.getMarkets().get(0);
-            List<SportBetEntrantRawData> allEntrant = markets.getSelections();
+        SportBetRaceDto sportBetRaceDto = crawlEntrantDataSportBet(raceId);
 
-            Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
-            allEntrant.forEach(x -> {
-                List<Float> prices = new ArrayList<>();
-                Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-                prices.add(x.getStatistics().getOpenPrice());
-                prices.add(x.getStatistics().getFluc1());
-                prices.add(x.getStatistics().getFluc2());
-                x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
-                       r->prices.add(r.getWinPrice())
-                );
-                priceFluctuations.put(AppConstant.SPORTBET_SITE_ID, prices);
-                entrantMap.put(x.getRunnerNumber(), new CrawlEntrantData(0, priceFluctuations));
-            });
-
-            CrawlRaceData result = new CrawlRaceData();
-            result.setSiteId(SiteEnum.SPORT_BET.getId());
-            result.setMapEntrants(entrantMap);
-
-            if (isRaceStatusFinal(sportBetRaceDto)) {
-                String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
-                        .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
-                        .collect(Collectors.joining(","));
-
-                result.setFinalResult(Collections.singletonMap(AppConstant.SPORTBET_SITE_ID, top4Entrants));
-            }
-
-            return result;
-        } catch (IOException e) {
-            throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
+        if (sportBetRaceDto == null) {
+            return new CrawlRaceData();
         }
+
+        MarketRawData  markets = sportBetRaceDto.getMarkets().get(0);
+        List<SportBetEntrantRawData> allEntrant = markets.getSelections();
+
+        Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
+        allEntrant.forEach(x -> {
+            List<Float> prices = new ArrayList<>();
+            Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
+            prices.add(x.getStatistics().getOpenPrice());
+            prices.add(x.getStatistics().getFluc1());
+            prices.add(x.getStatistics().getFluc2());
+            x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
+                   r->prices.add(r.getWinPrice())
+            );
+            priceFluctuations.put(AppConstant.SPORTBET_SITE_ID, prices);
+            entrantMap.put(x.getRunnerNumber(), new CrawlEntrantData(0, priceFluctuations));
+        });
+
+        CrawlRaceData result = new CrawlRaceData();
+        result.setSiteId(SiteEnum.SPORT_BET.getId());
+        result.setMapEntrants(entrantMap);
+
+        if (isRaceStatusFinal(sportBetRaceDto)) {
+            String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
+                    .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
+                    .collect(Collectors.joining(","));
+
+            result.setFinalResult(Collections.singletonMap(AppConstant.SPORTBET_SITE_ID, top4Entrants));
+        }
+
+        return result;
     }
 
-    public Flux<EntrantDto> crawlAndSaveAllEntrants(List<RaceDto> raceDtoList, LocalDate date) {
-        return Flux.fromIterable(raceDtoList)
-                .parallel()
-                .runOn(Schedulers.parallel())
-                .flatMap(raceDto -> crawlAndSaveEntrantsInRace(raceDto, date))
-                .sequential();
-    }
-
+    @Override
     public Flux<EntrantDto> crawlAndSaveEntrantsInRace(RaceDto raceDto, LocalDate date) {
-        try {
-            String raceUUID = raceDto.getId();
-            SportBetRaceDto sportBetRaceDto = crawlEntrantDataSportBet(raceUUID);
+        String raceUUID = raceDto.getId();
+        SportBetRaceDto sportBetRaceDto = crawlEntrantDataSportBet(raceUUID);
+
+        if (sportBetRaceDto != null) {
             MarketRawData  markets = sportBetRaceDto.getMarkets().get(0);
             if (markets != null) {
                 List<SportBetEntrantRawData> allEntrant = markets.getSelections();
@@ -162,15 +153,17 @@ public class SportBetCrawlService implements ICrawlService{
 
             if (isRaceStatusFinal(sportBetRaceDto)) {
                 String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
-                                            .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
-                                            .collect(Collectors.joining(","));
+                        .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
+                        .collect(Collectors.joining(","));
 
                 crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.SPORTBET_SITE_ID, top4Entrants);
             }
 
             return Flux.empty();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+
+        } else {
+            crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date);
+            throw new ApiRequestFailedException();
         }
     }
 
@@ -200,12 +193,17 @@ public class SportBetCrawlService implements ICrawlService{
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceDto);
     }
 
-    public SportBetRaceDto crawlEntrantDataSportBet(String raceId) throws IOException {
-        String url = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        Response response = ApiUtils.get(url);
-        JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
-        Gson gson = new GsonBuilder().create();
-        return gson.fromJson(jsonObject.get(AppConstant.RACECARD_EVENT), SportBetRaceDto.class);
+    public SportBetRaceDto crawlEntrantDataSportBet(String raceId) {
+
+        CrawlRaceFunction crawlFunction = raceUUID -> {
+            String url = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
+            Response response = ApiUtils.get(url);
+            JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
+            Gson gson = new GsonBuilder().create();
+            return gson.fromJson(jsonObject.get(AppConstant.RACECARD_EVENT), SportBetRaceDto.class);
+        };
+
+        return (SportBetRaceDto) crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
     }
 
 }
