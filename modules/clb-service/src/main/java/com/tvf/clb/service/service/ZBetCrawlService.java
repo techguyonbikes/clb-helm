@@ -63,9 +63,7 @@ public class ZBetCrawlService implements ICrawlService {
 
             Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
             allEntrant.forEach(x -> {
-                Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-                priceFluctuations.put(AppConstant.ZBET_SITE_ID, x.getPriceFluctuations());
-                mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+                mapEntrants.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.ZBET_SITE_ID));
             });
 
             CrawlRaceData result = new CrawlRaceData();

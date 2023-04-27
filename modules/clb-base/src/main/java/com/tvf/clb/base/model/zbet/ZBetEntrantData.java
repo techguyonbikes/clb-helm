@@ -22,6 +22,7 @@ public class ZBetEntrantData {
     private Integer barrier;
     @SerializedName("scratching_time")
     private String scratchingTime;
+    @SerializedName("selection_status")
     private String selectionsStatus;
     private JsonElement prices;
 }

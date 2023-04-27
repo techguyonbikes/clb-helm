@@ -3,6 +3,7 @@ package com.tvf.clb.base.dto;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
+import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
@@ -18,10 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class EntrantMapper {
@@ -180,6 +178,15 @@ public class EntrantMapper {
                 .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !AppConstant.NOT_SCRATCHED_NAME.equals(entrant.getSelectionsStatus())))
                 .scratchedTime(reqInstant)
                 .position(entrantPosition)
+                .build();
+    }
+
+    public static CrawlEntrantData toCrawlEntrantData(EntrantRawData entrant, Integer siteId){
+        return CrawlEntrantData.builder()
+                .position(entrant.getPosition())
+                .priceMap(Collections.singletonMap(siteId, entrant.getPriceFluctuations()))
+                .isScratched(entrant.getIsScratched() == null ? Boolean.FALSE : Boolean.parseBoolean(entrant.getIsScratched()))
+                .scratchTime(entrant.getScratchedTime())
                 .build();
     }
 }
