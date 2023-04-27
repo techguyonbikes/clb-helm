@@ -2,6 +2,8 @@ package com.tvf.clb.base.dto;
 
 import com.google.gson.Gson;
 import com.tvf.clb.base.dto.sportbet.SportBetMeetingDto;
+import com.tvf.clb.base.dto.topsport.TopSportMeetingDto;
+import com.tvf.clb.base.dto.topsport.TopSportRaceDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.MeetingSite;
@@ -395,6 +397,34 @@ public class MeetingMapper {
                 .number(entrant.getRunnerNumber())
                 .barrier(entrant.getDrawNumber())
                 .currentSitePrice(prices)
+                .build();
+    }
+    public static Meeting toMeetingEntityFromTOP(TopSportMeetingDto meeting) {
+        return Meeting.builder()
+                .meetingId(meeting.getId())
+                .name(meeting.getName().toUpperCase().trim())
+                .state(meeting.getState())
+                .advertisedDate(meeting.getAdvertisedDate())
+                .raceType(ConvertBase.convertRaceTypeOfTOP(meeting.getRaceType()))
+                .build();
+    }
+    public static Race toRaceEntityFromTOP(TopSportRaceDto race) {
+        return Race.builder()
+                .raceId(race.getId())
+                .name(race.getRaceName())
+                .number(race.getRaceNumber())
+                .raceType(race.getRaceType())
+                .advertisedStart(race.getStartTime())
+                .distance(race.getDistance())
+                .build();
+    }
+    public static MeetingDto toMeetingDtoFromTOP(TopSportMeetingDto meeting){
+        return MeetingDto.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .country(meeting.getCountry())
+                .advertisedDate(meeting.getAdvertisedDate())
+                .raceType(meeting.getRaceType())
                 .build();
     }
 }

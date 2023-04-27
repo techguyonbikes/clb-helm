@@ -16,41 +16,23 @@ public class AppConstant {
     public static final String POINT_BET = "POINTBET";
     public static final String ZBET = "ZBET";
     public static final String SPORT_BET = "SPORTBET";
-
-    //Because we use ladbroke to store common data , bellow is list site after common data is saved
-//    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, TAB, POINT_BET));
-
+    public static final String TOP_SPORT = "TOPSPORT";
     public static final Integer LAD_BROKE_SITE_ID = 1;
     public static final Integer NED_SITE_ID = 2;
     public static final Integer POINT_BET_SITE_ID = 4;
     public static final Integer ZBET_SITE_ID = 3;
     public static final Integer TAB_SITE_ID = 5;
     public static final Integer SPORTBET_SITE_ID = 6;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET));
-
+    public static final Integer TOPSPORT_SITE_ID = 7;
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT));
     public static final String POSITION = "position";
 
-    public static final String ADDITIONAL_INFO = "additional_info";
-
     public static final String DISTANCE = "distance";
-
-    public static final String ADVERTISED_START = "advertised_start";
-    public static final String SECONDS = "seconds";
-
     public static final String MARKETS_NAME = "Final Field";
-
-    public static final String DEFAULT_LOG_FILE = "logs/cloudbet.log";
-    public static final String DEFAULT_LOG_PATH = "logs/";
-    public static final String NOT_FOUND = "Not Found";
-
-    public static final String LINE_BREAK_HTML = "<br>";
 
     public static final String SCRATCHED_NAME = "LateScratched";
     public static final String NOT_SCRATCHED_NAME = "not scratched";
-
-    public static final String AUS = "AUS";
     public static final String DATE_PARAM = "{date}";
-
     public static final String ID_PARAM = "{id}";
     public static final String LAD_BROKES_IT_MEETING_QUERY = "https://api.ladbrokes.com.au/v2/racing/meeting?date={date}&region=domestic&timezone=Asia%2FBangkok";
 
@@ -81,7 +63,6 @@ public class AppConstant {
     public static final ZoneId UTC_ZONE_ID = ZoneId.of("UTC");
 
     public static final ZoneId AU_ZONE_ID = ZoneId.of("Australia/Sydney");
-    public static final long TIME_VALIDATE_START = 6000;
     public static final String TAB_BET_MEETING_QUERY = "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{date}/meetings?jurisdiction=NSW&returnOffers=true&returnPromo=false";
     public static final String TAB_BET_RACE_QUERY= "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{id}?returnPromo=true&returnOffers=true&jurisdiction=NSW";
     public static final String SPORT_BET_MEETING_QUERY= "https://www.sportsbet.com.au/apigw/sportsbook-racing/Sportsbook/Racing/AllRacing/{date}";
@@ -126,6 +107,12 @@ public class AppConstant {
     public static final int MINUTE_TIME = 59;
     public static final int SECOND_TIME = 59;
     public static final int ZERO_TIME = 0;
+    //Topsport
+    public static final String TOPSPORT_MEETING_QUERY= "https://www.topsport.com.au/Racing/All/{date}";
+    public static final String TOPSPORT_RACE_QUERY= "https://www.topsport.com.au/{id}";
+    public static final String TODAY = "Today";
+    public static final String YESTERDAY = "Yesterday";
+    public static final String TOMORROW = "Tomorrow";
 
     public static final String SPORT_BET_BETTING_STATUS_RESULTED = "RESULTED";
 
@@ -137,4 +124,31 @@ public class AppConstant {
 
     public static final long RETRY_DELAY_TIME = 1000L;
 
+    public static final String REPLACE_STRING = "[^\\w\\s]";
+    public static final String CLASS = "class";
+    public static final String ROW = "tr";
+    public static final String COLUMN = "th";
+    public static final String CELL = "td";
+    public static final String SPAN = "span";
+    public static final String LINK = "a";
+    public static final String HREF = "href";
+    public static final String SCRATCHED_REPLACE = "Scratched @ ";
+    public static final String BODY = "tbody";
+    public static final String RACE_NAME = "raceName";
+    public static final String RACE_INFORMATION = "raceInformation";
+    public static final String RACE_NUMBER = "div[class=raceNum]";
+    public static final String RACE_RESULT = "div[class=result]";
+    public static final String SECTION_CLASS = "section[class=framePanel race]";
+    public static final String NAME_CLASS = "name";
+    public static final String SADDLE_CLASS = "saddle";
+    public static final String BARRIER_CLASS = "barrier";
+    //CSS QUERY
+    public static final String SCRATCHED_QUERY = "tr[class=scratched]";
+    public static final String FIXED_WIN_QUERY = "a[data-special=FWIN]";
+    public static final String SILKCOLUMN_QUERY = "tr:has(td[class=silkColumn])";
+    public static final String FIXED_PLACE_QUERY = "a[data-special=FPLC]";
+    public static final String DATA_PRICE = "data-price";
+    public static final String SCRATCHPAY_CLASS = "scratchPay";
+    public static final String RACEREGION = "raceRegion";
+    public static final String RACESTATE = "raceState";
 }

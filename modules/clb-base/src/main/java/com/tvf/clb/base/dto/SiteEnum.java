@@ -10,7 +10,8 @@ public enum SiteEnum {
     ZBET(3, "ZBET"),
     POINT_BET(4, "POINTBET"),
     TAB(5, "TAB"),
-    SPORT_BET(6, "SPORTBET");
+    SPORT_BET(6, "SPORTBET"),
+    TOP_SPORT(7, "TOPSPORT");
 
     private final int id;
     private final String name;

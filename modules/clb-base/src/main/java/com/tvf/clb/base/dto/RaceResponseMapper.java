@@ -1,5 +1,6 @@
 package com.tvf.clb.base.dto;
 
+import com.tvf.clb.base.dto.topsport.TopSportRaceDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.entity.RaceSite;
@@ -60,6 +61,16 @@ public class RaceResponseMapper {
                 .number(r.getNumber())
                 .advertisedStart(r.getAdvertisedStart())
                 .name(r.getName())
+                .build();
+    }
+    public static RaceDto toRaceDTO(TopSportRaceDto r){
+        return RaceDto.builder()
+                .id(r.getId())
+                .raceType(r.getRaceType())
+                .number(r.getRaceNumber())
+                .advertisedStart(r.getStartTime())
+                .name(r.getRaceName())
+                .meetingName(r.getMeetingName())
                 .build();
     }
 

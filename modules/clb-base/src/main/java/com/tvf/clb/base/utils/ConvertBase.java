@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 @Slf4j
 public class ConvertBase {
@@ -78,6 +81,47 @@ public class ConvertBase {
                 return AppConstant.STATUS_INTERIM;
             case AppConstant.ZBET_CLOSED_STATUS:
                 return AppConstant.STATUS_CLOSED;
+            default: return null;
+        }
+    }
+    public static String getDateOfWeek(LocalDate date) {
+        String resulst = null;
+        LocalDate nowDate = LocalDate.now();
+        Integer compareDate =  date.compareTo(nowDate);
+        if(compareDate == 0){
+            resulst = AppConstant.TODAY;
+        }
+        if (compareDate > 0 && compareDate < 2){
+            resulst = AppConstant.TOMORROW;
+        }
+        if (compareDate == -1){
+            resulst = AppConstant.YESTERDAY;
+        }
+        if(compareDate >=2){
+            DayOfWeek day = date.getDayOfWeek();
+            resulst = day.getDisplayName(TextStyle.FULL, Locale.getDefault()) ;
+        }
+        return resulst;
+    }
+    public static Instant dateFormatFromString(String date){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a");
+        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+        return  dateTime.toInstant(ZoneOffset.UTC).minus(10, ChronoUnit.HOURS);
+    }
+
+    public static Instant scratchedTimeFormatFromString(String date){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
+        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+        return dateTime.toInstant(ZoneOffset.UTC).minus(10, ChronoUnit.HOURS);
+    }
+    public static String convertRaceTypeOfTOP(String raceType) {
+        switch (raceType) {
+            case "GREYHOUNDS":
+                return AppConstant.GREYHOUND_RACING;
+            case "THOROUGHBREDS":
+                return AppConstant.HORSE_RACING;
+            case "HARNESS":
+                return AppConstant.HARNESS_RACING;
             default: return null;
         }
     }

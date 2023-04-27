@@ -2,6 +2,7 @@ package com.tvf.clb.base.dto;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.tvf.clb.base.dto.topsport.TopSportEntrantDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.EntrantRawData;
@@ -187,6 +188,17 @@ public class EntrantMapper {
                 .priceMap(Collections.singletonMap(siteId, entrant.getPriceFluctuations()))
                 .isScratched(entrant.getIsScratched() == null ? Boolean.FALSE : Boolean.parseBoolean(entrant.getIsScratched()))
                 .scratchTime(entrant.getScratchedTime())
+                .build();
+    }
+    public static Entrant toEntrantEntity(TopSportEntrantDto entrantRawData) {
+        return Entrant.builder()
+                .entrantId("TOPSPORT" + entrantRawData.getEntrantName() + entrantRawData.getBarrier())
+                .raceUUID(entrantRawData.getRaceUUID())
+                .number(entrantRawData.getNumber())
+                .name(entrantRawData.getEntrantName())
+                .isScratched(entrantRawData.isScratched())
+                .currentSitePrice(entrantRawData.getPrice())
+                .scratchedTime(entrantRawData.getScratchedTime())
                 .build();
     }
 }
