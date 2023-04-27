@@ -194,7 +194,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         return results.values().stream()
                 .map(LadbrokesRaceResult::getResultStatusId)
                 .allMatch(statusId -> dividendsStatus.stream().anyMatch(status -> status.getId().equals(statusId)
-                                                                        && status.getName().equalsIgnoreCase(AppConstant.STATUS_FINAL)));
+                                && (status.getName().equalsIgnoreCase(AppConstant.STATUS_FINAL) || status.getName().equalsIgnoreCase(AppConstant.STATUS_INTERIM))));
     }
 
     private Stream<EntrantRawData> getWinnerEntrants(List<EntrantRawData> entrants) {

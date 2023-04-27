@@ -197,7 +197,8 @@ public class CrawUtils {
 
                     CrawlRaceData result = new CrawlRaceData();
                     Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
-                    Map<Integer, String> mapRaceResult = new HashMap<>();
+                    Map<Integer, String> mapRaceFinalResult = new HashMap<>();
+                    Map<Integer, String> mapRaceInterimResult = new HashMap<>();
 
                     for (CrawlRaceData raceNewData : listRaceNewData) {
                         // Set race status
@@ -207,7 +208,12 @@ public class CrawUtils {
 
                         // Set race final result
                         if (raceNewData.getFinalResult() != null) {
-                            mapRaceResult.putAll(raceNewData.getFinalResult());
+                            mapRaceFinalResult.putAll(raceNewData.getFinalResult());
+                        }
+
+                        // Set race interim result
+                        if (raceNewData.getInterimResult() != null) {
+                            mapRaceInterimResult.putAll(raceNewData.getInterimResult());
                         }
 
                         // Set entrants position and price
@@ -229,7 +235,8 @@ public class CrawUtils {
                     }
 
                     result.setMapEntrants(mapEntrants);
-                    result.setFinalResult(mapRaceResult);
+                    result.setFinalResult(mapRaceFinalResult);
+                    result.setInterimResult(mapRaceInterimResult);
 
                     return result;
                 });

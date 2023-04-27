@@ -92,6 +92,7 @@ public class AppConstant {
     public static final String STATUS_INTERIM = "INTERIM";
     public static final String STATUS_FINAL = "FINAL";
     public static final String STATUS_ABANDONED = "ABANDONED";
+    public static final String STATUS_RE_RESULTED = "RE-RESULTED";
     public static final String PRICE_CODE = "L";
     public static final String RACECARD_EVENT="racecardEvent";
     public static final String ZBET_SELLING_STATUS = "selling";

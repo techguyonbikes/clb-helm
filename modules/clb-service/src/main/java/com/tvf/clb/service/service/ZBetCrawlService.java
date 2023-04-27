@@ -71,9 +71,14 @@ public class ZBetCrawlService implements ICrawlService {
             result.setStatus(ConvertBase.getZBetRaceStatus(raceDto.getStatus()));
             result.setMapEntrants(mapEntrants);
 
-            if (AppConstant.STATUS_FINAL.equals(result.getStatus()) && raceDto.getFinalResult() != null) {
-                String raceFinalResult = raceDto.getFinalResult().replace('/', ',');
-                result.setFinalResult(Collections.singletonMap(AppConstant.ZBET_SITE_ID, raceFinalResult));
+            if (raceDto.getFinalResult() != null) {
+                String raceResult = raceDto.getFinalResult().replace('/', ',');
+                Map<Integer, String> mapRaceResult = Collections.singletonMap(AppConstant.ZBET_SITE_ID, raceResult);
+                if (AppConstant.STATUS_FINAL.equals(result.getStatus())) {
+                    result.setFinalResult(mapRaceResult);
+                } else if (AppConstant.STATUS_INTERIM.equals(result.getStatus())) {
+                    result.setInterimResult(mapRaceResult);
+                }
             }
 
             return result;

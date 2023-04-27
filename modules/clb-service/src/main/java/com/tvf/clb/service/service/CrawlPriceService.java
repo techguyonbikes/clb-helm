@@ -5,6 +5,7 @@ import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.base.model.CrawlEntrantData;
+import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.utils.CommonUtils;
@@ -64,16 +65,29 @@ public class CrawlPriceService {
 
         String newStatus = raceNewData.getStatus();
         Map<Integer, String> finalResult = raceNewData.getFinalResult();
-
-        // Do not update if new status is null
-        if (newStatus != null) {
-            storedRace.setStatus(newStatus);
-        }
+        Map<Integer, String> interimResult = raceNewData.getInterimResult();
 
         if (storedRace.getFinalResult() == null) {
             storedRace.setFinalResult(new HashMap<>());
         }
         storedRace.getFinalResult().putAll(finalResult);
+
+        if (storedRace.getInterimResult() == null) {
+            storedRace.setInterimResult(new HashMap<>());
+        }
+        storedRace.getInterimResult().putAll(interimResult);
+
+        // Do not update if new status is null
+        if (newStatus != null) {
+            String zBetFinalResult = storedRace.getFinalResult().get(AppConstant.ZBET_SITE_ID);
+            String zBetInterimResult = storedRace.getInterimResult().get(AppConstant.ZBET_SITE_ID);
+
+            if (zBetFinalResult != null && ! zBetFinalResult.equals(zBetInterimResult)) {
+                newStatus = AppConstant.STATUS_RE_RESULTED;
+            }
+            storedRace.setStatus(newStatus);
+        }
+
     }
 
     private void updateEntrantsInRace(List<EntrantResponseDto> storedEntrantList, Map<Integer, CrawlEntrantData> mapNewEntrants) {

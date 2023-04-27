@@ -16,6 +16,7 @@ import java.util.Map;
 public class CrawlRaceData {
     private String status;
     private Integer siteId;
+    private Map<Integer, String> interimResult;
     private Map<Integer, String> finalResult;
     private Map<Integer, CrawlEntrantData> mapEntrants;
 }
