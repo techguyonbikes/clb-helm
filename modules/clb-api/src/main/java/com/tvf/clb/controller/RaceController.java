@@ -4,6 +4,7 @@ import com.tvf.clb.base.dto.RaceBaseResponseDTO;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.dto.RaceEntrantDto;
 import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.service.RaceService;
 import com.tvf.clb.service.service.RaceType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +68,7 @@ public class RaceController {
 
     @GetMapping("/status")
     public Mono<ResponseEntity<Map<Long, String>>> getAllStatusRaceIds(@RequestParam String ids) {
-        return raceService.mapRaceIdAndStatusFromDbOrRedis(ids)
+        return raceService.mapRaceIdAndStatusFromDbOrRedis(CommonUtils.convertStringToListLong(ids))
                 .map(raceIdAndStatus -> {
                     if (CollectionUtils.isEmpty(raceIdAndStatus)) {
                         return ResponseEntity.notFound().build();

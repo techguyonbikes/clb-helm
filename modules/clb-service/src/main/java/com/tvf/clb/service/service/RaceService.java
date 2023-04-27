@@ -100,7 +100,7 @@ public class RaceService {
         Mono<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceEntrantByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<Race> raceNumberId = raceRepository.getRaceIDNumberByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<RaceSite> raceSiteUUID = raceSiteRepository.getAllByGeneralRaceId(raceId).switchIfEmpty(Mono.empty());
-        Mono<Map<Long, String>> raceIDAndRaceStatus = mapRaceIdAndStatusFromDbOrRedis(raceId.toString()).switchIfEmpty(Mono.empty());
+        Mono<Map<Long, String>> raceIDAndRaceStatus = mapRaceIdAndStatusFromDbOrRedis(Collections.singletonList(raceId)).switchIfEmpty(Mono.empty());
 
         return Mono.zip(entrantFlux.collectList(), raceMeetingFlux,
                         raceNumberId.collectMap(Race::getNumber, Race::getId),
@@ -122,24 +122,31 @@ public class RaceService {
 
 
     public Flux<RaceBaseResponseDTO> getListRaceDefault(LocalDate date) {
+
+        Instant nowTimeMin = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant();
+        Instant nowTimeMax = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
+
         LocalDateTime maxDateTime = date.plusDays(3).atTime(23, 59, 59);
         LocalDateTime minDateTime = date.plusDays(-3).atTime(00, 00, 00);
         Instant endTime = maxDateTime.atOffset(ZoneOffset.UTC).toInstant();
         Instant startTime = minDateTime.atOffset(ZoneOffset.UTC).toInstant();
-        Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).map(r -> {
+        Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).flatMap(r -> {
             r.setSideName(SIDE_NAME_PREFIX + r.getNumber() + " " + r.getMeetingName());
-            return r;
+            if (r.getDate().isAfter(nowTimeMin) && r.getDate().isBefore(nowTimeMax)) {
+                return mapRaceIdAndStatusFromDbOrRedis(Collections.singletonList(r.getId())).map(i -> {
+                    r.setStatus(i.getOrDefault(r.getId(), null));
+                    return r;
+                });
+            }
+            return Flux.just(r);
         });
         return raceResponse.sort(Comparator.comparing(RaceBaseResponseDTO::getDate));
     }
 
-    public Mono<Map<Long, String>> mapRaceIdAndStatusFromDbOrRedis(String ids) {
-        if (ids == null || ids.isEmpty()){
+    public Mono<Map<Long, String>> mapRaceIdAndStatusFromDbOrRedis(List<Long> idList) {
+        if (CollectionUtils.isEmpty(idList)){
             return Mono.just(Collections.emptyMap());
         }
-        List<Long> idList = Arrays.stream(ids.split(","))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
 
         Mono<List<RaceResponseDto>> raceResponseDtoMono = raceRedisService.findAllByKeysRaceResponseDto(idList);
 

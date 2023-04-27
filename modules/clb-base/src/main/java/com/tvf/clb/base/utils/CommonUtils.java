@@ -171,6 +171,17 @@ public class CommonUtils {
         return date1.isAfter(date2);
     }
 
+    public static List<Long> convertStringToListLong(String ids){
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        try {
+            return Arrays.stream(ids.trim().split(",")).map(Long::parseLong).distinct().collect(Collectors.toList());
+        }catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
     public static Json toJsonb(Object source) {
         return Json.of(new Gson().toJson(source));
     }
