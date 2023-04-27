@@ -82,7 +82,7 @@ public class CrawlPriceService {
             String zBetFinalResult = storedRace.getFinalResult().get(AppConstant.ZBET_SITE_ID);
             String zBetInterimResult = storedRace.getInterimResult().get(AppConstant.ZBET_SITE_ID);
 
-            if (zBetFinalResult != null && ! zBetFinalResult.equals(zBetInterimResult)) {
+            if (zBetFinalResult != null && zBetInterimResult != null && ! zBetFinalResult.equals(zBetInterimResult)) {
                 newStatus = AppConstant.STATUS_RE_RESULTED;
             }
             storedRace.setStatus(newStatus);
