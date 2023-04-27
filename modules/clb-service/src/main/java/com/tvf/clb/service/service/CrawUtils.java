@@ -3,12 +3,9 @@ package com.tvf.clb.service.service;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.dto.*;
+import com.tvf.clb.base.dto.topsport.TopSportMeetingDto;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
-import com.tvf.clb.base.model.CrawlEntrantData;
-import com.tvf.clb.base.model.CrawlRaceData;
-import com.tvf.clb.base.model.EntrantRawData;
-import com.tvf.clb.base.model.LadbrokesMarketsRawData;
 import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
@@ -369,7 +366,7 @@ public class CrawUtils {
         log.error("[{}] Crawling meetings data {} failed after {} retries", simpleClassName, date.toString(), MAX_RETRIES);
         this.saveFailedCrawlMeeting(className, date);
 
-        throw new ApiRequestFailedException();
+        throw new ApiRequestFailedException(String.format("Got exception while crawling %s %s meetings", simpleClassName, date));
     }
 
     public Object crawlRace(CrawlRaceFunction crawlFunction, String raceUUID, String className) {
@@ -427,6 +424,14 @@ public class CrawUtils {
         params.put(RaceDto.class.getName(), new Gson().toJson(raceDto));
         params.put(LocalDate.class.getName(), new Gson().toJson(crawlTime));
         failedApiCallService.saveFailedApiCallInfoToDB(className, "crawlAndSaveEntrantsInRace", params);
+    }
+
+    public void saveFailedCrawlRaceForTopSport(TopSportMeetingDto meetingDto, String raceId, LocalDate crawlTime) {
+        Map<String, String> params = new LinkedHashMap<>();
+        params.put(TopSportMeetingDto.class.getName(), new Gson().toJson(meetingDto));
+        params.put(String.class.getName(), new Gson().toJson(raceId));
+        params.put(LocalDate.class.getName(), new Gson().toJson(crawlTime));
+        failedApiCallService.saveFailedApiCallInfoToDB(TopSportCrawlService.class.getName(), "crawlAndSaveEntrantsAndRace", params);
     }
 
 }
