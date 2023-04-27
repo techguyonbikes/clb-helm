@@ -20,6 +20,7 @@ import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.model.zbet.ZBetMeetingRawData;
 import com.tvf.clb.base.model.zbet.ZBetRacesData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
 import io.r2dbc.postgresql.codec.Json;
 import lombok.AccessLevel;
@@ -289,7 +290,7 @@ public class MeetingMapper {
                 .barrier(entrantRawData.getBarrier())
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
-                .priceFluctuations(Json.of(gson.toJson(Collections.singletonMap(site, entrantRawData.getPriceFluctuations()))))
+                .priceFluctuations(Json.of(gson.toJson(Collections.singletonMap(site, CommonUtils.convertToPriceHistoryData(entrantRawData.getPriceFluctuations())))))
                 .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())

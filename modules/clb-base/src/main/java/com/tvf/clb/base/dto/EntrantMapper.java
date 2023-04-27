@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.model.EntrantRawData;
+import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
@@ -18,6 +19,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,8 +77,8 @@ public class EntrantMapper {
 
     public static EntrantResponseDto toEntrantResponseDto(Entrant entrant) {
         Gson gson = new Gson();
-        Type listType = new TypeToken<Map<Integer, List<Float>>>() {}.getType();
-        Map<Integer, List<Float>> prices = gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
+        Type listType = new TypeToken<Map<Integer, List<PriceHistoryData>>>() {}.getType();
+        Map<Integer, List<PriceHistoryData>> prices = entrant.getPriceFluctuations() == null ? new HashMap<>() : gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
         return EntrantResponseDto.builder()
                 .id(entrant.getId())
                 .entrantId(entrant.getEntrantId())
@@ -179,11 +181,5 @@ public class EntrantMapper {
                 .scratchedTime(reqInstant)
                 .position(entrantPosition)
                 .build();
-    }
-
-    public static List<EntrantResponseDto> convertFromRedisPriceToDTO(List<EntrantResponseDto> dtos) {
-        Type listType = new TypeToken<List<EntrantResponseDto>>() {
-        }.getType();
-        return gson.fromJson(gson.toJson(dtos), listType);
     }
 }

@@ -193,6 +193,7 @@ public class SportBetCrawlService implements ICrawlService {
             newEntrants.add(entrant);
         }
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceDto);
+        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.SPORTBET_SITE_ID);
     }
 
     public SportBetRaceDto crawlEntrantDataSportBet(String raceId) {

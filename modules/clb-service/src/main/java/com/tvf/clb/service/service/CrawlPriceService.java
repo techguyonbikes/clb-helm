@@ -6,6 +6,7 @@ import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
+import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -13,13 +14,14 @@ import io.r2dbc.postgresql.codec.Json;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CrawlPriceService {
@@ -96,10 +98,47 @@ public class CrawlPriceService {
                 if (storedEntrant.getPriceFluctuations() == null) {
                     storedEntrant.setPriceFluctuations(new HashMap<>());
                 }
-                Map<Integer, List<Float>> newPriceMap = entrantNewData.getPriceMap();
-                newPriceMap.forEach((siteId, newPrice) -> storedEntrant.getPriceFluctuations().put(siteId, newPrice));
+
+                //update price
+                updatePriceToRedis(entrantNewData.getPriceMap(), storedEntrant);
+
             }
         }
+    }
+
+    /**
+     *
+     * @param newPriceMap new price map
+     * @param storedEntrant current entrant - old entrant properties
+     */
+    public void updatePriceToRedis(Map<Integer, List<Float>> newPriceMap, EntrantResponseDto storedEntrant) {
+        if (CollectionUtils.isEmpty(newPriceMap) || storedEntrant == null) {
+            return;
+        }
+
+        // For each new price
+        newPriceMap.forEach((siteId, newPrice) -> {
+            if (CollectionUtils.isEmpty(newPrice)) {
+                newPriceMap.forEach((i, p) -> storedEntrant.getPriceFluctuations().put(i,
+                        p.stream().map(x -> new PriceHistoryData(x, CommonUtils.getStringInstantDateNow())).collect(Collectors.toList())));
+            } else {
+                // get data price old of list entrant by siteId
+                List<PriceHistoryData> storePriceHistoryData = storedEntrant.getPriceFluctuations().getOrDefault(siteId, new ArrayList<>());
+                if (CollectionUtils.isEmpty(storePriceHistoryData)) {
+                    newPriceMap.forEach((i, p) ->
+                            storedEntrant.getPriceFluctuations().put(i,
+                                    p.stream().map(x -> new PriceHistoryData(x, CommonUtils.getStringInstantDateNow())).collect(Collectors.toList())));
+                } else {
+                    //get last price in new list price
+                    Float newPriceValue = newPrice.get(newPrice.size() - 1);
+                    if (!Objects.equals(storePriceHistoryData.get(storePriceHistoryData.size() - 1).getPrice(), newPriceValue)) {
+                        storePriceHistoryData.add(new PriceHistoryData(newPriceValue, CommonUtils.getStringInstantDateNow()));
+                    }
+                    storePriceHistoryData.removeIf(x -> !CommonUtils.compareDatesAfter(Instant.parse(x.getDateHistory()),
+                                            Instant.now().minus(1, ChronoUnit.HOURS)));
+                }
+            }
+        });
     }
 
     private Mono<?> saveRaceInfoToDBOrRedis(RaceResponseDto race) {

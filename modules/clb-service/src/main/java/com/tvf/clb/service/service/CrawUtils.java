@@ -9,6 +9,7 @@ import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.LadbrokesMarketsRawData;
+import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
@@ -81,14 +82,19 @@ public class CrawUtils {
             Entrant newEntrant = newEntrantMap.get(entrantResponseDto.getNumber());
 
             if (entrantResponseDto.getPriceFluctuations() == null) {
-                Map<Integer, List<Float>> price = new HashMap<>();
+                Map<Integer, List<PriceHistoryData>> price = new HashMap<>();
                 log.error("Entrant id = {} in race id = {} null price", entrantResponseDto.getId(), raceStored.getId());
                 entrantResponseDto.setPriceFluctuations(price);
             }
 
             if (newEntrant != null) {
-                Map<Integer, List<Float>> price = entrantResponseDto.getPriceFluctuations();
-                price.put(site, newEntrant.getCurrentSitePrice() == null ? new ArrayList<>() : newEntrant.getCurrentSitePrice());
+                Map<Integer, List<PriceHistoryData>> price;
+                if(entrantResponseDto.getPriceFluctuations() != null) {
+                    price = entrantResponseDto.getPriceFluctuations();
+                    List<PriceHistoryData> sitePrice = newEntrant.getCurrentSitePrice() == null ? new ArrayList<>() :
+                            CommonUtils.convertToPriceHistoryData(newEntrant.getCurrentSitePrice());
+                    price.put(site, sitePrice);
+                }
             }
         }
 
@@ -238,10 +244,15 @@ public class CrawUtils {
                 Map<Integer, Entrant> mapNumberToNewEntrant = newEntrant.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity()));
                 listExisted.forEach(existed -> {
 
-                        Map<Integer, List<Float>> allExistedSitePrices = CommonUtils.getSitePriceFromJsonb(existed.getPriceFluctuations());
+                        Map<Integer, List<PriceHistoryData>> allExistedSitePrices = CommonUtils.getSitePriceFromJsonb(existed.getPriceFluctuations());
 
-                        List<Float> existedSitePrice = allExistedSitePrices.get(siteId);
-                        List<Float> newSitePrice = mapNumberToNewEntrant.get(existed.getNumber()).getCurrentSitePrice();
+                        List<PriceHistoryData> existedSitePrice = allExistedSitePrices.getOrDefault(siteId, new ArrayList<>());
+                        List<PriceHistoryData> newSitePrice = new ArrayList<>();
+                        if (existed.getNumber() != null) {
+                            Entrant entrant = mapNumberToNewEntrant.get(existed.getNumber());
+                            newSitePrice = CommonUtils.convertToPriceHistoryData(entrant == null ? null : entrant.getCurrentSitePrice());
+                        }
+
 
                         if (! Objects.equals(existedSitePrice, newSitePrice)) {
                             allExistedSitePrices.put(siteId, newSitePrice);

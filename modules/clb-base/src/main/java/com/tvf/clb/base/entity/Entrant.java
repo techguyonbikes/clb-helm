@@ -2,6 +2,7 @@ package com.tvf.clb.base.entity;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.PgJsonObjectDeserializer;
 import com.tvf.clb.base.utils.PgJsonObjectSerializer;
@@ -20,8 +21,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static com.tvf.clb.base.utils.AppConstant.LAD_BROKE_SITE_ID;
 
 
 @Getter
@@ -66,10 +65,10 @@ public class Entrant {
         if (!Objects.equals(number, entrant.number)) return false;
         if (!Objects.equals(barrier, entrant.barrier)) return false;
 
-        Map<Integer, List<Float>> prices = CommonUtils.getSitePriceFromJsonb(priceFluctuations);
-        Map<Integer, List<Float>> entrantPrices = CommonUtils.getSitePriceFromJsonb(entrant.getPriceFluctuations());
+        Map<Integer, List<PriceHistoryData>> prices = CommonUtils.getSitePriceFromJsonb(priceFluctuations);
+        Map<Integer, List<PriceHistoryData>> entrantPrices = CommonUtils.getSitePriceFromJsonb(entrant.getPriceFluctuations());
 
-        if ((prices == null || entrantPrices == null) || !compareMaps(prices, entrantPrices)) return false;
+        if ((prices == null || entrantPrices == null) || !compareMapsPriceHistoryData(prices, entrantPrices)) return false;
         if (isScratched != entrant.isScratched) return false;
         if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
         if (!Objects.equals(position, entrant.position)) return false;
@@ -77,7 +76,7 @@ public class Entrant {
     }
 
 
-    public boolean compareMaps(Map<Integer, List<Float>> map1, Map<Integer, List<Float>> map2) {
+    public boolean compareMapsPriceHistoryData(Map<Integer, List<PriceHistoryData>> map1, Map<Integer, List<PriceHistoryData>> map2) {
         if (map1.size() != map2.size()) {
             return false;
         }
@@ -85,8 +84,8 @@ public class Entrant {
             if (!map2.containsKey(key)) {
                 return false;
             }
-            List<Float> list1 = map1.get(key);
-            List<Float> list2 = map2.get(key);
+            List<PriceHistoryData> list1 = map1.get(key);
+            List<PriceHistoryData> list2 = map2.get(key);
             if (!list1.equals(list2)) {
                 return false;
             }
@@ -109,7 +108,7 @@ public class Entrant {
         return result;
     }
 
-    public Map<Integer, List<Float>> getPrices() {
+    public Map<Integer, List<PriceHistoryData>> getPrices() {
         return CommonUtils.getSitePriceFromJsonb(priceFluctuations);
     }
 

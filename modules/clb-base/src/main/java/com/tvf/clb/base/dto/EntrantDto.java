@@ -1,6 +1,7 @@
 package com.tvf.clb.base.dto;
 
 
+import com.tvf.clb.base.model.PriceHistoryData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ public class EntrantDto {
     private Integer number;
     private String marketId;
     private Boolean visible;
-    private Map<Integer, List<Float>> priceFluctuations;
+    private Map<Integer, List<PriceHistoryData>> priceFluctuations;
     private List<Float> currentSitePrice;
     private boolean isScratched;
     private Instant scratchedTime;

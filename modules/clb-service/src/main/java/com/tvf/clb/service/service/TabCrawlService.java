@@ -155,6 +155,7 @@ public class TabCrawlService implements ICrawlService{
     public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, RaceDto raceDto) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceDto);
+        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto,AppConstant.TAB_SITE_ID);
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {

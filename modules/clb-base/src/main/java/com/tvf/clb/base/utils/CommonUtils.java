@@ -5,20 +5,25 @@ import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.model.PriceHistoryData;
 import io.r2dbc.postgresql.codec.Json;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class CommonUtils {
 
-    public static Map<Integer, List<Float>> getSitePriceFromJsonb(Json json) {
+    public static Map<Integer, List<PriceHistoryData>> getSitePriceFromJsonb(Json json) {
         if (json == null) {
             return new HashMap<>();
         }
-        Type type = new TypeToken<Map<Integer, List<Float>>>() {}.getType();
+        Type type = new TypeToken<Map<Integer, List<PriceHistoryData>>>() {}.getType();
         return new Gson().fromJson(json.asString(), type);
     }
 
@@ -144,6 +149,26 @@ public class CommonUtils {
         }
 
         return commonWords;
+    }
+
+    public static String getStringInstantDateNow() {
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                .withZone(ZoneId.of("UTC"))
+                .format(Instant.now().atZone(ZoneOffset.UTC).toInstant());
+    }
+
+    public static List<PriceHistoryData> convertToPriceHistoryData(List<Float> price) {
+        if (price == null) {
+            return new ArrayList<>();
+        }
+        return price.stream().map(x -> new PriceHistoryData(x, getStringInstantDateNow())).collect(Collectors.toList());
+    }
+
+    public static boolean compareDatesAfter(Instant date1, Instant date2) {
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        return date1.isAfter(date2);
     }
 
     public static Json toJsonb(Object source) {
