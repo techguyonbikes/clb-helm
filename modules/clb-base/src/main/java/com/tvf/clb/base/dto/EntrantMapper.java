@@ -71,6 +71,7 @@ public class EntrantMapper {
                 .isScratched(entrant.getIsScratched())
                 .scratchedTime(entrant.getScratchedTime())
                 .position(position)
+                .formSummary(entrant.getFormSummary())
                 .build();
     }
 
@@ -89,6 +90,8 @@ public class EntrantMapper {
                 .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
                 .priceFluctuations(prices)
                 .position(entrant.getPosition())
+                .riderOrDriver(entrant.getRiderOrDriver())
+                .trainerName(entrant.getTrainerName())
                 .build();
     }
 

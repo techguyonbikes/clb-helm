@@ -32,7 +32,7 @@ public class EntrantRawData {
     @SerializedName("pricefluctuations")
     private List<Float> priceFluctuations;
     @SerializedName("form_summary")
-    private FormSummaryRawData formSummary;
+    public FormSummaryRawData formSummary;
     @SerializedName("is_scratched")
     private String isScratched;
     @SerializedName("scratch_time")
@@ -61,17 +61,3 @@ public class EntrantRawData {
     }
 }
 
-@Getter
-@Setter
-@SuperBuilder
-@AllArgsConstructor
-@NoArgsConstructor
-class FormSummaryRawData {
-    private String last20Starts;
-    private String riderOrDriver;
-    private String trainerName;
-    private String bestTime;
-    private Float handicapWeight;
-    private String entrantComment;
-    private Object speedmap;
-}

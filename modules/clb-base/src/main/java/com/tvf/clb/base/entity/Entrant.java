@@ -51,6 +51,8 @@ public class Entrant {
     @Transient
     private List<Float> currentSitePrice;
     private Integer position;
+    private String riderOrDriver;
+    private String trainerName;
 
     @Override
     public boolean equals(Object o) {
@@ -72,6 +74,8 @@ public class Entrant {
         if (isScratched != entrant.isScratched) return false;
         if (!Objects.equals(scratchedTime, entrant.scratchedTime)) return false;
         if (!Objects.equals(position, entrant.position)) return false;
+        if (!Objects.equals(riderOrDriver, entrant.riderOrDriver)) return false;
+        if (!Objects.equals(trainerName, entrant.trainerName)) return false;
         return Objects.equals(marketId, entrant.marketId);
     }
 
@@ -105,6 +109,8 @@ public class Entrant {
         result = 31 * result + (isScratched ? 1 : 0);
         result = 31 * result + (isScratched ? 1 : 0);
         result = 31 * result + (position != null ? position.hashCode() : 0);
+        result = 31 * result + (riderOrDriver != null ? riderOrDriver.hashCode() : 0);
+        result = 31 * result + (trainerName != null ? trainerName.hashCode() : 0);
         return result;
     }
 

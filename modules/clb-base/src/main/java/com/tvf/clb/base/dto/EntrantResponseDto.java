@@ -23,4 +23,6 @@ public class EntrantResponseDto {
     private String scratchedTime;
     private Map<Integer, List<PriceHistoryData>> priceFluctuations;
     private Integer position;
+    private String riderOrDriver;
+    private String trainerName;
 }

@@ -296,6 +296,8 @@ public class MeetingMapper {
                 .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
+                .riderOrDriver(entrantRawData.getFormSummary().getRiderOrDriver())
+                .trainerName(entrantRawData.getFormSummary().getTrainerName())
                 .build();
     }
 
