@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tvf.clb.base.utils.AppConstant.SPORT_BET_BETTING_STATUS_OFF;
 import static com.tvf.clb.base.utils.AppConstant.SPORT_BET_BETTING_STATUS_RESULTED;
 
 @ClbService(componentType = AppConstant.SPORT_BET)
@@ -169,7 +170,8 @@ public class SportBetCrawlService implements ICrawlService {
 
     private boolean isRaceStatusFinal(SportBetRaceDto sportBetRaceDto) {
         return ! CollectionUtils.isEmpty(sportBetRaceDto.getResults())
-                && SPORT_BET_BETTING_STATUS_RESULTED.equals(sportBetRaceDto.getBettingStatus());
+                && (SPORT_BET_BETTING_STATUS_RESULTED.equals(sportBetRaceDto.getBettingStatus())
+                        || SPORT_BET_BETTING_STATUS_OFF.equals(sportBetRaceDto.getBettingStatus()));
     }
 
     private Stream<ResultsRawData> getWinnerEntrants(List<ResultsRawData> result) {

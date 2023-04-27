@@ -161,6 +161,11 @@ public class EntrantMapper {
             ZoneId zoneId = ZoneId.of(ZoneOffset.UTC.getId());
             reqInstant = localDateTime.atZone(zoneId).toInstant();
         }
+
+        int entrantPosition = 0;
+        if (position != null && position.containsKey(entrant.getNumber())) {
+            entrantPosition = position.get(entrant.getNumber());
+        }
         return EntrantRawData.builder()
                 .id(entrant.getId().toString())
                 .raceId(raceId)
@@ -172,7 +177,7 @@ public class EntrantMapper {
                 .priceFluctuations(prices)
                 .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !AppConstant.NOT_SCRATCHED_NAME.equals(entrant.getSelectionsStatus())))
                 .scratchedTime(reqInstant)
-                .position(position == null ? 0 : position.get(entrant.getNumber()))
+                .position(entrantPosition)
                 .build();
     }
 

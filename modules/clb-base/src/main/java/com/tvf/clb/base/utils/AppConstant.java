@@ -118,7 +118,7 @@ public class AppConstant {
     public static final String ZBET_PAYING_STATUS = "paying";
     public static final String ZBET_ABANDONED_STATUS = "abandoned";
     public static final String ZBET_INTERIM_STATUS = "interim";
-    public static final String ZBET_CLOSED_STATUS = "close";
+    public static final String ZBET_CLOSED_STATUS = "closed";
     public static final int DATE_REMOVE_DATA = 7;
 
     // Time
@@ -128,6 +128,8 @@ public class AppConstant {
     public static final int ZERO_TIME = 0;
 
     public static final String SPORT_BET_BETTING_STATUS_RESULTED = "RESULTED";
+
+    public static final String SPORT_BET_BETTING_STATUS_OFF = "OFF";
 
     public static final String TAB_RACE_STATUS_FINAL = "Paying";
 
