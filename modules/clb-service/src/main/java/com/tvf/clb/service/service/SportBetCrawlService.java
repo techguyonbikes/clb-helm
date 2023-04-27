@@ -16,10 +16,7 @@ import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
-import com.tvf.clb.base.model.sportbet.MarketRawData;
-import com.tvf.clb.base.model.sportbet.ResultsRawData;
-import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
-import com.tvf.clb.base.model.sportbet.SportBetMeetingRawData;
+import com.tvf.clb.base.model.sportbet.*;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -110,11 +107,10 @@ public class SportBetCrawlService implements ICrawlService {
 
         Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
         allEntrant.forEach(x -> {
-            List<Float> prices = new ArrayList<>();
+
+            List<Float> prices = getPricesFromEntrantStatistics(x.getStatistics());
             Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-            prices.add(x.getStatistics().getOpenPrice());
-            prices.add(x.getStatistics().getFluc1());
-            prices.add(x.getStatistics().getFluc2());
+
             x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
                    r->prices.add(r.getWinPrice())
             );
@@ -182,10 +178,7 @@ public class SportBetCrawlService implements ICrawlService {
     public void saveEntrant(List<SportBetEntrantRawData> entrantRawData, String raceName, RaceDto raceDto) {
         List<Entrant> newEntrants = new ArrayList<>();
         for(SportBetEntrantRawData rawData :entrantRawData){
-            List<Float> prices = new ArrayList<>();
-            prices.add(rawData.getStatistics().getOpenPrice());
-            prices.add(rawData.getStatistics().getFluc1());
-            prices.add(rawData.getStatistics().getFluc2());
+            List<Float> prices = getPricesFromEntrantStatistics(rawData.getStatistics());
             rawData.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
                     x->prices.add(x.getWinPrice())
             );
@@ -194,6 +187,21 @@ public class SportBetCrawlService implements ICrawlService {
         }
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceDto);
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.SPORTBET_SITE_ID);
+    }
+
+    private List<Float> getPricesFromEntrantStatistics(StatisticsRawData statistics) {
+        List<Float> prices = new ArrayList<>();
+        if (statistics.getOpenPrice() != null) {
+            prices.add(statistics.getOpenPrice());
+        }
+        if (statistics.getFluc1() != null) {
+            prices.add(statistics.getFluc1());
+        }
+        if (statistics.getFluc2() != null) {
+            prices.add(statistics.getFluc2());
+
+        }
+        return prices;
     }
 
     public SportBetRaceDto crawlEntrantDataSportBet(String raceId) {
