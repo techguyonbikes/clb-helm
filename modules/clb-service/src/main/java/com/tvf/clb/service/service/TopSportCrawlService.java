@@ -44,6 +44,7 @@ public class TopSportCrawlService implements ICrawlService {
         log.info("Start getting the API from TOPSPORT.");
         Document doc = null;
         try {
+            Thread.sleep(20000L);
             doc = Jsoup.connect(AppConstant.TOPSPORT_MEETING_QUERY.replace(AppConstant.DATE_PARAM, ConvertBase.getDateOfWeek(date)))
                     .followRedirects(false).get();
             Elements links = doc.getElementsByTag(AppConstant.BODY);
@@ -52,7 +53,9 @@ public class TopSportCrawlService implements ICrawlService {
                 topSportMeetingDtos.addAll(getListMeetingByElement(link, date));
             }
             getAllAusMeetings(topSportMeetingDtos, date);
-        } catch (IOException e) {
+        } catch (InterruptedException interruptedException) {
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
         return null;
@@ -99,6 +102,9 @@ public class TopSportCrawlService implements ICrawlService {
             CrawlRaceData result = new CrawlRaceData();
             result.setSiteId(SiteEnum.TOP_SPORT.getId());
             result.setMapEntrants(entrantMap);
+            if (!topSportRaceDto.getResults().isEmpty()) {
+                result.setFinalResult(Collections.singletonMap(AppConstant.TOPSPORT_SITE_ID, topSportRaceDto.getResults()));
+            }
             return result;
         } catch (IOException e) {
             throw new ApiRequestFailedException("API request failed: " + e.getMessage(), e);
@@ -237,8 +243,7 @@ public class TopSportCrawlService implements ICrawlService {
     private List<Node> getNodesFromDoc(Document document, String className, String tag,int index){
         Element element = document.getElementsByClass(className).get(0);
         Element childElement = element.getElementsByTag(tag).get(index);
-        List<Node> childNodes = childElement.childNodes();
-        return childNodes;
+        return childElement.childNodes();
     }
     private String getNodesFromElement(Element element, String className){
         Element childElement = element.getElementsByClass(className).get(0);
