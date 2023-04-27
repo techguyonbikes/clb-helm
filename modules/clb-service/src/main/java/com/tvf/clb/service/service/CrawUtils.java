@@ -349,16 +349,15 @@ public class CrawUtils {
                 if (meetingDtoList != null) {
                     return Flux.fromIterable(meetingDtoList);
                 }
-                ++ retryCount;
-                log.info("[{}] Got null data while crawl meetings {}, retry attempt {}", simpleClassName, date.toString(), retryCount);
+                log.info("[{}] Got null data while crawl meetings {}, retry attempt {}", simpleClassName, date.toString(), retryCount + 1);
             } catch (InterruptedException interruptedException) {
                 log.warn("[{}] Got InterruptedException {} while crawl meeting data", simpleClassName, interruptedException.getMessage());
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                ++ retryCount;
-                delayCrawlTime = RETRY_DELAY_TIME * retryCount;
-                log.info("[{}] Got exception \"{}\" while crawl meetings data {}, retry attempt {}", simpleClassName, e.getMessage(), date.toString(), retryCount);
+                log.info("[{}] Got exception \"{}\" while crawl meetings data {}, retry attempt {}", simpleClassName, e.getMessage(), date.toString(), retryCount + 1);
             }
+            retryCount++;
+            delayCrawlTime = RETRY_DELAY_TIME * retryCount;
         }
 
         log.error("[{}] Crawling meetings data {} failed after {} retries", simpleClassName, date.toString(), MAX_RETRIES);
@@ -381,16 +380,15 @@ public class CrawUtils {
                 if (raceRawData != null) {
                     return raceRawData;
                 }
-                ++ retryCount;
-                log.info("[{}] Got null data while crawl race (uuid = {}), retry attempt {}", simpleClassName, raceUUID, retryCount);
+                log.info("[{}] Got null data while crawl race (uuid = {}), retry attempt {}", simpleClassName, raceUUID, retryCount + 1);
             } catch (InterruptedException interruptedException) {
                 log.warn("[{}] Got InterruptedException {} while crawl race data", simpleClassName, interruptedException.getMessage());
                 Thread.currentThread().interrupt();
             } catch (Exception e) {
-                ++ retryCount;
-                delayCrawlTime = RETRY_DELAY_TIME * retryCount;
-                log.info("[{}] Got exception \"{}\" while crawl race data (uuid = {}), retry attempt {}", simpleClassName, e.getMessage(), raceUUID, retryCount);
+                log.info("[{}] Got exception \"{}\" while crawl race data (uuid = {}), retry attempt {}", simpleClassName, e.getMessage(), raceUUID, retryCount + 1);
             }
+            ++ retryCount;
+            delayCrawlTime = RETRY_DELAY_TIME * retryCount;
         }
         log.error("[{}] Crawling race data (uuid = {}) failed after {} retries", simpleClassName, raceUUID, MAX_RETRIES);
 
