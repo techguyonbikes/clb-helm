@@ -374,24 +374,18 @@ public class CrawUtils {
         String simpleClassName = className.substring(className.lastIndexOf(".") + 1);
 
         int retryCount = 0;
-        long delayCrawlTime = 0;
 
         while (retryCount <= MAX_RETRIES) {
             try {
-                Thread.sleep(delayCrawlTime);
                 Object raceRawData = crawlFunction.crawl(raceUUID);
                 if (raceRawData != null) {
                     return raceRawData;
                 }
                 log.info("[{}] Got null data while crawl race (uuid = {}), retry attempt {}", simpleClassName, raceUUID, retryCount + 1);
-            } catch (InterruptedException interruptedException) {
-                log.warn("[{}] Got InterruptedException {} while crawl race data", simpleClassName, interruptedException.getMessage());
-                Thread.currentThread().interrupt();
             } catch (Exception e) {
                 log.info("[{}] Got exception \"{}\" while crawl race data (uuid = {}), retry attempt {}", simpleClassName, e.getMessage(), raceUUID, retryCount + 1);
             }
             ++ retryCount;
-            delayCrawlTime = RETRY_DELAY_TIME * retryCount;
         }
         log.error("[{}] Crawling race data (uuid = {}) failed after {} retries", simpleClassName, raceUUID, MAX_RETRIES);
 

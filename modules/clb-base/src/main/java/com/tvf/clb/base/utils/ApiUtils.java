@@ -8,6 +8,7 @@ import okhttp3.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
@@ -36,7 +37,11 @@ public class ApiUtils {
 
     private static Response send(Request request) throws IOException {
         OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-        httpClientBuilder.addInterceptor(forwardHeaders());
+        httpClientBuilder.addInterceptor(forwardHeaders())
+                .callTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS);
 
         OkHttpClient client = httpClientBuilder.build();
         Call call = client.newCall(request);
