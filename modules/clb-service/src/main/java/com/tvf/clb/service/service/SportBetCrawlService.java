@@ -179,8 +179,12 @@ public class SportBetCrawlService implements ICrawlService {
         List<Entrant> newEntrants = new ArrayList<>();
         for(SportBetEntrantRawData rawData :entrantRawData){
             List<Float> prices = getPricesFromEntrantStatistics(rawData.getStatistics());
-            rawData.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
-                    x->prices.add(x.getWinPrice())
+            rawData.getPrices().stream().filter(r -> AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
+                    x -> {
+                        if (x.getWinPrice() != null) {
+                            prices.add(x.getWinPrice());
+                        }
+                    }
             );
             Entrant entrant = MeetingMapper.toEntrantEntity(rawData,prices);
             newEntrants.add(entrant);

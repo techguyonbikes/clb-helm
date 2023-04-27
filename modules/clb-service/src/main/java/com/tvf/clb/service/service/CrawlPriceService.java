@@ -19,7 +19,6 @@ import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,7 @@ public class CrawlPriceService {
     private RaceRedisService raceRedisService;
 
     @Autowired
-    private CrawUtils CrawUtils;
+    private CrawUtils crawUtils;
 
     @Autowired
     private EntrantRepository entrantRepository;
@@ -51,7 +50,7 @@ public class CrawlPriceService {
     private Mono<RaceResponseDto> crawlRaceNewDataByRaceId(Long generalRaceId) {
         return raceRedisService.findByRaceId(generalRaceId).flatMap(storedRace ->
 
-                CrawUtils.crawlNewDataByRaceUUID(storedRace.getMapSiteUUID())
+                crawUtils.crawlNewDataByRaceUUID(storedRace.getMapSiteUUID())
                         .map(raceNewData -> {
                             updateRaceStatusAndFinalResult(storedRace, raceNewData);
                             updateEntrantsInRace(storedRace.getEntrants(), raceNewData.getMapEntrants());
@@ -91,7 +90,7 @@ public class CrawlPriceService {
                 //update scratch
                 if (Boolean.TRUE.equals(entrantNewData.getIsScratched())){
                     storedEntrant.setIsScratched(entrantNewData.getIsScratched());
-                    storedEntrant.setScratchedTime(entrantNewData.getScratchTime().toString());
+                    storedEntrant.setScratchedTime(entrantNewData.getScratchTime() == null ? null : entrantNewData.getScratchTime().toString());
                 }
 
                 // update entrant price
@@ -134,8 +133,19 @@ public class CrawlPriceService {
                     if (!Objects.equals(storePriceHistoryData.get(storePriceHistoryData.size() - 1).getPrice(), newPriceValue)) {
                         storePriceHistoryData.add(new PriceHistoryData(newPriceValue, CommonUtils.getStringInstantDateNow()));
                     }
-                    storePriceHistoryData.removeIf(x -> !CommonUtils.compareDatesAfter(Instant.parse(x.getDateHistory()),
-                                            Instant.now().minus(1, ChronoUnit.HOURS)));
+                    int storeSize = storePriceHistoryData.size();
+                    if (storeSize > 11) {
+                        List<PriceHistoryData> newStorePriceHistoryData = new ArrayList<>();
+                        newStorePriceHistoryData.add(storePriceHistoryData.get(0));
+                        newStorePriceHistoryData.add(storePriceHistoryData.get(1));
+
+                        for (int i = storeSize - 11; i < storeSize; i++) {
+                            newStorePriceHistoryData.add(storePriceHistoryData.get(i));
+                        }
+                        storedEntrant.getPriceFluctuations().put(siteId, newStorePriceHistoryData);
+
+                    }
+
                 }
             }
         });

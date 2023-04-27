@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -252,9 +253,7 @@ public class CrawUtils {
                             Entrant entrant = mapNumberToNewEntrant.get(existed.getNumber());
                             newSitePrice = CommonUtils.convertToPriceHistoryData(entrant == null ? null : entrant.getCurrentSitePrice());
                         }
-
-
-                        if (! Objects.equals(existedSitePrice, newSitePrice)) {
+                        if (!CollectionUtils.isEmpty(newSitePrice) && !Objects.equals(existedSitePrice, newSitePrice)) {
                             allExistedSitePrices.put(siteId, newSitePrice);
                             existed.setPriceFluctuations(Json.of(gson.toJson(allExistedSitePrices)));
 
