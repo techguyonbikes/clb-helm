@@ -59,13 +59,13 @@ public class TopSportCrawlService implements ICrawlService {
         List<TopSportMeetingDto> newListMeeting = meetingDtoList.stream().filter(r -> AppConstant.VALID_CHECK_CODE_STATE_DIFF.contains(r.getState())).collect(Collectors.toList());
         List<MeetingDto> listMeetingDto = newListMeeting.stream().map(MeetingMapper:: toMeetingDtoFromTOP).collect(Collectors.toList());
         saveMeeting(newListMeeting);
-        for (int i = 0; i < newListMeeting.size(); i++) {
-            TopSportMeetingDto meeting = newListMeeting.get(i);
-            try {
-                crawlAndSaveEntrantsAndRace(meeting, meeting.getRaceId().get(i), date);
-            } catch (ApiRequestFailedException ignored) {
+        for (TopSportMeetingDto meeting : newListMeeting) {
+            for (String raceId : meeting.getRaceId()) {
+                try {
+                    crawlAndSaveEntrantsAndRace(meeting, raceId, date);
+                } catch (ApiRequestFailedException ignored) {
+                }
             }
-
         }
         return listMeetingDto;
     }
@@ -104,7 +104,6 @@ public class TopSportCrawlService implements ICrawlService {
 
     public void crawlAndSaveEntrantsAndRace(TopSportMeetingDto meetingDto, String raceId, LocalDate date) {
         TopSportRaceDto topSportRaceDto = getRacesByTOP(raceId);
-
         if (topSportRaceDto != null) {
             topSportRaceDto.setRaceType(ConvertBase.convertRaceTypeOfTOP(meetingDto.getRaceType()));
             topSportRaceDto.setMeetingName(meetingDto.getName().toUpperCase());
@@ -135,7 +134,7 @@ public class TopSportCrawlService implements ICrawlService {
         CrawlRaceFunction crawlFunction = raceUUID -> {
             TopSportRaceDto topSportRaceDto = new TopSportRaceDto();
             Document doc = Jsoup.connect(AppConstant.TOPSPORT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId))
-                    .followRedirects(false).timeout(2000).get();
+                    .followRedirects(false).timeout(20000).get();
             String raceName = getNodesFromDoc(doc, AppConstant.RACE_NAME,"b",0).get(0).toString();
             String distance = getNodesFromDoc(doc, AppConstant.RACE_INFORMATION, AppConstant.SPAN, 0).get(1).toString().replace("m", "").trim();
             String startTime = getNodesFromDoc(doc, AppConstant.RACE_INFORMATION, AppConstant.SPAN, 1).get(1).toString();
