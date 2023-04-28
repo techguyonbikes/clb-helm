@@ -29,5 +29,5 @@ public class RaceDto {
     private String resultsDisplay;
     private Integer distance;
     private String status;
-
+    private String finalResult;
 }

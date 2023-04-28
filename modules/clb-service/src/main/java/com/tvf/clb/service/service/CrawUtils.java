@@ -100,6 +100,10 @@ public class CrawUtils {
             raceStored.setStatus(raceDto.getStatus());
         }
 
+        if (raceDto.getFinalResult() != null) {
+            raceStored.getFinalResult().put(site, raceDto.getFinalResult());
+        }
+
         raceStored.getMapSiteUUID().put(site, raceDto.getId());
 
         raceRedisService.saveRace(raceId, raceStored).subscribe();

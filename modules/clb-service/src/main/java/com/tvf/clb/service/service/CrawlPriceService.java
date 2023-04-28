@@ -171,7 +171,8 @@ public class CrawlPriceService {
         if (CommonUtils.isRaceFinalOrAbandonedInAllSite(race)) {
             log.info("Save race[id={}] data to db and remove in redis", generalRaceId);
 
-            todayData.getRaces().remove(Timestamp.from(Instant.parse(race.getAdvertisedStart())).getTime());
+            Long advertisedStart = Timestamp.from(Instant.parse(race.getAdvertisedStart())).getTime();
+            todayData.deleteFinalOrAbandonedRace(advertisedStart, generalRaceId);
 
             saveEntrantToDb(generalRaceId, race.getEntrants());
 

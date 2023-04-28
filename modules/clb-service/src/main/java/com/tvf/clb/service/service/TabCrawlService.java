@@ -133,6 +133,7 @@ public class TabCrawlService implements ICrawlService{
             if (isRaceStatusFinal(runnerRawData)) {
                 String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
                 raceDto.setDistance(runnerRawData.getRaceDistance());
+                raceDto.setFinalResult(finalResult);
                 crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.TAB_SITE_ID, finalResult);
             }
             raceDto.setDistance(runnerRawData.getRaceDistance());

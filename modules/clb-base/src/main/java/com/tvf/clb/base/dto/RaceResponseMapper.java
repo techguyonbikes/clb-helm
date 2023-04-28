@@ -7,8 +7,10 @@ import com.tvf.clb.base.entity.RaceSite;
 import com.tvf.clb.base.utils.CommonUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,13 +47,14 @@ public class RaceResponseMapper {
                 .build();
     }
 
-    public static RaceResponseDto toRaceResponseDto(List<Entrant> entrants, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto) {
+    public static RaceResponseDto toRaceResponseDto(List<Entrant> entrants, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult) {
 
         return RaceResponseDto.builder()
                 .id(raceId)
                 .mapSiteUUID(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), entrants.get(0).getRaceUUID()))
                 .entrants(entrants.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList()))
                 .advertisedStart(raceDto.getRaces().get(raceUUID).getAdvertisedStart().toString())
+                .finalResult(!StringUtils.hasText(finalResult) ? new HashMap<>() : Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), finalResult))
                 .build();
     }
 

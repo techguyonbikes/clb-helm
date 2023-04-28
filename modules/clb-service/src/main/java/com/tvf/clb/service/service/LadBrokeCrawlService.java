@@ -167,15 +167,16 @@ public class LadBrokeCrawlService implements ICrawlService {
 
             List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
 
+            String top4Entrants = null;
             if (isRaceCompleted(results, raceDto.getRaces().get(raceId).getDividends())) {
-                String top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
+                top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
                                                                    .collect(Collectors.joining(","));
 
                 crawUtils.updateRaceFinalResultIntoDB(generalRaceId, SiteEnum.LAD_BROKE.getId(), top4Entrants);
             }
 
             return raceRepository.setUpdateRaceDistanceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance))
-                    .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto));
+                    .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto, top4Entrants));
 
         } else {
             throw new ApiRequestFailedException();
@@ -327,10 +328,12 @@ public class LadBrokeCrawlService implements ICrawlService {
             todayData.setRaces(new TreeMap<>(todayData.getRaces().tailMap(startOfToday.getTime())));
         }
 
-        savedRace.forEach(race -> todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId()));
+        savedRace.forEach(race -> {
+            todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId());
+        });
     }
 
-    public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto) {
+    public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult) {
         List<Entrant> newEntrants = entrantRawData.stream().map(m -> MeetingMapper.toEntrantEntity(m, AppConstant.LAD_BROKE_SITE_ID)).collect(Collectors.toList());
         List<String> entrantNames = newEntrants.stream().map(Entrant::getName).collect(Collectors.toList());
         List<Integer> entrantNumbers = newEntrants.stream().map(Entrant::getNumber).collect(Collectors.toList());
@@ -361,7 +364,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .flatMapMany(saved -> {
                                         log.info("{} entrants save into redis and database", saved.size());
                                         return raceRedisService
-                                                .saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto))
+                                                .saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto, finalResult))
                                                 .thenMany(Flux.fromIterable(saved));
 
                                     });

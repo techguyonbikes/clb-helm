@@ -150,6 +150,8 @@ public class NedsCrawlService implements ICrawlService{
                         .map(entrant -> String.valueOf(entrant.getNumber()))
                         .collect(Collectors.joining(","));
 
+                raceDto.setFinalResult(top4Entrants);
+
                 crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.NED_SITE_ID, top4Entrants);
             }
 

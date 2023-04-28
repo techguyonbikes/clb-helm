@@ -140,20 +140,21 @@ public class SportBetCrawlService implements ICrawlService {
 
         if (sportBetRaceDto != null) {
             MarketRawData  markets = sportBetRaceDto.getMarkets().get(0);
+
+            if (isRaceStatusFinal(sportBetRaceDto)) {
+                String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
+                        .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
+                        .collect(Collectors.joining(","));
+                raceDto.setFinalResult(top4Entrants);
+                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.SPORTBET_SITE_ID, top4Entrants);
+            }
+
             if (markets != null) {
                 List<SportBetEntrantRawData> allEntrant = markets.getSelections();
                 String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
                 saveEntrant(allEntrant, raceIdIdentifierInRedis, raceDto);
             } else {
                 log.error("Can not found SportBet race by RaceUUID " + raceUUID);
-            }
-
-            if (isRaceStatusFinal(sportBetRaceDto)) {
-                String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
-                        .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
-                        .collect(Collectors.joining(","));
-
-                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.SPORTBET_SITE_ID, top4Entrants);
             }
 
             return Flux.empty();

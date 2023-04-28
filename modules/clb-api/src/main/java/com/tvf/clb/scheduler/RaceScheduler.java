@@ -19,6 +19,8 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -87,7 +89,7 @@ public class RaceScheduler {
         isCrawlingRaceStartIn30Minutes = true;
         long startTime = System.currentTimeMillis();
 
-        Long raceStartTimeFrom = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant()).getTime();
+        Long raceStartTimeFrom = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minus(2, ChronoUnit.HOURS).toInstant()).getTime();
         Long raceStartTimeTo = Timestamp.from(Instant.now().plus(30, ChronoUnit.MINUTES)).getTime();
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
@@ -158,8 +160,9 @@ public class RaceScheduler {
         long startTime = System.currentTimeMillis();
 
         Long raceStartTimeFrom = Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)).getTime();
+        Long raceStartTimeTo = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant()).getTime();
 
-        Flux<Long> raceIds = getAllRaceIdsStartAfter(raceStartTimeFrom);
+        Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
         raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.1/6))
                 .runOn(Schedulers.parallel())
@@ -180,17 +183,10 @@ public class RaceScheduler {
         return getTodayNonFinalAndAbandonedRace()
                 .map(treeMap -> treeMap.subMap(raceStartTimeFrom, raceStartTimeTo))
                 .flatMapMany(treeMap ->
-                        Flux.fromIterable(treeMap.values().stream().filter(raceId -> !socketModule.getSubscribedRaces().containsKey(raceId)).collect(Collectors.toList())));
+                        Flux.fromIterable(treeMap.values().stream().flatMap(Collection::stream).filter(raceId -> !socketModule.getSubscribedRaces().containsKey(raceId)).collect(Collectors.toList())));
     }
 
-    public Flux<Long> getAllRaceIdsStartAfter(Long raceStartTimeFrom) {
-        return getTodayNonFinalAndAbandonedRace()
-                .map(treeMap -> treeMap.tailMap(raceStartTimeFrom))
-                .flatMapMany(treeMap ->
-                        Flux.fromIterable(treeMap.values().stream().filter(raceId -> !socketModule.getSubscribedRaces().containsKey(raceId)).collect(Collectors.toList())));
-    }
-
-    public Mono<TreeMap<Long, Long>> getTodayNonFinalAndAbandonedRace() {
+    public Mono<TreeMap<Long, List<Long>>> getTodayNonFinalAndAbandonedRace() {
         if (todayData.getRaces() == null) {
             log.info("TodayRaces has no data so need to search in DB");
             todayData.setRaces(new TreeMap<>());

@@ -20,7 +20,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class EntrantMapper {
@@ -186,9 +189,11 @@ public class EntrantMapper {
     }
 
     public static CrawlEntrantData toCrawlEntrantData(EntrantRawData entrant, Integer siteId){
+        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
+        priceFluctuations.put(siteId, entrant.getPriceFluctuations());
         return CrawlEntrantData.builder()
                 .position(entrant.getPosition())
-                .priceMap(Collections.singletonMap(siteId, entrant.getPriceFluctuations()))
+                .priceMap(priceFluctuations)
                 .isScratched(entrant.getIsScratched() == null ? Boolean.FALSE : Boolean.parseBoolean(entrant.getIsScratched()))
                 .scratchTime(entrant.getScratchedTime())
                 .build();

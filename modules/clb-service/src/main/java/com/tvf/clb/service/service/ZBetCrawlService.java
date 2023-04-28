@@ -131,7 +131,9 @@ public class ZBetCrawlService implements ICrawlService {
             List<ZBetEntrantData> allEntrant = raceRawData.getSelections();
             raceDto.setDistance(raceRawData.getDistance());
             if (AppConstant.STATUS_FINAL.equals(raceDto.getStatus()) && raceRawData.getFinalResult() != null) {
-                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.ZBET_SITE_ID, raceRawData.getFinalResult().replace('/', ','));
+                String finalResult = raceRawData.getFinalResult().replace('/', ',');
+                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.ZBET_SITE_ID, finalResult);
+                raceDto.setFinalResult(finalResult);
             }
 
             saveEntrant(allEntrant, raceDto, date);

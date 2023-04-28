@@ -198,6 +198,7 @@ public class PointBetCrawlService implements ICrawlService {
                 });
                 if (AppConstant.STATUS_FINAL.equals(statusRace)) {
                     raceDto.setDistance(raceRawData.getRaceDistance());
+                    raceDto.setFinalResult(raceRawData.getPlacing());
                     crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing());
                 }
             }

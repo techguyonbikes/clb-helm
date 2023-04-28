@@ -110,12 +110,15 @@ public class TopSportCrawlService implements ICrawlService {
 
             List<TopSportEntrantDto> allEntrant = topSportRaceDto.getRunners();
             RaceDto raceDto = RaceResponseMapper.toRaceDTO(topSportRaceDto);
+
+            if (!topSportRaceDto.getResults().isEmpty()) {
+                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.TOPSPORT_SITE_ID, topSportRaceDto.getResults());
+                raceDto.setFinalResult(topSportRaceDto.getResults());
+            }
+
             saveEntrants(allEntrant, String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(),
                     raceDto.getRaceType(), date), raceDto);
             saveRace(Collections.singletonList(topSportRaceDto));
-            if (!topSportRaceDto.getResults().isEmpty()) {
-                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.TOPSPORT_SITE_ID, topSportRaceDto.getResults());
-            }
 
         } else {
             crawUtils.saveFailedCrawlRaceForTopSport(meetingDto, raceId, date);
