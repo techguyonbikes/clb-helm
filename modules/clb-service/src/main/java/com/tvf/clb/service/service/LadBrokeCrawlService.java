@@ -238,11 +238,11 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                 .sequential() // switch back to sequential processing
                                                 .collectList()
                                     .subscribe(savedMeetings -> {
-                                        if (CollectionUtils.isEmpty(savedMeetings)) {
-                                            savedMeetings = existed;
+                                        if (! CollectionUtils.isEmpty(savedMeetings)) {
+                                            crawUtils.saveMeetingSite(savedMeetings, AppConstant.LAD_BROKE_SITE_ID);
                                         }
+                                        savedMeetings.addAll(existed);
                                         saveRace(raceDtoList, savedMeetings, date);
-                                        crawUtils.saveMeetingSite(savedMeetings, AppConstant.LAD_BROKE_SITE_ID);
                                         log.info("All meetings processed successfully");
                                     });
                         }
@@ -250,7 +250,8 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     public void saveRace(List<RaceDto> raceDtoList, List<Meeting> savedMeeting, LocalDate date) {
-        Map<String, Meeting> meetingUUIDMap = savedMeeting.stream().collect(Collectors.toMap(Meeting::getMeetingId, Function.identity()));
+        Map<String, Meeting> meetingUUIDMap = new HashMap<>();
+        savedMeeting.forEach(m -> meetingUUIDMap.put(m.getMeetingId(), m));
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).filter(x -> x.getNumber() != null).collect(Collectors.toList());
         List<String> raceNames = newRaces.stream().map(Race::getName).collect(Collectors.toList());
         List<Integer> raceNumbers = newRaces.stream().map(Race::getNumber).collect(Collectors.toList());
@@ -276,6 +277,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                             .ifPresent(race -> {
                                                 e.setId(race.getId());
                                                 race.setRaceId(e.getRaceId());
+                                                race.setMeetingUUID(e.getMeetingUUID());
                                             });
                                 }
                                 return e;
@@ -288,20 +290,23 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .sequential() // switch back to sequential processing
                                     .collectList()
                                     .subscribe(savedRace -> {
-                                        if (CollectionUtils.isEmpty(savedRace)) {
-                                            savedRace = existed;
+                                        if (! CollectionUtils.isEmpty(savedRace)) {
+                                            crawUtils.saveRaceSite(savedRace, AppConstant.LAD_BROKE_SITE_ID);
+                                            savedRace.forEach(race -> {
+                                                Meeting raceMeeting = meetingUUIDMap.get(race.getMeetingUUID());
+                                                String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
+                                                raceNameAndIdTemplate.opsForValue().set(key, race.getId(), Duration.ofDays(1)).subscribe();
+                                            });
                                         }
 
-                                        savedRace.forEach(race -> {
-                                            Meeting raceMeeting = meetingUUIDMap.get(race.getMeetingUUID());
-                                            String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
-                                            raceNameAndIdTemplate.opsForValue().set(key, race.getId(), Duration.ofDays(1)).subscribe();
-                                        });
+                                        savedRace.addAll(existed);
+                                        Map<String, Long> mapRaceUUIDAndId = new HashMap<>();
+                                        savedRace.forEach(r -> mapRaceUUIDAndId.put(r.getRaceId(), r.getId()));
 
-                                        Flux.fromIterable(savedRace)
+                                        Flux.fromIterable(mapRaceUUIDAndId.entrySet())
                                                 .parallel()
                                                 .runOn(Schedulers.parallel())
-                                                .flatMap(race -> getEntrantByRaceId(race.getRaceId(), race.getId()))
+                                                .flatMap(entry -> getEntrantByRaceId(entry.getKey(), entry.getValue()))
                                                 .sequential()
                                                 .collectList()
                                                 .doOnError(error -> crawUtils.saveFailedCrawlMeeting(this.getClass().getName(), date))
@@ -311,7 +316,6 @@ public class LadBrokeCrawlService implements ICrawlService {
 
                                         saveRaceToTodayData(savedRace);
 
-                                        crawUtils.saveRaceSite(savedRace, AppConstant.LAD_BROKE_SITE_ID);
                                         log.info("All races processed successfully");
                                     });
                         }

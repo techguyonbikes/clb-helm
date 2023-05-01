@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tvf.clb.base.utils.PgJsonObjectDeserializer;
 import com.tvf.clb.base.utils.PgJsonObjectSerializer;
 import io.r2dbc.postgresql.codec.Json;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -52,14 +55,19 @@ public class Race {
 
         if (!Objects.equals(name, race.name)) return false;
         if (!Objects.equals(number, race.number)) return false;
-        return Objects.equals(advertisedStart, race.advertisedStart);
+        if (!Objects.equals(distance, race.distance)) return false;
+        if (!Objects.equals(advertisedStart, race.advertisedStart))
+            return false;
+        return Objects.equals(actualStart, race.actualStart);
     }
 
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (number != null ? number.hashCode() : 0);
+        result = 31 * result + (distance != null ? distance.hashCode() : 0);
         result = 31 * result + (advertisedStart != null ? advertisedStart.hashCode() : 0);
+        result = 31 * result + (actualStart != null ? actualStart.hashCode() : 0);
         return result;
     }
 
