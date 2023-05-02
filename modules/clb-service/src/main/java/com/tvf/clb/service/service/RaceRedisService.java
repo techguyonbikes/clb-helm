@@ -38,4 +38,8 @@ public class RaceRedisService {
     public Mono<Long> delete(Long raceId){
         return raceDetailTemplate.delete(raceId);
     }
+
+    public Mono<Boolean> hasKey(Long raceId) {
+        return raceDetailTemplate.hasKey(raceId);
+    }
 }

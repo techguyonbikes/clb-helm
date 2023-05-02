@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Timestamp;
@@ -250,8 +251,9 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     public void saveRace(List<RaceDto> raceDtoList, List<Meeting> savedMeeting, LocalDate date) {
-        Map<String, Meeting> meetingUUIDMap = new HashMap<>();
-        savedMeeting.forEach(m -> meetingUUIDMap.put(m.getMeetingId(), m));
+        Map<String, Meeting> meetingUUIDMap = savedMeeting.stream()
+                                                    .filter(meeting -> meeting.getMeetingId() != null)
+                                                    .collect(Collectors.toMap(Meeting::getMeetingId, Function.identity(), (first, second) -> first));
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).filter(x -> x.getNumber() != null).collect(Collectors.toList());
         List<String> raceNames = newRaces.stream().map(Race::getName).collect(Collectors.toList());
         List<Integer> raceNumbers = newRaces.stream().map(Race::getNumber).collect(Collectors.toList());
@@ -300,8 +302,8 @@ public class LadBrokeCrawlService implements ICrawlService {
                                         }
 
                                         savedRace.addAll(existed);
-                                        Map<String, Long> mapRaceUUIDAndId = new HashMap<>();
-                                        savedRace.forEach(r -> mapRaceUUIDAndId.put(r.getRaceId(), r.getId()));
+                                        Map<String, Long> mapRaceUUIDAndId = savedRace.stream().filter(race -> race.getRaceId() != null && race.getId() != null)
+                                                        .collect(Collectors.toMap(Race::getRaceId, Race::getId, (first, second) -> first));
 
                                         Flux.fromIterable(mapRaceUUIDAndId.entrySet())
                                                 .parallel()
@@ -339,11 +341,7 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult) {
         List<Entrant> newEntrants = entrantRawData.stream().map(m -> MeetingMapper.toEntrantEntity(m, AppConstant.LAD_BROKE_SITE_ID)).collect(Collectors.toList());
-        List<String> entrantNames = newEntrants.stream().map(Entrant::getName).collect(Collectors.toList());
-        List<Integer> entrantNumbers = newEntrants.stream().map(Entrant::getNumber).collect(Collectors.toList());
-        List<Integer> entrantBarriers = newEntrants.stream().map(Entrant::getBarrier).collect(Collectors.toList());
-        Flux<Entrant> existedEntrants = entrantRepository
-                .findAllByNameInAndNumberInAndBarrierIn(entrantNames, entrantNumbers, entrantBarriers);
+        Flux<Entrant> existedEntrants = entrantRepository.findByRaceId(raceId);
         return existedEntrants
                 .collectList()
                 .flatMapMany(existed ->
@@ -367,9 +365,12 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .collectList()
                                     .flatMapMany(saved -> {
                                         log.info("{} entrants save into redis and database", saved.size());
-                                        return raceRedisService
-                                                .saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto, finalResult))
-                                                .thenMany(Flux.fromIterable(saved));
+                                        return raceRedisService.hasKey(raceId).flatMap(hasKey -> {
+                                            if (Boolean.FALSE.equals(hasKey)) {
+                                                return raceRedisService.saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto, finalResult));
+                                            }
+                                            return Mono.empty();
+                                        }).thenMany(Flux.fromIterable(saved));
 
                                     });
                         }
