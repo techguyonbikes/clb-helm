@@ -15,12 +15,14 @@ public class TodayData {
 
     private Instant lastTimeCrawl = Instant.now();
 
-    public void addRace(Long advertisedStart, Long raceId) {
+    public synchronized void addRace(Long advertisedStart, Long raceId) {
         List<Long> raceIds = races.get(advertisedStart);
         if (raceIds == null) {
             raceIds = new ArrayList<>();
         }
-        raceIds.add(raceId);
+        if (! raceIds.contains(raceId)) {
+            raceIds.add(raceId);
+        }
         races.put(advertisedStart, raceIds);
     }
 
