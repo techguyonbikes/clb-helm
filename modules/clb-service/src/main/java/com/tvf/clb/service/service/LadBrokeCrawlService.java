@@ -257,11 +257,10 @@ public class LadBrokeCrawlService implements ICrawlService {
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).filter(x -> x.getNumber() != null).collect(Collectors.toList());
         List<String> raceNames = newRaces.stream().map(Race::getName).collect(Collectors.toList());
         List<Integer> raceNumbers = newRaces.stream().map(Race::getNumber).collect(Collectors.toList());
-        List<Instant> dates = newRaces.stream().map(Race::getAdvertisedStart).collect(Collectors.toList());
-        Flux<Race> existedRaces = raceRepository
-                .findAllByNameInAndNumberInAndAdvertisedStartIn(raceNames, raceNumbers, dates);
-        existedRaces
-                .collectList()
+        List<Long> meetingIds = savedMeeting.stream().map(Meeting::getId).collect(Collectors.toList());
+        Flux<Race> existedRaces = raceRepository.findAllByNameInAndNumberInAndMeetingIdIn(raceNames, raceNumbers, meetingIds);
+
+        existedRaces.collectList()
                 .subscribe(existed ->
                         {
                             newRaces.addAll(existed);

@@ -33,17 +33,13 @@ public class RaceSite {
 
         if (!Objects.equals(generalRaceId, raceSite.generalRaceId))
             return false;
-        if (!Objects.equals(siteId, raceSite.siteId)) return false;
-        if (!Objects.equals(raceSiteId, raceSite.raceSiteId)) return false;
-        return Objects.equals(startDate, raceSite.startDate);
+        return Objects.equals(siteId, raceSite.siteId);
     }
 
     @Override
     public int hashCode() {
         int result = generalRaceId != null ? generalRaceId.hashCode() : 0;
         result = 31 * result + (siteId != null ? siteId.hashCode() : 0);
-        result = 31 * result + (raceSiteId != null ? raceSiteId.hashCode() : 0);
-        result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         return result;
     }
 }

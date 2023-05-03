@@ -51,7 +51,7 @@ public class RaceService {
 
         return raceRedisService.findByRaceId(raceId)
                 .switchIfEmpty(raceSiteRepository.getAllByGeneralRaceId(raceId).collectList().flatMap(raceSites -> {
-                    Map<Integer, String> mapRaceSiteToUUID = raceSites.stream().collect(Collectors.toMap(RaceSite::getSiteId, RaceSite::getRaceSiteId));
+                    Map<Integer, String> mapRaceSiteToUUID = raceSites.stream().collect(Collectors.toMap(RaceSite::getSiteId, RaceSite::getRaceSiteId, (first, second) -> first))   ;
                     return getRaceById(raceId)
                             .flatMap(race -> entrantRepository.getAllByRaceId(raceId)
                                     .collectList()

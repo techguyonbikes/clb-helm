@@ -141,27 +141,46 @@ public class CrawUtils {
     }
 
     public void saveRaceSite(List<Race> races, Integer site) {
-        Flux<RaceSite> newMeetingSite = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
+        Flux<RaceSite> newRaceSiteFlux = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                 race -> {
                     Mono<Long> generalId = getRaceByTypeAndNumberAndRangeAdvertisedStart(RaceResponseMapper.toRaceDTO(race));
                     return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
                 }
         );
-        Flux<RaceSite> existedMeetingSite = raceSiteRepository
-                .findAllByRaceSiteIdInAndSiteId(races.stream().map(Race::getRaceId).collect(Collectors.toList()), site);
 
-        Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
-                .doOnNext(tuple2 -> {
-                    tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
-                    log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
-                    raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
-                }).subscribe();
+        newRaceSiteFlux.collectList()
+                .subscribe(newRaceSites -> raceSiteRepository
+                            .findAllByGeneralRaceIdInAndSiteId(newRaceSites.stream().map(RaceSite::getGeneralRaceId).collect(Collectors.toList()), site)
+                            .collectList()
+                            .subscribe(existedRaceSites -> saveOrUpdateRaceSiteToDB(newRaceSites, existedRaceSites, site)));
 
+    }
+
+    private void saveOrUpdateRaceSiteToDB(List<RaceSite> newRaceSites, List<RaceSite> existedRaceSites, Integer site) {
+        List<RaceSite> raceSitesNeedToInsert = new ArrayList<>();
+
+        for (RaceSite newRaceSite : newRaceSites) {
+            if (! existedRaceSites.contains(newRaceSite)) {
+                raceSitesNeedToInsert.add(newRaceSite);
+            } else {
+                existedRaceSites.stream()
+                        .filter(existed -> existed.getSiteId().equals(site) && existed.getGeneralRaceId().equals(newRaceSite.getGeneralRaceId()))
+                        .findFirst()
+                        .ifPresent(existed -> {
+                            if (! existed.getRaceSiteId().equals(newRaceSite.getRaceSiteId())) {
+                                raceSiteRepository.updateRaceSiteId(newRaceSite.getRaceSiteId(), existed.getId()).subscribe();
+                            }
+                        });
+            }
+        }
+
+        log.info("Race site " + site + " need to be update is " + raceSitesNeedToInsert.size());
+        raceSiteRepository.saveAll(raceSitesNeedToInsert).subscribe();
     }
 
     public void saveRaceSiteAndUpdateStatus(List<RaceDto> raceDtoList, Integer site) {
         if (!raceDtoList.isEmpty()) {
-            Flux<RaceSite> newMeetingSite = Flux.fromIterable(raceDtoList.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
+            Flux<RaceSite> newRaceSiteFlux = Flux.fromIterable(raceDtoList.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
                     race -> {
                         Mono<Long> generalId = getRaceByTypeAndNumberAndRangeAdvertisedStart(race);
                         return Flux.from(generalId).map(id -> {
@@ -173,15 +192,12 @@ public class CrawUtils {
                         );
                     }
             );
-            Flux<RaceSite> existedMeetingSite = raceSiteRepository
-                    .findAllByRaceSiteIdInAndSiteId(raceDtoList.stream().map(RaceDto::getId).collect(Collectors.toList()), site).switchIfEmpty(Flux.empty());
 
-            Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
-                    .doOnNext(tuple2 -> {
-                        tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
-                        log.info("Race site " + site + " need to be update is " + tuple2.getT1().size());
-                        raceSiteRepository.saveAll(tuple2.getT1()).subscribe();
-                    }).subscribe();
+            newRaceSiteFlux.collectList()
+                    .subscribe(newRaceSites -> raceSiteRepository
+                            .findAllByGeneralRaceIdInAndSiteId(newRaceSites.stream().map(RaceSite::getGeneralRaceId).collect(Collectors.toList()), site)
+                            .collectList()
+                            .subscribe(existedRaceSites -> saveOrUpdateRaceSiteToDB(newRaceSites, existedRaceSites, site)));
         }
     }
 

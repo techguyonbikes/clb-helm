@@ -18,23 +18,32 @@ public class MeetingScheduler {
     private ICrawlService crawlService;
 
     /**
-     * Crawling meeting data current date and two next days at 00.00AM every day.
+     * Crawl today meeting data at 00.00AM every day.
      */
     @Scheduled(cron = "0 0 0 ? * *")
-    public void dailyMeetingsCrawling() {
+    public void crawlTodayMeeting() {
+        log.info("Start crawl today meeting");
         LocalDate dateObj = LocalDate.now();
-        log.info("Start Crawl Data from v2/racing/meeting?date=" + dateObj + "&region=domestic&timezone=Asia%2FBangkok");
         crawlService.getTodayMeetings(dateObj).subscribe();
-
-        dateObj = dateObj.plusDays(1);
-        log.info("Start Crawl Data from v2/racing/meeting?date=" + dateObj + "&region=domestic&timezone=Asia%2FBangkok");
-        crawlService.getTodayMeetings(dateObj).subscribe();
-
-        dateObj = dateObj.plusDays(1);
-        log.info("Start Crawl Data from v2/racing/meeting?date=" + dateObj + "&region=domestic&timezone=Asia%2FBangkok");
-        crawlService.getTodayMeetings(dateObj).subscribe();
-
-        log.info("---------------------------------------------------");
     }
 
+    /**
+     * Crawl tomorrow meeting data at 00.15AM every day.
+     */
+    @Scheduled(cron = "0 15 0 ? * *")
+    public void crawlTomorrowMeeting() {
+        log.info("Start crawl tomorrow meeting");
+        LocalDate dateObj = LocalDate.now().plusDays(1);
+        crawlService.getTodayMeetings(dateObj).subscribe();
+    }
+
+    /**
+     * Crawl the day after tomorrow meeting data at 00.30AM every day.
+     */
+    @Scheduled(cron = "0 30 0 ? * *")
+    public void crawlTheDayAfterTomorrowMeeting() {
+        log.info("Start crawl the day after tomorrow meeting");
+        LocalDate dateObj = LocalDate.now().plusDays(2);
+        crawlService.getTodayMeetings(dateObj).subscribe();
+    }
 }

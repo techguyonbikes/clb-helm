@@ -14,11 +14,14 @@ import java.util.List;
 @Repository
 public interface RaceSiteRepository extends R2dbcRepository<RaceSite, Long> {
 
-    Flux<RaceSite> findAllByRaceSiteIdInAndSiteId(List<String> raceId, Integer siteId);
+    Flux<RaceSite> findAllByGeneralRaceIdInAndSiteId(List<Long> raceId, Integer siteId);
 
     Flux<RaceSite> getAllByGeneralRaceId(Long generalRaceId);
 
     @Query("delete from clb_db.race_site r where r.start_date between :startTime and :endTime")
     Mono<Long> deleteAllByStartDateBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
+
+    @Query("Update clb_db.race_site set race_site_id = :uuid where id = :id")
+    Mono<Boolean> updateRaceSiteId(String uuid, Long id);
 
 }
