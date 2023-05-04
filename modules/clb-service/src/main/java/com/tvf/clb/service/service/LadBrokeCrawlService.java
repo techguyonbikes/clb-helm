@@ -103,8 +103,14 @@ public class LadBrokeCrawlService implements ICrawlService {
 
         Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
         allEntrant.forEach(x -> {
-            List<Float> entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
-                    : new ArrayList<>(allEntrantPrices.get(x.getId()));
+            List<Float> entrantPrice;
+            if (allEntrantPrices == null) {
+                entrantPrice = new ArrayList<>();
+            } else {
+                entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
+                        : new ArrayList<>(allEntrantPrices.get(x.getId()));
+            }
+
             Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
             priceFluctuations.put(AppConstant.LAD_BROKE_SITE_ID, entrantPrice);
             entrantMap.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
