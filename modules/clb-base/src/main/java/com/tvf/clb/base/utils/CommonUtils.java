@@ -50,7 +50,7 @@ public class CommonUtils {
             return false;
         } else if (AppConstant.STATUS_ABANDONED.equals(raceStatus)) {
             return true;
-        } else if (AppConstant.STATUS_FINAL.equals(raceStatus)) {
+        } else if (AppConstant.STATUS_FINAL.equals(raceStatus) || AppConstant.STATUS_RE_RESULTED.equals(raceStatus)) {
             // check all site have final result
             return race.getFinalResult() != null && race.getFinalResult().size() == race.getMapSiteUUID().size();
         }
