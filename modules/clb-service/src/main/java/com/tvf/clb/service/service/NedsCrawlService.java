@@ -201,7 +201,7 @@ public class NedsCrawlService implements ICrawlService{
     }
 
     public void saveRace(List<RaceDto> raceDtoList) {
-        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
+        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntityFromNED).collect(Collectors.toList());
         crawUtils.saveRaceSite(newRaces, AppConstant.NED_SITE_ID);
     }
 

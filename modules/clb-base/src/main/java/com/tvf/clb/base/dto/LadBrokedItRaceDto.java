@@ -21,7 +21,7 @@ import java.util.Map;
 public class LadBrokedItRaceDto {
     private Map<String, LadbrokesRaceRawData> races;
     private Map<String, LadbrokesMarketsRawData> markets;
-    private Object meetings;
+    private JsonObject meetings;
     private Object prices;
     private Object venues;
     private Object substitutions;

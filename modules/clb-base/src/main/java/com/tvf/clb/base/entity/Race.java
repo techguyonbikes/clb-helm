@@ -45,6 +45,10 @@ public class Race {
     private Json resultsDisplay;
     private String status;
     private Integer distance;
+    @Transient
+    private String raceSiteUrl;
+    @Transient
+    private String meetingName;
 
     @Override
     public boolean equals(Object o) {

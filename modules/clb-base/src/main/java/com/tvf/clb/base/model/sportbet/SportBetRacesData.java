@@ -28,4 +28,5 @@ public class SportBetRacesData {
     private String type;
     private String category;
     private String displayName;
+    private String className;
 }

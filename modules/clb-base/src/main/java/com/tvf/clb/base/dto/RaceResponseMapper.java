@@ -4,6 +4,7 @@ import com.tvf.clb.base.dto.topsport.TopSportRaceDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.entity.RaceSite;
+import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class RaceResponseMapper {
                 .generalRaceId(generalId)
                 .siteId(siteId)
                 .startDate(race.getAdvertisedStart())
+                .raceSiteUrl(race.getRaceSiteUrl())
                 .build();
     }
 
@@ -33,6 +35,7 @@ public class RaceResponseMapper {
                 .generalRaceId(generalId)
                 .siteId(siteId)
                 .startDate(race.getAdvertisedStart())
+                .raceSiteUrl(race.getRaceSiteUrl())
                 .build();
     }
 
@@ -47,14 +50,16 @@ public class RaceResponseMapper {
                 .build();
     }
 
-    public static RaceResponseDto toRaceResponseDto(List<Entrant> entrants, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult) {
-
+    public static RaceResponseDto toRaceResponseDto(List<Entrant> entrants, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult, String meetingName) {
+        String url = meetingName + "/" + raceUUID;
         return RaceResponseDto.builder()
                 .id(raceId)
                 .mapSiteUUID(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), entrants.get(0).getRaceUUID()))
                 .entrants(entrants.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList()))
                 .advertisedStart(raceDto.getRaces().get(raceUUID).getAdvertisedStart().toString())
                 .finalResult(!StringUtils.hasText(finalResult) ? new HashMap<>() : Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), finalResult))
+                .raceSiteUrl(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), ""))
+                .raceSiteUrl(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), AppConstant.URL_LAD_BROKES_IT_RACE.replace(AppConstant.ID_PARAM, url)))
                 .build();
     }
 

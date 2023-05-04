@@ -1,11 +1,17 @@
 package com.tvf.clb.base.utils;
 
+import com.tvf.clb.base.dto.RaceDto;
+import com.tvf.clb.base.dto.topsport.TopSportRaceDto;
+import com.tvf.clb.base.model.pointbet.PointBetRacesRawData;
+import com.tvf.clb.base.model.sportbet.SportBetRacesData;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 @Slf4j
@@ -122,6 +128,58 @@ public class ConvertBase {
                 return AppConstant.HORSE_RACING;
             case "HARNESS":
                 return AppConstant.HARNESS_RACING;
+            default: return null;
+        }
+    }
+    public static String getURLRaceOfLadbrokes(String meetingName, String id){
+        if(meetingName.contains(" ")){
+            meetingName = meetingName.replace(" ","-");
+        }
+        String url = meetingName.toLowerCase() + "/" + id;
+        return AppConstant.URL_LAD_BROKES_IT_RACE.replace(AppConstant.ID_PARAM, url);
+    }
+    public static String getURLRaceOfNEDS(RaceDto raceDto){
+        String meetingName = raceDto.getMeetingName().toLowerCase();
+        if(meetingName.contains(" ")){
+            meetingName=meetingName.replace("","-");
+        }
+        String url = meetingName + "/" + raceDto.getId();
+        return AppConstant.URL_NEDS_RACE.replace(AppConstant.ID_PARAM, url);
+    }
+    public static String getURLRaceOfTAP(String raceId, String meetingName){
+        if(meetingName.contains(" ")){
+            meetingName = meetingName.replace(" ","-");
+        }
+        //2023-04-27/meetings/H/PEN/races/2
+        List<String> a = Arrays.asList(raceId.split("/"));
+        String url = a.get(0)+"/"+meetingName + "/" + a.get(3)+ "/" + a.get(2)+ "/" + a.get(4)+"/" + a.get(5);
+        return AppConstant.URL_TAP_RACE.replace(AppConstant.ID_PARAM, url);
+    }
+    public static String getURLRaceOfPointBet(String id,String meetingName,String countryCode, String racingTypeName){
+        if(meetingName.contains(" ")){
+            meetingName = meetingName.replace(" ","-");
+        }
+        String url = racingTypeName + "/" + countryCode + "/" + meetingName + "/race/" + id;
+        return AppConstant.URL_POINT_BET_RACE.replace(AppConstant.ID_PARAM, url);
+    }
+    public static String getURLRaceOfSportBet(SportBetRacesData race,String raceType, String meetingName){
+        String countryCode = convertCountryCode(race.getRegionGroup());
+        int raceNumber = race.getRaceNumber();
+        if(raceType.contains(" ")){
+            raceType = raceType.replace(" ","-");
+        }
+        if(meetingName.contains(" ")){
+            meetingName = meetingName.replace(" ","-");
+        }
+        String url = raceType.toLowerCase() + "/" + countryCode + "/" + meetingName.toLowerCase() + "/race-"+raceNumber+"-"+race.getId();
+        return AppConstant.URL_SPORT_BET_RACE.replace(AppConstant.ID_PARAM, url);
+    }
+    public static String convertCountryCode(String countryCode) {
+        switch (countryCode) {
+            case "Aus/NZ":
+                return "australia-nz";
+            case "Hong Kong":
+                return "hong-kong";
             default: return null;
         }
     }

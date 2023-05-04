@@ -32,4 +32,5 @@ public class RaceEntrantDto {
     private Map<Integer, Long> raceIdNumber;
     private Map<Integer, String> raceSiteUUID;
     private List<EntrantResponseDto> entrants;
+    private Map<Integer, String> raceSiteUrl;
 }

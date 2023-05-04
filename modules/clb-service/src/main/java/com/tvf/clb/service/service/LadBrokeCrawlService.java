@@ -161,9 +161,13 @@ public class LadBrokeCrawlService implements ICrawlService {
         if (raceDto != null) {
             Map<String, LadbrokesRaceResult> results = raceDto.getResults();
             Map<String, Integer> positions = new HashMap<>();
-
+            String meetingName = raceDto.getMeetings().get(raceDto.getRaces().get(raceId).getMeetingId()).getAsJsonObject().get("name").getAsString();
+            if(meetingName.contains(" ")){
+                meetingName = meetingName.replace(" ","-").toLowerCase();
+            }
             String distance = raceDto.getRaces().get(raceId).getAdditionalInfo().get(AppConstant.DISTANCE).getAsString();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
+
 
             if (results != null) {
                 positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
@@ -182,7 +186,7 @@ public class LadBrokeCrawlService implements ICrawlService {
             }
 
             return raceRepository.setUpdateRaceDistanceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance))
-                    .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto, top4Entrants));
+                    .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto, top4Entrants, meetingName));
 
         } else {
             throw new ApiRequestFailedException();
@@ -343,7 +347,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         });
     }
 
-    public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult) {
+    public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult, String meetingName) {
         List<Entrant> newEntrants = entrantRawData.stream().map(m -> MeetingMapper.toEntrantEntity(m, AppConstant.LAD_BROKE_SITE_ID)).collect(Collectors.toList());
         Flux<Entrant> existedEntrants = entrantRepository.findByRaceId(raceId);
         return existedEntrants
@@ -371,7 +375,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                         log.info("{} entrants save into redis and database", saved.size());
                                         return raceRedisService.hasKey(raceId).flatMap(hasKey -> {
                                             if (Boolean.FALSE.equals(hasKey)) {
-                                                return raceRedisService.saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto, finalResult));
+                                                return raceRedisService.saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto, finalResult,meetingName));
                                             } else {
                                                 return raceRedisService.updateRaceAdvertisedStart(raceId, raceDto.getRaces().get(raceUUID).getAdvertisedStart());
                                             }

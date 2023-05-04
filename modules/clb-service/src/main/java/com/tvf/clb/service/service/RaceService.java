@@ -103,7 +103,7 @@ public class RaceService {
                         raceNumberId.collectMap(Race::getNumber, Race::getId),
                         raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteId),
                         raceNumberId.collectMap(Race::getId, Race::getResultsDisplay),
-                        raceIDAndRaceStatus, raceIDAndRaceFinalResult)
+                        raceIDAndRaceStatus, raceIDAndRaceFinalResult,raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteUrl))
                 .map(tuple -> {
                     RaceEntrantDto raceEntrantDTO = tuple.getT2();
                     raceEntrantDTO.setStatus(tuple.getT6().get(raceId));
@@ -111,6 +111,7 @@ public class RaceService {
                     raceEntrantDTO.setEntrants(tuple.getT1());
                     raceEntrantDTO.setRaceIdNumber(tuple.getT3());
                     raceEntrantDTO.setRaceSiteUUID(tuple.getT4());
+                    raceEntrantDTO.setRaceSiteUrl(tuple.getT8());
 
                     return raceEntrantDTO;
                 });

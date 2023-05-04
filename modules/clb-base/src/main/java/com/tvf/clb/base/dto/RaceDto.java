@@ -30,4 +30,5 @@ public class RaceDto {
     private Integer distance;
     private String status;
     private String finalResult;
+    private String raceSiteUrl;
 }

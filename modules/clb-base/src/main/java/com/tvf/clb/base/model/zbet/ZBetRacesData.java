@@ -22,4 +22,8 @@ public class ZBetRacesData {
     private String startDate;
     private String type;
     private String status;
+    @SerializedName("race_site_link")
+    private String raceSiteLink;
+
+
 }

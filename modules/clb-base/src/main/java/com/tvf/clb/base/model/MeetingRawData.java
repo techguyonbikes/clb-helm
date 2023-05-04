@@ -39,4 +39,5 @@ public class MeetingRawData {
     private String feedId;
     @SerializedName("compound_ids")
     private List<String> compoundIds;
+    private String racingTypeName;
 }

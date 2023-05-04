@@ -103,6 +103,14 @@ public class CrawUtils {
         if (raceDto.getFinalResult() != null) {
             raceStored.getFinalResult().put(site, raceDto.getFinalResult());
         }
+        if (raceDto.getRaceSiteUrl() != null) {
+            if(site == 2){
+                raceStored.getRaceSiteUrl().put(site, raceDto.getRaceSiteUrl().replace("ladbrokes","neds"));
+            }
+            else {
+                raceStored.getRaceSiteUrl().put(site, raceDto.getRaceSiteUrl());
+            }
+        }
 
         raceStored.getMapSiteUUID().put(site, raceDto.getId());
 

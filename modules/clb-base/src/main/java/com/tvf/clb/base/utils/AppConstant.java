@@ -152,4 +152,12 @@ public class AppConstant {
     public static final String SCRATCHPAY_CLASS = "scratchPay";
     public static final String RACEREGION = "raceRegion";
     public static final String RACESTATE = "raceState";
+    //URL RACE ALL SITE
+    public static final String URL_LAD_BROKES_IT_RACE = "https://www.ladbrokes.com.au/racing/{id}";
+    public static final String URL_NEDS_RACE = "https://www.neds.com.au/racing/{id}";
+    public static final String URL_TAP_RACE = "https://www.tab.com.au/racing/{id}";
+    public static final String URL_POINT_BET_RACE = "https://pointsbet.com.au/racing/{id}";
+    public static final String URL_SPORT_BET_RACE = "https://www.sportsbet.com.au/{id}";
+    public static final String URL_TOPSPORT_RACE = "https://www.topsport.com.au/{id}";
+
 }

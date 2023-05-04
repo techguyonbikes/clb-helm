@@ -19,5 +19,6 @@ public class RaceResponseDto {
     private Map<Integer, String> mapSiteUUID;
     private Map<Integer, String> finalResult;
     private Map<Integer, String> interimResult;
+    private Map<Integer, String> raceSiteUrl;
     private List<EntrantResponseDto> entrants;
 }

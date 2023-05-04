@@ -23,6 +23,7 @@ public class RaceSite {
     private Integer siteId;
     private String raceSiteId;
     private Instant startDate;
+    private String raceSiteUrl;
 
     @Override
     public boolean equals(Object o) {

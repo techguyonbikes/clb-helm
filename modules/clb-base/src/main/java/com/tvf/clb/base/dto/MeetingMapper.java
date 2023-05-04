@@ -68,7 +68,7 @@ public class MeetingMapper {
                 .name(meeting.getName())
                 .country(meeting.getCountryCode())
                 .advertisedDate(Instant.parse(meeting.getFirstRaceStartTimeUtc()))
-                .races(toRaceDtoListPointBet(meeting.getRaces(), meeting.getMasterEventID(), meeting.getName(), raceType))
+                .races(toRaceDtoListPointBet(meeting.getRaces(), meeting.getMasterEventID(), meeting.getName(), raceType, meeting.getCountryCode(), meeting.getRacingTypeName()))
                 .raceType(raceType)
                 .build();
     }
@@ -87,6 +87,7 @@ public class MeetingMapper {
                 .mainMarketStatusId(race.getMainMarketStatusId())
                 .resultsDisplay(race.getResultsDisplay())
                 .distance(race.getDistance())
+                .raceSiteUrl(ConvertBase.getURLRaceOfLadbrokes(meetingName,race.getId()))
                 .build();
     }
 
@@ -96,11 +97,11 @@ public class MeetingMapper {
         return raceDtoList;
     }
 
-    public static List<RaceDto> toRaceDtoListPointBet(List<PointBetRacesRawData> races, String meetingUUID, String meetingName, String raceType) {
-        return races.stream().map(race -> toRaceDto(race, meetingUUID, meetingName, raceType)).collect(Collectors.toList());
+    public static List<RaceDto> toRaceDtoListPointBet(List<PointBetRacesRawData> races, String meetingUUID, String meetingName, String raceType, String countryCode, String racingTypeName) {
+        return races.stream().map(race -> toRaceDto(race, meetingUUID, meetingName, raceType, countryCode, racingTypeName)).collect(Collectors.toList());
     }
 
-    public static RaceDto toRaceDto(PointBetRacesRawData race, String meetingUUID, String meetingName, String raceType) {
+    public static RaceDto toRaceDto(PointBetRacesRawData race, String meetingUUID, String meetingName, String raceType,String countryCode, String racingTypeName) {
         return RaceDto.builder()
                 .id(race.getEventId())
                 .meetingUUID(meetingUUID)
@@ -111,6 +112,7 @@ public class MeetingMapper {
                 .advertisedStart(Instant.parse(race.getAdvertisedStartDateTime()))
                 .actualStart(Instant.parse(race.getAdvertisedStartDateTime()))
                 .status(ConvertBase.getRaceStatusById(race.getTradingStatus(),race.getResultStatus()))
+                .raceSiteUrl(ConvertBase.getURLRaceOfPointBet(race.getEventId(),meetingName, countryCode,racingTypeName))
                 .build();
     }
 
@@ -124,6 +126,7 @@ public class MeetingMapper {
                 .number(race.getNumber())
                 .status(race.getStatus())
                 .advertisedStart(LocalDateTime.parse(race.getStartDate(), dtf).atZone(AppConstant.AU_ZONE_ID).toInstant())
+                .raceSiteUrl(race.getRaceSiteLink())
                 .build();
     }
 
@@ -217,6 +220,8 @@ public class MeetingMapper {
                 .mainMarketStatusId(raceDto.getMainMarketStatusId())
                 .distance(raceDto.getDistance())
                 .raceType(raceDto.getRaceType())
+                .raceSiteUrl(raceDto.getRaceSiteUrl())
+                .meetingName(raceDto.getMeetingName())
                 .build();
     }
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {
@@ -280,6 +285,7 @@ public class MeetingMapper {
                 .number(race.getRaceNumber())
                 .advertisedStart(Instant.parse(race.getRaceStartTime()))
                 .distance(race.getRaceDistance())
+                .raceSiteUrl(ConvertBase.getURLRaceOfTAP(getRaceId(meetingId, race), meetingName))
                 .build();
     }
 
@@ -359,11 +365,11 @@ public class MeetingMapper {
     public static List<MeetingDto> toMeetingSportDtoList(SportBetMeetingDto sportBetMeetingDto, List<SportBetMeetingRawData> meetingRawData, LocalDate date) {
         List<MeetingDto> meetingDtoList = new ArrayList<>();
         String raceType = ConvertBase.convertRaceTypeOfSportBet(sportBetMeetingDto.getRaceType());
-        meetingRawData.forEach(r -> meetingDtoList.add(toMeetingdToBySport(r, raceType, date)));
+        meetingRawData.forEach(r -> meetingDtoList.add(toMeetingDtoBySport(r, raceType, date)));
         return meetingDtoList;
     }
 
-    public static MeetingDto toMeetingdToBySport(SportBetMeetingRawData meeting, String raceType,LocalDate date) {
+    public static MeetingDto toMeetingDtoBySport(SportBetMeetingRawData meeting, String raceType,LocalDate date) {
         return MeetingDto.builder()
                 .id(meeting.getId().toString())
                 .name(meeting.getName())
@@ -390,6 +396,7 @@ public class MeetingMapper {
                 .number(race.getRaceNumber())
                 .advertisedStart(Instant.ofEpochMilli(race.getStartTime()*1000))
                 .distance(race.getDistance())
+                .raceSiteUrl(ConvertBase.getURLRaceOfSportBet(race, raceType, meeting.getName()))
                 .build();
     }
     public static Entrant toEntrantEntity(SportBetEntrantRawData entrant, List<Float> prices) {
@@ -418,6 +425,7 @@ public class MeetingMapper {
                 .raceType(race.getRaceType())
                 .advertisedStart(race.getStartTime())
                 .distance(race.getDistance())
+                .raceSiteUrl(AppConstant.URL_TOPSPORT_RACE.replace(AppConstant.ID_PARAM, race.getId().replace("_","-")))
                 .build();
     }
     public static MeetingDto toMeetingDtoFromTOP(TopSportMeetingDto meeting){
@@ -427,6 +435,23 @@ public class MeetingMapper {
                 .country(meeting.getCountry())
                 .advertisedDate(meeting.getAdvertisedDate())
                 .raceType(meeting.getRaceType())
+                .build();
+    }
+    public static Race toRaceEntityFromNED(RaceDto raceDto) {
+        return Race.builder()
+                .raceId(raceDto.getId())
+                .meetingId(raceDto.getMeetingId())
+                .meetingUUID(raceDto.getMeetingUUID())
+                .name(raceDto.getName())
+                .number(raceDto.getNumber())
+                .advertisedStart(raceDto.getAdvertisedStart())
+                .actualStart(raceDto.getActualStart())
+                .marketIds(Json.of(gson.toJson(raceDto.getMarketIds())))
+                .mainMarketStatusId(raceDto.getMainMarketStatusId())
+                .distance(raceDto.getDistance())
+                .raceType(raceDto.getRaceType())
+                .raceSiteUrl(ConvertBase.getURLRaceOfNEDS(raceDto))
+                .meetingName(raceDto.getMeetingName())
                 .build();
     }
 }
