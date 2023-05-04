@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 
 
@@ -41,5 +42,15 @@ public class RaceRedisService {
 
     public Mono<Boolean> hasKey(Long raceId) {
         return raceDetailTemplate.hasKey(raceId);
+    }
+
+    public Mono<Boolean> updateRaceAdvertisedStart(Long raceId, Instant advertisedStart) {
+        if (advertisedStart != null) {
+            return findByRaceId(raceId).flatMap(raceResponseDto -> {
+                raceResponseDto.setAdvertisedStart(advertisedStart.toString());
+                return saveRace(raceId, raceResponseDto);
+            });
+        }
+        return Mono.empty();
     }
 }

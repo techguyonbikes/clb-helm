@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.sql.Timestamp;
@@ -373,8 +372,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                                         return raceRedisService.hasKey(raceId).flatMap(hasKey -> {
                                             if (Boolean.FALSE.equals(hasKey)) {
                                                 return raceRedisService.saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto, finalResult));
+                                            } else {
+                                                return raceRedisService.updateRaceAdvertisedStart(raceId, raceDto.getRaces().get(raceUUID).getAdvertisedStart());
                                             }
-                                            return Mono.empty();
                                         }).thenMany(Flux.fromIterable(saved));
 
                                     });
