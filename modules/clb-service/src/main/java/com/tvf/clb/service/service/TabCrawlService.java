@@ -179,7 +179,12 @@ public class TabCrawlService implements ICrawlService{
             return gson.fromJson(jsonObject, TabRunnerRawData.class);
         };
 
-        return (TabRunnerRawData) crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+
+        if (result == null) {
+            return null;
+        }
+        return (TabRunnerRawData) result;
     }
 
 }

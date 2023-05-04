@@ -261,7 +261,12 @@ public class PointBetCrawlService implements ICrawlService {
             return null;
         };
 
-        return (PointBetRaceApiResponse) crawUtils.crawlRace(crawlFunction, raceUUID, this.getClass().getName());
+        Object result = crawUtils.crawlRace(crawlFunction, raceUUID, this.getClass().getName());
+
+        if (result == null) {
+            return null;
+        }
+        return (PointBetRaceApiResponse) result;
     }
 
 }

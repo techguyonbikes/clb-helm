@@ -177,7 +177,12 @@ public class ZBetCrawlService implements ICrawlService {
             return gson.fromJson(jsonObject.get("data"), ZBetRaceRawData.class);
         };
 
-        return (ZBetRaceRawData) crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+
+        if (result == null) {
+            return null;
+        }
+        return (ZBetRaceRawData) result;
     }
 
     private List<Float> buildPriceFluctuations(ZBetEntrantData entrantData) {

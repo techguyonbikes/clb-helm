@@ -219,6 +219,11 @@ public class NedsCrawlService implements ICrawlService{
             return gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
         };
 
-        return (LadBrokedItRaceDto) crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+
+        if (result == null) {
+            return null;
+        }
+        return (LadBrokedItRaceDto) result;
     }
 }

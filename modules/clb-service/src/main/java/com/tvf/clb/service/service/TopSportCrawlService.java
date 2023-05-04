@@ -162,7 +162,12 @@ public class TopSportCrawlService implements ICrawlService {
             return topSportRaceDto;
         };
 
-        return (TopSportRaceDto) crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+
+        if (result == null) {
+            return null;
+        }
+        return (TopSportRaceDto) result;
     }
 
     public TopSportEntrantDto getEntrantById(Elements entrant, int i, String raceId) {

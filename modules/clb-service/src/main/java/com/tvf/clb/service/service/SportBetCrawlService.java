@@ -219,7 +219,12 @@ public class SportBetCrawlService implements ICrawlService {
             return gson.fromJson(jsonObject.get(AppConstant.RACECARD_EVENT), SportBetRaceDto.class);
         };
 
-        return (SportBetRaceDto) crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
+
+        if (result == null) {
+            return null;
+        }
+        return (SportBetRaceDto) result;
     }
 
 }
