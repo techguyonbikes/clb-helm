@@ -5,9 +5,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
-import com.tvf.clb.base.dto.RaceFinalResultDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
-import com.tvf.clb.base.dto.RaceStatusDto;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.service.RaceService;
 import lombok.Getter;
@@ -120,7 +118,7 @@ public class SocketModule {
                         String newStatus = newRaceInfo.getStatus();
                         if (newStatus != null && (subscribedRace == null || ! newStatus.equals(subscribedRace.getStatus()))) {
                             clients.forEach(client -> {
-                                client.sendEvent("new_status", new RaceStatusDto(raceId, newStatus));
+                                client.sendEvent("new_status", newStatus);
                                 log.info("Send race[id={}] new status to client ID[{}]", raceId, client.getSessionId().toString());
                             });
                         }
@@ -131,7 +129,7 @@ public class SocketModule {
                                     || subscribedRace.getFinalResult().size() != newFinalResult.size()))
                         {
                             clients.forEach(client -> {
-                                client.sendEvent("new_final_result", new RaceFinalResultDto(raceId, newFinalResult));
+                                client.sendEvent("new_final_result", newFinalResult);
                                 log.info("Send race[id={}] new final result to client ID[{}]", raceId, client.getSessionId().toString());
                             });
                         }
