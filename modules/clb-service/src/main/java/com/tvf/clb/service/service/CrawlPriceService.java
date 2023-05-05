@@ -151,9 +151,8 @@ public class CrawlPriceService {
                     if (storeSize > 11) {
                         List<PriceHistoryData> newStorePriceHistoryData = new ArrayList<>();
                         newStorePriceHistoryData.add(storePriceHistoryData.get(0));
-                        newStorePriceHistoryData.add(storePriceHistoryData.get(1));
 
-                        for (int i = storeSize - 11; i < storeSize; i++) {
+                        for (int i = storeSize - 10; i < storeSize; i++) {
                             newStorePriceHistoryData.add(storePriceHistoryData.get(i));
                         }
                         storedEntrant.getPriceFluctuations().put(siteId, newStorePriceHistoryData);
