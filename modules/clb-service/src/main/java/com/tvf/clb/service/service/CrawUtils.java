@@ -103,7 +103,7 @@ public class CrawUtils {
         if (raceDto.getFinalResult() != null) {
             raceStored.getFinalResult().put(site, raceDto.getFinalResult());
         }
-        if (raceDto.getRaceSiteUrl() != null) {
+        if (raceDto.getRaceSiteUrl() != null && raceStored.getRaceSiteUrl() !=null) {
             if(site == 2){
                 raceStored.getRaceSiteUrl().put(site, raceDto.getRaceSiteUrl().replace("ladbrokes","neds"));
             }
@@ -352,7 +352,7 @@ public class CrawUtils {
 
     public Map<Integer, Integer> getPositionInResult(String input){
         if (input == null) {
-            return null;
+            return Collections.emptyMap();
         }
         String[] groups = input.split("/");
         Map<Integer, Integer> output = new HashMap<>();
