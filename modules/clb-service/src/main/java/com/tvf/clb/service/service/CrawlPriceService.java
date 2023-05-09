@@ -3,6 +3,7 @@ package com.tvf.clb.service.service;
 import com.google.gson.Gson;
 import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.entity.RaceSite;
 import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
@@ -11,11 +12,13 @@ import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.RaceRepository;
+import com.tvf.clb.service.repository.RaceSiteRepository;
 import io.r2dbc.postgresql.codec.Json;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
@@ -28,20 +31,28 @@ public class CrawlPriceService {
 
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private RaceRedisService raceRedisService;
+    private final RaceRedisService raceRedisService;
 
-    @Autowired
-    private CrawUtils crawUtils;
+    private final CrawUtils crawUtils;
 
-    @Autowired
-    private EntrantRepository entrantRepository;
+    private final EntrantRepository entrantRepository;
 
-    @Autowired
-    private RaceRepository raceRepository;
+    private final RaceRepository raceRepository;
 
-    @Autowired
-    private TodayData todayData;
+    private final RaceSiteRepository raceSiteRepository;
+
+    private final TodayData todayData;
+
+    public CrawlPriceService(RaceRedisService raceRedisService, CrawUtils crawUtils,
+                             EntrantRepository entrantRepository, RaceRepository raceRepository,
+                             RaceSiteRepository raceSiteRepository, TodayData todayData) {
+        this.raceRedisService = raceRedisService;
+        this.crawUtils = crawUtils;
+        this.entrantRepository = entrantRepository;
+        this.raceRepository = raceRepository;
+        this.raceSiteRepository = raceSiteRepository;
+        this.todayData = todayData;
+    }
 
     public Mono<?> crawlRaceThenSave(Long generalRaceId) {
         return crawlRaceNewDataByRaceId(generalRaceId)
@@ -49,16 +60,39 @@ public class CrawlPriceService {
     }
 
     private Mono<RaceResponseDto> crawlRaceNewDataByRaceId(Long generalRaceId) {
-        return raceRedisService.findByRaceId(generalRaceId).flatMap(storedRace ->
-
-                crawUtils.crawlNewDataByRaceUUID(storedRace.getMapSiteUUID())
-                        .map(raceNewData -> {
-                            updateRaceStatusAndFinalResult(storedRace, raceNewData);
-                            updateEntrantsInRace(storedRace.getEntrants(), raceNewData.getMapEntrants());
-
-                            return storedRace;
-                        })
+        return raceRedisService.findByRaceId(generalRaceId).flatMap(storedRace -> {
+                    if (storedRace == null) {
+                        return Mono.empty();
+                    }
+                    return updateRaceUUIDAndURLWithSizeUUIDLessThan6(generalRaceId, storedRace)
+                            .flatMap(map -> crawUtils.crawlNewDataByRaceUUID(map.getMapSiteUUID())
+                                    .map(raceNewData -> {
+                                        updateRaceStatusAndFinalResult(map, raceNewData);
+                                        updateEntrantsInRace(map.getEntrants(), raceNewData.getMapEntrants());
+                                        return map;
+                                    }));
+                }
         );
+    }
+
+
+    private Mono<RaceResponseDto> updateRaceUUIDAndURLWithSizeUUIDLessThan6(Long generalRaceId, RaceResponseDto storedRace) {
+        if (storedRace == null || storedRace.getMapSiteUUID() == null ) {
+            return Mono.empty();
+        }
+        if (storedRace.getMapSiteUUID().size() >= AppConstant.RACE_SIZE) {
+            return Mono.just(storedRace);
+        }
+
+        Flux<RaceSite> raceSiteFlux = raceSiteRepository.getAllByRaceId(generalRaceId).switchIfEmpty(Flux.empty());
+
+        return raceSiteFlux.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteId)
+                .zipWith(raceSiteFlux.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteUrl))
+                .map(tuple -> {
+                    storedRace.setMapSiteUUID(tuple.getT1());
+                    storedRace.setRaceSiteUrl(tuple.getT2());
+                    return storedRace;
+                });
     }
 
     private void updateRaceStatusAndFinalResult(RaceResponseDto storedRace, CrawlRaceData raceNewData) {
