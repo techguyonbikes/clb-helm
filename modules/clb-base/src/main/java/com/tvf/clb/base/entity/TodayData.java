@@ -34,11 +34,13 @@ public class TodayData {
         return races;
     }
 
-    public void deleteFinalOrAbandonedRace(Long advertisedStart, Long raceId) {
+    public synchronized void deleteFinalOrAbandonedRace(Long advertisedStart, Long raceId) {
         List<Long> raceIds = races.get(advertisedStart);
-        raceIds.removeIf(id -> id.equals(raceId));
-        if (raceIds.isEmpty()) {
-            races.remove(advertisedStart);
+        if (raceIds != null) {
+            raceIds.removeIf(id -> id.equals(raceId));
+            if (raceIds.isEmpty()) {
+                races.remove(advertisedStart);
+            }
         }
     }
 
