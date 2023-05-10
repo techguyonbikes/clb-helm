@@ -80,7 +80,7 @@ public class CrawlPriceService {
         if (storedRace == null || storedRace.getMapSiteUUID() == null ) {
             return Mono.empty();
         }
-        if (storedRace.getMapSiteUUID().size() >= AppConstant.RACE_SIZE) {
+        if (storedRace.getMapSiteUUID().size() == AppConstant.RACE_SIZE) {
             return Mono.just(storedRace);
         }
 

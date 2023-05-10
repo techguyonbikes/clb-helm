@@ -103,7 +103,7 @@ public class AppConstant {
     public static final String ZBET_CLOSED_STATUS = "closed";
     public static final int DATE_REMOVE_DATA = 7;
 
-    public static final int RACE_SIZE = 6;
+    public static final int RACE_SIZE = 7;
 
     // Time
     public static final int HOUR_TIME = 23;
