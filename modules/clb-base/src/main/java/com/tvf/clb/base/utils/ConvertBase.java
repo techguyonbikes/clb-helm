@@ -1,10 +1,12 @@
 package com.tvf.clb.base.utils;
 
 import com.tvf.clb.base.dto.RaceDto;
-import com.tvf.clb.base.dto.topsport.TopSportRaceDto;
-import com.tvf.clb.base.model.pointbet.PointBetRacesRawData;
 import com.tvf.clb.base.model.sportbet.SportBetRacesData;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -15,22 +17,22 @@ import java.util.List;
 import java.util.Locale;
 
 @Slf4j
+@NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class ConvertBase {
+    @Nullable
+    @Contract(pure = true)
     public static String convertRaceTypeOfTab(String feedId) {
-        String type = null;
         switch (feedId) {
             case "G":
-                type = AppConstant.GREYHOUND_RACING;
-                break;
+                return AppConstant.GREYHOUND_RACING;
             case "R":
-                type = AppConstant.HORSE_RACING;
-                break;
+                return AppConstant.HORSE_RACING;
             case "H":
-                type = AppConstant.HARNESS_RACING;
-                break;
-
+                return AppConstant.HARNESS_RACING;
+            default:
+                return null;
         }
-        return type;
+
     }
     public static Instant dateFormat(String dateString){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -47,6 +49,7 @@ public class ConvertBase {
                 return AppConstant.STATUS_SUSPENDED;
             case 3:
                 return AppConstant.STATUS_CLOSED;
+            default:
         }
         switch (resultStatus) {
             case 1:
@@ -55,8 +58,9 @@ public class ConvertBase {
                 return AppConstant.STATUS_FINAL;
             case 4:
                 return AppConstant.STATUS_ABANDONED;
+            default:
+                return AppConstant.STATUS_OPEN;
         }
-        return AppConstant.STATUS_OPEN;
     }
 
     public static String convertRaceTypeOfSportBet(String raceType) {
@@ -100,7 +104,7 @@ public class ConvertBase {
         if (compareDate > 0 && compareDate < 2){
             resulst = AppConstant.TOMORROW;
         }
-        if (compareDate == -1){
+        if (compareDate < 0){
             resulst = AppConstant.YESTERDAY;
         }
         if(compareDate >=2){
@@ -152,7 +156,7 @@ public class ConvertBase {
         }
         //2023-04-27/meetings/H/PEN/races/2
         List<String> a = Arrays.asList(raceId.split("/"));
-        String url = a.get(0)+"/"+meetingName + "/" + a.get(3)+ "/" + a.get(2)+ "/" + a.get(4)+"/" + a.get(5);
+        String url = a.get(0)+"/"+meetingName + "/" + a.get(3)+ "/" + a.get(2)+ "/" + a.get(5);
         return AppConstant.URL_TAP_RACE.replace(AppConstant.ID_PARAM, url);
     }
     public static String getURLRaceOfPointBet(String id,String meetingName,String countryCode, String racingTypeName){
