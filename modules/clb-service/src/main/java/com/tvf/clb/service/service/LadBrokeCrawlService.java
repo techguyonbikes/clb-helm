@@ -112,7 +112,7 @@ public class LadBrokeCrawlService implements ICrawlService {
 
             Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
             priceFluctuations.put(AppConstant.LAD_BROKE_SITE_ID, entrantPrice);
-            entrantMap.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+            entrantMap.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.LAD_BROKE_SITE_ID));
         });
 
         CrawlRaceData result = new CrawlRaceData();

@@ -28,7 +28,7 @@ import java.util.Map;
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class EntrantMapper {
 
-    public static Gson gson = new Gson();
+    public static final Gson gson = new Gson();
 
     public static EntrantDto toEntrantDto(EntrantRawData entrant, List<Float> prices) {
         return EntrantDto.builder()
