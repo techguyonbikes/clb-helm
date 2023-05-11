@@ -264,34 +264,32 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                     .filter(meeting -> meeting.getMeetingId() != null)
                                                     .collect(Collectors.toMap(Meeting::getMeetingId, Function.identity(), (first, second) -> first));
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).filter(x -> x.getNumber() != null).collect(Collectors.toList());
-        List<String> raceNames = newRaces.stream().map(Race::getName).collect(Collectors.toList());
         List<Integer> raceNumbers = newRaces.stream().map(Race::getNumber).collect(Collectors.toList());
         List<Long> meetingIds = savedMeeting.stream().map(Meeting::getId).collect(Collectors.toList());
-        Flux<Race> existedRaces = raceRepository.findAllByNameInAndNumberInAndMeetingIdIn(raceNames, raceNumbers, meetingIds);
+        Flux<Race> existedRaces = raceRepository.findAllByNumberInAndMeetingIdIn(raceNumbers, meetingIds);
 
         existedRaces.collectList()
                 .subscribe(existed ->
                         {
-                            newRaces.addAll(existed);
-                            List<Race> raceNeedUpdateOrInsert = newRaces.stream().distinct().map(e ->
-                            {
-                                Meeting meeting = meetingUUIDMap.getOrDefault(e.getMeetingUUID(), null);
-                                if (meeting != null) {
-                                    e.setMeetingId(meeting.getId());
+
+                            Map<String, Race> raceMeetingIdNumberMap = existed.stream()
+                                    .collect(Collectors.toMap(race -> race.getMeetingId() + " " + race.getNumber(), Function.identity()));
+                            newRaces.forEach(newRace -> {
+                                String key = meetingUUIDMap.get(newRace.getMeetingUUID()).getId() + " " + newRace.getNumber();
+                                if (raceMeetingIdNumberMap.containsKey(key)) {
+                                    Race existing = raceMeetingIdNumberMap.get(key);
+                                    existing.setName(newRace.getName());
+                                    existing.setAdvertisedStart(newRace.getAdvertisedStart());
+                                    existing.setActualStart(newRace.getActualStart());
+                                    existing.setMeetingUUID(newRace.getMeetingUUID());
+                                    existing.setDistance(newRace.getDistance());
+                                } else {
+                                    newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());
+                                    raceMeetingIdNumberMap.put(key, newRace);
                                 }
-                                if (e.getId() == null) {
-                                    existed.stream()
-                                            .filter(x -> x.getName().equals(e.getName())
-                                                    && x.getNumber().equals(e.getNumber()))
-                                            .findFirst()
-                                            .ifPresent(race -> {
-                                                e.setId(race.getId());
-                                                race.setRaceId(e.getRaceId());
-                                                race.setMeetingUUID(e.getMeetingUUID());
-                                            });
-                                }
-                                return e;
-                            }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
+                            });
+                            List<Race> raceNeedUpdateOrInsert = new ArrayList<>(raceMeetingIdNumberMap.values());
+
                             log.info("Race need to be update is " + raceNeedUpdateOrInsert.size());
                             Flux.fromIterable(raceNeedUpdateOrInsert)
                                     .parallel() // parallelize the processing
