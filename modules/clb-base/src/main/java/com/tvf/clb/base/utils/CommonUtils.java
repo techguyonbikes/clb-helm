@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
@@ -179,6 +180,12 @@ public class CommonUtils {
             return Arrays.stream(ids.trim().split(",")).map(Long::parseLong).distinct().collect(Collectors.toList());
         }catch (Exception e) {
             return Collections.emptyList();
+        }
+    }
+
+    public static <T> void setIfPresent(T value, Consumer<T> consumer) {
+        if (value != null) {
+            consumer.accept(value);
         }
     }
 

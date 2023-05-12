@@ -15,6 +15,7 @@ import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -34,6 +35,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.tvf.clb.base.utils.CommonUtils.setIfPresent;
 
 @ClbService(componentType = AppConstant.LAD_BROKE)
 @Slf4j
@@ -278,10 +281,11 @@ public class LadBrokeCrawlService implements ICrawlService {
                                 String key = meetingUUIDMap.get(newRace.getMeetingUUID()).getId() + " " + newRace.getNumber();
                                 if (raceMeetingIdNumberMap.containsKey(key)) {
                                     Race existing = raceMeetingIdNumberMap.get(key);
-                                    existing.setName(newRace.getName());
-                                    existing.setAdvertisedStart(newRace.getAdvertisedStart());
-                                    existing.setActualStart(newRace.getActualStart());
-                                    existing.setMeetingUUID(newRace.getMeetingUUID());
+                                    setIfPresent(newRace.getName(), existing::setName);
+                                    setIfPresent(newRace.getAdvertisedStart(), existing::setAdvertisedStart);
+                                    setIfPresent(newRace.getActualStart(), existing::setActualStart);
+                                    setIfPresent(newRace.getMeetingUUID(), existing::setMeetingUUID);
+                                    setIfPresent(newRace.getRaceId(), existing::setRaceId);
                                 } else {
                                     newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());
                                     raceMeetingIdNumberMap.put(key, newRace);
