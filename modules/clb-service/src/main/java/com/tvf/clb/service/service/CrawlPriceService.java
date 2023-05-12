@@ -75,7 +75,6 @@ public class CrawlPriceService {
         );
     }
 
-
     private Mono<RaceResponseDto> updateRaceUUIDAndURLWithSizeUUIDLessThan6(Long generalRaceId, RaceResponseDto storedRace) {
         if (storedRace == null || storedRace.getMapSiteUUID() == null ) {
             return Mono.empty();
@@ -89,8 +88,10 @@ public class CrawlPriceService {
         return raceSiteFlux.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteId)
                 .zipWith(raceSiteFlux.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteUrl))
                 .map(tuple -> {
-                    storedRace.setMapSiteUUID(tuple.getT1());
-                    storedRace.setRaceSiteUrl(tuple.getT2());
+                    if (!CollectionUtils.isEmpty(tuple.getT1()) && !CollectionUtils.isEmpty(tuple.getT2())) {
+                        storedRace.setMapSiteUUID(tuple.getT1());
+                        storedRace.setRaceSiteUrl(tuple.getT2());
+                    }
                     return storedRace;
                 });
     }

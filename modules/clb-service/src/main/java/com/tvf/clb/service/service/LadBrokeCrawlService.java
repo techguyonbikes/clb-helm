@@ -282,7 +282,6 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     existing.setAdvertisedStart(newRace.getAdvertisedStart());
                                     existing.setActualStart(newRace.getActualStart());
                                     existing.setMeetingUUID(newRace.getMeetingUUID());
-                                    existing.setDistance(newRace.getDistance());
                                 } else {
                                     newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());
                                     raceMeetingIdNumberMap.put(key, newRace);
