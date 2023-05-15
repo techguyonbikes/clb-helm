@@ -27,7 +27,7 @@ public class RaceRedisService {
         return this.raceDetailTemplate.opsForValue().get(key);
     }
 
-    public Mono<List<RaceResponseDto>> findAllByKeysRaceResponseDto(List<Long> keys){
+    public Mono<List<RaceResponseDto>> findAllByRaceIds(List<Long> keys){
         return this.raceDetailTemplate.opsForValue().multiGet(keys);
     }
 

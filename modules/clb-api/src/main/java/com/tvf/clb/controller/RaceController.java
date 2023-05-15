@@ -68,7 +68,7 @@ public class RaceController {
 
     @GetMapping("/status")
     public Mono<ResponseEntity<Map<Long, String>>> getAllStatusRaceIds(@RequestParam String ids) {
-        return raceService.mapRaceIdAndStatusFromDbOrRedis(CommonUtils.convertStringToListLong(ids))
+        return raceService.getNewestRaceProperty(CommonUtils.convertStringToListLong(ids), RaceResponseDto::getStatus, Race::getStatus)
                 .map(raceIdAndStatus -> {
                     if (CollectionUtils.isEmpty(raceIdAndStatus)) {
                         return ResponseEntity.notFound().build();
