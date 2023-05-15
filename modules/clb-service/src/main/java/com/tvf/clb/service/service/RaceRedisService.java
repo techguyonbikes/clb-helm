@@ -1,6 +1,7 @@
 package com.tvf.clb.service.service;
 
 import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.util.List;
 
 
@@ -44,13 +44,11 @@ public class RaceRedisService {
         return raceDetailTemplate.hasKey(raceId);
     }
 
-    public Mono<Boolean> updateRaceAdvertisedStart(Long raceId, Instant advertisedStart) {
-        if (advertisedStart != null) {
-            return findByRaceId(raceId).flatMap(raceResponseDto -> {
-                raceResponseDto.setAdvertisedStart(advertisedStart.toString());
-                return saveRace(raceId, raceResponseDto);
-            });
-        }
-        return Mono.empty();
+    public Mono<Boolean> updateRace(Long raceId, RaceResponseDto newRace) {
+        return findByRaceId(raceId).flatMap(existing -> {
+            CommonUtils.setIfPresent(newRace.getAdvertisedStart(), existing::setAdvertisedStart);
+            existing.setEntrants(newRace.getEntrants());
+            return saveRace(raceId, existing);
+        });
     }
 }

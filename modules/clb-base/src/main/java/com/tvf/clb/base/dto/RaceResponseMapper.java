@@ -58,7 +58,6 @@ public class RaceResponseMapper {
                 .entrants(entrants.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList()))
                 .advertisedStart(raceDto.getRaces().get(raceUUID).getAdvertisedStart().toString())
                 .finalResult(!StringUtils.hasText(finalResult) ? new HashMap<>() : Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), finalResult))
-                .raceSiteUrl(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), ""))
                 .raceSiteUrl(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), AppConstant.URL_LAD_BROKES_IT_RACE.replace(AppConstant.ID_PARAM, url)))
                 .build();
     }

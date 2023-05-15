@@ -15,7 +15,6 @@ import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -351,37 +350,44 @@ public class LadBrokeCrawlService implements ICrawlService {
     public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult, String meetingName) {
         List<Entrant> newEntrants = entrantRawData.stream().map(m -> MeetingMapper.toEntrantEntity(m, AppConstant.LAD_BROKE_SITE_ID)).collect(Collectors.toList());
         Flux<Entrant> existedEntrants = entrantRepository.findByRaceId(raceId);
+
         return existedEntrants
                 .collectList()
                 .flatMapMany(existed ->
                         {
-                            newEntrants.addAll(existed);
-                            List<Entrant> entrantNeedUpdateOrInsert = newEntrants.stream().distinct().map(e ->
-                            {
-                                e.setRaceId(raceId);
-                                if (e.getId() == null) {
-                                    existed.stream()
-                                            .filter(x -> x.getName().equals(e.getName())
-                                                    && x.getNumber().equals(e.getNumber())
-                                                    && x.getBarrier().equals(e.getBarrier()))
-                                            .findFirst()
-                                            .ifPresent(entrant -> e.setId(entrant.getId()));
+                            Map<Integer, Entrant> mapNumberToEntrant = existed.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity()));
+
+                            newEntrants.forEach(newEntrant -> {
+                                Integer entrantNumber = newEntrant.getNumber();
+                                if (mapNumberToEntrant.containsKey(entrantNumber)) {
+                                    Entrant existing = mapNumberToEntrant.get(entrantNumber);
+                                    setIfPresent(newEntrant.getName(), existing::setName);
+                                    setIfPresent(newEntrant.getScratchedTime(), existing::setScratchedTime);
+                                    setIfPresent(newEntrant.isScratched(), existing::setScratched);
+                                    setIfPresent(newEntrant.getRiderOrDriver(), existing::setRiderOrDriver);
+                                    setIfPresent(newEntrant.getTrainerName(), existing::setTrainerName);
+                                } else {
+                                    newEntrant.setRaceId(raceId);
+                                    mapNumberToEntrant.put(entrantNumber, newEntrant);
                                 }
-                                return e;
-                            }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
+                            });
+
+                            Collection<Entrant> entrantNeedUpdateOrInsert = mapNumberToEntrant.values();
                             log.info("Entrant need to be update is {}", entrantNeedUpdateOrInsert.size());
+
                             return entrantRepository.saveAll(entrantNeedUpdateOrInsert)
                                     .collectList()
                                     .flatMapMany(saved -> {
                                         log.info("{} entrants save into redis and database", saved.size());
+                                        RaceResponseDto raceResponseDto = RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto, finalResult, meetingName);
+
                                         return raceRedisService.hasKey(raceId).flatMap(hasKey -> {
                                             if (Boolean.FALSE.equals(hasKey)) {
-                                                return raceRedisService.saveRace(raceId, RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto, finalResult,meetingName));
+                                                return raceRedisService.saveRace(raceId, raceResponseDto);
                                             } else {
-                                                return raceRedisService.updateRaceAdvertisedStart(raceId, raceDto.getRaces().get(raceUUID).getAdvertisedStart());
+                                                return raceRedisService.updateRace(raceId, raceResponseDto);
                                             }
                                         }).thenMany(Flux.fromIterable(saved));
-
                                     });
                         }
                 );
