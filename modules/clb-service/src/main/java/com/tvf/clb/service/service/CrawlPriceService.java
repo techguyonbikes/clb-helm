@@ -15,7 +15,6 @@ import com.tvf.clb.service.repository.RaceRepository;
 import com.tvf.clb.service.repository.RaceSiteRepository;
 import io.r2dbc.postgresql.codec.Json;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -25,6 +24,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.tvf.clb.base.utils.CommonUtils.setIfPresent;
 
 @Service
 public class CrawlPriceService {
@@ -132,9 +133,7 @@ public class CrawlPriceService {
 
             if (entrantNewData != null) {
                 // update entrant position
-                if (entrantNewData.getPosition() != null) {
-                    storedEntrant.setPosition(entrantNewData.getPosition());
-                }
+                setIfPresent(entrantNewData.getPosition(), storedEntrant::setPosition);
 
                 //update scratch
                 if (Boolean.TRUE.equals(entrantNewData.getIsScratched())){
@@ -166,37 +165,41 @@ public class CrawlPriceService {
 
         // For each new price
         newPriceMap.forEach((siteId, newPrice) -> {
-            if (CollectionUtils.isEmpty(newPrice)) {
-                newPriceMap.forEach((i, p) -> storedEntrant.getPriceFluctuations().put(i,
-                        p.stream().map(x -> new PriceHistoryData(x, CommonUtils.getStringInstantDateNow())).collect(Collectors.toList())));
-            } else {
+            if (!CollectionUtils.isEmpty(newPrice)) {
                 // get data price old of list entrant by siteId
                 List<PriceHistoryData> storePriceHistoryData = storedEntrant.getPriceFluctuations().getOrDefault(siteId, new ArrayList<>());
                 if (CollectionUtils.isEmpty(storePriceHistoryData)) {
-                    newPriceMap.forEach((i, p) ->
-                            storedEntrant.getPriceFluctuations().put(i,
-                                    p.stream().map(x -> new PriceHistoryData(x, CommonUtils.getStringInstantDateNow())).collect(Collectors.toList())));
+                    storedEntrant.getPriceFluctuations().put(siteId,
+                            newPrice.stream().map(x -> new PriceHistoryData(x, CommonUtils.getStringInstantDateNow())).collect(Collectors.toList()));
                 } else {
                     //get last price in new list price
-                    Float newPriceValue = newPrice.get(newPrice.size() - 1);
-                    if (!Objects.equals(storePriceHistoryData.get(storePriceHistoryData.size() - 1).getPrice(), newPriceValue)) {
-                        storePriceHistoryData.add(new PriceHistoryData(newPriceValue, CommonUtils.getStringInstantDateNow()));
-                    }
-                    int storeSize = storePriceHistoryData.size();
-                    if (storeSize > 11) {
-                        List<PriceHistoryData> newStorePriceHistoryData = new ArrayList<>();
-                        newStorePriceHistoryData.add(storePriceHistoryData.get(0));
-
-                        for (int i = storeSize - 10; i < storeSize; i++) {
-                            newStorePriceHistoryData.add(storePriceHistoryData.get(i));
-                        }
-                        storedEntrant.getPriceFluctuations().put(siteId, newStorePriceHistoryData);
-
-                    }
+                    getLastPriceInListNewPrice(newPrice, storePriceHistoryData, storedEntrant, siteId);
 
                 }
             }
         });
+    }
+
+    public void getLastPriceInListNewPrice(List<Float> newPrice, List<PriceHistoryData> storePriceHistoryData, EntrantResponseDto storedEntrant, Integer siteId){
+        if (CollectionUtils.isEmpty(newPrice) || CollectionUtils.isEmpty(storePriceHistoryData) || storedEntrant == null || siteId == null ){
+            return;
+        }
+
+        Float newPriceValue = newPrice.get(newPrice.size() - 1);
+        if (!Objects.equals(storePriceHistoryData.get(storePriceHistoryData.size() - 1).getPrice(), newPriceValue)) {
+            storePriceHistoryData.add(new PriceHistoryData(newPriceValue, CommonUtils.getStringInstantDateNow()));
+        }
+        int storeSize = storePriceHistoryData.size();
+        if (storeSize > 11) {
+            List<PriceHistoryData> newStorePriceHistoryData = new ArrayList<>();
+            newStorePriceHistoryData.add(storePriceHistoryData.get(0));
+
+            for (int i = storeSize - 10; i < storeSize; i++) {
+                newStorePriceHistoryData.add(storePriceHistoryData.get(i));
+            }
+            storedEntrant.getPriceFluctuations().put(siteId, newStorePriceHistoryData);
+
+        }
     }
 
     private Mono<?> saveRaceInfoToDBOrRedis(RaceResponseDto race) {
