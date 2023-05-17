@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -27,7 +28,7 @@ public class RaceRedisService {
         return this.raceDetailTemplate.opsForValue().get(key);
     }
 
-    public Mono<List<RaceResponseDto>> findAllByRaceIds(List<Long> keys){
+    public Mono<List<RaceResponseDto>> findAllByRaceIds(Collection<Long> keys){
         return this.raceDetailTemplate.opsForValue().multiGet(keys);
     }
 

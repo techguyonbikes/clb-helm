@@ -124,23 +124,30 @@ public class RaceService {
 
     public Flux<RaceBaseResponseDTO> getListRaceDefault(LocalDate date) {
 
-        Instant startOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant();
-        Instant endOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
+        Instant startTime = date.plusDays(-3).atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC).toInstant();
+        Instant endTime = date.plusDays(3).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC).toInstant();
 
-        LocalDateTime maxDateTime = date.plusDays(3).atTime(LocalTime.MAX);
-        LocalDateTime minDateTime = date.plusDays(-3).atTime(LocalTime.MIN);
-        Instant endTime = maxDateTime.atOffset(ZoneOffset.UTC).toInstant();
-        Instant startTime = minDateTime.atOffset(ZoneOffset.UTC).toInstant();
-        Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).flatMap(r -> {
-            r.setSideName(SIDE_NAME_PREFIX + r.getNumber() + " " + r.getMeetingName());
-            if (r.getDate().isAfter(startOfToday) && r.getDate().isBefore(endOfToday)) {
-                return getNewestRaceProperty(Collections.singletonList(r.getId()), RaceResponseDto::getStatus, Race::getStatus).map(i -> {
-                    r.setStatus(i.getOrDefault(r.getId(), null));
-                    return r;
-                });
-            }
-            return Flux.just(r);
-        });
+        Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).map(race -> {
+            // Set side name for each race
+            race.setSideName(SIDE_NAME_PREFIX + race.getNumber() + " " + race.getMeetingName());
+            return race;
+        })
+        .collectList()
+        .flatMap(listRace -> {
+            // Set newest status for the races still in redis
+            Map<Long, RaceBaseResponseDTO> mapIdToRace = listRace.stream().collect(Collectors.toMap(RaceBaseResponseDTO::getId, Function.identity()));
+
+            return raceRedisService.findAllByRaceIds(mapIdToRace.keySet()).map(listRaceInRedis -> {
+                for (RaceResponseDto raceInRedis : listRaceInRedis) {
+                    if (raceInRedis == null) continue;
+                    mapIdToRace.get(raceInRedis.getId()).setStatus(raceInRedis.getStatus());
+                }
+                return mapIdToRace.values();
+            }).switchIfEmpty(Mono.just(mapIdToRace.values()));
+
+        })
+        .flatMapMany(Flux::fromIterable);
+
         return raceResponse.sort(Comparator.comparing(RaceBaseResponseDTO::getDate));
     }
 
