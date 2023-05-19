@@ -20,4 +20,4 @@ RUN pwd
 COPY "modules/clb-api/target/*.jar" /app/
 
 
-ENTRYPOINT java -agentlib:jdwp=transport=dt_socket,address=*:21222,server=y,suspend=n -jar *.jar
+ENTRYPOINT java -jar *.jar
