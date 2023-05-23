@@ -91,7 +91,7 @@ public class NedsCrawlService implements ICrawlService{
         });
 
         CrawlRaceData result = new CrawlRaceData();
-        result.setSiteId(SiteEnum.NED.getId());
+        result.setSiteEnum(SiteEnum.NED);
         result.setMapEntrants(mapEntrants);
 
         if (isRaceCompleted(results, raceDto.getRaces().get(raceId).getDividends())) {

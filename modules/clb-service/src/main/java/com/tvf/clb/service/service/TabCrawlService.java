@@ -105,7 +105,7 @@ public class TabCrawlService implements ICrawlService{
         });
 
         CrawlRaceData result = new CrawlRaceData();
-        result.setSiteId(SiteEnum.TAB.getId());
+        result.setSiteEnum(SiteEnum.TAB);
         result.setMapEntrants(mapEtrants);
 
         if (isRaceStatusFinal(runnerRawData)) {

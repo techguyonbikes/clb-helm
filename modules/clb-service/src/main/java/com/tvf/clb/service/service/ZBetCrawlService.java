@@ -62,12 +62,10 @@ public class ZBetCrawlService implements ICrawlService {
             List<EntrantRawData> allEntrant = getListEntrant(raceId, raceDto);
 
             Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
-            allEntrant.forEach(x -> {
-                mapEntrants.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.ZBET_SITE_ID));
-            });
+            allEntrant.forEach(x -> mapEntrants.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.ZBET_SITE_ID)));
 
             CrawlRaceData result = new CrawlRaceData();
-            result.setSiteId(SiteEnum.ZBET.getId());
+            result.setSiteEnum(SiteEnum.ZBET);
             result.setStatus(ConvertBase.getZBetRaceStatus(raceDto.getStatus()));
             result.setMapEntrants(mapEntrants);
 

@@ -162,4 +162,31 @@ public class AppConstant {
     public static final String URL_SPORT_BET_RACE = "https://www.sportsbet.com.au/{id}";
     public static final String URL_TOPSPORT_RACE = "https://www.topsport.com.au/{id}";
 
+    //Status - Position priority
+    public static final int LAD_BROKE_STATUS_PRIORITY = 4;
+    public static final int LAD_BROKE_POSITION_PRIORITY = 4;
+    public static final int NED_STATUS_PRIORITY = 3;
+    public static final int NED_POSITION_PRIORITY = 3;
+    public static final int ZBET_STATUS_PRIORITY = 1;
+    public static final int ZBET_POSITION_PRIORITY = 1;
+    public static final int POINT_BET_STATUS_PRIORITY = 2;
+    public static final int POINT_BET_POSITION_PRIORITY = 2;
+    public static final int TAB_STATUS_PRIORITY = 5;
+    public static final int TAB_POSITION_PRIORITY = 5;
+    public static final int SPORT_BET_STATUS_PRIORITY = 6;
+    public static final int SPORT_BET_POSITION_PRIORITY = 6;
+    public static final int TOP_SPORT_STATUS_PRIORITY = 7;
+    public static final int TOP_SPORT_POSITION_PRIORITY = 7;
+
+    // STATUS ORDER
+
+    public static final int OPEN_STATUS_ORDER = 1;
+    public static final int CLOSE_STATUS_ORDER = 2;
+    public static final int INTERIM_STATUS_ORDER = 3;
+    public static final int FINAL_STATUS_ORDER = 4;
+    public static final int RE_RESULTED_STATUS_ORDER = 4;
+    public static final int SUSPENDED_STATUS_ORDER = 4;
+    public static final int ABANDONED_STATUS_ORDER = 4;
+
+
 }

@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.tvf.clb.base.utils.AppConstant.*;
+
 
 public class CommonUtils {
 
@@ -196,6 +198,22 @@ public class CommonUtils {
     public static <T> T fromJsonbToObject(Json json, TypeToken<T> typeToken) {
         Gson gson = new Gson();
         return gson.fromJson(json.asString(), typeToken.getType());
+    }
+
+    private static final Map<String, Integer> statusOrder;
+    static {
+        statusOrder = new HashMap<>();
+        statusOrder.put(STATUS_OPEN, OPEN_STATUS_ORDER);
+        statusOrder.put(STATUS_CLOSED, CLOSE_STATUS_ORDER);
+        statusOrder.put(STATUS_INTERIM, INTERIM_STATUS_ORDER);
+        statusOrder.put(STATUS_FINAL, FINAL_STATUS_ORDER);
+        statusOrder.put(STATUS_RE_RESULTED, RE_RESULTED_STATUS_ORDER);
+        statusOrder.put(STATUS_SUSPENDED, SUSPENDED_STATUS_ORDER);
+        statusOrder.put(STATUS_ABANDONED, ABANDONED_STATUS_ORDER);
+    }
+
+    public static Integer getStatusOrder(String status) {
+        return statusOrder.get(status);
     }
 
 }

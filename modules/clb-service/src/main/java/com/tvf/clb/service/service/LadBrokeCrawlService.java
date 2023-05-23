@@ -118,7 +118,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         });
 
         CrawlRaceData result = new CrawlRaceData();
-        result.setSiteId(SiteEnum.LAD_BROKE.getId());
+        result.setSiteEnum(SiteEnum.LAD_BROKE);
         result.setMapEntrants(entrantMap);
 
         if (isRaceCompleted(results, raceDto.getRaces().get(raceId).getDividends())) {

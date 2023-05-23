@@ -121,7 +121,9 @@ public class CrawlPriceService {
             if (zBetFinalResult != null && zBetInterimResult != null && ! zBetFinalResult.equals(zBetInterimResult)) {
                 newStatus = AppConstant.STATUS_RE_RESULTED;
             }
-            storedRace.setStatus(newStatus);
+            if (CommonUtils.getStatusOrder(storedRace.getStatus()) < CommonUtils.getStatusOrder(raceNewData.getStatus())) {
+                storedRace.setStatus(newStatus);
+            }
         }
 
     }

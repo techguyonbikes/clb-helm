@@ -11,10 +11,7 @@ import com.tvf.clb.base.entity.MeetingSite;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
-import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
-import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
-import com.tvf.clb.base.model.pointbet.PointBetPriceFluctuation;
-import com.tvf.clb.base.model.pointbet.PointBetRaceApiResponse;
+import com.tvf.clb.base.model.pointbet.*;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.ConvertBase;
@@ -85,32 +82,28 @@ public class PointBetCrawlService implements ICrawlService {
         if (raceRawData == null) {
             return new CrawlRaceData();
         }
-
-        List<PointBetEntrantRawData> entrants = raceRawData.getEntrants();
-        Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
-
-        if (StringUtils.hasText(raceRawData.placing)) {
-            List<String> winnersId = Arrays.asList(raceRawData.getPlacing().split(","));
-            entrants.forEach(entrant -> {
-                if (winnersId.contains(entrant.getId())) {
-                    entrant.setPosition(winnersId.indexOf(entrant.getId()) + 1);
-                }
-            });
+        Map<Integer, Integer> mapEntrantsPositions = new HashMap<>();
+        if (raceRawData.getResults() != null) {
+            mapEntrantsPositions = raceRawData.getResults().getWinners() == null ? new HashMap<>() : raceRawData.getResults().getWinners().stream()
+                    .collect(Collectors.toMap(result -> Integer.valueOf(result.getEntrant().getId()), PointBetWinnersRawData::getFinalPlacing));
         }
 
+        Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
         Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
 
-        raceRawData.getEntrants().forEach(entrant -> {
+
+        for (PointBetEntrantRawData entrant : raceRawData.getEntrants()) {
             Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
             priceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantPrices.getOrDefault(entrant.getId(), new ArrayList<>()));
-            mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(entrant.getPosition(), priceFluctuations));
-        });
+            mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(mapEntrantsPositions.getOrDefault(Integer.valueOf(entrant.getId()), 0), priceFluctuations));
+        }
 
         CrawlRaceData result = new CrawlRaceData();
-        result.setSiteId(SiteEnum.POINT_BET.getId());
+        result.setSiteEnum(SiteEnum.POINT_BET);
         result.setMapEntrants(mapEntrants);
 
         String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
+        result.setStatus(statusRace);
         if (AppConstant.STATUS_FINAL.equals(statusRace)) {
             result.setFinalResult(Collections.singletonMap(AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing()));
         }
@@ -189,7 +182,7 @@ public class PointBetCrawlService implements ICrawlService {
             Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
 
             // Set position for entrants. Currently, only four winners have position when race completed
-            if (StringUtils.hasText(raceRawData.placing)) {
+            if (StringUtils.hasText(raceRawData.getPlacing())) {
                 List<String> winnersId = Arrays.asList(raceRawData.getPlacing().split(","));
                 entrants.forEach(entrant -> {
                     if (winnersId.contains(entrant.getId())) {

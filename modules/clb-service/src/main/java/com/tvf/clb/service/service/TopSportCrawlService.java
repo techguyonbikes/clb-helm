@@ -94,7 +94,7 @@ public class TopSportCrawlService implements ICrawlService {
             entrantMap.put(x.getBarrier(), new CrawlEntrantData(0, priceFluctuations));
         });
         CrawlRaceData result = new CrawlRaceData();
-        result.setSiteId(SiteEnum.TOP_SPORT.getId());
+        result.setSiteEnum(SiteEnum.TOP_SPORT);
         result.setMapEntrants(entrantMap);
         if (!topSportRaceDto.getResults().isEmpty()) {
             result.setFinalResult(Collections.singletonMap(AppConstant.TOPSPORT_SITE_ID, topSportRaceDto.getResults()));

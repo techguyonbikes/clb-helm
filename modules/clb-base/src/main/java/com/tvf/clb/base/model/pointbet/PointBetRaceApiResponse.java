@@ -23,7 +23,8 @@ public class PointBetRaceApiResponse {
     private String countryCode;
     private Integer racingType;
     private String advertisedStartDateTime;
-    public String placing;
+    private String placing;
     private Integer tradingStatus;
     private Integer resultStatus;
+    private PointBetResultRawData results;
 }

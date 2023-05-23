@@ -119,7 +119,7 @@ public class SportBetCrawlService implements ICrawlService {
         });
 
         CrawlRaceData result = new CrawlRaceData();
-        result.setSiteId(SiteEnum.SPORT_BET.getId());
+        result.setSiteEnum(SiteEnum.SPORT_BET);
         result.setMapEntrants(entrantMap);
 
         if (isRaceStatusFinal(sportBetRaceDto)) {

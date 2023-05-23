@@ -243,11 +243,10 @@ public class CrawUtils {
                     Map<Integer, String> mapRaceFinalResult = new HashMap<>();
                     Map<Integer, String> mapRaceInterimResult = new HashMap<>();
 
+                    CrawlRaceData racePriorData = null;
+
                     for (CrawlRaceData raceNewData : listRaceNewData) {
-                        // Set race status
-                        if (result.getStatus() == null && raceNewData.getStatus() != null) {
-                            result.setStatus(raceNewData.getStatus());
-                        }
+                        if (raceNewData.getSiteEnum() == null) continue;
 
                         // Set race final result
                         setIfPresent(raceNewData.getFinalResult(), mapRaceFinalResult::putAll);
@@ -257,7 +256,18 @@ public class CrawUtils {
 
                         // Set map entrants
                         setMapEntrantProperties(raceNewData, mapEntrants);
+
+                        if (racePriorData == null || racePriorData.getSiteEnum().getStatusPriority() > raceNewData.getSiteEnum().getStatusPriority()) {
+                            racePriorData = raceNewData;
+                        }
                     }
+
+                    if (racePriorData != null){
+                        result.setStatus(racePriorData.getStatus());
+                        racePriorData.getMapEntrants().forEach((entrantNumber, entrantNewData) ->
+                                mapEntrants.get(entrantNumber).setPosition(entrantNewData.getPosition()));
+                    }
+
 
                     result.setMapEntrants(mapEntrants);
                     result.setFinalResult(mapRaceFinalResult);
@@ -274,10 +284,7 @@ public class CrawUtils {
         raceNewData.getMapEntrants().forEach((entrantNumber, entrantNewData) -> {
             if (mapEntrants.containsKey(entrantNumber)) {
                 mapEntrants.get(entrantNumber).getPriceMap().putAll(entrantNewData.getPriceMap());
-                if (raceNewData.getSiteId().equals(SiteEnum.ZBET.getId())) {
-                    mapEntrants.get(entrantNumber).setPosition(entrantNewData.getPosition());
-                }
-                if (raceNewData.getSiteId().equals(SiteEnum.LAD_BROKE.getId())) {
+                if (raceNewData.getSiteEnum().equals(SiteEnum.LAD_BROKE)) {
                     mapEntrants.get(entrantNumber).setIsScratched(entrantNewData.getIsScratched());
                     mapEntrants.get(entrantNumber).setScratchTime(entrantNewData.getScratchTime());
                 }
