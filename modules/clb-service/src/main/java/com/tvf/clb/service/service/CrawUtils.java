@@ -193,7 +193,7 @@ public class CrawUtils {
                         .findFirst()
                         .ifPresent(existed -> {
                             if (! existed.getRaceSiteId().equals(newRaceSite.getRaceSiteId())) {
-                                raceSiteRepository.updateRaceSiteId(newRaceSite.getRaceSiteId(), existed.getId()).subscribe();
+                                raceSiteRepository.updateRaceSiteIdAndRaceSiteUrl(newRaceSite.getRaceSiteId(), newRaceSite.getRaceSiteUrl(), existed.getId()).subscribe();
                             }
                         });
             }
