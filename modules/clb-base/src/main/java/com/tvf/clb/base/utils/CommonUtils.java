@@ -63,7 +63,7 @@ public class CommonUtils {
 
 
     public static Race getRaceDiffRaceName(List<Race> races, String raceNameCompare, Instant advertisedStart) {
-        if (races.isEmpty() || raceNameCompare == null) {
+        if (races.isEmpty() || raceNameCompare == null || advertisedStart == null) {
             return null;
         }
         if (races.size() == 1){
@@ -73,10 +73,10 @@ public class CommonUtils {
         int wordMax = compareName(races.get(0).getName(), raceNameCompare);
         Map<Race, Integer> mapRaceIdAndWordSame = new HashMap<>();
         for (Race race : races) {
-            if (race.getName() == null) {
+            if (race.getName() == null || race.getAdvertisedStart() == null) {
                 continue;
             }
-            if (race.getName().equals(raceNameCompare)) {
+            if (race.getName().equals(raceNameCompare) && race.getAdvertisedStart().equals(advertisedStart)) {
                 return race;
             } else {
                 int numberOfSameWord = compareName(race.getName(), raceNameCompare);
