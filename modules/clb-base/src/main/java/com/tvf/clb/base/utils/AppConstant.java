@@ -68,14 +68,11 @@ public class AppConstant {
     public static final String SPORT_BET_MEETING_QUERY= "https://www.sportsbet.com.au/apigw/sportsbook-racing/Sportsbook/Racing/AllRacing/{date}";
     public static final String SPORT_BET_RACE_QUERY="https://www.sportsbet.com.au/apigw/sportsbook-racing/Sportsbook/Racing/Events/{id}/RacecardWithContext";
 
-    // Thêm NZ nếu có new zealand
-    public static final List<String> VALID_COUNTRY_CODE = new ArrayList<>(Arrays.asList("AU","AUS","NZL","NZ"));
+    public static final String AUS = "AUS";
 
     public static final List<String> HARNESS_TYPE_RACE = new ArrayList<>(Arrays.asList("harness_racing", "H"));
     public static final List<String> HORSE_TYPE_RACE = new ArrayList<>(Arrays.asList("horse_racing","R"));
     public static final List<String> GREYHOUND_TYPE_RACE = new ArrayList<>(Arrays.asList("greyhound_racing","G"));
-    public static final List<String> VALID_LOCATION_CODE = new ArrayList<>(Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA","NZL","ACT"));
-    public static final List<String> VALID_CHECK_CODE_STATE_DIFF = Arrays.asList("NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA", "NZ", "NZL","ACT");
 
     public static final String VALID_CHECK_PRODUCT_CODE = "ZBF";
 
@@ -85,7 +82,6 @@ public class AppConstant {
     public static final String HARNESS_RACE_TYPE = "harness";
     public static final String HORSE_RACE_TYPE = "horse";
     public static final String GREYHOUND_RACE_TYPE = "greyhound";
-    public static final List<String> VALID_COUNTRY_SPORT_BET = new ArrayList<>(Arrays.asList("Australia","New Zealand"));
     public static final String STATUS_OPEN = "OPEN";
     public static final String STATUS_SUSPENDED = "SUSPENDED";
     public static final String STATUS_CLOSED = "CLOSED";
@@ -196,5 +192,6 @@ public class AppConstant {
     public static final String LADBROKE_STATUS_INTERIM = "766bab58-a04c-4cd3-8a3d-fdcfa38bf016";
     public static final String LADBROKE_STATUS_FINAL = "46b6910d-8379-44fb-855c-afbbdee3b007";
     public static final String LADBROKE_STATUS_ABANDONED = "a8419435-bd8f-406d-bdef-734e25a15569";
+    public static final String SIDE_NAME_PREFIX = "R";
 
 }

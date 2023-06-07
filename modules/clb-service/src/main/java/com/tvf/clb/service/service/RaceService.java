@@ -4,6 +4,7 @@ import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.entity.RaceSite;
 import com.tvf.clb.base.utils.CommonUtils;
+import com.tvf.clb.base.utils.ConvertBase;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -42,7 +43,6 @@ public class RaceService {
     @Autowired
     private EntrantService entrantService;
 
-    private static final String SIDE_NAME_PREFIX = "R";
 
     public Mono<Race> getRaceById(Long raceId) {
         return raceRepository.findById(raceId);
@@ -70,14 +70,14 @@ public class RaceService {
         if (CollectionUtils.isEmpty(meetingIds)) {
             raceResponse = meetingRepository.findByRaceTypes(raceType, startDate)
                     .map(r -> {
-                        r.setSideName(SIDE_NAME_PREFIX + r.getNumber() + " " + r.getMeetingName());
+                        r.setSideName(ConvertBase.getSideName(r));
                         return r;
                     });
 
         } else {
             raceResponse = meetingRepository.findByRaceTypeAndMeetingId(raceType, meetingIds, startDate)
                     .map(r -> {
-                        r.setSideName(SIDE_NAME_PREFIX + r.getNumber() + " " + r.getMeetingName());
+                        r.setSideName(ConvertBase.getSideName(r));
                         return r;
                     });
         }
@@ -128,8 +128,8 @@ public class RaceService {
         Instant endTime = date.plusDays(3).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC).toInstant();
 
         Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).map(race -> {
-            // Set side name for each race
-            race.setSideName(SIDE_NAME_PREFIX + race.getNumber() + " " + race.getMeetingName());
+
+            race.setSideName(ConvertBase.getSideName(race));
             return race;
         })
         .collectList()

@@ -1,5 +1,6 @@
 package com.tvf.clb.base.utils;
 
+import com.tvf.clb.base.dto.RaceBaseResponseDTO;
 import com.tvf.clb.base.dto.RaceDto;
 import com.tvf.clb.base.model.sportbet.SportBetRacesData;
 import lombok.AccessLevel;
@@ -213,6 +214,14 @@ public class ConvertBase {
         }
 
         return Optional.ofNullable(status);
+    }
+    public static String getSideName(RaceBaseResponseDTO race){
+        String sideName = AppConstant.SIDE_NAME_PREFIX + race.getNumber() + " " + race.getMeetingName();
+        // Set side name for each race
+        if (!race.getCountry().equals(AppConstant.AUS)) {
+            sideName = sideName + " (" + race.getCountry() + ")";
+        }
+        return sideName;
     }
 
 }
