@@ -324,13 +324,16 @@ public class MeetingMapper {
     }
 
     public static Race toRaceEntity(ZBetRacesData race) {
-
+        //only get date of startDate
+        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
         return Race.builder()
                 .raceId(race.getId().toString())
                 .name(race.getName())
                 .number(race.getNumber())
                 .raceType(race.getType())
                 .status(race.getStatus())
+                .raceSiteUrl(race.getRaceSiteLink())
+                .advertisedStart(LocalDateTime.parse(race.getStartDate(), sdf).atZone(AppConstant.AU_ZONE_ID).toInstant())
                 .build();
     }
 
