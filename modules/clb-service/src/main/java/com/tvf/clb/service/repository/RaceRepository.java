@@ -37,11 +37,12 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     Flux<Race> getRaceByTypeAndNumberAndRangeAdvertisedStart(@Param("meetingType") String meetingType, @Param("number") Integer number,
                                                              @Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 
-    @Query("select s.id, s.meeting_id, m.name as meeting_name, m.race_type, m.state, s.advertised_start, s.actual_start, s.name, s.number, s.distance, s.status from clb_db.race s join clb_db.meeting m on m.id = s.meeting_id where s.id = :raceId")
+    @Query("select r.id, r.meeting_id, m.name as meeting_name, m.race_type, m.state, r.advertised_start, r.actual_start, r.name, r.number, r.distance, r.status, m.country from clb_db.race r join clb_db.meeting m on m.id = r.meeting_id where r.id = :raceId")
     Mono<RaceEntrantDto> getRaceEntrantByRaceId(@Param("raceId") Long raceId);
 
     @Query("select * from clb_db.race s where s.meeting_id = (select rs.meeting_id from clb_db.race rs where rs.id = :raceId)")
     Flux<Race> getRaceIDNumberByRaceId(@Param("raceId") Long raceId);
+
 
     @Query("delete from clb_db.race r where r.advertised_start between :startTime and :endTime")
     Mono<Long> deleteAllByAdvertisedStartBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);

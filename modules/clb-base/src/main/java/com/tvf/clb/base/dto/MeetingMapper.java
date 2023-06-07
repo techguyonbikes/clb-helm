@@ -78,6 +78,7 @@ public class MeetingMapper {
                 .id(race.getId())
                 .meetingUUID(meetingUUID)
                 .meetingName(meetingName)
+                .status(ConvertBase.getLadbrokeRaceStatus(race.getMainMarketStatusId()).orElse(null))
                 .name(race.getName())
                 .number(race.getNumber())
                 .raceType(raceType)
@@ -215,6 +216,7 @@ public class MeetingMapper {
                 .name(raceDto.getName())
                 .number(raceDto.getNumber())
                 .advertisedStart(raceDto.getAdvertisedStart())
+                .status(raceDto.getStatus())
                 .actualStart(raceDto.getActualStart())
                 .marketIds(Json.of(gson.toJson(raceDto.getMarketIds())))
                 .mainMarketStatusId(raceDto.getMainMarketStatusId())
@@ -322,15 +324,13 @@ public class MeetingMapper {
     }
 
     public static Race toRaceEntity(ZBetRacesData race) {
-        //only get date of startDate
-        DateTimeFormatter sdf = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
 
         return Race.builder()
                 .raceId(race.getId().toString())
                 .name(race.getName())
                 .number(race.getNumber())
                 .raceType(race.getType())
-                .advertisedStart(LocalDateTime.parse(race.getStartDate(), sdf).atZone(AppConstant.AU_ZONE_ID).toInstant())
+                .status(race.getStatus())
                 .build();
     }
 

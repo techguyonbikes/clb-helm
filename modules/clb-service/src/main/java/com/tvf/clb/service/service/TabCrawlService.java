@@ -58,27 +58,20 @@ public class TabCrawlService implements ICrawlService{
     }
 
     private List<MeetingDto> getAllAusMeeting(TabBetMeetingDto meetingRawData,LocalDate date) {
-        List<TabMeetingRawData> newTabMeetingRawData = meetingRawData.getMeetings().stream().filter(m -> AppConstant.VALID_LOCATION_CODE.contains(m.getLocation())).collect(Collectors.toList());
+        log.info("[TAB]  Sum all meeting: "+meetingRawData.getMeetings().size());
+        log.info("[TAB] Sum all race: "+meetingRawData.getMeetings().stream().mapToInt(m -> m.getRaces().size()).sum());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
-        for (TabMeetingRawData localMeeting : newTabMeetingRawData) {
+        Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
+        for (TabMeetingRawData localMeeting : meetingRawData.getMeetings()) {
             List<TabRacesData> localRace =localMeeting.getRaces();
             MeetingDto meetingDto =MeetingMapper.toMeetingTABDto(localMeeting,localRace);
             meetingDtoList.add(meetingDto);
+            mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meetingDto), meetingDto.getRaces().stream().filter(race -> race.getNumber() != null).map(MeetingMapper::toRaceEntity).collect(Collectors.toList()));
         }
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
-        saveMeeting(newTabMeetingRawData);
-        saveRace(raceDtoList);
+        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.TAB.getId());
         crawlAndSaveEntrants(raceDtoList, date).subscribe();
         return meetingDtoList;
-    }
-    public void saveMeeting(List<TabMeetingRawData> meetingRawData) {
-        List<Meeting> newMeetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntityFromTab).collect(Collectors.toList());
-        crawUtils.saveMeetingSite(newMeetings, AppConstant.TAB_SITE_ID);
-    }
-
-    public void saveRace(List<RaceDto> raceDtoList) {
-        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        crawUtils.saveRaceSite(newRaces, AppConstant.TAB_SITE_ID);
     }
 
     @Override

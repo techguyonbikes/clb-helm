@@ -32,10 +32,10 @@ public class CommonUtils {
 
     // "NSW", "SA", "VIC", "QLD", "NT", "TAS", "WA","NZL"
     public static String checkDiffStateMeeting(String state) {
-        if (AppConstant.VALID_CHECK_CODE_STATE_DIFF.contains(state)) {
-            return AppConstant.CODE_NZL.equals(state) ? AppConstant.CODE_NZ : state;
+        if (AppConstant.CODE_NZL.equals(state)) {
+            return AppConstant.CODE_NZ ;
         }
-        return null;
+        return state;
     }
 
     public static Map<Integer, String> getMapRaceFinalResultFromJsonb(Json json) {
@@ -127,6 +127,9 @@ public class CommonUtils {
                     }
                 }
             }
+        }
+        if (wordMax == 0){
+            return null;
         }
         return result;
     }

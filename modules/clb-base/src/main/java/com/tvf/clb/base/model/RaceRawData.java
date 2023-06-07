@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -36,6 +37,9 @@ public class RaceRawData {
 
     private Integer distance;
 
+    public String getName() {
+        return Optional.ofNullable(name).orElse("RACE " + number);
+    }
 }
 
 

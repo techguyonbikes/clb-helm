@@ -34,11 +34,11 @@ public class AppConstant {
     public static final String NOT_SCRATCHED_NAME = "not scratched";
     public static final String DATE_PARAM = "{date}";
     public static final String ID_PARAM = "{id}";
-    public static final String LAD_BROKES_IT_MEETING_QUERY = "https://api.ladbrokes.com.au/v2/racing/meeting?date={date}&region=domestic&timezone=Asia%2FBangkok";
+    public static final String LAD_BROKES_IT_MEETING_QUERY = "https://api.ladbrokes.com.au/v2/racing/meeting?date={date}&timezone=Kingston/Adelaide/Perth";
 
     public static final String LAD_BROKES_IT_RACE_QUERY= "https://api.ladbrokes.com.au/rest/v1/racing/?method=racecard&id={id}";
 
-    public static final String NEDS_MEETING_QUERY = "https://api.neds.com.au/v2/racing/meeting?date={date}&region=domestic&timezone=Asia%2FBangkok";
+    public static final String NEDS_MEETING_QUERY = "https://api.neds.com.au/v2/racing/meeting?date={date}&timezone=Kingston/Adelaide/Perth";
 
     public static final String NEDS_RACE_QUERY= "https://api.neds.com.au/rest/v1/racing/?method=racecard&id={id}";
 
@@ -163,10 +163,10 @@ public class AppConstant {
     public static final String URL_TOPSPORT_RACE = "https://www.topsport.com.au/{id}";
 
     //Status - Position priority
-    public static final int LAD_BROKE_STATUS_PRIORITY = 4;
-    public static final int LAD_BROKE_POSITION_PRIORITY = 4;
-    public static final int NED_STATUS_PRIORITY = 3;
-    public static final int NED_POSITION_PRIORITY = 3;
+    public static final int LAD_BROKE_STATUS_PRIORITY = 3;
+    public static final int LAD_BROKE_POSITION_PRIORITY = 3;
+    public static final int NED_STATUS_PRIORITY = 4;
+    public static final int NED_POSITION_PRIORITY = 4;
     public static final int ZBET_STATUS_PRIORITY = 1;
     public static final int ZBET_POSITION_PRIORITY = 1;
     public static final int POINT_BET_STATUS_PRIORITY = 2;
@@ -188,5 +188,13 @@ public class AppConstant {
     public static final int SUSPENDED_STATUS_ORDER = 4;
     public static final int ABANDONED_STATUS_ORDER = 4;
 
+    // Ladbrokes status
+
+    public static final String LADBROKE_STATUS_OPEN = "4bc8fe96-296b-4b4c-aea4-85c94f63b9c6";
+    public static final String LADBROKE_STATUS_LIVE = "0b9e24e1-3daa-4fdd-b4d5-e720cb74a2ce";
+    public static final String LADBROKE_STATUS_CLOSED = "6cb39fac-be37-4ef2-8468-b4795aafe7ce";
+    public static final String LADBROKE_STATUS_INTERIM = "766bab58-a04c-4cd3-8a3d-fdcfa38bf016";
+    public static final String LADBROKE_STATUS_FINAL = "46b6910d-8379-44fb-855c-afbbdee3b007";
+    public static final String LADBROKE_STATUS_ABANDONED = "a8419435-bd8f-406d-bdef-734e25a15569";
 
 }

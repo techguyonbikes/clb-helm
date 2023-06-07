@@ -9,6 +9,7 @@ import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
+import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
@@ -96,11 +97,13 @@ public class ZBetCrawlService implements ICrawlService {
     }
 
     private List<MeetingDto> getAllAusMeeting(List<ZBetMeetingRawData> zBetMeeting, LocalDate date) {
-        List<ZBetMeetingRawData> ausZBetMeeting = zBetMeeting.stream().filter(zBetMeetingRaw ->
-                AppConstant.VALID_COUNTRY_CODE.contains(zBetMeetingRaw.getCountry())).collect(Collectors.toList());
-        saveMeetingSite(ausZBetMeeting);
+        log.info("[ZBET] Sum all meeting: "+zBetMeeting.size());
+        log.info("[ZBET] Sum all race: "+zBetMeeting.stream().mapToInt(race -> race.getRaces().size()).sum());
+        List<ZBetMeetingRawData> ausZBetMeeting = new ArrayList<>(zBetMeeting);
 
+        Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
         List<ZBetRacesData> racesData = new ArrayList<>();
+
         ausZBetMeeting.forEach(meeting -> {
 
             List<ZBetRacesData> meetingRaces = meeting.getRaces();
@@ -110,12 +113,12 @@ public class ZBetCrawlService implements ICrawlService {
                 race.setStatus(ConvertBase.getZBetRaceStatus(race.getStatus()));
             });
             racesData.addAll(meetingRaces);
+            mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meeting), meetingRaces.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList()));
         });
 
+        saveMeetingSiteAndRaceSite(mapMeetingAndRace);
+
         List<RaceDto> raceDtoList = racesData.stream().map(MeetingMapper::toRaceDto).collect(Collectors.toList());
-
-        saveRaceSite(raceDtoList);
-
         crawlAndSaveEntrants(raceDtoList, date).subscribe();
         return Collections.emptyList();
     }
@@ -144,13 +147,8 @@ public class ZBetCrawlService implements ICrawlService {
         return Flux.empty();
     }
 
-    public void saveMeetingSite(List<ZBetMeetingRawData> meetingRawData) {
-        List<Meeting> newMeetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
-        crawUtils.saveMeetingSite(newMeetings, AppConstant.ZBET_SITE_ID);
-    }
-
-    public void saveRaceSite(List<RaceDto> raceDtoList) {
-        crawUtils.saveRaceSiteAndUpdateStatus(raceDtoList, AppConstant.ZBET_SITE_ID);
+    public void saveMeetingSiteAndRaceSite(Map<Meeting, List<Race>> mapMeetingAndRace) {
+        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.ZBET.getId());
     }
 
     public void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto, LocalDate date) {

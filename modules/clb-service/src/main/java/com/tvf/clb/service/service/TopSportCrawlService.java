@@ -8,7 +8,6 @@ import com.tvf.clb.base.dto.topsport.TopSportRaceDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.utils.AppConstant;
@@ -56,17 +55,22 @@ public class TopSportCrawlService implements ICrawlService {
     }
 
     private List<MeetingDto> getAllAusMeetings(List<TopSportMeetingDto> meetingDtoList, LocalDate date) {
-        List<TopSportMeetingDto> newListMeeting = meetingDtoList.stream().filter(r -> AppConstant.VALID_CHECK_CODE_STATE_DIFF.contains(r.getState())).collect(Collectors.toList());
-        List<MeetingDto> listMeetingDto = newListMeeting.stream().map(MeetingMapper:: toMeetingDtoFromTOP).collect(Collectors.toList());
-        saveMeeting(newListMeeting);
-        for (TopSportMeetingDto meeting : newListMeeting) {
+        List<MeetingDto> listMeetingDto = meetingDtoList.stream().map(MeetingMapper:: toMeetingDtoFromTOP).collect(Collectors.toList());
+
+        Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
+        for (TopSportMeetingDto meeting : meetingDtoList) {
+            List<Race> racesInMeeting = new ArrayList<>();
             for (String raceId : meeting.getRaceId()) {
-                try {
-                    crawlAndSaveEntrantsAndRace(meeting, raceId, date);
-                } catch (ApiRequestFailedException ignored) {
+                TopSportRaceDto topSportRaceDto = crawlAndSaveEntrantsAndRace(meeting, raceId, date);
+                if (topSportRaceDto != null) {
+                    racesInMeeting.add(MeetingMapper.toRaceEntityFromTOP(topSportRaceDto));
                 }
             }
+            mapMeetingAndRace.put(MeetingMapper.toMeetingEntityFromTOP(meeting), racesInMeeting);
         }
+
+        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.TOP_SPORT.getId());
+
         return listMeetingDto;
     }
 
@@ -102,7 +106,7 @@ public class TopSportCrawlService implements ICrawlService {
         return result;
     }
 
-    public void crawlAndSaveEntrantsAndRace(TopSportMeetingDto meetingDto, String raceId, LocalDate date) {
+    public TopSportRaceDto crawlAndSaveEntrantsAndRace(TopSportMeetingDto meetingDto, String raceId, LocalDate date) {
         TopSportRaceDto topSportRaceDto = getRacesByTOP(raceId);
         if (topSportRaceDto != null) {
             topSportRaceDto.setRaceType(ConvertBase.convertRaceTypeOfTOP(meetingDto.getRaceType()));
@@ -118,11 +122,11 @@ public class TopSportCrawlService implements ICrawlService {
 
             saveEntrants(allEntrant, String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(),
                     raceDto.getRaceType(), date), raceDto);
-            saveRace(Collections.singletonList(topSportRaceDto));
 
+            return topSportRaceDto;
         } else {
             crawUtils.saveFailedCrawlRaceForTopSport(meetingDto, raceId, date);
-            throw new ApiRequestFailedException();
+            return null;
         }
 
     }

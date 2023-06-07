@@ -15,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Slf4j
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
@@ -186,6 +187,32 @@ public class ConvertBase {
                 return "hong-kong";
             default: return null;
         }
+    }
+
+    public static Optional<String> getLadbrokeRaceStatus(String ladbrokeStatusCode) {
+        String status;
+        switch (ladbrokeStatusCode) {
+            case AppConstant.LADBROKE_STATUS_OPEN:
+            case AppConstant.LADBROKE_STATUS_LIVE:
+                status = AppConstant.STATUS_OPEN;
+                break;
+            case AppConstant.LADBROKE_STATUS_CLOSED:
+                status = AppConstant.STATUS_CLOSED;
+                break;
+            case AppConstant.LADBROKE_STATUS_INTERIM:
+                status = AppConstant.STATUS_INTERIM;
+                break;
+            case AppConstant.LADBROKE_STATUS_FINAL:
+                status = AppConstant.STATUS_FINAL;
+                break;
+            case AppConstant.LADBROKE_STATUS_ABANDONED:
+                status = AppConstant.STATUS_ABANDONED;
+                break;
+            default:
+                status = null;
+        }
+
+        return Optional.ofNullable(status);
     }
 
 }

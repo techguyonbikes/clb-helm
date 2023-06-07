@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
-import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.entity.Meeting;
-import com.tvf.clb.base.entity.MeetingSite;
+import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
@@ -16,7 +14,6 @@ import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.ConvertBase;
 import com.tvf.clb.service.repository.MeetingRepository;
-import com.tvf.clb.service.repository.MeetingSiteRepository;
 import com.tvf.clb.service.repository.RaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
@@ -25,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -46,9 +44,6 @@ public class PointBetCrawlService implements ICrawlService {
 
     @Autowired
     private RaceRepository raceRepository;
-
-    @Autowired
-    private MeetingSiteRepository meetingSiteRepository;
 
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
@@ -112,59 +107,54 @@ public class PointBetCrawlService implements ICrawlService {
     }
 
     private List<MeetingDto> getAllAusMeeting(List<PointBetMeetingRawData> allMeetingRawData, LocalDate date) {
-        // get all australia meeting
-        List<PointBetMeetingRawData> ausMeetings = allMeetingRawData.stream()
-                .filter(meeting -> AppConstant.VALID_COUNTRY_CODE.contains(meeting.getCountryCode()))
-                .collect(Collectors.toList());
+        // get all meeting
+        List<MeetingDto> meetingDtoList = allMeetingRawData.stream().map(MeetingMapper::toMeetingDto).collect(Collectors.toList());
 
-        List<MeetingDto> meetingDtoList = ausMeetings.stream().map(MeetingMapper::toMeetingDto).collect(Collectors.toList());
-
-        saveMeeting(meetingDtoList);
+        Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
+        for (MeetingDto meetingDto : meetingDtoList) {
+            mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meetingDto), meetingDto.getRaces().stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList()));
+        }
+        log.info("number of meeting: {}", mapMeetingAndRace.keySet().size());
+        log.info("number of race: {}", mapMeetingAndRace.values().size());
+        saveMeetingSiteAndRaceSite(mapMeetingAndRace);
 
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
-
-        //save race
-        crawUtils.saveRaceSiteAndUpdateStatus(raceDtoList, AppConstant.POINT_BET_SITE_ID);
-
         crawlAndSaveEntrants(raceDtoList, date).subscribe();
 
         return meetingDtoList;
     }
 
-    public void saveMeeting(List<MeetingDto> meetingDtoList) {
-        List<Meeting> newMeetings = meetingDtoList.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
-        saveMeetingSite(newMeetings, AppConstant.POINT_BET_SITE_ID);
-    }
-
-    public void saveMeetingSite(List<Meeting> meetings, Integer siteId) {
+    public void saveMeetingSiteAndRaceSite(Map<Meeting, List<Race>> mapMeetingAndRace) {
         /* Can not use CrawUtils.saveMeetingSte() directly since PointBet save Meeting.advertisedDate as the first race's start time in the meeting.
            To find generalMeetingId, we need to find meetings have same name and race type first. Then find all the first race in those meetings.
            Then we can get the race has same advertised time with PointBet meeting. So we have generalMeetingId need to find from that race.
 
            Assume that 2 meetings have same name, type in same day can occur
         */
-        Flux<MeetingSite> newMeetingSite =
-                Flux.fromIterable(meetings)
-                        .flatMap(meeting -> {
-                            Instant yesterday = meeting.getAdvertisedDate().minus(1, ChronoUnit.DAYS).atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant();
 
-                            return meetingRepository.getMeetingIdsByNameAndRaceTypeAndAdvertisedDateFrom(meeting.getName(), meeting.getRaceType(), yesterday)
+        Flux<MeetingSite> newMeetingSiteFlux = Flux.empty();
+        Flux<RaceSite> newRaceSiteFlux = Flux.empty();
+
+        for (Map.Entry<Meeting, List<Race>> entry : mapMeetingAndRace.entrySet()) {
+            Meeting newMeeting = entry.getKey();
+            List<Race> newRaces = entry.getValue();
+
+            Instant yesterday = newMeeting.getAdvertisedDate().minus(1, ChronoUnit.DAYS).atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant();
+            Mono<Long> meetingId = meetingRepository.getMeetingIdsByNameAndRaceTypeAndAdvertisedDateFrom(newMeeting.getName(), newMeeting.getRaceType(), yesterday)
                                     .collectList()
-                                    .flatMap(meetingIds -> raceRepository.getRaceByMeetingIdInAndNumberAndAdvertisedStart(meetingIds, 1, meeting.getAdvertisedDate()))
-                                    .map(race -> MeetingMapper.toMetingSite(meeting, siteId, race.getMeetingId()));
-                        });
+                                    .flatMap(meetingIds -> raceRepository.getRaceByMeetingIdInAndNumberAndAdvertisedStart(meetingIds, 1, newMeeting.getAdvertisedDate()))
+                                    .map(Race::getMeetingId);
 
-        Flux<MeetingSite> existedMeetingSite = meetingSiteRepository
-                .findAllByMeetingSiteIdInAndSiteId(meetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList()), siteId);
+            newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, SiteEnum.POINT_BET.getId(), id)));
 
-        Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
-                .flatMap(tuple2 -> {
-                    tuple2.getT2().forEach(dup -> tuple2.getT1().remove(dup));
-                    log.info("Meeting site " + siteId + " need to be update is " + tuple2.getT1().size());
-                    return meetingSiteRepository.saveAll(tuple2.getT1());
-                }).subscribe();
+            Flux<RaceSite> raceSites = crawUtils.getRaceSitesFromMeetingIdAndRaces(meetingId, newRaces, SiteEnum.POINT_BET.getId());
 
+            newRaceSiteFlux = newRaceSiteFlux.concatWith(raceSites);
+        }
+        crawUtils.saveMeetingSite(mapMeetingAndRace.keySet(), newMeetingSiteFlux, SiteEnum.POINT_BET.getId());
+        crawUtils.saveRaceSite(newRaceSiteFlux, SiteEnum.POINT_BET.getId());
     }
+
 
     @Override
     public Flux<EntrantDto> crawlAndSaveEntrantsInRace(RaceDto raceDto, LocalDate date) {

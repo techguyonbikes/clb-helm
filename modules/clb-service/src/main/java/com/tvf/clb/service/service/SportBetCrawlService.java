@@ -31,7 +31,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tvf.clb.base.utils.AppConstant.SPORT_BET_BETTING_STATUS_OFF;
 import static com.tvf.clb.base.utils.AppConstant.SPORT_BET_BETTING_STATUS_RESULTED;
 
 @ClbService(componentType = AppConstant.SPORT_BET)
@@ -64,13 +63,14 @@ public class SportBetCrawlService implements ICrawlService {
     private List<MeetingDto> getAllAusMeeting(SportBetDataDto sportBetDataDto, LocalDate date) {
         List<SportBetSectionsDto> sportBetSectionsDtos = sportBetDataDto.getDates();
         List<SportBetMeetingDto> sportBetMeetingDtoList = sportBetSectionsDtos.get(0).getSections();
+        log.info("[SportBet] Sum all meetings:"+sportBetMeetingDtoList.stream().mapToInt(meeting -> meeting.getMeetings().size()).sum());
+        log.info("[SportBet] Sum all meetings:"+sportBetMeetingDtoList.stream().mapToInt(meeting -> meeting.getMeetings().stream().mapToInt(race -> race.getEvents().size()).sum()).sum());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
         for(SportBetMeetingDto meetingDto :sportBetMeetingDtoList){
-            List<SportBetMeetingRawData> meetingRawData = meetingDto.getMeetings().stream().filter(r->AppConstant.VALID_COUNTRY_SPORT_BET.contains(r.getRegionName())).collect(Collectors.toList());
-            meetingDtoList.addAll(MeetingMapper.toMeetingSportDtoList(meetingDto,meetingRawData,date));
+            meetingDtoList.addAll(MeetingMapper.toMeetingSportDtoList(meetingDto,meetingDto.getMeetings(),date));
         }
-        saveMeeting(meetingDtoList);
         List<RaceDto> raceDtoList = new ArrayList<>();
+        Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
         meetingDtoList.forEach(meeting -> {
             List<RaceDto> meetingRaces = meeting.getRaces();
             meetingRaces.forEach(race -> {
@@ -78,20 +78,11 @@ public class SportBetCrawlService implements ICrawlService {
                 race.setRaceType(meeting.getRaceType());
             });
             raceDtoList.addAll(meetingRaces);
+            mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meeting), meetingRaces.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList()));
         });
-        saveRace(raceDtoList);
+        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.SPORT_BET.getId());
         crawlAndSaveEntrants(raceDtoList, date).subscribe();
         return Collections.emptyList();
-    }
-
-    public void saveMeeting(List<MeetingDto> meetingDtoList) {
-        List<Meeting> newMeetings = meetingDtoList.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
-        crawUtils.saveMeetingSite(newMeetings, AppConstant.SPORTBET_SITE_ID);
-    }
-
-    public void saveRace(List<RaceDto> raceDtoList) {
-        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList());
-        crawUtils.saveRaceSite(newRaces, AppConstant.SPORTBET_SITE_ID);
     }
 
     @Override
@@ -167,12 +158,11 @@ public class SportBetCrawlService implements ICrawlService {
 
     private boolean isRaceStatusFinal(SportBetRaceDto sportBetRaceDto) {
         return ! CollectionUtils.isEmpty(sportBetRaceDto.getResults())
-                && (SPORT_BET_BETTING_STATUS_RESULTED.equals(sportBetRaceDto.getBettingStatus())
-                        || SPORT_BET_BETTING_STATUS_OFF.equals(sportBetRaceDto.getBettingStatus()));
+                && SPORT_BET_BETTING_STATUS_RESULTED.equals(sportBetRaceDto.getBettingStatus());
     }
 
     private Stream<ResultsRawData> getWinnerEntrants(List<ResultsRawData> result) {
-        return result.stream()
+        return result.stream().filter(resultsRawData -> resultsRawData.getPlace() != null)
                 .sorted(Comparator.comparing(ResultsRawData::getPlace));
     }
 

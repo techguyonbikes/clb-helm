@@ -20,7 +20,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Type;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
@@ -132,6 +135,27 @@ public class CrawUtils {
         raceStored.getMapSiteUUID().put(site, raceDto.getId());
     }
 
+    public void saveMeetingSiteAndRaceSite(Map<Meeting, List<Race>> mapMeetingAndRace, Integer site) {
+
+        Flux<MeetingSite> newMeetingSiteFlux = Flux.empty();
+        Flux<RaceSite> newRaceSiteFlux = Flux.empty();
+
+        for (Map.Entry<Meeting, List<Race>> entry : mapMeetingAndRace.entrySet()) {
+            Meeting newMeeting = entry.getKey();
+            List<Race> newRaces = entry.getValue();
+
+            Mono<Long> meetingId = getMeetingIdAndCompareMeetingNames(newMeeting, site);
+
+            newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, site, id)));
+
+            Flux<RaceSite> raceSites = getRaceSitesFromMeetingIdAndRaces(meetingId, newRaces, site);
+            newRaceSiteFlux = newRaceSiteFlux.concatWith(raceSites);
+        }
+
+        saveMeetingSite(mapMeetingAndRace.keySet(), newMeetingSiteFlux, site);
+        saveRaceSite(newRaceSiteFlux, site);
+    }
+
     public void saveMeetingSite(List<Meeting> meetings, Integer site) {
         Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
                 r -> {
@@ -152,10 +176,15 @@ public class CrawUtils {
                     return Flux.from(generalId).map(id -> MeetingMapper.toMetingSite(r, site, id));
                 }
         );
-        Flux<MeetingSite> existedMeetingSite = meetingSiteRepository
+
+        saveMeetingSite(meetings, newMeetingSite, site);
+    }
+
+    public void saveMeetingSite(Collection<Meeting> meetings, Flux<MeetingSite> newMeetingSiteFlux, Integer site) {
+        Flux<MeetingSite> existedMeetingSiteFlux = meetingSiteRepository
                 .findAllByMeetingSiteIdInAndSiteId(meetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList()), site);
 
-        Flux.zip(newMeetingSite.collectList(), existedMeetingSite.collectList())
+        Flux.zip(newMeetingSiteFlux.collectList(), existedMeetingSiteFlux.collectList())
                 .flatMap(tuple2 -> {
                     List<MeetingSite> newMeetingSites = new ArrayList<>(tuple2.getT1());
                     newMeetingSites.removeAll(tuple2.getT2());
@@ -163,6 +192,49 @@ public class CrawUtils {
                     return meetingSiteRepository.saveAll(newMeetingSites);
                 })
                 .subscribe();
+    }
+
+    public Flux<RaceSite> getRaceSitesFromMeetingIdAndRaces(Mono<Long> meetingId, List<Race> newRaces, Integer site) {
+        return meetingId.flatMapMany(raceRepository::findAllByMeetingId)
+                        .collectList()
+                        .flatMapIterable(existingRaces -> {
+                            Map<Integer, Long> mapRaceNumberAndId = existingRaces.stream().collect(Collectors.toMap(Race::getNumber, Race::getId));
+                            List<RaceSite> raceSiteList = new ArrayList<>();
+
+                            for (Race newRace : newRaces) {
+                                if (mapRaceNumberAndId.containsKey(newRace.getNumber())) {
+                                    Long raceId = mapRaceNumberAndId.get(newRace.getNumber());
+                                    raceSiteList.add(RaceResponseMapper.toRacesiteDto(newRace, site, raceId));
+                                }
+                            }
+                            return raceSiteList;
+                        });
+    }
+
+    public Mono<Long> getMeetingIdAndCompareMeetingNames(Meeting newMeeting, Integer site){
+        return meetingRepository.findAllMeetingByRaceTypeAndAdvertisedDate(
+                        newMeeting.getRaceType(),
+                        newMeeting.getAdvertisedDate().minus(30, ChronoUnit.MINUTES),
+                        newMeeting.getAdvertisedDate().plus(30, ChronoUnit.MINUTES)
+                )
+                .collectList()
+                .mapNotNull(m -> {
+                    Meeting result = CommonUtils.getMeetingDiffMeetingName(m, newMeeting.getName());
+                    if (result == null) {
+                        log.info("[SaveMeetingSiteAndRaceSite] Can't map new meeting with name {} in site {}", newMeeting.getName(), site);
+                        return null;
+                    } else {
+                        return result.getId();
+                    }
+                });
+    }
+
+    public void saveRaceSite(Flux<RaceSite> newRaceSiteFlux, Integer site) {
+        newRaceSiteFlux.collectList()
+                .subscribe(newRaceSites -> raceSiteRepository
+                        .findAllByGeneralRaceIdInAndSiteId(newRaceSites.stream().map(RaceSite::getGeneralRaceId).collect(Collectors.toList()), site)
+                        .collectList()
+                        .subscribe(existedRaceSites -> saveOrUpdateRaceSiteToDB(newRaceSites, existedRaceSites, site)));
     }
 
     public void saveRaceSite(List<Race> races, Integer site) {
@@ -173,12 +245,7 @@ public class CrawUtils {
                 }
         );
 
-        newRaceSiteFlux.collectList()
-                .subscribe(newRaceSites -> raceSiteRepository
-                            .findAllByGeneralRaceIdInAndSiteId(newRaceSites.stream().map(RaceSite::getGeneralRaceId).collect(Collectors.toList()), site)
-                            .collectList()
-                            .subscribe(existedRaceSites -> saveOrUpdateRaceSiteToDB(newRaceSites, existedRaceSites, site)));
-
+        saveRaceSite(newRaceSiteFlux, site);
     }
 
     private void saveOrUpdateRaceSiteToDB(List<RaceSite> newRaceSites, List<RaceSite> existedRaceSites, Integer site) {
@@ -201,30 +268,6 @@ public class CrawUtils {
 
         log.info("Race site " + site + " need to be update is " + raceSitesNeedToInsert.size());
         raceSiteRepository.saveAll(raceSitesNeedToInsert).subscribe();
-    }
-
-    public void saveRaceSiteAndUpdateStatus(List<RaceDto> raceDtoList, Integer site) {
-        if (!raceDtoList.isEmpty()) {
-            Flux<RaceSite> newRaceSiteFlux = Flux.fromIterable(raceDtoList)
-                    .filter(race -> race.getNumber() != null)
-                    .flatMap(race -> getRaceByTypeAndNumberAndRangeAdvertisedStart(race)
-                            .flatMapMany(id -> {
-                                if (AppConstant.ZBET_SITE_ID.equals(site)) {
-                                    return raceRepository.setUpdateRaceStatusById(id, race.getStatus())
-                                            .thenReturn(RaceResponseMapper.toRaceSiteDto(race, site, id));
-                                } else {
-                                    return Mono.just(RaceResponseMapper.toRaceSiteDto(race, site, id)).flux();
-                                }
-                            })
-                    );
-
-
-            newRaceSiteFlux.collectList()
-                    .subscribe(newRaceSites -> raceSiteRepository
-                            .findAllByGeneralRaceIdInAndSiteId(newRaceSites.stream().map(RaceSite::getGeneralRaceId).collect(Collectors.toList()), site)
-                            .collectList()
-                            .subscribe(existedRaceSites -> saveOrUpdateRaceSiteToDB(newRaceSites, existedRaceSites, site)));
-        }
     }
 
     public Mono<CrawlRaceData> crawlNewDataByRaceUUID(Map<Integer, String> mapSiteRaceUUID) {
@@ -346,6 +389,20 @@ public class CrawUtils {
         });
 
         return result;
+    }
+
+    public void checkMeetingWrongAdvertisedStart(MeetingRawData meeting, List<RaceRawData> races) {
+        Optional<RaceRawData> firstRace = races.stream().min(Comparator.comparing(RaceRawData::getAdvertisedStart));
+        if (firstRace.isPresent()) {
+            Instant firstRaceAdvertisedStart = Instant.parse(firstRace.get().getAdvertisedStart());
+
+            Instant startTime = firstRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MAX.withHour(15)).toInstant();
+            Instant endTime = firstRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN.withHour(17)).toInstant();
+
+            if (firstRaceAdvertisedStart.isAfter(startTime) && firstRaceAdvertisedStart.isBefore(endTime)) {
+                meeting.setAdvertisedDate(Instant.parse(meeting.getAdvertisedDate()).minus(1, ChronoUnit.DAYS).toString());
+            }
+        }
     }
 
     public void updateRaceFinalResultIntoDB(RaceDto raceDto, Integer siteId, String finalResult) {

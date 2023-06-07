@@ -4,6 +4,7 @@ import com.tvf.clb.base.dto.topsport.TopSportRaceDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.entity.RaceSite;
+import com.tvf.clb.base.model.LadbrokesRaceRawData;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import lombok.AccessLevel;
@@ -50,15 +51,16 @@ public class RaceResponseMapper {
                 .build();
     }
 
-    public static RaceResponseDto toRaceResponseDto(List<Entrant> entrants, String raceUUID, Long raceId, LadBrokedItRaceDto raceDto, String finalResult, String meetingName) {
-        String url = meetingName + "/" + raceUUID;
+    public static RaceResponseDto toRaceResponseDto(List<Entrant> entrants, String raceUUID, Long raceId, RaceDto raceDto) {
+        String url = raceDto.getMeetingName() + "/" + raceUUID;
         return RaceResponseDto.builder()
                 .id(raceId)
                 .mapSiteUUID(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), entrants.get(0).getRaceUUID()))
                 .entrants(entrants.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList()))
-                .advertisedStart(raceDto.getRaces().get(raceUUID).getAdvertisedStart().toString())
-                .finalResult(!StringUtils.hasText(finalResult) ? new HashMap<>() : Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), finalResult))
+                .advertisedStart(raceDto.getAdvertisedStart().toString())
+                .finalResult(!StringUtils.hasText(raceDto.getFinalResult()) ? new HashMap<>() : Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), raceDto.getFinalResult()))
                 .raceSiteUrl(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), AppConstant.URL_LAD_BROKES_IT_RACE.replace(AppConstant.ID_PARAM, url)))
+                .status(raceDto.getStatus())
                 .build();
     }
 
@@ -78,6 +80,17 @@ public class RaceResponseMapper {
                 .advertisedStart(r.getStartTime())
                 .name(r.getRaceName())
                 .meetingName(r.getMeetingName())
+                .build();
+    }
+
+    public static RaceDto toRaceDTO(LadbrokesRaceRawData raceRawData, String meetingName, String finalResult, String status) {
+        return RaceDto.builder()
+                .number(raceRawData.getNumber())
+                .advertisedStart(raceRawData.getAdvertisedStart())
+                .name(raceRawData.getName())
+                .status(status)
+                .finalResult(finalResult)
+                .meetingName(meetingName)
                 .build();
     }
 

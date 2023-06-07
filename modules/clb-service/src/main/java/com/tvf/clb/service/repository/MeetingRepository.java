@@ -41,6 +41,10 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     @Query("select * from clb_db.meeting m  where (:state is null or m.state = :state) and m.race_type = :raceType and m.advertised_date = :date")
     Flux<Meeting> getMeetingDiffName(@Param("state") String state, @Param("raceType") String raceType,@Param("date") Instant date);
 
+    @Query("select * from clb_db.meeting m  where m.race_type = :raceType and m.advertised_date between :startTime and :endTime")
+    Flux<Meeting> findAllMeetingByRaceTypeAndAdvertisedDate(@Param("raceType") String raceType, @Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
+
+
     @Query("select m.id from clb_db.meeting m where m.name = :name and m.race_type = :raceType and m.advertised_date >= :date")
     Flux<Long> getMeetingIdsByNameAndRaceTypeAndAdvertisedDateFrom(@Param("name") String name, @Param("raceType") String raceType, @Param("date") Instant date);
 
@@ -54,4 +58,7 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
 
     @Query("delete from clb_db.meeting m where m.advertised_date between :startTime and :endTime")
     Mono<Long> deleteAllByAdvertisedDateBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
+
+    @Query("select m.id from clb_db.meeting m where m.name = :name and m.race_type = :raceType and m.advertised_date = :date")
+    Mono<Long> getMeetingIdByNameAndRaceTypeAndAdvertisedStart(@Param("name") String name, @Param("raceType") String raceType, @Param("date") Instant date);
 }
