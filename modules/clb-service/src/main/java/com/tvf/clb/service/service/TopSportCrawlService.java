@@ -74,16 +74,6 @@ public class TopSportCrawlService implements ICrawlService {
         return listMeetingDto;
     }
 
-    public void saveMeeting(List<TopSportMeetingDto> meetingRawData) {
-        List<Meeting> newMeetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntityFromTOP).collect(Collectors.toList());
-        crawUtils.saveMeetingSite(newMeetings, AppConstant.TOPSPORT_SITE_ID);
-    }
-
-    public void saveRace(List<TopSportRaceDto> raceDtoList) {
-        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntityFromTOP).collect(Collectors.toList());
-        crawUtils.saveRaceSite(newRaces, AppConstant.TOPSPORT_SITE_ID);
-    }
-
     @Override
     public CrawlRaceData getEntrantByRaceUUID(String raceId) {
         TopSportRaceDto topSportRaceDto = getRacesByTOP(raceId);

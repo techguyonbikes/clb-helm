@@ -6,10 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
-import com.tvf.clb.base.entity.Entrant;
-import com.tvf.clb.base.entity.Meeting;
-import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.base.entity.TodayData;
+import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.ApiUtils;
@@ -264,14 +261,15 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                 .flatMap(meeting -> meetingRepository.save(meeting))
                                                 .sequential() // switch back to sequential processing
                                                 .collectList()
-                                    .subscribe(savedMeetings -> {
-                                        if (! CollectionUtils.isEmpty(savedMeetings)) {
-                                            crawUtils.saveMeetingSite(savedMeetings, AppConstant.LAD_BROKE_SITE_ID);
-                                        }
-                                        savedMeetings.addAll(existed);
-                                        saveRace(raceDtoList, savedMeetings, date);
-                                        log.info("All meetings processed successfully");
-                                    });
+                                                .subscribe(savedMeetings -> {
+                                                    if (! CollectionUtils.isEmpty(savedMeetings)) {
+                                                        List<MeetingSite> meetingSites = savedMeetings.stream().map(meeting -> MeetingMapper.toMetingSite(meeting, SiteEnum.LAD_BROKE.getId(), meeting.getId())).collect(Collectors.toList());
+                                                        crawUtils.saveMeetingSite(savedMeetings, Flux.fromIterable(meetingSites), SiteEnum.LAD_BROKE.getId());
+                                                    }
+                                                    savedMeetings.addAll(existed);
+                                                    saveRace(raceDtoList, savedMeetings, date);
+                                                    log.info("All meetings processed successfully");
+                                                });
                         }
                 );
     }
@@ -288,7 +286,6 @@ public class LadBrokeCrawlService implements ICrawlService {
         existedRaces.collectList()
                 .subscribe(existed ->
                         {
-
                             Map<String, Race> raceMeetingIdNumberMap = existed.stream()
                                     .collect(Collectors.toMap(race -> race.getMeetingId() + " " + race.getNumber(), Function.identity()));
                             List<Race> raceNeedUpdateOrInsert = new ArrayList<>();
@@ -303,6 +300,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     setIfPresent(newRace.getMeetingUUID(), existing::setMeetingUUID);
                                     setIfPresent(newRace.getRaceId(), existing::setRaceId);
                                     setIfPresent(newRace.getStatus(), existing::setStatus);
+                                    setIfPresent(newRace.getRaceSiteUrl(), existing::setRaceSiteUrl);
                                     raceNeedUpdateOrInsert.add(existing);
                                 } else {
                                     newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());
@@ -319,7 +317,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .collectList()
                                     .subscribe(savedRace -> {
                                         if (! CollectionUtils.isEmpty(savedRace)) {
-                                            crawUtils.saveRaceSite(savedRace, AppConstant.LAD_BROKE_SITE_ID);
+                                            List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
+                                            crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId());
+
                                             savedRace.forEach(race -> {
                                                 Meeting raceMeeting = meetingUUIDMap.get(race.getMeetingUUID());
                                                 String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
@@ -327,7 +327,6 @@ public class LadBrokeCrawlService implements ICrawlService {
                                             });
                                         }
 
-                                        savedRace.addAll(existed);
                                         Map<String, Long> mapRaceUUIDAndId = savedRace.stream().filter(race -> race.getRaceId() != null && race.getId() != null)
                                                         .collect(Collectors.toMap(Race::getRaceId, Race::getId, (first, second) -> first));
 

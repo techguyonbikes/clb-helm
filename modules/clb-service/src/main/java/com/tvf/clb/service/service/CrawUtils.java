@@ -156,30 +156,6 @@ public class CrawUtils {
         saveRaceSite(newRaceSiteFlux, site);
     }
 
-    public void saveMeetingSite(List<Meeting> meetings, Integer site) {
-        Flux<MeetingSite> newMeetingSite = Flux.fromIterable(meetings).flatMap(
-                r -> {
-                    Mono<Long> generalId = meetingRepository.getMeetingDiffName(
-                                CommonUtils.checkDiffStateMeeting(r.getState()),
-                                r.getRaceType(),
-                                r.getAdvertisedDate()
-                            )
-                            .collectList()
-                            .mapNotNull(m -> {
-                                Meeting result = CommonUtils.getMeetingDiffMeetingName(m, r.getName());
-                                if (result == null) {
-                                    return null;
-                                } else {
-                                    return result.getId();
-                                }
-                            });
-                    return Flux.from(generalId).map(id -> MeetingMapper.toMetingSite(r, site, id));
-                }
-        );
-
-        saveMeetingSite(meetings, newMeetingSite, site);
-    }
-
     public void saveMeetingSite(Collection<Meeting> meetings, Flux<MeetingSite> newMeetingSiteFlux, Integer site) {
         Flux<MeetingSite> existedMeetingSiteFlux = meetingSiteRepository
                 .findAllByMeetingSiteIdInAndSiteId(meetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList()), site);
@@ -235,17 +211,6 @@ public class CrawUtils {
                         .findAllByGeneralRaceIdInAndSiteId(newRaceSites.stream().map(RaceSite::getGeneralRaceId).collect(Collectors.toList()), site)
                         .collectList()
                         .subscribe(existedRaceSites -> saveOrUpdateRaceSiteToDB(newRaceSites, existedRaceSites, site)));
-    }
-
-    public void saveRaceSite(List<Race> races, Integer site) {
-        Flux<RaceSite> newRaceSiteFlux = Flux.fromIterable(races.stream().filter(x -> x.getNumber() != null).collect(Collectors.toList())).flatMap(
-                race -> {
-                    Mono<Long> generalId = getRaceByTypeAndNumberAndRangeAdvertisedStart(RaceResponseMapper.toRaceDTO(race));
-                    return Flux.from(generalId).map(id -> RaceResponseMapper.toRacesiteDto(race, site, id));
-                }
-        );
-
-        saveRaceSite(newRaceSiteFlux, site);
     }
 
     private void saveOrUpdateRaceSiteToDB(List<RaceSite> newRaceSites, List<RaceSite> existedRaceSites, Integer site) {
@@ -392,15 +357,14 @@ public class CrawUtils {
     }
 
     public void checkMeetingWrongAdvertisedStart(MeetingRawData meeting, List<RaceRawData> races) {
-        Optional<RaceRawData> firstRace = races.stream().min(Comparator.comparing(RaceRawData::getAdvertisedStart));
         Optional<RaceRawData> lastRace = races.stream().max(Comparator.comparing(RaceRawData::getAdvertisedStart));
-        if (firstRace.isPresent() && lastRace.isPresent()) {
-            Instant firstRaceAdvertisedStart = Instant.parse(firstRace.get().getAdvertisedStart());
-            Instant lastRaceAdvertisedStart = Instant.parse(lastRace.get().getAdvertisedStart());
 
-            Instant theTime = firstRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MAX.withHour(16)).toInstant();
-            if (firstRaceAdvertisedStart.isBefore(theTime) && lastRaceAdvertisedStart.isAfter(theTime)) {
-                meeting.setAdvertisedDate(Instant.parse(meeting.getAdvertisedDate()).minus(1, ChronoUnit.DAYS).toString());
+        if (lastRace.isPresent()) {
+            Instant lastRaceAdvertisedStart = Instant.parse(lastRace.get().getAdvertisedStart());
+            Instant meetingAdvertisedStart = Instant.parse(meeting.getAdvertisedDate());
+
+            if (lastRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN).isBefore(meetingAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN))) {
+                meeting.setAdvertisedDate(meetingAdvertisedStart.minus(1, ChronoUnit.DAYS).toString());
             }
         }
     }
