@@ -344,7 +344,7 @@ public class CrawUtils {
         List<Entrant> listNeedToUpdate = new ArrayList<>();
         existedFlux.collectList().subscribe(listExisted -> {
 
-                Map<Integer, Entrant> mapNumberToNewEntrant = newEntrant.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity()));
+                Map<Integer, Entrant> mapNumberToNewEntrant = newEntrant.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity(), (first, second) -> first));
                 listExisted.forEach(existed -> {
 
                         Map<Integer, List<PriceHistoryData>> allExistedSitePrices = CommonUtils.getSitePriceFromJsonb(existed.getPriceFluctuations());
@@ -393,13 +393,13 @@ public class CrawUtils {
 
     public void checkMeetingWrongAdvertisedStart(MeetingRawData meeting, List<RaceRawData> races) {
         Optional<RaceRawData> firstRace = races.stream().min(Comparator.comparing(RaceRawData::getAdvertisedStart));
-        if (firstRace.isPresent()) {
+        Optional<RaceRawData> lastRace = races.stream().max(Comparator.comparing(RaceRawData::getAdvertisedStart));
+        if (firstRace.isPresent() && lastRace.isPresent()) {
             Instant firstRaceAdvertisedStart = Instant.parse(firstRace.get().getAdvertisedStart());
+            Instant lastRaceAdvertisedStart = Instant.parse(lastRace.get().getAdvertisedStart());
 
-            Instant startTime = firstRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MAX.withHour(15)).toInstant();
-            Instant endTime = firstRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN.withHour(17)).toInstant();
-
-            if (firstRaceAdvertisedStart.isAfter(startTime) && firstRaceAdvertisedStart.isBefore(endTime)) {
+            Instant theTime = firstRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MAX.withHour(16)).toInstant();
+            if (firstRaceAdvertisedStart.isBefore(theTime) && lastRaceAdvertisedStart.isAfter(theTime)) {
                 meeting.setAdvertisedDate(Instant.parse(meeting.getAdvertisedDate()).minus(1, ChronoUnit.DAYS).toString());
             }
         }
