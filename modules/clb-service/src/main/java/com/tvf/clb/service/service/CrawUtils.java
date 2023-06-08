@@ -144,6 +144,8 @@ public class CrawUtils {
             Meeting newMeeting = entry.getKey();
             List<Race> newRaces = entry.getValue();
 
+            checkMeetingWrongAdvertisedStart(newMeeting, newRaces);
+
             Mono<Long> meetingId = getMeetingIdAndCompareMeetingNames(newMeeting, site);
 
             newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, site, id)));
@@ -365,6 +367,19 @@ public class CrawUtils {
 
             if (lastRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN).isBefore(meetingAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN))) {
                 meeting.setAdvertisedDate(meetingAdvertisedStart.minus(1, ChronoUnit.DAYS).toString());
+            }
+        }
+    }
+
+    public void checkMeetingWrongAdvertisedStart(Meeting meeting, List<Race> races) {
+        Optional<Race> lastRace = races.stream().max(Comparator.comparing(Race::getAdvertisedStart));
+
+        if (lastRace.isPresent()) {
+            Instant lastRaceAdvertisedStart = lastRace.get().getAdvertisedStart();
+            Instant meetingAdvertisedStart = meeting.getAdvertisedDate();
+
+            if (lastRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN).isBefore(meetingAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN))) {
+                meeting.setAdvertisedDate(meetingAdvertisedStart.minus(1, ChronoUnit.DAYS));
             }
         }
     }
