@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
@@ -183,11 +184,14 @@ public class ZBetCrawlService implements ICrawlService {
 
     private List<Float> buildPriceFluctuations(ZBetEntrantData entrantData) {
         if (entrantData.getPrices() instanceof JsonObject) {
-            Map<Integer, ZBetPrices> pricesMap = new Gson().fromJson(entrantData.getPrices(), new TypeToken<Map<Integer, ZBetPrices>>() {
-            }.getType());
+            Map<Integer, ZBetPrices> pricesMap = new Gson().fromJson(entrantData.getPrices(), new TypeToken<Map<Integer, ZBetPrices>>() {}.getType());
+
             if (!pricesMap.isEmpty()) {
                 List<ZBetPrices> listZBF = pricesMap.values().stream().filter(zBetPrices -> AppConstant.VALID_CHECK_PRODUCT_CODE.equals(zBetPrices.getProductCode()))
                         .sorted(Comparator.comparing(ZBetPrices::getRequestedAt)).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(listZBF)) {
+                    return Collections.emptyList();
+                }
                 List<String> lastFluctuations = Arrays.stream(listZBF.get(listZBF.size() - 1).getFluctuations().split(",")).collect(Collectors.toList());
                 return lastFluctuations.stream().map(Float::parseFloat).filter(x -> x != 0).collect(Collectors.toList());
             }

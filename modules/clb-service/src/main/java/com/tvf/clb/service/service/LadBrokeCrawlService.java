@@ -291,6 +291,8 @@ public class LadBrokeCrawlService implements ICrawlService {
 
                             Map<String, Race> raceMeetingIdNumberMap = existed.stream()
                                     .collect(Collectors.toMap(race -> race.getMeetingId() + " " + race.getNumber(), Function.identity()));
+                            List<Race> raceNeedUpdateOrInsert = new ArrayList<>();
+
                             newRaces.forEach(newRace -> {
                                 String key = meetingUUIDMap.get(newRace.getMeetingUUID()).getId() + " " + newRace.getNumber();
                                 if (raceMeetingIdNumberMap.containsKey(key)) {
@@ -301,12 +303,12 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     setIfPresent(newRace.getMeetingUUID(), existing::setMeetingUUID);
                                     setIfPresent(newRace.getRaceId(), existing::setRaceId);
                                     setIfPresent(newRace.getStatus(), existing::setStatus);
+                                    raceNeedUpdateOrInsert.add(existing);
                                 } else {
                                     newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());
-                                    raceMeetingIdNumberMap.put(key, newRace);
+                                    raceNeedUpdateOrInsert.add(newRace);
                                 }
                             });
-                            List<Race> raceNeedUpdateOrInsert = new ArrayList<>(raceMeetingIdNumberMap.values());
 
                             log.info("Race need to be update is " + raceNeedUpdateOrInsert.size());
                             Flux.fromIterable(raceNeedUpdateOrInsert)
