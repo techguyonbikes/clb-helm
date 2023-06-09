@@ -25,7 +25,7 @@ public interface ICrawlService {
                 .flatMap(raceDto -> { // call the getRaceById method for each raceId
                     try {
                         return crawlAndSaveEntrantsInRace(raceDto, date);
-                    } catch (ApiRequestFailedException e) {
+                    } catch (Exception e) {
                         return Mono.empty();
                     }
                 })

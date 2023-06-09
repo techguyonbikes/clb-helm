@@ -342,18 +342,20 @@ public class CrawUtils {
 
         List<EntrantRawData> result = new ArrayList<>();
 
-        marketsRawData.getRace_id().forEach(x -> {
-            EntrantRawData data = raceDto.getEntrants().get(x);
-            if (data.getFormSummary() != null && data.getId() != null) {
-                EntrantRawData entrantRawData = EntrantMapper.mapPrices(
-                        data,
-                        allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(data.getId(), new ArrayList<>()),
-                        positions.getOrDefault(data.getId(), 0)
-                );
-                entrantRawData.setRaceId(raceId);
-                result.add(entrantRawData);
-            }
-        });
+        if (marketsRawData.getEntrantIds() != null) {
+            marketsRawData.getEntrantIds().forEach(x -> {
+                EntrantRawData data = raceDto.getEntrants().get(x);
+                if (data.getFormSummary() != null && data.getId() != null) {
+                    EntrantRawData entrantRawData = EntrantMapper.mapPrices(
+                            data,
+                            allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(data.getId(), new ArrayList<>()),
+                            positions.getOrDefault(data.getId(), 0)
+                    );
+                    entrantRawData.setRaceId(raceId);
+                    result.add(entrantRawData);
+                }
+            });
+        }
 
         return result;
     }

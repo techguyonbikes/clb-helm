@@ -23,7 +23,7 @@ public class LadbrokesMarketsRawData {
     private String marketStatusId;
     private String name;
     @SerializedName("entrant_ids")
-    private List<String> race_id;
+    private List<String> entrantIds;
     private Boolean visible;
     @SerializedName("num_winners")
     private Integer numWinners;
