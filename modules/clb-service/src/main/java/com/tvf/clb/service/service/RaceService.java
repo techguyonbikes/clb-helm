@@ -123,9 +123,15 @@ public class RaceService {
 
 
     public Flux<RaceBaseResponseDTO> getListRaceDefault(LocalDate date) {
-
-        Instant startTime = date.plusDays(-3).atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC).toInstant();
-        Instant endTime = date.plusDays(3).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC).toInstant();
+        Instant startTime;
+        Instant endTime;
+        if (date == null){
+            startTime = LocalDate.now().plusDays(-3).atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC).toInstant();
+            endTime = LocalDate.now().plusDays(3).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC).toInstant();
+        } else {
+            startTime = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC).toInstant();
+            endTime = date.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC).toInstant();
+        }
 
         Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).map(race -> {
 

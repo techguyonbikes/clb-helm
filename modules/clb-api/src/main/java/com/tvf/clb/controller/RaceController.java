@@ -62,7 +62,7 @@ public class RaceController {
         });
     }
     @GetMapping("/side-bar-races-default")
-    public Flux<RaceBaseResponseDTO> searchRacesByDate(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
+    public Flux<RaceBaseResponseDTO> searchRacesByDate(@RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
         return raceService.getListRaceDefault(date);
     }
 
