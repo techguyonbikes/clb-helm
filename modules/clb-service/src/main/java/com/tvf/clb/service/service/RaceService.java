@@ -132,9 +132,11 @@ public class RaceService {
             startTime = date.atTime(LocalTime.MIN).atOffset(ZoneOffset.UTC).toInstant();
             endTime = date.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC).toInstant();
         }
-
-        Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime).map(race -> {
-
+        Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime);
+        if(raceResponse == null){
+            return null;
+        }
+        raceResponse.map(race -> {
             race.setSideName(ConvertBase.getSideName(race));
             return race;
         })
