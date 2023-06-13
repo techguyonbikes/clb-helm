@@ -133,29 +133,29 @@ public class RaceService {
             endTime = date.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC).toInstant();
         }
         Flux<RaceBaseResponseDTO> raceResponse = meetingRepository.findByRaceTypeBetweenDate(startTime, endTime);
-        if (raceResponse == null) {
-            return null;
-        }
         return raceResponse.map(race -> {
-                        race.setSideName(ConvertBase.getSideName(race));
-                        return race;
-                    })
-                    .collectList()
-                    .flatMap(listRace -> {
-                        // Set newest status for the races still in redis
-                        Map<Long, RaceBaseResponseDTO> mapIdToRace = listRace.stream().collect(Collectors.toMap(RaceBaseResponseDTO::getId, Function.identity()));
-
-                        return raceRedisService.findAllByRaceIds(mapIdToRace.keySet()).map(listRaceInRedis -> {
-                            for (RaceResponseDto raceInRedis : listRaceInRedis) {
-                                if (raceInRedis == null) continue;
-                                mapIdToRace.get(raceInRedis.getId()).setStatus(raceInRedis.getStatus());
+                            race.setSideName(ConvertBase.getSideName(race));
+                            return race;
+                        })
+                        .collectList()
+                        .flatMap(listRace -> {
+                            if (listRace.isEmpty()) {
+                                return Mono.empty();
                             }
-                            return mapIdToRace.values();
-                        }).switchIfEmpty(Mono.just(mapIdToRace.values()));
+                            // Set newest status for the races still in redis
+                            Map<Long, RaceBaseResponseDTO> mapIdToRace = listRace.stream().collect(Collectors.toMap(RaceBaseResponseDTO::getId, Function.identity()));
 
-                    })
-                .flatMapMany(Flux::fromIterable).
-                sort(Comparator.comparing(RaceBaseResponseDTO::getDate));
+                            return raceRedisService.findAllByRaceIds(mapIdToRace.keySet()).map(listRaceInRedis -> {
+                                for (RaceResponseDto raceInRedis : listRaceInRedis) {
+                                    if (raceInRedis == null) continue;
+                                    mapIdToRace.get(raceInRedis.getId()).setStatus(raceInRedis.getStatus());
+                                }
+                                return mapIdToRace.values();
+                            }).switchIfEmpty(Mono.just(mapIdToRace.values()));
+
+                        })
+                        .flatMapMany(Flux::fromIterable)
+                        .sort(Comparator.comparing(RaceBaseResponseDTO::getDate));
     }
 
     public <T> Mono<Map<Long, T>> getNewestRaceProperty(List<Long> idList, Function<RaceResponseDto, T> getPropertyFromObjectInRedis, Function<Race, T> getPropertyFromObjectInDB) {
