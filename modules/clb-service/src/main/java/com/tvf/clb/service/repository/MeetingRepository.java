@@ -26,7 +26,7 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.id = r.meeting_id" +
             " WHERE m.race_type IN (:raceTypes)" +
             " AND m.id IN (:meetingIds)" +
-            " AND m.advertised_Date = :date")
+            " AND r.actual_start = :date")
     Flux<RaceBaseResponseDTO> findByRaceTypeAndMeetingId(@Param("raceTypes") List<String> raceTypes,
                                                          @Param("meetingIds") List<Long> meetingIds,
                                                          @Param("date") Instant date);
@@ -34,7 +34,7 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     @Query("SELECT r.id, r.number, r.actual_start as date, r.name as race_name, r.distance, r.meeting_id , m.race_type as type, m.name as meeting_name , m.state as state, r.status as status, m.country as country" +
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.id = r.meeting_id" +
             " WHERE m.race_type IN (:raceTypes)" +
-            " AND m.advertised_Date = :date")
+            " AND r.actual_start = :date")
     Flux<RaceBaseResponseDTO> findByRaceTypes(@Param("raceTypes") List<String> raceTypes,
                                               @Param("date") Instant date);
 
@@ -52,7 +52,7 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
                                                                   @Param("raceType") List<String> raceType,@Param("date") List<Instant> date);
     @Query("SELECT r.id, r.number, r.actual_start as date, r.name as race_name, r.distance, r.meeting_id , m.race_type as type, m.name as meeting_name , m.state as state, r.status as status,m.country as country" +
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.id = r.meeting_id" +
-            " WHERE m.advertised_Date between :startTime and :endTime " )
+            " WHERE r.actual_start between :startTime and :endTime " )
     Flux<RaceBaseResponseDTO> findByRaceTypeBetweenDate(@Param("startTime") Instant  startTime,
                                           @Param("endTime") Instant endTime);
 
