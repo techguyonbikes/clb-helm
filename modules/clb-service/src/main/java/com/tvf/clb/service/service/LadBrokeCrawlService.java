@@ -25,7 +25,6 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
-import java.sql.Timestamp;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -118,6 +117,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         CrawlRaceData result = new CrawlRaceData();
         result.setSiteEnum(SiteEnum.LAD_BROKE);
         result.setMapEntrants(entrantMap);
+        result.setAdvertisedStart(raceDto.getRaces().get(raceId).getAdvertisedStart());
 
         Optional<String> optionalStatus = getStatusFromRaceMarket(raceDto.getMarkets());
 
@@ -366,13 +366,11 @@ public class LadBrokeCrawlService implements ICrawlService {
         }
         // remove yesterday data
         if (! todayData.getRaces().isEmpty()) {
-            Timestamp startOfToday = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant());
-            todayData.setRaces(new TreeMap<>(todayData.getRaces().tailMap(startOfToday.getTime())));
+            Long startOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minusHours(2).toInstant().toEpochMilli();
+            todayData.setRaces(new TreeMap<>(todayData.getRaces().tailMap(startOfToday)));
         }
 
-        savedRace.forEach(race -> {
-            todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId());
-        });
+        savedRace.forEach(race -> todayData.addOrUpdateRace(race.getAdvertisedStart().toEpochMilli(), race.getId()));
     }
 
     public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, RaceDto raceDto) {

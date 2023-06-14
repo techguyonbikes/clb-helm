@@ -6,9 +6,9 @@ import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.entity.RaceSite;
 import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.base.model.CrawlEntrantData;
-import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.PriceHistoryData;
+import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -20,7 +20,6 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,6 +69,7 @@ public class CrawlPriceService {
                                     .map(raceNewData -> {
                                         updateRaceStatusAndFinalResult(map, raceNewData);
                                         updateEntrantsInRace(map.getEntrants(), raceNewData.getMapEntrants());
+                                        updateRaceAdvertisedStart(map, raceNewData.getAdvertisedStart());
                                         return map;
                                     }));
                 }
@@ -155,6 +155,15 @@ public class CrawlPriceService {
         }
     }
 
+    private void updateRaceAdvertisedStart(RaceResponseDto storedRace, Instant newAdvertisedStart) {
+        String oldAdvertisedStart = storedRace.getAdvertisedStart();
+        if (newAdvertisedStart != null && !oldAdvertisedStart.equals(newAdvertisedStart.toString())) {
+            storedRace.setAdvertisedStart(newAdvertisedStart.toString());
+            todayData.updateRaceAdvertisedStart(storedRace.getId(), Instant.parse(oldAdvertisedStart).toEpochMilli(), newAdvertisedStart.toEpochMilli());
+            raceRepository.updateRaceAdvertisedStartById(storedRace.getId(), newAdvertisedStart).subscribe();
+        }
+    }
+
     /**
      *
      * @param newPriceMap new price map
@@ -210,8 +219,7 @@ public class CrawlPriceService {
         if (CommonUtils.isRaceFinalOrAbandonedInAllSite(race)) {
             log.info("Save race[id={}] data to db and remove in redis", generalRaceId);
 
-            Long advertisedStart = Timestamp.from(Instant.parse(race.getAdvertisedStart())).getTime();
-            todayData.deleteFinalOrAbandonedRace(advertisedStart, generalRaceId);
+            todayData.deleteFinalOrAbandonedRace(Instant.parse(race.getAdvertisedStart()).toEpochMilli(), generalRaceId);
 
             saveEntrantToDb(generalRaceId, race.getEntrants());
 

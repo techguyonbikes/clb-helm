@@ -49,4 +49,7 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     @Query("Update clb_db.race set status = :status, results_display = :result WHERE id =:raceId")
     Mono<Race> updateRaceStatusAndFinalResultById(@Param("raceId") Long raceId, @Param("status") String status, @Param("result") Json result);
+
+    @Query("Update clb_db.race set advertised_start = :advertisedStart WHERE id =:raceId")
+    Mono<Boolean> updateRaceAdvertisedStartById(@Param("raceId") Long raceId, @Param("advertisedStart") Instant advertisedStart);
 }

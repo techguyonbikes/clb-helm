@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
 import java.util.Map;
 
 @Getter
@@ -20,4 +21,5 @@ public class CrawlRaceData {
     private Map<Integer, String> interimResult;
     private Map<Integer, String> finalResult;
     private Map<Integer, CrawlEntrantData> mapEntrants;
+    private Instant advertisedStart;
 }

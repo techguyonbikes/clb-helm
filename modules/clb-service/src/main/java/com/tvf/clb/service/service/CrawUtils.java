@@ -267,6 +267,9 @@ public class CrawUtils {
                         // Set map entrants
                         setMapEntrantProperties(raceNewData, mapEntrants);
 
+                        // Set advertised start
+                        setIfPresent(raceNewData.getAdvertisedStart(), result::setAdvertisedStart);
+
                         if (racePriorData == null || racePriorData.getSiteEnum().getStatusPriority() > raceNewData.getSiteEnum().getStatusPriority()) {
                             racePriorData = raceNewData;
                         }

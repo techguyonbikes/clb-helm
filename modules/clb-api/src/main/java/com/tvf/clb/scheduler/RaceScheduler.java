@@ -13,7 +13,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -89,8 +88,8 @@ public class RaceScheduler {
         isCrawlingRaceStartIn30Minutes = true;
         long startTime = System.currentTimeMillis();
 
-        Long raceStartTimeFrom = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minus(2, ChronoUnit.HOURS).toInstant()).getTime();
-        Long raceStartTimeTo = Timestamp.from(Instant.now().plus(30, ChronoUnit.MINUTES)).getTime();
+        Long raceStartTimeFrom = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minus(2, ChronoUnit.HOURS).toInstant().toEpochMilli();
+        Long raceStartTimeTo = Instant.now().plus(30, ChronoUnit.MINUTES).toEpochMilli();
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
@@ -125,8 +124,8 @@ public class RaceScheduler {
         long startTime = System.currentTimeMillis();
 
 
-        Long raceStartTimeFrom = Timestamp.from(Instant.now().plus(30, ChronoUnit.MINUTES)).getTime();
-        Long raceStartTimeTo = Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)).getTime();
+        Long raceStartTimeFrom = Instant.now().plus(30, ChronoUnit.MINUTES).toEpochMilli();
+        Long raceStartTimeTo = Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli();
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
@@ -159,8 +158,8 @@ public class RaceScheduler {
         isCrawlingRaceStartAfter1Hour = true;
         long startTime = System.currentTimeMillis();
 
-        Long raceStartTimeFrom = Timestamp.from(Instant.now().plus(1, ChronoUnit.HOURS)).getTime();
-        Long raceStartTimeTo = Timestamp.from(Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant()).getTime();
+        Long raceStartTimeFrom = Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli();
+        Long raceStartTimeTo = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant().toEpochMilli();
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
@@ -194,7 +193,7 @@ public class RaceScheduler {
             Instant endOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
 
             return raceRepository.findAllByAdvertisedStartBetweenAndStatusNotIn(startTime, endOfToday, Arrays.asList(STATUS_FINAL, STATUS_ABANDONED))
-                    .doOnNext(race -> todayData.addRace(Timestamp.from(race.getAdvertisedStart()).getTime(), race.getId()))
+                    .doOnNext(race -> todayData.addOrUpdateRace(race.getAdvertisedStart().toEpochMilli(), race.getId()))
                     .then(Mono.just(todayData.getRaces()));
         } else {
             log.info("TodayRaces has data so no need to search in DB, map race size = {}", todayData.getRaces().size());
