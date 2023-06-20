@@ -90,7 +90,9 @@ public class ZBetCrawlService implements ICrawlService {
 
 
     public List<EntrantRawData> getListEntrant(String raceId, ZBetRaceRawData raceDto) {
-
+        if (raceDto == null || raceId == null || CollectionUtils.isEmpty(raceDto.getSelections())){
+            return new ArrayList<>();
+        }
         Map<Integer, Integer> positionResult = crawUtils.getPositionInResult(raceDto.getFinalResult());
 
         return raceDto.getSelections().stream().filter(f -> f.getName() != null && f.getNumber() != null)
@@ -153,7 +155,9 @@ public class ZBetCrawlService implements ICrawlService {
     }
 
     public void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto, LocalDate date) {
-
+        if (entrantRawData == null || raceDto == null){
+            return;
+        }
         List<Entrant> newEntrants = entrantRawData.stream().distinct()
                 .map(meeting -> MeetingMapper.toEntrantEntity(meeting, buildPriceFluctuations(meeting))).collect(Collectors.toList());
 
@@ -183,7 +187,7 @@ public class ZBetCrawlService implements ICrawlService {
     }
 
     private List<Float> buildPriceFluctuations(ZBetEntrantData entrantData) {
-        if (entrantData.getPrices() instanceof JsonObject) {
+        if (entrantData != null && entrantData.getPrices() != null) {
             Map<Integer, ZBetPrices> pricesMap = new Gson().fromJson(entrantData.getPrices(), new TypeToken<Map<Integer, ZBetPrices>>() {}.getType());
 
             if (!pricesMap.isEmpty()) {
