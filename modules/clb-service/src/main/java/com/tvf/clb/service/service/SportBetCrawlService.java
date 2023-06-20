@@ -135,6 +135,7 @@ public class SportBetCrawlService implements ICrawlService {
 
             if (isRaceStatusFinal(sportBetRaceDto)) {
                 String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
+                        .limit(4)
                         .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
                         .collect(Collectors.joining(","));
                 raceDto.setFinalResult(top4Entrants);
