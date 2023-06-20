@@ -11,6 +11,7 @@ import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.ConvertBase;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -95,6 +96,11 @@ public class EntrantMapper {
                 .position(entrant.getPosition())
                 .riderOrDriver(entrant.getRiderOrDriver())
                 .trainerName(entrant.getTrainerName())
+                .last6Starts(entrant.getLast6Starts())
+                .handicapWeight(entrant.getHandicapWeight())
+                .entrantComment(entrant.getEntrantComment())
+                .bestTime(entrant.getBestTime())
+                .bestMileRate(entrant.getBestMileRate())
                 .build();
     }
 

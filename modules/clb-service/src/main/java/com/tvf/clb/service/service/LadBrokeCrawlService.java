@@ -392,6 +392,11 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     setIfPresent(newEntrant.isScratched(), existing::setScratched);
                                     setIfPresent(newEntrant.getRiderOrDriver(), existing::setRiderOrDriver);
                                     setIfPresent(newEntrant.getTrainerName(), existing::setTrainerName);
+                                    setIfPresent(newEntrant.getLast6Starts(), existing::setLast6Starts);
+                                    setIfPresent(newEntrant.getBestTime(), existing::setBestTime);
+                                    setIfPresent(newEntrant.getHandicapWeight(), existing::setHandicapWeight);
+                                    setIfPresent(newEntrant.getEntrantComment(), existing::setEntrantComment);
+                                    setIfPresent(newEntrant.getBestMileRate(), existing::setBestMileRate);
                                 } else {
                                     newEntrant.setRaceId(raceId);
                                     mapNumberToEntrant.put(entrantNumber, newEntrant);

@@ -15,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
@@ -53,6 +54,12 @@ public class Entrant {
     private Integer position;
     private String riderOrDriver;
     private String trainerName;
+    @Column("last_6_starts")
+    private String last6Starts;
+    private String bestTime;
+    private Float handicapWeight;
+    private String entrantComment;
+    private String bestMileRate;
 
     @Override
     public boolean equals(Object o) {

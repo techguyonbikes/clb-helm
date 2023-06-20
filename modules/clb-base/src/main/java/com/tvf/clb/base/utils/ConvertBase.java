@@ -224,4 +224,12 @@ public class ConvertBase {
         return sideName;
     }
 
+    public static String getLast6Race(String last20Starts) {
+        int index = last20Starts.length();
+        if (index <= 6) {
+            return last20Starts;
+        }
+        return last20Starts.substring(index - 6, index);
+    }
+
 }

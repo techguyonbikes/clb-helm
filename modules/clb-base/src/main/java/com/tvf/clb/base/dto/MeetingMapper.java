@@ -306,6 +306,11 @@ public class MeetingMapper {
                 .position(entrantRawData.getPosition())
                 .riderOrDriver(entrantRawData.getFormSummary().getRiderOrDriver())
                 .trainerName(entrantRawData.getFormSummary().getTrainerName())
+                .last6Starts(ConvertBase.getLast6Race(entrantRawData.getFormSummary().getLast20Starts()))
+                .handicapWeight(entrantRawData.getFormSummary().getHandicapWeight())
+                .bestTime(entrantRawData.getFormSummary().getBestTime())
+                .entrantComment(entrantRawData.getFormSummary().getEntrantComment())
+                .bestMileRate(entrantRawData.getFormSummary().getBestMileRate())
                 .build();
     }
 

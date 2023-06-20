@@ -25,4 +25,9 @@ public class EntrantResponseDto {
     private Integer position;
     private String riderOrDriver;
     private String trainerName;
+    private String last6Starts;
+    private String bestTime;
+    private Float handicapWeight;
+    private String entrantComment;
+    private String bestMileRate;
 }

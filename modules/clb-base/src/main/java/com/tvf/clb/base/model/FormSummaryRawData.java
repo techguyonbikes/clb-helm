@@ -19,4 +19,5 @@ public class FormSummaryRawData {
     private Float handicapWeight;
     private String entrantComment;
     private Object speedmap;
+    private String bestMileRate;
 }
