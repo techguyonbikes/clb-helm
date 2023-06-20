@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -188,10 +189,18 @@ public class ZBetCrawlService implements ICrawlService {
 
     private List<Float> buildPriceFluctuations(ZBetEntrantData entrantData) {
         if (entrantData != null && entrantData.getPrices() != null) {
-            Map<Integer, ZBetPrices> pricesMap = new Gson().fromJson(entrantData.getPrices(), new TypeToken<Map<Integer, ZBetPrices>>() {}.getType());
 
-            if (!pricesMap.isEmpty()) {
-                List<ZBetPrices> listZBF = pricesMap.values().stream().filter(zBetPrices -> AppConstant.VALID_CHECK_PRODUCT_CODE.equals(zBetPrices.getProductCode()))
+            Type pricesType;
+            if (entrantData.getPrices() instanceof JsonObject) {
+                pricesType = new TypeToken<Map<Integer, ZBetPrices>>() {}.getType();
+            } else {
+                pricesType = new TypeToken<ArrayList<ZBetPrices>>() {}.getType();
+            }
+
+            Collection<ZBetPrices> zBetPricesCollection = new Gson().fromJson(entrantData.getPrices(), pricesType);
+
+            if (!CollectionUtils.isEmpty(zBetPricesCollection)) {
+                List<ZBetPrices> listZBF = zBetPricesCollection.stream().filter(zBetPrices -> AppConstant.VALID_CHECK_PRODUCT_CODE.equals(zBetPrices.getProductCode()))
                         .sorted(Comparator.comparing(ZBetPrices::getRequestedAt)).collect(Collectors.toList());
                 if (CollectionUtils.isEmpty(listZBF)) {
                     return Collections.emptyList();
