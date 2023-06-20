@@ -15,6 +15,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tvf.clb.base.utils.AppConstant.*;
@@ -105,33 +106,61 @@ public class CommonUtils {
         return null;
     }
 
-    public static Meeting getMeetingDiffMeetingName(List<Meeting> meetings, String meetingNameCompare) {
-        if (meetings.isEmpty() || meetingNameCompare == null){
+    public static Meeting mapNewMeetingToExisting(Map<Meeting, List<Race>> mapExisingMeetingAndRace, Meeting meetingNeedToCheck, List<Race> racesNeedToCheck) {
+        if (mapExisingMeetingAndRace.isEmpty() || meetingNeedToCheck == null){
             return null;
         }
-        if (meetings.size() == 1){
-            return meetings.get(0);
+
+        List<Meeting> mostCommonMeetings = new ArrayList<>();
+        int maxCommonWords = 0;
+
+        for (Meeting existing : mapExisingMeetingAndRace.keySet()) {
+            int numberOfCommonWord = compareName(existing.getName(), meetingNeedToCheck.getName());
+
+            if (numberOfCommonWord > maxCommonWords) {
+                maxCommonWords = numberOfCommonWord;
+                mostCommonMeetings = new ArrayList<>();
+                mostCommonMeetings.add(existing);
+            } else if (numberOfCommonWord > 0 && numberOfCommonWord == maxCommonWords) {
+                mostCommonMeetings.add(existing);
+            }
         }
-        Meeting result = meetings.get(0);
-        int wordMax = compareName(meetings.get(0).getName(), meetingNameCompare);
-        for (Meeting meeting : meetings) {
-            String name = meeting.getName();
-            if (name != null) {
-                if (name.equals(meetingNameCompare)) {
-                    return meeting;
-                } else {
-                    int numberOfSameWord = compareName(name, meetingNameCompare);
-                    if (wordMax < numberOfSameWord) {
-                        result = meeting;
-                        wordMax = numberOfSameWord;
-                    }
+
+        if (mostCommonMeetings.isEmpty()) {
+            return null;
+        } else if (mostCommonMeetings.size() == 1) {
+            return mostCommonMeetings.get(0);
+        } else {
+            Meeting result = null;
+            int maxCommonRace = 0;
+            for (Meeting meeting: mostCommonMeetings) {
+                int numberOfCommonRaces = compareRaces(mapExisingMeetingAndRace.get(meeting), racesNeedToCheck);
+                if (numberOfCommonRaces > maxCommonRace) {
+                    maxCommonRace = numberOfCommonRaces;
+                    result = meeting;
+                }
+            }
+            return result;
+        }
+    }
+
+    public static int compareRaces(List<Race> targetRaces, List<Race> listRaceNeedToCheck) {
+        int numberOfCommonRaces = 0;
+        Map<Integer, Race> mapNumberAndTargetRace = targetRaces.stream().collect(Collectors.toMap(Race::getNumber, Function.identity()));
+        Map<Integer, Race> mapNumberAndRaceNeedToCheck = listRaceNeedToCheck.stream().collect(Collectors.toMap(Race::getNumber, Function.identity()));
+
+        for (Map.Entry<Integer, Race> entry : mapNumberAndTargetRace.entrySet()) {
+            Integer number = entry.getKey();
+            Race targetRace = entry.getValue();
+            if (mapNumberAndRaceNeedToCheck.containsKey(number)) {
+                Race raceNeedToCheck = mapNumberAndRaceNeedToCheck.get(number);
+                if ((targetRace.getName().contains(raceNeedToCheck.getName()) || raceNeedToCheck.getName().contains(targetRace.getName()))
+                        && targetRace.getAdvertisedStart().equals(raceNeedToCheck.getAdvertisedStart())) {
+                    numberOfCommonRaces++;
                 }
             }
         }
-        if (wordMax == 0){
-            return null;
-        }
-        return result;
+        return numberOfCommonRaces;
     }
 
     public static int compareName(String meetingName1, String meetingName2){

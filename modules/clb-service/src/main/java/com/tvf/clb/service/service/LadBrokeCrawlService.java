@@ -231,31 +231,26 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     private void saveMeetingAndRace(List<MeetingRawData> meetingRawData, List<RaceDto> raceDtoList, LocalDate date) {
         List<Meeting> newMeetings = meetingRawData.stream().map(MeetingMapper::toMeetingEntity).collect(Collectors.toList());
-        List<String> meetingNameList = newMeetings.stream().map(Meeting::getName).collect(Collectors.toList());
-        List<String> raceTypeList = newMeetings.stream().map(Meeting::getRaceType).collect(Collectors.toList());
-        List<Instant> dates = newMeetings.stream().map(Meeting::getAdvertisedDate).collect(Collectors.toList());
-        Flux<Meeting> existedMeeting = meetingRepository
-                .findAllByNameInAndRaceTypeInAndAdvertisedDateIn(meetingNameList, raceTypeList, dates);
-        existedMeeting
-                .collectList()
-                           .subscribe(existed ->
+        List<String> uuidList = newMeetings.stream().map(Meeting::getMeetingId).collect(Collectors.toList());
+        Flux<MeetingAndSiteUUID> existingMeetingFlux = meetingRepository.findAllByMeetingUUIDInAndSiteId(uuidList, SiteEnum.LAD_BROKE.getId());
+
+        existingMeetingFlux.collectList()
+                           .subscribe(existingMeetings ->
                                     {
-                                        newMeetings.addAll(existed);
-                                        List<Meeting> meetingNeedUpdateOrInsert = newMeetings.stream().distinct().map(m ->
-                                        {
-                                            if (m.getId() == null) {
-                                                existed.stream()
-                                                        .filter(x -> x.getName().equals(m.getName()) && x.getAdvertisedDate().equals(m.getAdvertisedDate()) && x.getRaceType().equals(m.getRaceType()))
-                                                        .findFirst()
-                                                        .ifPresent(meeting -> {
-                                                            m.setId(meeting.getId());
-                                                            meeting.setMeetingId(m.getMeetingId());
-                                                        });
+                                        Map<String, Meeting> mapUUIDToMeeting = existingMeetings.stream().collect(Collectors.toMap(MeetingAndSiteUUID::getSiteUUID, Function.identity()));
+
+                                        List<Meeting> meetingsNeedUpdateOrInsert = new ArrayList<>();
+                                        newMeetings.forEach(newMeeting -> {
+                                            String newMeetingUUID = newMeeting.getMeetingId();
+                                            if (! mapUUIDToMeeting.containsKey(newMeetingUUID)) {
+                                                meetingsNeedUpdateOrInsert.add(newMeeting);
+                                            } else {
+                                                newMeeting.setId(mapUUIDToMeeting.get(newMeetingUUID).getId());
                                             }
-                                            return m;
-                                        }).filter(e -> !existed.contains(e)).collect(Collectors.toList());
-                                        log.info("Meeting need to be update or insert " + meetingNeedUpdateOrInsert.size());
-                                        Flux.fromIterable(meetingNeedUpdateOrInsert)
+                                        });
+
+                                        log.info("Meeting need to be update or insert " + meetingsNeedUpdateOrInsert.size());
+                                        Flux.fromIterable(meetingsNeedUpdateOrInsert)
                                                 .parallel() // parallelize the processing
                                                 .runOn(Schedulers.parallel()) // specify the parallel scheduler
                                                 .flatMap(meeting -> meetingRepository.save(meeting))
@@ -266,21 +261,20 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                         List<MeetingSite> meetingSites = savedMeetings.stream().map(meeting -> MeetingMapper.toMetingSite(meeting, SiteEnum.LAD_BROKE.getId(), meeting.getId())).collect(Collectors.toList());
                                                         crawUtils.saveMeetingSite(savedMeetings, Flux.fromIterable(meetingSites), SiteEnum.LAD_BROKE.getId());
                                                     }
-                                                    savedMeetings.addAll(existed);
-                                                    saveRace(raceDtoList, savedMeetings, date);
+                                                    saveRace(raceDtoList, newMeetings, date);
                                                     log.info("All meetings processed successfully");
                                                 });
                         }
                 );
     }
 
-    public void saveRace(List<RaceDto> raceDtoList, List<Meeting> savedMeeting, LocalDate date) {
-        Map<String, Meeting> meetingUUIDMap = savedMeeting.stream()
+    public void saveRace(List<RaceDto> raceDtoList, List<Meeting> meetings, LocalDate date) {
+        Map<String, Meeting> meetingUUIDMap = meetings.stream()
                                                     .filter(meeting -> meeting.getMeetingId() != null)
                                                     .collect(Collectors.toMap(Meeting::getMeetingId, Function.identity(), (first, second) -> first));
         List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).filter(x -> x.getNumber() != null).collect(Collectors.toList());
         List<Integer> raceNumbers = newRaces.stream().map(Race::getNumber).collect(Collectors.toList());
-        List<Long> meetingIds = savedMeeting.stream().map(Meeting::getId).collect(Collectors.toList());
+        List<Long> meetingIds = meetings.stream().map(Meeting::getId).collect(Collectors.toList());
         Flux<Race> existedRaces = raceRepository.findAllByNumberInAndMeetingIdIn(raceNumbers, meetingIds);
 
         existedRaces.collectList()
@@ -316,16 +310,14 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .sequential() // switch back to sequential processing
                                     .collectList()
                                     .subscribe(savedRace -> {
-                                        if (! CollectionUtils.isEmpty(savedRace)) {
-                                            List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
-                                            crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId());
+                                        List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
+                                        crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId());
 
-                                            savedRace.forEach(race -> {
-                                                Meeting raceMeeting = meetingUUIDMap.get(race.getMeetingUUID());
-                                                String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
-                                                raceNameAndIdTemplate.opsForValue().set(key, race.getId(), Duration.ofDays(1)).subscribe();
-                                            });
-                                        }
+                                        savedRace.forEach(race -> {
+                                            Meeting raceMeeting = meetingUUIDMap.get(race.getMeetingUUID());
+                                            String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
+                                            raceNameAndIdTemplate.opsForValue().set(key, race.getId(), Duration.ofDays(1)).subscribe();
+                                        });
 
                                         Map<String, Long> mapRaceUUIDAndId = savedRace.stream().filter(race -> race.getRaceId() != null && race.getId() != null)
                                                         .collect(Collectors.toMap(Race::getRaceId, Race::getId, (first, second) -> first));

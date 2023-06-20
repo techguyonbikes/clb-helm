@@ -52,4 +52,7 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     @Query("Update clb_db.race set advertised_start = :advertisedStart WHERE id =:raceId")
     Mono<Boolean> updateRaceAdvertisedStartById(@Param("raceId") Long raceId, @Param("advertisedStart") Instant advertisedStart);
+
+    Flux<Race> findAllByMeetingIdIn(List<Long> meetingIds);
+
 }

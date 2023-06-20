@@ -146,7 +146,7 @@ public class CrawUtils {
 
             checkMeetingWrongAdvertisedStart(newMeeting, newRaces);
 
-            Mono<Long> meetingId = getMeetingIdAndCompareMeetingNames(newMeeting, site);
+            Mono<Long> meetingId = getMeetingIdAndCompareMeetingNames(newMeeting, newRaces, site);
 
             newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, site, id)));
 
@@ -189,21 +189,32 @@ public class CrawUtils {
                         });
     }
 
-    public Mono<Long> getMeetingIdAndCompareMeetingNames(Meeting newMeeting, Integer site){
+    public Mono<Long> getMeetingIdAndCompareMeetingNames(Meeting newMeeting, List<Race> newRaces, Integer site){
         return meetingRepository.findAllMeetingByRaceTypeAndAdvertisedDate(
                         newMeeting.getRaceType(),
                         newMeeting.getAdvertisedDate().minus(30, ChronoUnit.MINUTES),
                         newMeeting.getAdvertisedDate().plus(30, ChronoUnit.MINUTES)
                 )
                 .collectList()
-                .mapNotNull(m -> {
-                    Meeting result = CommonUtils.getMeetingDiffMeetingName(m, newMeeting.getName());
-                    if (result == null) {
-                        log.info("[SaveMeetingSiteAndRaceSite] Can't map new meeting with name {} in site {}", newMeeting.getName(), site);
-                        return null;
-                    } else {
-                        return result.getId();
-                    }
+                .flatMap(existingMeetings -> {
+                    List<Long> existingMeetingIds = existingMeetings.stream().map(Meeting::getId).collect(Collectors.toList());
+                    Flux<Race> existingRaceFlux = raceRepository.findAllByMeetingIdIn(existingMeetingIds);
+
+                    return existingRaceFlux.collectList()
+                            .mapNotNull(existingRaces -> {
+                                Map<Long, List<Race>> mapMeetingIdAndRaces = existingRaces.stream().collect(Collectors.groupingBy(Race::getMeetingId));
+
+                                Map<Meeting, List<Race>> mapExistingMeetingAndRace = new HashMap<>();
+                                existingMeetings.forEach(meeting -> mapExistingMeetingAndRace.put(meeting, mapMeetingIdAndRaces.get(meeting.getId())));
+
+                                Meeting result = CommonUtils.mapNewMeetingToExisting(mapExistingMeetingAndRace, newMeeting, newRaces);
+                                if (result == null) {
+                                    log.info("[SaveMeetingSiteAndRaceSite] Can't map new meeting with name {} in site {}", newMeeting.getName(), site);
+                                    return null;
+                                } else {
+                                    return result.getId();
+                                }
+                            });
                 });
     }
 

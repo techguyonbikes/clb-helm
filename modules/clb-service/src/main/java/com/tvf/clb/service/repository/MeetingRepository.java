@@ -1,5 +1,6 @@
 package com.tvf.clb.service.repository;
 
+import com.tvf.clb.base.dto.MeetingAndSiteUUID;
 import com.tvf.clb.base.dto.MeetingOptions;
 import com.tvf.clb.base.dto.RaceBaseResponseDTO;
 import com.tvf.clb.base.entity.Meeting;
@@ -48,8 +49,6 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     @Query("select m.id from clb_db.meeting m where m.name = :name and m.race_type = :raceType and m.advertised_date >= :date")
     Flux<Long> getMeetingIdsByNameAndRaceTypeAndAdvertisedDateFrom(@Param("name") String name, @Param("raceType") String raceType, @Param("date") Instant date);
 
-    Flux<Meeting> findAllByNameInAndRaceTypeInAndAdvertisedDateIn(@Param("name") List<String> name,
-                                                                  @Param("raceType") List<String> raceType,@Param("date") List<Instant> date);
     @Query("SELECT r.id, r.number, r.advertised_start as date, r.name as race_name, r.distance, r.meeting_id , m.race_type as type, m.name as meeting_name , m.state as state, r.status as status,m.country as country" +
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.id = r.meeting_id" +
             " WHERE r.advertised_start between :startTime and :endTime " )
@@ -61,4 +60,9 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
 
     @Query("select m.id from clb_db.meeting m where m.name = :name and m.race_type = :raceType and m.advertised_date = :date")
     Mono<Long> getMeetingIdByNameAndRaceTypeAndAdvertisedStart(@Param("name") String name, @Param("raceType") String raceType, @Param("date") Instant date);
+
+    @Query("SELECT meeting.*, ms.meeting_site_id as site_UUID" +
+            " FROM clb_db.meeting meeting JOIN clb_db.meeting_site ms ON meeting.id = ms.general_meeting_id" +
+            " WHERE ms.meeting_site_id in (:uuids) AND ms.site_id = :siteId")
+    Flux<MeetingAndSiteUUID> findAllByMeetingUUIDInAndSiteId(@Param("uuids") List<String> uuids, @Param("siteId") Integer siteId);
 }
