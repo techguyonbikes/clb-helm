@@ -1,9 +1,6 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
@@ -25,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 
-import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -189,15 +185,16 @@ public class ZBetCrawlService implements ICrawlService {
 
     private List<Float> buildPriceFluctuations(ZBetEntrantData entrantData) {
         if (entrantData != null && entrantData.getPrices() != null) {
+            JsonElement priceRawData = entrantData.getPrices();
 
-            Type pricesType;
-            if (entrantData.getPrices() instanceof JsonObject) {
-                pricesType = new TypeToken<Map<Integer, ZBetPrices>>() {}.getType();
-            } else {
-                pricesType = new TypeToken<ArrayList<ZBetPrices>>() {}.getType();
+            Collection<ZBetPrices> zBetPricesCollection = null;
+            if (priceRawData instanceof JsonObject) {
+                Map<Integer, ZBetPrices> mapPrices = new Gson().fromJson(priceRawData, new TypeToken<Map<Integer, ZBetPrices>>() {}.getType());
+                zBetPricesCollection = mapPrices.values();
+
+            } else if (priceRawData instanceof JsonArray) {
+                zBetPricesCollection = new Gson().fromJson(priceRawData, new TypeToken<ArrayList<ZBetPrices>>() {}.getType());
             }
-
-            Collection<ZBetPrices> zBetPricesCollection = new Gson().fromJson(entrantData.getPrices(), pricesType);
 
             if (!CollectionUtils.isEmpty(zBetPricesCollection)) {
                 List<ZBetPrices> listZBF = zBetPricesCollection.stream().filter(zBetPrices -> AppConstant.VALID_CHECK_PRODUCT_CODE.equals(zBetPrices.getProductCode()))
