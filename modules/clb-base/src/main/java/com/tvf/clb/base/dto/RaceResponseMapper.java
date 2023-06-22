@@ -48,6 +48,8 @@ public class RaceResponseMapper {
                 .finalResult(CommonUtils.getMapRaceFinalResultFromJsonb(race.getResultsDisplay()))
                 .entrants(entrants.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList()))
                 .status(race.getStatus())
+                .silkUrl(race.getSilkUrl())
+                .fullFormUrl(race.getFullFormUrl())
                 .build();
     }
 
@@ -61,6 +63,8 @@ public class RaceResponseMapper {
                 .finalResult(!StringUtils.hasText(raceDto.getFinalResult()) ? new HashMap<>() : Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), raceDto.getFinalResult()))
                 .raceSiteUrl(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), AppConstant.URL_LAD_BROKES_IT_RACE.replace(AppConstant.ID_PARAM, url)))
                 .status(raceDto.getStatus())
+                .silkUrl(raceDto.getSilkUrl())
+                .fullFormUrl(raceDto.getFullFormUrl())
                 .build();
     }
 
@@ -82,7 +86,6 @@ public class RaceResponseMapper {
                 .meetingName(r.getMeetingName())
                 .build();
     }
-
     public static RaceDto toRaceDTO(LadbrokesRaceRawData raceRawData, String meetingName, String finalResult, String status) {
         return RaceDto.builder()
                 .number(raceRawData.getNumber())
@@ -91,6 +94,8 @@ public class RaceResponseMapper {
                 .status(status)
                 .finalResult(finalResult)
                 .meetingName(meetingName)
+                .silkUrl(raceRawData.getSilkUrl())
+                .fullFormUrl(raceRawData.getFullFormUrl())
                 .build();
     }
 

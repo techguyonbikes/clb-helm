@@ -19,8 +19,8 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     Flux<Race> findAllByNumberInAndMeetingIdIn(List<Integer> number, List<Long> meetingIds);
 
-    @Query("Update clb_db.race set distance =:distance  WHERE id =:raceId")
-    Mono<Race> setUpdateRaceDistanceById(@Param("raceId") Long raceId, @Param("distance") Integer distance);
+    @Query("Update clb_db.race set distance =:distance, silk_url= :silkUrl, full_form_url= :fullFormUrl WHERE id =:raceId")
+    Mono<Race> setUpdateRaceDistanceAndSilkUrlAndFullFormUrlById(@Param("raceId") Long raceId, @Param("distance") Integer distance, @Param("silkUrl") String silkUrl, @Param("fullFormUrl") String fullFormUrl);
 
     @Query("Update clb_db.race set results_display = :result WHERE id = :raceId")
     Mono<Race> updateRaceFinalResultById(@Param("result") Json result, @Param("raceId") Long raceId);
@@ -37,7 +37,7 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     Flux<Race> getRaceByTypeAndNumberAndRangeAdvertisedStart(@Param("meetingType") String meetingType, @Param("number") Integer number,
                                                              @Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 
-    @Query("select r.id, r.meeting_id, m.name as meeting_name, m.race_type, m.state, r.advertised_start, r.actual_start, r.name, r.number, r.distance, r.status, m.country from clb_db.race r join clb_db.meeting m on m.id = r.meeting_id where r.id = :raceId")
+    @Query("select r.id, r.meeting_id, m.name as meeting_name, m.race_type, m.state, r.advertised_start, r.actual_start, r.name, r.number, r.distance, r.status, m.country, r.silk_url, r.full_form_url from clb_db.race r join clb_db.meeting m on m.id = r.meeting_id where r.id = :raceId")
     Mono<RaceEntrantDto> getRaceEntrantByRaceId(@Param("raceId") Long raceId);
 
     @Query("select * from clb_db.race s where s.meeting_id = (select rs.meeting_id from clb_db.race rs where rs.id = :raceId)")

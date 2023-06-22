@@ -31,4 +31,6 @@ public class RaceDto {
     private String status;
     private String finalResult;
     private String raceSiteUrl;
+    private String silkUrl;
+    private String fullFormUrl;
 }

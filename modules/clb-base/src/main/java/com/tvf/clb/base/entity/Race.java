@@ -49,6 +49,8 @@ public class Race {
     private String raceSiteUrl;
     @Transient
     private String meetingName;
+    private String silkUrl;
+    private String fullFormUrl;
 
     @Override
     public boolean equals(Object o) {

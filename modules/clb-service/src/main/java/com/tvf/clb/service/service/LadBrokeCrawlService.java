@@ -185,6 +185,8 @@ public class LadBrokeCrawlService implements ICrawlService {
                 meetingName = meetingName.replace(" ","-").toLowerCase();
             }
             String distance = raceRawData.getRaces().get(raceId).getAdditionalInfo().get(AppConstant.DISTANCE).getAsString();
+            String silkUrl= raceRawData.getRaces().get(raceId).getSilkUrl();
+            String fullFormUrl= raceRawData.getRaces().get(raceId).getFullFormUrl();
             HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
 
 
@@ -208,7 +210,7 @@ public class LadBrokeCrawlService implements ICrawlService {
 
             RaceDto raceDto = RaceResponseMapper.toRaceDTO(raceRawData.getRaces().get(raceId), meetingName, top4Entrants, optionalStatus.orElse(null));
 
-            return raceRepository.setUpdateRaceDistanceById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance))
+            return raceRepository.setUpdateRaceDistanceAndSilkUrlAndFullFormUrlById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), silkUrl, fullFormUrl)
                     .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto));
 
         } else {

@@ -32,5 +32,9 @@ public class LadbrokesRaceRawData {
     private List<String> marketIds;
     @SerializedName("additional_info")
     private JsonObject additionalInfo;
+    @SerializedName("silk_url")
+    private String silkUrl;
+    @SerializedName("full_form_url")
+    private String fullFormUrl;
     private List<LadbrokesRaceDividend> dividends;
 }

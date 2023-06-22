@@ -29,6 +29,8 @@ public class RaceEntrantDto {
     private String distance;
     private String status;
     private String country;
+    private String silkUrl;
+    private String fullFormUrl;
     private Map<Integer, String> finalResult;
     private Map<Integer, Long> raceIdNumber;
     private Map<Integer, String> raceSiteUUID;
