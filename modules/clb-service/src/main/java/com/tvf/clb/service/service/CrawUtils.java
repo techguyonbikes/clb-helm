@@ -268,6 +268,9 @@ public class CrawUtils {
                         // Set advertised start
                         setIfPresent(raceNewData.getAdvertisedStart(), result::setAdvertisedStart);
 
+                        //Set actual start
+                        setIfPresent(raceNewData.getActualStart(), result::setActualStart);
+
                         if (racePriorData == null || racePriorData.getSiteEnum().getStatusPriority() > raceNewData.getSiteEnum().getStatusPriority()) {
                             racePriorData = raceNewData;
                         }

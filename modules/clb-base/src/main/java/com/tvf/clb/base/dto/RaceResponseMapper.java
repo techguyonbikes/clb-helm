@@ -40,6 +40,18 @@ public class RaceResponseMapper {
                 .build();
     }
 
+    public static RaceResponseDto toRaceResponseDto(Race race) {
+        return RaceResponseDto.builder()
+                .id(race.getId())
+                .actualStart(race.getActualStart().toString())
+                .advertisedStart(race.getAdvertisedStart().toString())
+                .finalResult(CommonUtils.getMapRaceFinalResultFromJsonb(race.getResultsDisplay()))
+                .status(race.getStatus())
+                .silkUrl(race.getSilkUrl())
+                .fullFormUrl(race.getFullFormUrl())
+                .build();
+    }
+
     public static RaceResponseDto toRaceResponseDto(Race race, Map<Integer, String> mapSiteUUID, List<Entrant> entrants) {
         return RaceResponseDto.builder()
                 .id(race.getId())
@@ -60,6 +72,7 @@ public class RaceResponseMapper {
                 .mapSiteUUID(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), entrants.get(0).getRaceUUID()))
                 .entrants(entrants.stream().map(EntrantMapper::toEntrantResponseDto).collect(Collectors.toList()))
                 .advertisedStart(raceDto.getAdvertisedStart().toString())
+                .actualStart(raceDto.getActualStart().toString())
                 .finalResult(!StringUtils.hasText(raceDto.getFinalResult()) ? new HashMap<>() : Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), raceDto.getFinalResult()))
                 .raceSiteUrl(Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), AppConstant.URL_LAD_BROKES_IT_RACE.replace(AppConstant.ID_PARAM, url)))
                 .status(raceDto.getStatus())
@@ -90,6 +103,7 @@ public class RaceResponseMapper {
         return RaceDto.builder()
                 .number(raceRawData.getNumber())
                 .advertisedStart(raceRawData.getAdvertisedStart())
+                .actualStart(raceRawData.getActualStart())
                 .name(raceRawData.getName())
                 .status(status)
                 .finalResult(finalResult)

@@ -69,7 +69,7 @@ public class CrawlPriceService {
                                     .map(raceNewData -> {
                                         updateRaceStatusAndFinalResult(map, raceNewData);
                                         updateEntrantsInRace(map.getEntrants(), raceNewData.getMapEntrants());
-                                        updateRaceAdvertisedStart(map, raceNewData.getAdvertisedStart());
+                                        updateRaceJumpedAtTime(map, raceNewData.getAdvertisedStart(), raceNewData.getActualStart());
                                         return map;
                                     }));
                 }
@@ -155,12 +155,15 @@ public class CrawlPriceService {
         }
     }
 
-    private void updateRaceAdvertisedStart(RaceResponseDto storedRace, Instant newAdvertisedStart) {
+    private void updateRaceJumpedAtTime(RaceResponseDto storedRace, Instant newAdvertisedStart, Instant newActualStart) {
         String oldAdvertisedStart = storedRace.getAdvertisedStart();
+        String oldActualStart = storedRace.getActualStart();
         if (newAdvertisedStart != null && !oldAdvertisedStart.equals(newAdvertisedStart.toString())) {
             storedRace.setAdvertisedStart(newAdvertisedStart.toString());
             todayData.updateRaceAdvertisedStart(storedRace.getId(), Instant.parse(oldAdvertisedStart).toEpochMilli(), newAdvertisedStart.toEpochMilli());
-            raceRepository.updateRaceAdvertisedStartById(storedRace.getId(), newAdvertisedStart).subscribe();
+        }
+        if (newActualStart != null && !oldActualStart.equals(newActualStart.toString())){
+            storedRace.setActualStart(newActualStart.toString());
         }
     }
 
@@ -225,7 +228,8 @@ public class CrawlPriceService {
 
             Json raceFinalResult = Json.of(new Gson().toJson(race.getFinalResult()));
 
-            return raceRepository.updateRaceStatusAndFinalResultById(generalRaceId, race.getStatus(), raceFinalResult)
+            return raceRepository.updateRaceStatusAndFinalResultById(generalRaceId, race.getStatus(), raceFinalResult,
+                            Instant.parse(race.getActualStart()), Instant.parse(race.getAdvertisedStart()))
                                  .then(raceRedisService.delete(generalRaceId));
         } else {
             log.info(" Save data race[id={}] to redis", generalRaceId);

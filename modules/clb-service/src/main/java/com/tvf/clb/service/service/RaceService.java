@@ -98,24 +98,25 @@ public class RaceService {
         Mono<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceEntrantByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<Race> raceNumberId = raceRepository.getRaceIDNumberByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<RaceSite> raceSiteUUID = raceSiteRepository.getAllByGeneralRaceId(raceId).switchIfEmpty(Mono.empty());
-        Mono<Map<Long, String>> raceIDAndRaceStatus = getNewestRaceProperty(Collections.singletonList(raceId), RaceResponseDto::getStatus, Race::getStatus).switchIfEmpty(Mono.empty());
-        Mono<Map<Long, Map<Integer, String>>> raceIDAndRaceFinalResult =
-                getNewestRaceProperty(Collections.singletonList(raceId), RaceResponseDto::getFinalResult, race -> CommonUtils.getMapRaceFinalResultFromJsonb(race.getResultsDisplay()))
-                        .switchIfEmpty(Mono.empty());
+        Mono<Map<Long, RaceResponseDto>> mapMonoRaceProperty = getNewestRaceProperty(Collections.singletonList(raceId), Function.identity(), RaceResponseMapper::toRaceResponseDto);
 
-        return Mono.zip(entrantFlux.collectList(), raceMeetingFlux,
+        return Mono.zip(entrantFlux.collectList(),
+                        raceMeetingFlux,
                         raceNumberId.collectMap(Race::getNumber, Race::getId),
                         raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteId),
                         raceNumberId.collectMap(Race::getId, Race::getResultsDisplay),
-                        raceIDAndRaceStatus, raceIDAndRaceFinalResult,raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteUrl))
+                        mapMonoRaceProperty,
+                        raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteUrl))
                 .map(tuple -> {
                     RaceEntrantDto raceEntrantDTO = tuple.getT2();
-                    raceEntrantDTO.setStatus(tuple.getT6().get(raceId));
-                    raceEntrantDTO.setFinalResult(tuple.getT7().get(raceId));
+                    raceEntrantDTO.setStatus(tuple.getT6().get(raceId).getStatus());
+                    raceEntrantDTO.setFinalResult(tuple.getT6().get(raceId).getFinalResult());
                     raceEntrantDTO.setEntrants(tuple.getT1());
                     raceEntrantDTO.setRaceIdNumber(tuple.getT3());
                     raceEntrantDTO.setRaceSiteUUID(tuple.getT4());
-                    raceEntrantDTO.setRaceSiteUrl(tuple.getT8());
+                    raceEntrantDTO.setRaceSiteUrl(tuple.getT7());
+                    raceEntrantDTO.setActualStart(Instant.parse(tuple.getT6().get(raceId).getActualStart()));
+                    raceEntrantDTO.setAdvertisedStart(Instant.parse(tuple.getT6().get(raceId).getAdvertisedStart()));
 
                     return raceEntrantDTO;
                 });
@@ -151,6 +152,7 @@ public class RaceService {
                 for (RaceResponseDto raceInRedis : listRaceInRedis) {
                     if (raceInRedis == null) continue;
                     mapIdToRace.get(raceInRedis.getId()).setStatus(raceInRedis.getStatus());
+                    mapIdToRace.get(raceInRedis.getId()).setDate(Instant.parse(raceInRedis.getActualStart()));
                 }
                 return mapIdToRace.values();
             }).switchIfEmpty(Mono.just(mapIdToRace.values()));

@@ -47,8 +47,9 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     @Query("delete from clb_db.race r where r.advertised_start between :startTime and :endTime")
     Mono<Long> deleteAllByAdvertisedStartBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 
-    @Query("Update clb_db.race set status = :status, results_display = :result WHERE id =:raceId")
-    Mono<Race> updateRaceStatusAndFinalResultById(@Param("raceId") Long raceId, @Param("status") String status, @Param("result") Json result);
+    @Query("Update clb_db.race set status = :status, results_display = :result, actual_start = :actualStart, advertised_start = :advertisedStart  WHERE id =:raceId")
+    Mono<Race> updateRaceStatusAndFinalResultById(@Param("raceId") Long raceId, @Param("status") String status, @Param("result") Json result,
+                                                  @Param("actualStart") Instant actualStart, @Param("advertisedStart") Instant advertisedStart);
 
     @Query("Update clb_db.race set advertised_start = :advertisedStart WHERE id =:raceId")
     Mono<Boolean> updateRaceAdvertisedStartById(@Param("raceId") Long raceId, @Param("advertisedStart") Instant advertisedStart);

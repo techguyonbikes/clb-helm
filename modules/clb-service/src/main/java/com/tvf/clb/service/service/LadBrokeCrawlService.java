@@ -117,6 +117,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         result.setSiteEnum(SiteEnum.LAD_BROKE);
         result.setMapEntrants(entrantMap);
         result.setAdvertisedStart(raceDto.getRaces().get(raceId).getAdvertisedStart());
+        result.setActualStart(raceDto.getRaces().get(raceId).getActualStart());
 
         Optional<String> optionalStatus = getStatusFromRaceMarket(raceDto.getMarkets());
 

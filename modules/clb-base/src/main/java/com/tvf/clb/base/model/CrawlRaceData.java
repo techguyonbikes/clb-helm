@@ -22,4 +22,5 @@ public class CrawlRaceData {
     private Map<Integer, String> finalResult;
     private Map<Integer, CrawlEntrantData> mapEntrants;
     private Instant advertisedStart;
+    private Instant actualStart;
 }
