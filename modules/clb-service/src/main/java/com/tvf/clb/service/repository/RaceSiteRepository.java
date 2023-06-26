@@ -25,6 +25,6 @@ public interface RaceSiteRepository extends R2dbcRepository<RaceSite, Long> {
     Mono<Long> deleteAllByStartDateBetween(@Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 
     @Query("Update clb_db.race_site set race_site_id = :uuid, race_site_url = :raceSiteUrl where id = :id")
-    Mono<Boolean> updateRaceSiteIdAndRaceSiteUrl(String uuid, String raceSiteUrl, Long id);
+    Mono<RaceSite> updateRaceSiteIdAndRaceSiteUrl(String uuid, String raceSiteUrl, Long id);
 
 }

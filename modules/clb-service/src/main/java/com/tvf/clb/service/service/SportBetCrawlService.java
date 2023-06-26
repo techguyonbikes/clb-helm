@@ -16,7 +16,10 @@ import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
-import com.tvf.clb.base.model.sportbet.*;
+import com.tvf.clb.base.model.sportbet.MarketRawData;
+import com.tvf.clb.base.model.sportbet.ResultsRawData;
+import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
+import com.tvf.clb.base.model.sportbet.StatisticsRawData;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,7 @@ import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -80,8 +84,10 @@ public class SportBetCrawlService implements ICrawlService {
             raceDtoList.addAll(meetingRaces);
             mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meeting), meetingRaces.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList()));
         });
-        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.SPORT_BET.getId());
-        crawlAndSaveEntrants(raceDtoList, date).subscribe();
+
+        Mono<Map<String, Long>> mapUUIDToRaceIdMono = crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.SPORT_BET.getId());
+        setRaceIdThenCrawlAndSaveEntrants(mapUUIDToRaceIdMono, raceDtoList, date);
+
         return Collections.emptyList();
     }
 
@@ -139,13 +145,12 @@ public class SportBetCrawlService implements ICrawlService {
                         .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
                         .collect(Collectors.joining(","));
                 raceDto.setFinalResult(top4Entrants);
-                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.SPORTBET_SITE_ID, top4Entrants);
+                crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.SPORTBET_SITE_ID);
             }
 
             if (markets != null) {
                 List<SportBetEntrantRawData> allEntrant = markets.getSelections();
-                String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
-                saveEntrant(allEntrant, raceIdIdentifierInRedis, raceDto);
+                saveEntrant(allEntrant, raceDto);
             } else {
                 log.error("Can not found SportBet race by RaceUUID " + raceUUID);
             }
@@ -168,7 +173,7 @@ public class SportBetCrawlService implements ICrawlService {
                 .sorted(Comparator.comparing(ResultsRawData::getPlace));
     }
 
-    public void saveEntrant(List<SportBetEntrantRawData> entrantRawData, String raceName, RaceDto raceDto) {
+    public void saveEntrant(List<SportBetEntrantRawData> entrantRawData, RaceDto raceDto) {
         List<Entrant> newEntrants = new ArrayList<>();
         for(SportBetEntrantRawData rawData :entrantRawData){
             List<Float> prices = getPricesFromEntrantStatistics(rawData.getStatistics());
@@ -182,8 +187,8 @@ public class SportBetCrawlService implements ICrawlService {
             Entrant entrant = MeetingMapper.toEntrantEntity(rawData,prices);
             newEntrants.add(entrant);
         }
-        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.SPORTBET_SITE_ID, raceName, raceDto);
-        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.SPORTBET_SITE_ID);
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.SPORTBET_SITE_ID);
+        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.SPORTBET_SITE_ID);
     }
 
     private List<Float> getPricesFromEntrantStatistics(StatisticsRawData statistics) {

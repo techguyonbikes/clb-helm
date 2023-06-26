@@ -2,7 +2,9 @@ package com.tvf.clb.base.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.tvf.clb.base.dto.RaceDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.PriceHistoryData;
@@ -62,48 +64,113 @@ public class CommonUtils {
         return false;
     }
 
+    public static Race mapNewRaceToExisting(Map<Race, List<Entrant>> mapExistingRaceAndEntrants, RaceDto newRace, List<Entrant> newEntrants) {
 
-    public static Race getRaceDiffRaceName(List<Race> races, String raceNameCompare, Instant advertisedStart) {
-        if (races.isEmpty() || raceNameCompare == null || advertisedStart == null) {
+        if (mapExistingRaceAndEntrants.isEmpty()) {
             return null;
         }
-        if (races.size() == 1){
-            return races.get(0);
-        }
-        Race result = races.get(0);
-        int wordMax = compareName(races.get(0).getName(), raceNameCompare);
-        Map<Race, Integer> mapRaceIdAndWordSame = new HashMap<>();
-        for (Race race : races) {
-            if (race.getName() == null || race.getAdvertisedStart() == null) {
-                continue;
-            }
-            if (race.getName().equals(raceNameCompare) && race.getAdvertisedStart().equals(advertisedStart)) {
-                return race;
+        List<Race> mostSimilarRacesByName = getTheMostSimilarRacesByName(mapExistingRaceAndEntrants, newRace);
+
+        if (mostSimilarRacesByName.isEmpty()) {
+            return null;
+        } else if (mostSimilarRacesByName.size() == 1) {
+            Race mostSimilarRace = mostSimilarRacesByName.get(0);
+            int numberOfSameEntrants = compareEntrants(mapExistingRaceAndEntrants.get(mostSimilarRace), newEntrants);
+
+            if (mapExistingRaceAndEntrants.get(mostSimilarRace).size() == newEntrants.size() &&
+                 (mostSimilarRace.getName().equals(newRace.getName()) || mostSimilarRace.getAdvertisedStart().equals(newRace.getAdvertisedStart())
+                    || numberOfSameEntrants > newEntrants.size() / 2)) {
+                return mostSimilarRacesByName.get(0);
             } else {
-                int numberOfSameWord = compareName(race.getName(), raceNameCompare);
-                if (wordMax < numberOfSameWord) {
-                    wordMax = numberOfSameWord;
-                    result = race;
-                }
-                mapRaceIdAndWordSame.put(race, numberOfSameWord);
+                return null;
+            }
+        } else {
+            List<Race> mostSimilarRacesByEntrant = getTheMostSimilarRacesByEntrant(mostSimilarRacesByName.stream().collect(Collectors.toMap(Function.identity(), mapExistingRaceAndEntrants::get)), newEntrants);
+
+            if (mostSimilarRacesByEntrant.isEmpty()) {
+                return null;
+            } else if (mostSimilarRacesByEntrant.size() == 1) {
+                return mostSimilarRacesByEntrant.get(0);
+            } else {
+                return getMostSimilarRaceByMeetingName(mostSimilarRacesByEntrant, newRace);
             }
         }
-        Race raceSameWithAdvertisedStart = getRaceSameWithAdvertisedStart(mapRaceIdAndWordSame, wordMax, advertisedStart);
-        return raceSameWithAdvertisedStart != null ? raceSameWithAdvertisedStart : result;
     }
 
-    public static Race getRaceSameWithAdvertisedStart(Map<Race, Integer> mapRaceIdAndWordSame, int wordMax, Instant advertisedStart){
-        if (mapRaceIdAndWordSame == null || mapRaceIdAndWordSame.isEmpty() || advertisedStart == null){
-            return null;
-        }
-        for (Map.Entry<Race, Integer> entry : mapRaceIdAndWordSame.entrySet()) {
-            Race race = entry.getKey();
-            Integer word = entry.getValue();
-            if (word.equals(wordMax) && race.getAdvertisedStart().equals(advertisedStart)){
-                return race;
+    private static List<Race> getTheMostSimilarRacesByName(Map<Race, List<Entrant>> mapExistingRaceAndEntrants, RaceDto newRace) {
+        List<Race> mostSimilarRaces = new ArrayList<>();
+        int maxSameWords = 0;
+
+        for (Race existingRace: mapExistingRaceAndEntrants.keySet()) {
+            int numberOfSameWords = compareName(existingRace.getName(), newRace.getName());
+
+            if (numberOfSameWords > maxSameWords) {
+                mostSimilarRaces = new ArrayList<>();
+                mostSimilarRaces.add(existingRace);
+                maxSameWords = numberOfSameWords;
+            } else if (numberOfSameWords > 0 && numberOfSameWords == maxSameWords) {
+                mostSimilarRaces.add(existingRace);
             }
         }
-        return null;
+
+        return mostSimilarRaces;
+    }
+
+    private static List<Race> getTheMostSimilarRacesByEntrant(Map<Race, List<Entrant>> mapExistingRaceAndEntrants, List<Entrant> newEntrants) {
+        List<Race> mostSimilarRaces = new ArrayList<>();
+        int maxSameEntrants = 0;
+
+        for (Map.Entry<Race, List<Entrant>> entry: mapExistingRaceAndEntrants.entrySet()) {
+            Race existingRace = entry.getKey();
+            List<Entrant> existingEntrants = entry.getValue();
+
+            if (existingEntrants.size() == newEntrants.size()) {
+                int numberOfSameEntrants = compareEntrants(existingEntrants, newEntrants);
+                if (numberOfSameEntrants > newEntrants.size() / 2) {
+                    if (numberOfSameEntrants > maxSameEntrants) {
+                        mostSimilarRaces = new ArrayList<>();
+                        mostSimilarRaces.add(existingRace);
+                        maxSameEntrants = numberOfSameEntrants;
+                    } else if (numberOfSameEntrants == maxSameEntrants) {
+                        mostSimilarRaces.add(existingRace);
+                    }
+                }
+            }
+        }
+
+        return mostSimilarRaces;
+    }
+    
+    private static Race getMostSimilarRaceByMeetingName(List<Race> listRace, RaceDto newRace) {
+        Race result = null;
+        int maxSameMeetingName = 0;
+        for (Race race : listRace) {
+            int numberOfSameMeetingName = compareName(race.getMeetingName(), newRace.getMeetingName());
+            if (numberOfSameMeetingName > maxSameMeetingName) {
+                maxSameMeetingName = numberOfSameMeetingName;
+                result = race;
+            }
+        }
+        return result;
+    }
+
+    public static int compareEntrants(List<Entrant> targetEntrants, List<Entrant> entrantsNeedToCheck) {
+        int numberOfSameEntrants = 0;
+        Map<Integer, Entrant> mapNumberAndTargetEntrant = targetEntrants.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity()));
+        Map<Integer, Entrant> mapNumberAndEntrantNeedToCheck = entrantsNeedToCheck.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity()));
+
+        for (Map.Entry<Integer, Entrant> entry : mapNumberAndTargetEntrant.entrySet()) {
+            Integer entrantNumber = entry.getKey();
+            Entrant targetEntrant = entry.getValue();
+
+            if (mapNumberAndEntrantNeedToCheck.containsKey(entrantNumber)) {
+                Entrant entrantNeedToCheck = mapNumberAndEntrantNeedToCheck.get(entrantNumber);
+                if (targetEntrant.getName().contains(entrantNeedToCheck.getName()) || entrantNeedToCheck.getName().contains(targetEntrant.getName())) {
+                    numberOfSameEntrants++;
+                }
+            }
+        }
+        return numberOfSameEntrants;
     }
 
     public static Meeting mapNewMeetingToExisting(Map<Meeting, List<Race>> mapExisingMeetingAndRace, Meeting meetingNeedToCheck, List<Race> racesNeedToCheck) {

@@ -69,9 +69,12 @@ public class TabCrawlService implements ICrawlService{
             meetingDtoList.add(meetingDto);
             mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meetingDto), meetingDto.getRaces().stream().filter(race -> race.getNumber() != null).map(MeetingMapper::toRaceEntity).collect(Collectors.toList()));
         }
+
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
-        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.TAB.getId());
-        crawlAndSaveEntrants(raceDtoList, date).subscribe();
+        Mono<Map<String, Long>> mapUUIDToRaceIdMono = crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.TAB.getId());
+
+        setRaceIdThenCrawlAndSaveEntrants(mapUUIDToRaceIdMono, raceDtoList, date);
+
         return meetingDtoList;
     }
 
@@ -128,11 +131,10 @@ public class TabCrawlService implements ICrawlService{
                 String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
                 raceDto.setDistance(runnerRawData.getRaceDistance());
                 raceDto.setFinalResult(finalResult);
-                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.TAB_SITE_ID, finalResult);
+                crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.TAB_SITE_ID);
             }
             raceDto.setDistance(runnerRawData.getRaceDistance());
-            saveEntrant(allEntrant, String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(),
-                    raceDto.getRaceType(), date), raceDto);
+            saveEntrant(allEntrant, raceDto);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> Mono.just(EntrantMapper.toEntrantDto(r)));
 
@@ -147,10 +149,10 @@ public class TabCrawlService implements ICrawlService{
                 && AppConstant.TAB_RACE_STATUS_FINAL.equalsIgnoreCase(runnerRawData.getRaceStatus());
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, String raceName, RaceDto raceDto) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.TAB_SITE_ID, raceName, raceDto);
-        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto,AppConstant.TAB_SITE_ID);
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.TAB_SITE_ID);
+        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.TAB_SITE_ID);
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {

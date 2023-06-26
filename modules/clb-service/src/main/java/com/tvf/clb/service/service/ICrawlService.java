@@ -3,7 +3,6 @@ package com.tvf.clb.service.service;
 import com.tvf.clb.base.dto.EntrantDto;
 import com.tvf.clb.base.dto.MeetingDto;
 import com.tvf.clb.base.dto.RaceDto;
-import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlRaceData;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -11,12 +10,20 @@ import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface ICrawlService {
 
     Flux<MeetingDto> getTodayMeetings(LocalDate date);
 
     CrawlRaceData getEntrantByRaceUUID(String raceId);
+
+    default void setRaceIdThenCrawlAndSaveEntrants(Mono<Map<String, Long>> mapUUIDToRaceIdMono, List<RaceDto> raceDtoList, LocalDate date) {
+        mapUUIDToRaceIdMono.subscribe(mapUUIDToRaceId -> {
+            raceDtoList.forEach(raceDto -> raceDto.setRaceId(mapUUIDToRaceId.get(raceDto.getId())));
+            crawlAndSaveEntrants(raceDtoList, date).subscribe();
+        });
+    }
 
     default Flux<EntrantDto> crawlAndSaveEntrants(List<RaceDto> raceDtoList, LocalDate date) {
         return Flux.fromIterable(raceDtoList)

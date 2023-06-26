@@ -21,6 +21,7 @@ import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -116,10 +117,12 @@ public class ZBetCrawlService implements ICrawlService {
             mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meeting), meetingRaces.stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList()));
         });
 
-        saveMeetingSiteAndRaceSite(mapMeetingAndRace);
-
         List<RaceDto> raceDtoList = racesData.stream().map(MeetingMapper::toRaceDto).collect(Collectors.toList());
-        crawlAndSaveEntrants(raceDtoList, date).subscribe();
+
+        Mono<Map<String, Long>> mapUUIDToRaceIdMono = crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.ZBET.getId());
+
+        setRaceIdThenCrawlAndSaveEntrants(mapUUIDToRaceIdMono, raceDtoList, date);
+
         return Collections.emptyList();
     }
 
@@ -133,11 +136,11 @@ public class ZBetCrawlService implements ICrawlService {
             raceDto.setDistance(raceRawData.getDistance());
             if (AppConstant.STATUS_FINAL.equals(raceDto.getStatus()) && raceRawData.getFinalResult() != null) {
                 String finalResult = raceRawData.getFinalResult().replace('/', ',');
-                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.ZBET_SITE_ID, finalResult);
+                crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.ZBET_SITE_ID);
                 raceDto.setFinalResult(finalResult);
             }
 
-            saveEntrant(allEntrant, raceDto, date);
+            saveEntrant(allEntrant, raceDto);
 
         } else {
             crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date);
@@ -147,22 +150,16 @@ public class ZBetCrawlService implements ICrawlService {
         return Flux.empty();
     }
 
-    public void saveMeetingSiteAndRaceSite(Map<Meeting, List<Race>> mapMeetingAndRace) {
-        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.ZBET.getId());
-    }
-
-    public void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto, LocalDate date) {
+    public void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto) {
         if (entrantRawData == null || raceDto == null){
             return;
         }
         List<Entrant> newEntrants = entrantRawData.stream().distinct()
                 .map(meeting -> MeetingMapper.toEntrantEntity(meeting, buildPriceFluctuations(meeting))).collect(Collectors.toList());
 
-        String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.ZBET_SITE_ID);
 
-        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.ZBET_SITE_ID, raceIdIdentifierInRedis, raceDto);
-
-        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.ZBET_SITE_ID);
+        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.ZBET_SITE_ID);
     }
 
     private ZBetRaceRawData getZBetRaceData(String raceId) {

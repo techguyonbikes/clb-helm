@@ -33,7 +33,7 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
     Mono<Race> getRaceByMeetingIdInAndNumberAndAdvertisedStart(List<Long> meetingIds, Integer number, Instant advertisedStart);
 
 
-    @Query("select * from clb_db.race r join clb_db.meeting m ON r.meeting_id = m.id where m.race_type =:meetingType and r.number = :number and r.advertised_start between :startTime and :endTime")
+    @Query("select r.*, m.name as meetingName from clb_db.race r join clb_db.meeting m ON r.meeting_id = m.id where m.race_type =:meetingType and r.number = :number and r.advertised_start between :startTime and :endTime")
     Flux<Race> getRaceByTypeAndNumberAndRangeAdvertisedStart(@Param("meetingType") String meetingType, @Param("number") Integer number,
                                                              @Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 

@@ -116,15 +116,16 @@ public class PointBetCrawlService implements ICrawlService {
         }
         log.info("number of meeting: {}", mapMeetingAndRace.keySet().size());
         log.info("number of race: {}", mapMeetingAndRace.values().size());
-        saveMeetingSiteAndRaceSite(mapMeetingAndRace);
 
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
-        crawlAndSaveEntrants(raceDtoList, date).subscribe();
+        Mono<Map<String, Long>> mapUUIDToRaceIdMono = saveMeetingSiteAndRaceSite(mapMeetingAndRace);
+
+        setRaceIdThenCrawlAndSaveEntrants(mapUUIDToRaceIdMono, raceDtoList, date);
 
         return meetingDtoList;
     }
 
-    public void saveMeetingSiteAndRaceSite(Map<Meeting, List<Race>> mapMeetingAndRace) {
+    public Mono<Map<String, Long>> saveMeetingSiteAndRaceSite(Map<Meeting, List<Race>> mapMeetingAndRace) {
         /* Can not use CrawUtils.saveMeetingSte() directly since PointBet save Meeting.advertisedDate as the first race's start time in the meeting.
            To find generalMeetingId, we need to find meetings have same name and race type first. Then find all the first race in those meetings.
            Then we can get the race has same advertised time with PointBet meeting. So we have generalMeetingId need to find from that race.
@@ -151,8 +152,10 @@ public class PointBetCrawlService implements ICrawlService {
 
             newRaceSiteFlux = newRaceSiteFlux.concatWith(raceSites);
         }
-        crawUtils.saveMeetingSite(mapMeetingAndRace.keySet(), newMeetingSiteFlux, SiteEnum.POINT_BET.getId());
-        crawUtils.saveRaceSite(newRaceSiteFlux, SiteEnum.POINT_BET.getId());
+
+        return crawUtils.saveMeetingSite(mapMeetingAndRace.keySet(), newMeetingSiteFlux, SiteEnum.POINT_BET.getId())
+                .thenMany( crawUtils.saveRaceSite(newRaceSiteFlux, SiteEnum.POINT_BET.getId()))
+                .then(newRaceSiteFlux.collectMap(RaceSite::getRaceSiteId, RaceSite::getGeneralRaceId));
     }
 
 
@@ -182,21 +185,19 @@ public class PointBetCrawlService implements ICrawlService {
                 if (AppConstant.STATUS_FINAL.equals(statusRace)) {
                     raceDto.setDistance(raceRawData.getRaceDistance());
                     raceDto.setFinalResult(raceRawData.getPlacing());
-                    crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing());
+                    crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), raceRawData.getPlacing(), AppConstant.POINT_BET_SITE_ID);
                 }
             }
 
             // Convert to entity and save from raw data
             List<Entrant> listEntrantEntity = EntrantMapper.toListEntrantEntity(entrants, allEntrantPrices, raceUUID);
 
-            String raceIdIdentifier = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
             raceDto.setDistance(raceRawData.getRaceDistance());
-            crawUtils.saveEntrantCrawlDataToRedis(listEntrantEntity, AppConstant.POINT_BET_SITE_ID, raceIdIdentifier, raceDto);
+            crawUtils.saveEntrantCrawlDataToRedis(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
 
-            crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
+            crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto.getRaceId(), AppConstant.POINT_BET_SITE_ID);
 
             return Flux.fromIterable(listEntrantEntity.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList()));
-
         } else {
             crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date);
             throw new ApiRequestFailedException();

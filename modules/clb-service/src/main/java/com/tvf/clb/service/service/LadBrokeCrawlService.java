@@ -20,12 +20,14 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -55,9 +57,6 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     @Autowired
     private RaceRedisService raceRedisService;
-
-    @Autowired
-    private ReactiveRedisTemplate<String, Long> raceNameAndIdTemplate;
 
     @Autowired
     private TodayData todayData;
@@ -151,7 +150,7 @@ public class LadBrokeCrawlService implements ICrawlService {
 
         List<String> raceIds = meetings.stream().map(MeetingRawData::getRaceIds).flatMap(List::stream).collect(Collectors.toList());
 
-        List<RaceRawData> races = ladBrokedItMeetingDto.getRaces().values().stream().filter(r -> raceIds.contains(r.getId())).collect(Collectors.toList());
+        List<RaceRawData> races = ladBrokedItMeetingDto.getRaces().values().stream().filter(r -> raceIds.contains(r.getId()) && r.getNumber() != null).collect(Collectors.toList());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
 
         for (MeetingRawData localMeeting : meetings) {
@@ -161,10 +160,9 @@ public class LadBrokeCrawlService implements ICrawlService {
 
             MeetingDto meetingDto = MeetingMapper.toMeetingDto(localMeeting, localRace);
             meetingDtoList.add(meetingDto);
-
         }
 
-        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).filter(x -> x.getNumber() != null).collect(Collectors.toList());
+        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         saveMeetingAndRace(meetings, raceDtoList, date);
 
         return meetingDtoList;
@@ -205,7 +203,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                 top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
                         .collect(Collectors.joining(","));
 
-                crawUtils.updateRaceFinalResultIntoDB(generalRaceId, SiteEnum.LAD_BROKE.getId(), top4Entrants);
+                crawUtils.updateRaceFinalResultIntoDB(generalRaceId, top4Entrants, SiteEnum.LAD_BROKE.getId());
             }
 
             RaceDto raceDto = RaceResponseMapper.toRaceDTO(raceRawData.getRaces().get(raceId), meetingName, top4Entrants, optionalStatus.orElse(null));
@@ -261,7 +259,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                 .subscribe(savedMeetings -> {
                                                     if (! CollectionUtils.isEmpty(savedMeetings)) {
                                                         List<MeetingSite> meetingSites = savedMeetings.stream().map(meeting -> MeetingMapper.toMetingSite(meeting, SiteEnum.LAD_BROKE.getId(), meeting.getId())).collect(Collectors.toList());
-                                                        crawUtils.saveMeetingSite(savedMeetings, Flux.fromIterable(meetingSites), SiteEnum.LAD_BROKE.getId());
+                                                        crawUtils.saveMeetingSite(savedMeetings, Flux.fromIterable(meetingSites), SiteEnum.LAD_BROKE.getId()).subscribe();
                                                     }
                                                     saveRace(raceDtoList, newMeetings, date);
                                                     log.info("All meetings processed successfully");
@@ -313,13 +311,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .collectList()
                                     .subscribe(savedRace -> {
                                         List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
-                                        crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId());
-
-                                        savedRace.forEach(race -> {
-                                            Meeting raceMeeting = meetingUUIDMap.get(race.getMeetingUUID());
-                                            String key = String.format("%s - %s - %s - %s", raceMeeting.getName(), race.getNumber(), raceMeeting.getRaceType(), date);
-                                            raceNameAndIdTemplate.opsForValue().set(key, race.getId(), Duration.ofDays(1)).subscribe();
-                                        });
+                                        crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId()).subscribe();
 
                                         Map<String, Long> mapRaceUUIDAndId = savedRace.stream().filter(race -> race.getRaceId() != null && race.getId() != null)
                                                         .collect(Collectors.toMap(Race::getRaceId, Race::getId, (first, second) -> first));

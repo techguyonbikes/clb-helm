@@ -21,4 +21,6 @@ public interface EntrantRepository extends R2dbcRepository<Entrant, Long> {
 
     @Query("delete from clb_db.entrant e where e.race_id in (select r.id from clb_db.race r where r.advertised_start between :startTime and :endTime)")
     Mono<Long> deleteAllByAdvertisedStartBetween(@Param("startTime") Instant  startTime, @Param("endTime") Instant endTime);
+
+    Flux<Entrant> findByRaceIdIn(List<Long> raceIds);
 }

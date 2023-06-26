@@ -126,27 +126,24 @@ public class NedsCrawlService implements ICrawlService{
 
         List<String> raceIds = meetings.stream().map(MeetingRawData::getRaceIds).flatMap(List::stream).collect(Collectors.toList());
 
-        List<RaceRawData> races = ladBrokedItMeetingDto.getRaces().values().stream().filter(r -> raceIds.contains(r.getId())).collect(Collectors.toList());
+        List<RaceRawData> races = ladBrokedItMeetingDto.getRaces().values().stream().filter(r -> raceIds.contains(r.getId()) && r.getNumber() != null).collect(Collectors.toList());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
 
         Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
 
         for (MeetingRawData localMeeting : meetings) {
             List<RaceRawData> localRace = races.stream().filter(r -> localMeeting.getRaceIds().contains(r.getId())).collect(Collectors.toList());
-            crawUtils.checkMeetingWrongAdvertisedStart(localMeeting, localRace);
             MeetingDto meetingDto = MeetingMapper.toMeetingDto(localMeeting, localRace);
             meetingDtoList.add(meetingDto);
-            mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meetingDto), meetingDto.getRaces().stream().filter(race -> race.getNumber() != null).map(MeetingMapper::toRaceEntityFromNED).collect(Collectors.toList()));
+            mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meetingDto), meetingDto.getRaces().stream().map(MeetingMapper::toRaceEntityFromNED).collect(Collectors.toList()));
         }
-        saveMeetingSiteAndRaceSite(mapMeetingAndRace);
 
-        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).filter(x -> x.getNumber() != null).collect(Collectors.toList());
-        crawlAndSaveEntrants(raceDtoList, date).subscribe();
+        List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
+        Mono<Map<String, Long>> mapUUIDToRaceIdMono = crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.NED.getId());
+
+        setRaceIdThenCrawlAndSaveEntrants(mapUUIDToRaceIdMono, raceDtoList, date);
+
         return meetingDtoList;
-    }
-
-    private void saveMeetingSiteAndRaceSite(Map<Meeting, List<Race>> mapMeetingAndRace) {
-        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.NED.getId());
     }
 
     @Override
@@ -176,10 +173,10 @@ public class NedsCrawlService implements ICrawlService{
                         .collect(Collectors.joining(","));
 
                 raceDto.setFinalResult(top4Entrants);
-                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.NED_SITE_ID, top4Entrants);
+                crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.NED_SITE_ID);
             }
 
-            saveEntrant(allEntrant, raceDto, date);
+            saveEntrant(allEntrant, raceDto);
             return Flux.fromIterable(allEntrant)
                     .flatMap(r -> {
                         List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
@@ -206,13 +203,11 @@ public class NedsCrawlService implements ICrawlService{
         return finalFieldMarket.flatMap(market -> ConvertBase.getLadbrokeRaceStatus(market.getMarketStatusId()));
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto, LocalDate date) {
+    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
 
-        String raceIdIdentifierInRedis = String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(), raceDto.getRaceType(), date);
-        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.NED_SITE_ID, raceIdIdentifierInRedis, raceDto);
-
-        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto, AppConstant.NED_SITE_ID);
+        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.NED_SITE_ID);
+        crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.NED_SITE_ID);
     }
 
     public LadBrokedItRaceDto getNedsRaceDto(String raceId) {

@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 @Getter
@@ -16,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class RaceDto {
     private String id;
+    private Long raceId;
     private Long meetingId;
     private String meetingUUID;
     private String meetingName;

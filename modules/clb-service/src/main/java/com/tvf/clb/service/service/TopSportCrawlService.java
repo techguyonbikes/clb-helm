@@ -20,6 +20,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -60,8 +61,8 @@ public class TopSportCrawlService implements ICrawlService {
         Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
         for (TopSportMeetingDto meeting : meetingDtoList) {
             List<Race> racesInMeeting = new ArrayList<>();
-            for (String raceId : meeting.getRaceId()) {
-                TopSportRaceDto topSportRaceDto = crawlAndSaveEntrantsAndRace(meeting, raceId, date);
+            for (String raceSiteUUID : meeting.getRaceId()) {
+                TopSportRaceDto topSportRaceDto = crawlAndSaveEntrantsAndRace(meeting, raceSiteUUID, date);
                 if (topSportRaceDto != null) {
                     racesInMeeting.add(MeetingMapper.toRaceEntityFromTOP(topSportRaceDto));
                 }
@@ -69,7 +70,7 @@ public class TopSportCrawlService implements ICrawlService {
             mapMeetingAndRace.put(MeetingMapper.toMeetingEntityFromTOP(meeting), racesInMeeting);
         }
 
-        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.TOP_SPORT.getId());
+        crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.TOP_SPORT.getId()).subscribe();
 
         return listMeetingDto;
     }
@@ -96,34 +97,33 @@ public class TopSportCrawlService implements ICrawlService {
         return result;
     }
 
-    public TopSportRaceDto crawlAndSaveEntrantsAndRace(TopSportMeetingDto meetingDto, String raceId, LocalDate date) {
-        TopSportRaceDto topSportRaceDto = getRacesByTOP(raceId);
+    public TopSportRaceDto crawlAndSaveEntrantsAndRace(TopSportMeetingDto meetingDto, String raceSiteUUID, LocalDate date) {
+        TopSportRaceDto topSportRaceDto = getRacesByTOP(raceSiteUUID);
         if (topSportRaceDto != null) {
             topSportRaceDto.setRaceType(ConvertBase.convertRaceTypeOfTOP(meetingDto.getRaceType()));
             topSportRaceDto.setMeetingName(meetingDto.getName().toUpperCase());
 
-            List<TopSportEntrantDto> allEntrant = topSportRaceDto.getRunners();
+            List<TopSportEntrantDto> allEntrantRawData = topSportRaceDto.getRunners();
             RaceDto raceDto = RaceResponseMapper.toRaceDTO(topSportRaceDto);
 
-            if (!topSportRaceDto.getResults().isEmpty()) {
-                crawUtils.updateRaceFinalResultIntoDB(raceDto, AppConstant.TOPSPORT_SITE_ID, topSportRaceDto.getResults());
-                raceDto.setFinalResult(topSportRaceDto.getResults());
-            }
+            List<Entrant> newEntrants = allEntrantRawData.stream().distinct().map(EntrantMapper::toEntrantEntity).collect(Collectors.toList());
 
-            saveEntrants(allEntrant, String.format("%s - %s - %s - %s", raceDto.getMeetingName(), raceDto.getNumber(),
-                    raceDto.getRaceType(), date), raceDto);
+            Mono<Long> raceIdMono = crawUtils.getIdForNewRace(raceDto, newEntrants);
+
+            raceIdMono.subscribe(raceId -> {
+                raceDto.setRaceId(raceId);
+                if (!topSportRaceDto.getResults().isEmpty()) {
+                    crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), topSportRaceDto.getResults(), SiteEnum.TOP_SPORT.getId());
+                    raceDto.setFinalResult(topSportRaceDto.getResults());
+                }
+                crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, SiteEnum.TOP_SPORT.getId());
+            });
 
             return topSportRaceDto;
         } else {
-            crawUtils.saveFailedCrawlRaceForTopSport(meetingDto, raceId, date);
+            crawUtils.saveFailedCrawlRaceForTopSport(meetingDto, raceSiteUUID, date);
             return null;
         }
-
-    }
-
-    public void saveEntrants(List<TopSportEntrantDto> entrantRawData, String raceName, RaceDto raceDto) {
-        List<Entrant> newEntrants = entrantRawData.stream().distinct().map(EntrantMapper::toEntrantEntity).collect(Collectors.toList());
-        crawUtils.saveEntrantCrawlDataToRedis(newEntrants, AppConstant.TOPSPORT_SITE_ID, raceName, raceDto);
     }
 
     public TopSportRaceDto getRacesByTOP(String raceId) {
