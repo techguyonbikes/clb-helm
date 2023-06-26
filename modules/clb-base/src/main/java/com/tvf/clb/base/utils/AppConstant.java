@@ -24,7 +24,7 @@ public class AppConstant {
     public static final Integer TAB_SITE_ID = 5;
     public static final Integer SPORTBET_SITE_ID = 6;
     public static final Integer TOPSPORT_SITE_ID = 7;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT));
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET));
     public static final String POSITION = "position";
 
     public static final String DISTANCE = "distance";
