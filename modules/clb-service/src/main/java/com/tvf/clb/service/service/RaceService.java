@@ -98,7 +98,7 @@ public class RaceService {
         Mono<RaceEntrantDto> raceMeetingFlux = raceRepository.getRaceEntrantByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<Race> raceNumberId = raceRepository.getRaceIDNumberByRaceId(raceId).switchIfEmpty(Mono.empty());
         Flux<RaceSite> raceSiteUUID = raceSiteRepository.getAllByGeneralRaceId(raceId).switchIfEmpty(Mono.empty());
-        Mono<Map<Long, RaceResponseDto>> mapMonoRaceProperty = getNewestRaceProperty(Collections.singletonList(raceId), Function.identity(), RaceResponseMapper::toRaceResponseDto);
+        Mono<Map<Long, RaceResponseDto>> mapMonoRaceProperty = getNewestRaceProperty(Collections.singletonList(raceId), Function.identity(), RaceResponseMapper::toRaceResponseDto).switchIfEmpty(Mono.empty());
 
         return Mono.zip(entrantFlux.collectList(),
                         raceMeetingFlux,
@@ -108,6 +108,7 @@ public class RaceService {
                         mapMonoRaceProperty,
                         raceSiteUUID.collectMap(RaceSite::getSiteId, RaceSite::getRaceSiteUrl))
                 .map(tuple -> {
+                    RaceResponseDto raceDataInDbOrRedis = tuple.getT6().get(raceId);
                     RaceEntrantDto raceEntrantDTO = tuple.getT2();
                     raceEntrantDTO.setStatus(tuple.getT6().get(raceId).getStatus());
                     raceEntrantDTO.setFinalResult(tuple.getT6().get(raceId).getFinalResult());
@@ -115,8 +116,12 @@ public class RaceService {
                     raceEntrantDTO.setRaceIdNumber(tuple.getT3());
                     raceEntrantDTO.setRaceSiteUUID(tuple.getT4());
                     raceEntrantDTO.setRaceSiteUrl(tuple.getT7());
-                    raceEntrantDTO.setActualStart(Instant.parse(tuple.getT6().get(raceId).getActualStart()));
-                    raceEntrantDTO.setAdvertisedStart(Instant.parse(tuple.getT6().get(raceId).getAdvertisedStart()));
+
+                    Instant advertisedStart = raceDataInDbOrRedis.getAdvertisedStart() == null ? raceEntrantDTO.getAdvertisedStart() : Instant.parse(raceDataInDbOrRedis.getAdvertisedStart());
+                    Instant actualStart = raceDataInDbOrRedis.getActualStart() == null ? raceEntrantDTO.getActualStart() : Instant.parse(raceDataInDbOrRedis.getActualStart());
+
+                    raceEntrantDTO.setActualStart(actualStart);
+                    raceEntrantDTO.setAdvertisedStart(advertisedStart);
 
                     return raceEntrantDTO;
                 });
@@ -152,7 +157,9 @@ public class RaceService {
                 for (RaceResponseDto raceInRedis : listRaceInRedis) {
                     if (raceInRedis == null) continue;
                     mapIdToRace.get(raceInRedis.getId()).setStatus(raceInRedis.getStatus());
-                    mapIdToRace.get(raceInRedis.getId()).setDate(Instant.parse(raceInRedis.getActualStart()));
+                    if (raceInRedis.getActualStart() != null){
+                        mapIdToRace.get(raceInRedis.getId()).setDate(Instant.parse(raceInRedis.getActualStart()));
+                    }
                 }
                 return mapIdToRace.values();
             }).switchIfEmpty(Mono.just(mapIdToRace.values()));
