@@ -1,8 +1,6 @@
 package com.tvf.clb.controller;
 
-import com.tvf.clb.base.dto.RaceBaseResponseDTO;
-import com.tvf.clb.base.dto.RaceResponseDto;
-import com.tvf.clb.base.dto.RaceEntrantDto;
+import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.service.RaceService;
@@ -66,9 +64,9 @@ public class RaceController {
         return raceService.getListRaceDefault(date);
     }
 
-    @GetMapping("/status")
-    public Mono<ResponseEntity<Map<Long, String>>> getAllStatusRaceIds(@RequestParam String ids) {
-        return raceService.getNewestRaceProperty(CommonUtils.convertStringToListLong(ids), RaceResponseDto::getStatus, Race::getStatus)
+    @GetMapping("/sidebar-information")
+    public Mono<ResponseEntity<Map<Long, RaceSideBarDto>>> getRaceSidebarInformationByIds(@RequestParam String ids) {
+        return raceService.getNewestRaceProperty(CommonUtils.convertStringToListLong(ids), RaceResponseMapper::toRaceSideBarDto, RaceResponseMapper::toRaceSideBarDto)
                 .map(raceIdAndStatus -> {
                     if (CollectionUtils.isEmpty(raceIdAndStatus)) {
                         return ResponseEntity.notFound().build();

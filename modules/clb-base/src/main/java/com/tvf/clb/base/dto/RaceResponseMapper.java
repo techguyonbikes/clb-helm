@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,20 @@ public class RaceResponseMapper {
                 .siteId(siteId)
                 .startDate(race.getAdvertisedStart())
                 .raceSiteUrl(race.getRaceSiteUrl())
+                .build();
+    }
+
+    public static RaceSideBarDto toRaceSideBarDto(Race race){
+        return RaceSideBarDto.builder()
+                .status(race.getStatus())
+                .actualStart(race.getActualStart())
+                .build();
+    }
+
+    public static RaceSideBarDto toRaceSideBarDto(RaceResponseDto race){
+        return RaceSideBarDto.builder()
+                .status(race.getStatus())
+                .actualStart(Instant.parse(race.getActualStart()))
                 .build();
     }
 
