@@ -49,6 +49,16 @@ spring:
     url: ${postgresql.datasource.flywayUrl:jdbc:postgresql://34.129.10.71:5432/clb_db}
     user: ${postgresql.datasource.username:postgres}
     password: ${postgresql.datasource.password:admin123}
+  kafka:
+    client-id: cloudbet
+    api-key: IRYZFTIZUJY7QKGZ
+    api-secret: aKU77spH6gUr6RUl4NSIvrtIL4tr/iWRkehTr+UipEkIChF9E1itpD9cd1XqLkLS
+    bootstrap-servers: pkc-0ww79.australia-southeast2.gcp.confluent.cloud:9092
+    producer:
+      acks: all
+      retries: 3
+    topics:
+      generic: test-topic
 socket-server:
   host: ${socket.host:34.129.159.192}
   port: 20002

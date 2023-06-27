@@ -1,6 +1,10 @@
 package com.tvf.clb.service.service;
 
+import com.google.gson.Gson;
 import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.kafka.payload.EventTypeEnum;
+import com.tvf.clb.base.kafka.payload.KafkaPayload;
+import com.tvf.clb.base.kafka.service.CloudbetKafkaService;
 import com.tvf.clb.base.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +24,13 @@ public class RaceRedisService {
     @Autowired
     private ReactiveRedisTemplate<Long, RaceResponseDto> raceDetailTemplate;
 
-    public Mono<Boolean> saveRace(Long raceId, RaceResponseDto race){
+    @Autowired
+    private CloudbetKafkaService kafkaService;
+
+
+    public Mono<Boolean> saveRace(Long raceId, RaceResponseDto race) {
+        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(race))).build();
+        kafkaService.publishKafka(payload, String.valueOf(raceId), null);
         return this.raceDetailTemplate.opsForValue().set(raceId, race);
     }
 
@@ -47,6 +57,9 @@ public class RaceRedisService {
 
     public Mono<Boolean> updateRace(Long raceId, RaceResponseDto newRace) {
         return findByRaceId(raceId).flatMap(existing -> {
+            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(newRace))).build();
+            kafkaService.publishKafka(payload, String.valueOf(raceId), null);
+
             CommonUtils.setIfPresent(newRace.getAdvertisedStart(), existing::setAdvertisedStart);
             CommonUtils.setIfPresent(newRace.getActualStart(), existing::setActualStart);
             CommonUtils.setIfPresent(newRace.getSilkUrl(), existing::setSilkUrl);

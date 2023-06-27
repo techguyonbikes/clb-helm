@@ -94,7 +94,7 @@ public class RaceScheduler {
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
 
-        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.3/6))
+        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.3 / 6))
                 .runOn(Schedulers.parallel())
                 .flatMap(raceId -> {
                     log.info("Crawl data race id = {} start in 30 minutes", raceId);
@@ -129,7 +129,7 @@ public class RaceScheduler {
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
-        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.2/6))
+        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.2 / 6))
                 .runOn(Schedulers.parallel())
                 .flatMap(raceId -> {
                     log.info("Crawl data race id = {} start after 30 minutes and in 1 hour", raceId);
@@ -163,7 +163,7 @@ public class RaceScheduler {
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
-        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.1/6))
+        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.1 / 6))
                 .runOn(Schedulers.parallel())
                 .flatMap(raceId -> {
                     log.info("Crawl data race id = {} start after 1 hour", raceId);

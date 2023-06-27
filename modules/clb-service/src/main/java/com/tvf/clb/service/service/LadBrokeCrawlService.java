@@ -8,6 +8,9 @@ import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
+import com.tvf.clb.base.kafka.payload.EventTypeEnum;
+import com.tvf.clb.base.kafka.payload.KafkaPayload;
+import com.tvf.clb.base.kafka.service.CloudbetKafkaService;
 import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
@@ -60,6 +63,9 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     @Autowired
     private TodayData todayData;
+
+    @Autowired
+    private CloudbetKafkaService kafkaService;
 
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
@@ -263,6 +269,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                         crawUtils.saveMeetingSite(savedMeetings, Flux.fromIterable(meetingSites), SiteEnum.LAD_BROKE.getId()).subscribe();
                                                     }
                                                     saveRace(raceDtoList, newMeetings, date);
+
+                                                    KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedMeetings))).build();
+                                                    kafkaService.publishKafka(payload, null);
                                                     log.info("All meetings processed successfully");
                                                 });
                         }
@@ -311,6 +320,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                                     .sequential() // switch back to sequential processing
                                     .collectList()
                                     .subscribe(savedRace -> {
+                                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedRace))).build();
+                                        kafkaService.publishKafka(payload, null);
+
                                         List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
                                         crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId()).subscribe();
 
@@ -396,6 +408,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                             return entrantRepository.saveAll(entrantNeedUpdateOrInsert)
                                     .collectList()
                                     .flatMapMany(saved -> {
+                                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(saved))).build();
+                                        kafkaService.publishKafka(payload, null);
+
                                         log.info("{} entrants save into redis and database", saved.size());
                                         RaceResponseDto raceResponseDto = RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto);
 

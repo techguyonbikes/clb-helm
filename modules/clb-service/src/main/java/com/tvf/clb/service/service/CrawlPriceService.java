@@ -5,6 +5,9 @@ import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.entity.RaceSite;
 import com.tvf.clb.base.entity.TodayData;
+import com.tvf.clb.base.kafka.payload.EventTypeEnum;
+import com.tvf.clb.base.kafka.payload.KafkaPayload;
+import com.tvf.clb.base.kafka.service.CloudbetKafkaService;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.PriceHistoryData;
@@ -43,15 +46,19 @@ public class CrawlPriceService {
 
     private final TodayData todayData;
 
+    private final CloudbetKafkaService kafkaService;
+
     public CrawlPriceService(RaceRedisService raceRedisService, CrawUtils crawUtils,
                              EntrantRepository entrantRepository, RaceRepository raceRepository,
-                             RaceSiteRepository raceSiteRepository, TodayData todayData) {
+                             RaceSiteRepository raceSiteRepository, TodayData todayData,
+                             CloudbetKafkaService kafkaService) {
         this.raceRedisService = raceRedisService;
         this.crawUtils = crawUtils;
         this.entrantRepository = entrantRepository;
         this.raceRepository = raceRepository;
         this.raceSiteRepository = raceSiteRepository;
         this.todayData = todayData;
+        this.kafkaService = kafkaService;
     }
 
     public Mono<?> crawlRaceThenSave(Long generalRaceId) {
@@ -227,7 +234,8 @@ public class CrawlPriceService {
             saveEntrantToDb(generalRaceId, race.getEntrants());
 
             Json raceFinalResult = Json.of(new Gson().toJson(race.getFinalResult()));
-
+            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(race))).build();
+            kafkaService.publishKafka(payload, String.valueOf(race.getId()), null);
             return raceRepository.updateRaceStatusAndFinalResultById(generalRaceId, race.getStatus(), raceFinalResult,
                             Instant.parse(race.getActualStart()), Instant.parse(race.getAdvertisedStart()))
                                  .then(raceRedisService.delete(generalRaceId));
