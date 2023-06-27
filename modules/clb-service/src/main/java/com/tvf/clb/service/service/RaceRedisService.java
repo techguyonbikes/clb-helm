@@ -48,6 +48,7 @@ public class RaceRedisService {
     public Mono<Boolean> updateRace(Long raceId, RaceResponseDto newRace) {
         return findByRaceId(raceId).flatMap(existing -> {
             CommonUtils.setIfPresent(newRace.getAdvertisedStart(), existing::setAdvertisedStart);
+            CommonUtils.setIfPresent(newRace.getActualStart(), existing::setActualStart);
             CommonUtils.setIfPresent(newRace.getSilkUrl(), existing::setSilkUrl);
             CommonUtils.setIfPresent(newRace.getFullFormUrl(), existing::setFullFormUrl);
             existing.setEntrants(newRace.getEntrants());
