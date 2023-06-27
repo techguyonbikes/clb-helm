@@ -64,6 +64,10 @@ public class SocketModule {
                 senderClient.sendEvent("new_prices", subscribedRace.getEntrants());
                 senderClient.sendEvent("new_status", subscribedRace.getStatus());
 
+                if (subscribedRace.getActualStart() != null) {
+                    senderClient.sendEvent("new_actual_start", subscribedRace.getActualStart());
+                }
+
                 if (CollectionUtils.isEmpty(subscribedRace.getFinalResult())) {
                     senderClient.sendEvent("new_final_result", subscribedRace.getFinalResult());
                 }
@@ -120,6 +124,14 @@ public class SocketModule {
                             clients.forEach(client -> {
                                 client.sendEvent("new_status", newStatus);
                                 log.info("Send race[id={}] new status to client ID[{}]", raceId, client.getSessionId().toString());
+                            });
+                        }
+
+                        String newActualStart = newRaceInfo.getActualStart();
+                        if (newActualStart != null && (subscribedRace == null || ! newActualStart.equals(subscribedRace.getActualStart()))) {
+                            clients.forEach(client -> {
+                                client.sendEvent("new_actual_start", newActualStart);
+                                log.info("Send race[id={}] new actual start to client ID[{}]", raceId, client.getSessionId().toString());
                             });
                         }
 
