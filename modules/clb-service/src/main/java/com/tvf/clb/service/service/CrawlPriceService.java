@@ -122,10 +122,10 @@ public class CrawlPriceService {
 
         // Do not update if new status is null
         if (newStatus != null) {
-            String zBetFinalResult = storedRace.getFinalResult().get(AppConstant.ZBET_SITE_ID);
-            String zBetInterimResult = storedRace.getInterimResult().get(AppConstant.ZBET_SITE_ID);
+            String labBrokeFinalResult = storedRace.getFinalResult().get(AppConstant.LAD_BROKE_SITE_ID);
+            String labBrokeInterimResult = storedRace.getInterimResult().get(AppConstant.LAD_BROKE_SITE_ID);
 
-            if (zBetFinalResult != null && zBetInterimResult != null && ! zBetFinalResult.equals(zBetInterimResult)) {
+            if (labBrokeFinalResult != null && labBrokeInterimResult != null && ! labBrokeFinalResult.equals(labBrokeInterimResult)) {
                 newStatus = AppConstant.STATUS_RE_RESULTED;
             }
             if (CommonUtils.getStatusOrder(storedRace.getStatus()) < CommonUtils.getStatusOrder(raceNewData.getStatus())) {

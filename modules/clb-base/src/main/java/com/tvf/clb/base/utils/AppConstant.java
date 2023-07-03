@@ -159,12 +159,12 @@ public class AppConstant {
     public static final String URL_TOPSPORT_RACE = "https://www.topsport.com.au/{id}";
 
     //Status - Position priority
-    public static final int LAD_BROKE_STATUS_PRIORITY = 3;
-    public static final int LAD_BROKE_POSITION_PRIORITY = 3;
+    public static final int LAD_BROKE_STATUS_PRIORITY = 1;
+    public static final int LAD_BROKE_POSITION_PRIORITY = 1;
     public static final int NED_STATUS_PRIORITY = 4;
     public static final int NED_POSITION_PRIORITY = 4;
-    public static final int ZBET_STATUS_PRIORITY = 1;
-    public static final int ZBET_POSITION_PRIORITY = 1;
+    public static final int ZBET_STATUS_PRIORITY = 3;
+    public static final int ZBET_POSITION_PRIORITY = 3;
     public static final int POINT_BET_STATUS_PRIORITY = 2;
     public static final int POINT_BET_POSITION_PRIORITY = 2;
     public static final int TAB_STATUS_PRIORITY = 5;
