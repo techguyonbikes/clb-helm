@@ -1,25 +1,23 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.zbet.*;
-import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.ConvertBase;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -34,58 +32,49 @@ public class ZBetCrawlService implements ICrawlService {
     @Autowired
     private CrawUtils crawUtils;
 
+    @Autowired
+    public WebClient zbetsWebClient;
+
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
         log.info("Start getting the API from ZBet.");
+        String meetingQueryURI = AppConstant.ZBET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
+        String className = this.getClass().getName();
 
-        CrawlMeetingFunction crawlFunction = crawlDate -> {
-            String url = AppConstant.ZBET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
-            Response response = ApiUtils.get(url);
-            ResponseBody body = response.body();
-            JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
-            Gson gson = new GsonBuilder().create();
-            if (body != null) {
-                List<ZBetMeetingRawData> rawData = gson.fromJson(jsonObject.get("data"), new TypeToken<List<ZBetMeetingRawData>>() {}.getType());
-                return getAllAusMeeting(rawData, date);
-            }
-
-            return null;
-        };
-
-        return crawUtils.crawlMeeting(crawlFunction, date, 20000L, this.getClass().getName());
+        return crawUtils.crawlData(zbetsWebClient, meetingQueryURI, ZBetMeetingResponseRawData.class, className, 20L)
+                        .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
+                        .mapNotNull(ZBetMeetingResponseRawData::getData)
+                        .flatMapIterable(zBetMeetingRawData -> getAllAusMeeting(zBetMeetingRawData, date));
     }
 
     @Override
-    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
-        ZBetRaceRawData raceDto = getZBetRaceData(raceId);
-        if (raceDto != null) {
-            List<EntrantRawData> allEntrant = getListEntrant(raceId, raceDto);
+    public Mono<CrawlRaceData> getEntrantByRaceUUID(String raceId) {
+        return getZBetRaceData(raceId)
+                .onErrorResume(throwable -> Mono.empty())
+                .map(zBetRaceRawData -> {
+                    List<EntrantRawData> allEntrant = getListEntrant(raceId, zBetRaceRawData);
 
-            Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
-            allEntrant.forEach(x -> mapEntrants.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.ZBET_SITE_ID)));
+                    Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
+                    allEntrant.forEach(x -> mapEntrants.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.ZBET_SITE_ID)));
 
-            CrawlRaceData result = new CrawlRaceData();
-            result.setSiteEnum(SiteEnum.ZBET);
-            result.setStatus(ConvertBase.getZBetRaceStatus(raceDto.getStatus()));
-            result.setMapEntrants(mapEntrants);
+                    CrawlRaceData result = new CrawlRaceData();
+                    result.setSiteEnum(SiteEnum.ZBET);
+                    result.setStatus(ConvertBase.getZBetRaceStatus(zBetRaceRawData.getStatus()));
+                    result.setMapEntrants(mapEntrants);
 
-            if (raceDto.getFinalResult() != null) {
-                String raceResult = raceDto.getFinalResult().replace('/', ',');
-                Map<Integer, String> mapRaceResult = Collections.singletonMap(AppConstant.ZBET_SITE_ID, raceResult);
-                if (AppConstant.STATUS_FINAL.equals(result.getStatus())) {
-                    result.setFinalResult(mapRaceResult);
-                } else if (AppConstant.STATUS_INTERIM.equals(result.getStatus())) {
-                    result.setInterimResult(mapRaceResult);
-                }
-            }
+                    if (zBetRaceRawData.getFinalResult() != null) {
+                        String raceResult = zBetRaceRawData.getFinalResult().replace('/', ',');
+                        Map<Integer, String> mapRaceResult = Collections.singletonMap(AppConstant.ZBET_SITE_ID, raceResult);
+                        if (AppConstant.STATUS_FINAL.equals(result.getStatus())) {
+                            result.setFinalResult(mapRaceResult);
+                        } else if (AppConstant.STATUS_INTERIM.equals(result.getStatus())) {
+                            result.setInterimResult(mapRaceResult);
+                        }
+                    }
 
-            return result;
-
-        } else {
-            return new CrawlRaceData();
-        }
+                    return result;
+                });
     }
-
 
     public List<EntrantRawData> getListEntrant(String raceId, ZBetRaceRawData raceDto) {
         if (raceDto == null || raceId == null || CollectionUtils.isEmpty(raceDto.getSelections())){
@@ -98,8 +87,8 @@ public class ZBetCrawlService implements ICrawlService {
     }
 
     private List<MeetingDto> getAllAusMeeting(List<ZBetMeetingRawData> zBetMeeting, LocalDate date) {
-        log.info("[ZBET] Sum all meeting: "+zBetMeeting.size());
-        log.info("[ZBET] Sum all race: "+zBetMeeting.stream().mapToInt(race -> race.getRaces().size()).sum());
+        log.info("[ZBET] Sum all meeting: {}", zBetMeeting.size());
+        log.info("[ZBET] Sum all race: {}", zBetMeeting.stream().mapToInt(race -> race.getRaces().size()).sum());
         List<ZBetMeetingRawData> ausZBetMeeting = new ArrayList<>(zBetMeeting);
 
         Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
@@ -130,24 +119,20 @@ public class ZBetCrawlService implements ICrawlService {
     public Flux<EntrantDto> crawlAndSaveEntrantsInRace(RaceDto raceDto, LocalDate date) {
         String raceUUID = raceDto.getId();
 
-        ZBetRaceRawData raceRawData = getZBetRaceData(raceUUID);
-        if (raceRawData != null) {
-            List<ZBetEntrantData> allEntrant = raceRawData.getSelections();
-            raceDto.setDistance(raceRawData.getDistance());
-            if (AppConstant.STATUS_FINAL.equals(raceDto.getStatus()) && raceRawData.getFinalResult() != null) {
-                String finalResult = raceRawData.getFinalResult().replace('/', ',');
-                crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.ZBET_SITE_ID);
-                raceDto.setFinalResult(finalResult);
-            }
+        return getZBetRaceData(raceUUID)
+                .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
+                .flatMapMany(raceRawData -> {
+                    List<ZBetEntrantData> allEntrant = raceRawData.getSelections();
+                    raceDto.setDistance(raceRawData.getDistance());
+                    if (AppConstant.STATUS_FINAL.equals(raceDto.getStatus()) && raceRawData.getFinalResult() != null) {
+                        String finalResult = raceRawData.getFinalResult().replace('/', ',');
+                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.ZBET_SITE_ID);
+                        raceDto.setFinalResult(finalResult);
+                    }
+                    saveEntrant(allEntrant, raceDto);
 
-            saveEntrant(allEntrant, raceDto);
-
-        } else {
-            crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date);
-            throw new ApiRequestFailedException();
-        }
-
-        return Flux.empty();
+                    return Flux.empty();
+                });
     }
 
     public void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto) {
@@ -162,35 +147,23 @@ public class ZBetCrawlService implements ICrawlService {
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.ZBET_SITE_ID);
     }
 
-    private ZBetRaceRawData getZBetRaceData(String raceId) {
-
-        CrawlRaceFunction crawlFunction = raceUUID -> {
-            String url = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-            Response response = ApiUtils.get(url);
-            JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
-            Gson gson = new GsonBuilder().create();
-            return gson.fromJson(jsonObject.get("data"), ZBetRaceRawData.class);
-        };
-
-        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
-
-        if (result == null) {
-            return null;
-        }
-        return (ZBetRaceRawData) result;
+    private Mono<ZBetRaceRawData> getZBetRaceData(String raceId) {
+        String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
+        return crawUtils.crawlData(zbetsWebClient, raceQueryURI, ZbetRaceResponseRawData.class, this.getClass().getName(), 0L)
+                        .mapNotNull(ZbetRaceResponseRawData::getData);
     }
 
     private List<Float> buildPriceFluctuations(ZBetEntrantData entrantData) {
         if (entrantData != null && entrantData.getPrices() != null) {
-            JsonElement priceRawData = entrantData.getPrices();
+            JsonNode priceRawData = entrantData.getPrices();
 
-            Collection<ZBetPrices> zBetPricesCollection = null;
-            if (priceRawData instanceof JsonObject) {
-                Map<Integer, ZBetPrices> mapPrices = new Gson().fromJson(priceRawData, new TypeToken<Map<Integer, ZBetPrices>>() {}.getType());
+            Collection<ZBetPrices> zBetPricesCollection;
+            if (!priceRawData.isArray()) {
+                Map<Integer, ZBetPrices> mapPrices = new ObjectMapper().convertValue(priceRawData, new TypeReference<Map<Integer, ZBetPrices>>() {});
                 zBetPricesCollection = mapPrices.values();
 
-            } else if (priceRawData instanceof JsonArray) {
-                zBetPricesCollection = new Gson().fromJson(priceRawData, new TypeToken<ArrayList<ZBetPrices>>() {}.getType());
+            } else {
+                zBetPricesCollection = new ObjectMapper().convertValue(priceRawData, new TypeReference<ArrayList<ZBetPrices>>() {});
             }
 
             if (!CollectionUtils.isEmpty(zBetPricesCollection)) {

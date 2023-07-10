@@ -4,7 +4,7 @@ import com.tvf.clb.base.dto.topsport.TopSportRaceDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.entity.RaceSite;
-import com.tvf.clb.base.model.LadbrokesRaceRawData;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceRawData;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import lombok.AccessLevel;

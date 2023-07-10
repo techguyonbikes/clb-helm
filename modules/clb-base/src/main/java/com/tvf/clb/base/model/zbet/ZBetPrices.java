@@ -1,6 +1,7 @@
 package com.tvf.clb.base.model.zbet;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,28 +11,29 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZBetPrices {
     private Long id;
-    @SerializedName("win_odds")
+    @JsonProperty("win_odds")
     private Float winOdds;
-    @SerializedName("place_odds")
+    @JsonProperty("place_odds")
     private Float placeOdds;
-    @SerializedName("us_place_odds")
+    @JsonProperty("us_place_odds")
     private Float usPlaceOdds;
-    @SerializedName("margin_odds")
+    @JsonProperty("margin_odds")
     private Float marginOdds;
-    @SerializedName("top_two_odds")
+    @JsonProperty("top_two_odds")
     private Float topTwoOdds;
-    @SerializedName("top_three_odds")
+    @JsonProperty("top_three_odds")
     private Float topThreeOdds;
-    @SerializedName("top_four_odds")
+    @JsonProperty("top_four_odds")
     private Float topFourOdds;
-    @SerializedName("produce_id")
+    @JsonProperty("produce_id")
     private Integer productId;
-    @SerializedName("product_code")
+    @JsonProperty("product_code")
     private String productCode;
-    @SerializedName("fluctuations")
+    @JsonProperty("fluctuations")
     private String fluctuations;
-    @SerializedName("requested_at")
+    @JsonProperty("requested_at")
     private Long requestedAt;
 }

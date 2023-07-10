@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.time.LocalTime;
@@ -59,19 +58,14 @@ public class RaceScheduler {
 
         Flux<Long> raceIds = Flux.fromIterable(socketModule.getSubscribedRaces().keySet());
 
-        raceIds.parallel()
-                .runOn(Schedulers.parallel())
-                .flatMap(raceId -> {
-                    log.info("Crawl data subscribed race id = {}", raceId);
-                    return crawlPriceService.crawlRaceThenSave(raceId);
-                })
-                .sequential()
-                .doFinally(signalType -> {
-                    log.info("------ All subscribed races are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
-                    isCrawlingRaceStartAfter1Hour = false;
-                })
-                .then(raceIds.count())
-                .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
+        raceIds
+            .flatMap(raceId -> {
+                log.info("Crawl data subscribed race id = {}", raceId);
+                return crawlPriceService.crawlRaceThenSave(raceId);
+            })
+            .doFinally(signalType -> log.info("------ All subscribed races are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
+            .then(raceIds.count())
+            .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of subscribed races just updated: {}", numberOfRacesNeedToUpdate));
     }
 
     /**
@@ -94,19 +88,17 @@ public class RaceScheduler {
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
 
-        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.3 / 6))
-                .runOn(Schedulers.parallel())
-                .flatMap(raceId -> {
-                    log.info("Crawl data race id = {} start in 30 minutes", raceId);
-                    return crawlPriceService.crawlRaceThenSave(raceId);
-                })
-                .sequential()
-                .doFinally(signalType -> {
-                    log.info("------ All races start in 30 minutes are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
-                    isCrawlingRaceStartIn30Minutes = false;
-                })
-                .then(raceIds.count())
-                .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
+        raceIds
+            .flatMap(raceId -> {
+                log.info("Crawl data race id = {} start in 30 minutes", raceId);
+                return crawlPriceService.crawlRaceThenSave(raceId);
+            })
+            .doFinally(signalType -> {
+                log.info("------ All races start in 30 minutes are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
+                isCrawlingRaceStartIn30Minutes = false;
+            })
+            .then(raceIds.count())
+            .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races start in 30 minutes just updated: {}", numberOfRacesNeedToUpdate));
     }
 
     /**
@@ -129,19 +121,17 @@ public class RaceScheduler {
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
-        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.2 / 6))
-                .runOn(Schedulers.parallel())
-                .flatMap(raceId -> {
-                    log.info("Crawl data race id = {} start after 30 minutes and in 1 hour", raceId);
-                    return crawlPriceService.crawlRaceThenSave(raceId);
-                })
-                .sequential()
-                .doFinally(signalType -> {
-                    log.info("------ All races start after 30 minutes and in 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
-                    isCrawlingRaceStartAfter30MinutesAndIn1Hour = false;
-                })
-                .then(raceIds.count())
-                .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
+        raceIds
+            .flatMap(raceId -> {
+                log.info("Crawl data race id = {} start after 30 minutes and in 1 hour", raceId);
+                return crawlPriceService.crawlRaceThenSave(raceId);
+            })
+            .doFinally(signalType -> {
+                log.info("------ All races start after 30 minutes and in 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
+                isCrawlingRaceStartAfter30MinutesAndIn1Hour = false;
+            })
+            .then(raceIds.count())
+            .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races start after 30 minutes and in 1 hour just updated: {}", numberOfRacesNeedToUpdate));
     }
 
     /**
@@ -163,19 +153,17 @@ public class RaceScheduler {
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
 
-        raceIds.parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.1 / 6))
-                .runOn(Schedulers.parallel())
-                .flatMap(raceId -> {
-                    log.info("Crawl data race id = {} start after 1 hour", raceId);
-                    return crawlPriceService.crawlRaceThenSave(raceId);
-                })
-                .sequential()
-                .doFinally(signalType -> {
-                    log.info("------ All races start after 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
-                    isCrawlingRaceStartAfter1Hour = false;
-                })
-                .then(raceIds.count())
-                .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races just updated: {}", numberOfRacesNeedToUpdate));
+        raceIds
+            .flatMap(raceId -> {
+                log.info("Crawl data race id = {} start after 1 hour", raceId);
+                return crawlPriceService.crawlRaceThenSave(raceId);
+            })
+            .doFinally(signalType -> {
+                log.info("------ All races start after 1 hour are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
+                isCrawlingRaceStartAfter1Hour = false;
+            })
+            .then(raceIds.count())
+            .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of races start after 1 hour just updated: {}", numberOfRacesNeedToUpdate));
     }
 
     public Flux<Long> getAllRaceIdsStartBetween(Long raceStartTimeFrom, Long raceStartTimeTo) {

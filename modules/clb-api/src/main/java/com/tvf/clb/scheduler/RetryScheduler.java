@@ -2,14 +2,16 @@ package com.tvf.clb.scheduler;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.tvf.clb.base.entity.FailedApiCall;
 import com.tvf.clb.base.entity.TodayData;
-import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.service.service.FailedApiCallService;
 import com.tvf.clb.service.service.ServiceLookup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -77,26 +79,49 @@ public class RetryScheduler {
 
                 // Execute method
                 Method targetMethod = targetClass.getMethod(targetMethodName, paramsType);
-                targetMethod.invoke(serviceLookup.forBean(targetClass), paramsValue);
+                Object returnObject = targetMethod.invoke(serviceLookup.forBean(targetClass), paramsValue);
 
-                log.info("Retry failed job successfully {}", failedApiCall);
-                failedApiCallService.removeById(failedApiCall.getId());
+                checkRetryStatus(returnObject, failedApiCall);
 
             } catch (ClassNotFoundException e) {
                 log.error("Class name not found {}", failedApiCall.getClassName());
             } catch (NoSuchMethodException e) {
                 log.error("Method name not found {}", failedApiCall.getClassName());
             } catch (InvocationTargetException e) {
-                if (e.getCause() instanceof ApiRequestFailedException) {
-                    log.error("Retry method {} still got failed, retry after 10 minutes", failedApiCall.getMethodName());
-                }
+                doOnRetryError(failedApiCall, e);
             } catch (IllegalAccessException e) {
                 log.error("Can not access target method {}", failedApiCall.getClassName());
             }
         })
         .doFinally(signalType -> isRetrying = false)
         .subscribe();
-
     }
 
+    private void checkRetryStatus(Object returnObject, FailedApiCall failedApiCall) {
+        // With method return a Publisher (Mono, Flux,...), we need to trigger manually by calling subscribe() method
+        if (returnObject instanceof Mono) {
+            ((Mono<?>) returnObject)
+                    .doOnSuccess(o -> doOnRetrySuccess(failedApiCall))
+                    .doOnError(throwable -> doOnRetryError(failedApiCall, throwable))
+                    .onErrorComplete()
+                    .subscribe();
+        } else if (returnObject instanceof Flux) {
+            ((Flux<?>) returnObject)
+                    .doOnComplete(() -> doOnRetrySuccess(failedApiCall))
+                    .doOnError(throwable -> doOnRetryError(failedApiCall, throwable))
+                    .onErrorComplete()
+                    .subscribe();
+        } else { // Execute doOnRetrySuccess if the retry method not return a Publisher and InvocationTargetException is not thrown
+            doOnRetrySuccess(failedApiCall);
+        }
+    }
+
+    private void doOnRetrySuccess(FailedApiCall failedApiCall) {
+        log.info("Retry failed job successfully {}", failedApiCall);
+        failedApiCallService.removeById(failedApiCall.getId());
+    }
+
+    private void doOnRetryError(FailedApiCall failedApiCall, Throwable e) {
+        log.error("Retry method {} still got failed (exception dedail: {}), retry after 10 minutes", failedApiCall.getMethodName(), e.getMessage());
+    }
 }

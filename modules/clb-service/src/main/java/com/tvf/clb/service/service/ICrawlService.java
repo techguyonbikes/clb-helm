@@ -3,10 +3,12 @@ package com.tvf.clb.service.service;
 import com.tvf.clb.base.dto.EntrantDto;
 import com.tvf.clb.base.dto.MeetingDto;
 import com.tvf.clb.base.dto.RaceDto;
+import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlRaceData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,9 +16,11 @@ import java.util.Map;
 
 public interface ICrawlService {
 
+    Logger log = LoggerFactory.getLogger(ICrawlService.class);
+
     Flux<MeetingDto> getTodayMeetings(LocalDate date);
 
-    CrawlRaceData getEntrantByRaceUUID(String raceId);
+    Mono<CrawlRaceData> getEntrantByRaceUUID(String raceId);
 
     default void setRaceIdThenCrawlAndSaveEntrants(Mono<Map<String, Long>> mapUUIDToRaceIdMono, List<RaceDto> raceDtoList, LocalDate date) {
         mapUUIDToRaceIdMono.subscribe(mapUUIDToRaceId -> {
@@ -27,16 +31,18 @@ public interface ICrawlService {
 
     default Flux<EntrantDto> crawlAndSaveEntrants(List<RaceDto> raceDtoList, LocalDate date) {
         return Flux.fromIterable(raceDtoList)
-                .parallel((int) (Schedulers.DEFAULT_POOL_SIZE * 0.3)) // create a parallel flux
-                .runOn(Schedulers.parallel()) // specify which scheduler to use for the parallel execution
-                .flatMap(raceDto -> { // call the getRaceById method for each raceId
-                    try {
-                        return crawlAndSaveEntrantsInRace(raceDto, date);
-                    } catch (Exception e) {
-                        return Mono.empty();
+                .filter(raceDto -> raceDto.getRaceId() != null)
+                .flatMap(raceDto -> crawlAndSaveEntrantsInRace(raceDto, date).onErrorMap(throwable -> {
+                    if (! (throwable instanceof ApiRequestFailedException)) {
+                        return new RuntimeException(String.format("Got exception \"%s\" when crawling race uuid = %s, url = %s", throwable.getMessage(), raceDto.getId(), raceDto.getRaceSiteUrl()));
                     }
-                })
-                .sequential(); // convert back to a sequential flux
+                    return throwable;
+                }))
+                .onErrorContinue((throwable, o) -> {
+                    if (! (throwable instanceof ApiRequestFailedException)) {
+                        log.error(throwable.getMessage());
+                    }
+                });
     }
 
     default Flux<EntrantDto> crawlAndSaveEntrantsInRace(RaceDto raceDto, LocalDate date) {

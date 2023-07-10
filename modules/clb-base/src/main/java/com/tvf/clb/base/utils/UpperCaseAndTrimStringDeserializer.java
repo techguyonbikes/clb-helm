@@ -1,17 +1,14 @@
 package com.tvf.clb.base.utils;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
+import java.io.IOException;
 
-import java.lang.reflect.Type;
-
-public class UpperCaseAndTrimStringDeserializer implements JsonDeserializer<String> {
-
+public class UpperCaseAndTrimStringDeserializer extends JsonDeserializer<String> {
     @Override
-    public String deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        return json.getAsString().trim().toUpperCase();
+    public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        return jsonParser.getValueAsString().toUpperCase().trim();
     }
 }

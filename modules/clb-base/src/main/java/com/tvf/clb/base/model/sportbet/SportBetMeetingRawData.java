@@ -1,7 +1,7 @@
 package com.tvf.clb.base.model.sportbet;
 
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,9 +15,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SportBetMeetingRawData {
     private Long id;
-    @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
+    @JsonDeserialize(using = UpperCaseAndTrimStringDeserializer.class)
     private String name;
     private int classId;
     private boolean isInternational;

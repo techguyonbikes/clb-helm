@@ -76,10 +76,10 @@ public class TopSportCrawlService implements ICrawlService {
     }
 
     @Override
-    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
+    public Mono<CrawlRaceData> getEntrantByRaceUUID(String raceId) {
         TopSportRaceDto topSportRaceDto = getRacesByTOP(raceId);
         if (topSportRaceDto == null) {
-            return new CrawlRaceData();
+            return Mono.empty();
         }
         List<TopSportEntrantDto> allEntrant = topSportRaceDto.getRunners();
         Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
@@ -94,7 +94,7 @@ public class TopSportCrawlService implements ICrawlService {
         if (!topSportRaceDto.getResults().isEmpty()) {
             result.setFinalResult(Collections.singletonMap(AppConstant.TOPSPORT_SITE_ID, topSportRaceDto.getResults()));
         }
-        return result;
+        return Mono.just(result);
     }
 
     public TopSportRaceDto crawlAndSaveEntrantsAndRace(TopSportMeetingDto meetingDto, String raceSiteUUID, LocalDate date) {

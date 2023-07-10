@@ -1,17 +1,22 @@
 package com.tvf.clb.base.model.pointbet;
 
-import com.google.gson.annotations.JsonAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PointBetRacesRawData {
     private String eventId;
     private Integer raceNumber;
-    @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
+    @JsonDeserialize(using = UpperCaseAndTrimStringDeserializer.class)
     private String name;
     private String advertisedStartDateTime;
     private String bettingCloseTime;

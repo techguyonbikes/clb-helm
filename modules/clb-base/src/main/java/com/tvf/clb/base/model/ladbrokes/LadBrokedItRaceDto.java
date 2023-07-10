@@ -1,8 +1,9 @@
-package com.tvf.clb.base.dto;
+package com.tvf.clb.base.model.ladbrokes;
 
-import com.google.gson.JsonObject;
-import com.google.gson.annotations.SerializedName;
-import com.tvf.clb.base.model.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.tvf.clb.base.model.EntrantRawData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,15 +19,16 @@ import java.util.Map;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LadBrokedItRaceDto {
     private Map<String, LadbrokesRaceRawData> races;
     private Map<String, LadbrokesMarketsRawData> markets;
-    private JsonObject meetings;
+    private JsonNode meetings;
     private Object prices;
     private Object venues;
     private Object substitutions;
     private Map<String, LadbrokesRaceResult> results;
     private HashMap<String, EntrantRawData> entrants;
-    @SerializedName("price_fluctuations")
+    @JsonProperty("price_fluctuations")
     private HashMap<String, ArrayList<Float>> priceFluctuations;
 }

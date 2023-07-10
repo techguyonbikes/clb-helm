@@ -1,5 +1,7 @@
 package com.tvf.clb.base.model.tab;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.annotations.JsonAdapter;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.AllArgsConstructor;
@@ -13,9 +15,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RunnerTabRawData {
 
-    @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
+    @JsonDeserialize(using = UpperCaseAndTrimStringDeserializer.class)
     private String runnerName;
     private int runnerNumber;
     private TabPriceRawData fixedOdds;

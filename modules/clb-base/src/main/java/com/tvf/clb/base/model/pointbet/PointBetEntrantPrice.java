@@ -1,5 +1,6 @@
 package com.tvf.clb.base.model.pointbet;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PointBetEntrantPrice {
     private String marketTypeCode;
     private Float price;

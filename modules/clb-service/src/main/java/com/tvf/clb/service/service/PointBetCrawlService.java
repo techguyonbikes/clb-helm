@@ -1,26 +1,20 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
-import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.pointbet.*;
-import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.ConvertBase;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -45,65 +39,57 @@ public class PointBetCrawlService implements ICrawlService {
     @Autowired
     private RaceRepository raceRepository;
 
+    @Autowired
+    private WebClient pointBetWebClient;
+
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
         log.info("Start getting the API from PointBet.");
 
-        CrawlMeetingFunction crawlFunction = crawlDate -> {
-            String url = AppConstant.POINT_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
-            Response response = ApiUtils.get(url);
-            ResponseBody body = response.body();
-            Gson gson = new GsonBuilder().setDateFormat(AppConstant.DATE_TIME_FORMAT_LONG).create();
-            if (body != null) {
-                TypeToken<List<PointBetMeetingRawData>> type = new TypeToken<List<PointBetMeetingRawData>>() {};
-                List<PointBetMeetingRawData> rawData = gson.fromJson(body.string(), type.getType());
+        String meetingQueryURI = AppConstant.POINT_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
+        String className = this.getClass().getName();
 
-                return getAllAusMeeting(rawData, date);
-            }
-            return null;
-        };
-
-        return crawUtils.crawlMeeting(crawlFunction, date, 20000L, this.getClass().getName());
+        return crawUtils.crawlData(pointBetWebClient, meetingQueryURI, PointBetMeetingRawData[].class, className, 20L)
+                        .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
+                        .flatMapIterable(meetingRawData -> getAllAusMeeting(Arrays.asList(meetingRawData), date));
     }
 
     /**
      * This function crawl and get all entrants price
      */
     @Override
-    public CrawlRaceData getEntrantByRaceUUID(String raceUUID) {
+    public Mono<CrawlRaceData> getEntrantByRaceUUID(String raceUUID) {
 
-        PointBetRaceApiResponse raceRawData = crawlPointBetRaceData(raceUUID);
+        return crawlPointBetRaceData(raceUUID)
+                .onErrorResume(throwable -> Mono.empty())
+                .map(raceRawData -> {
+                    Map<Integer, Integer> mapEntrantsPositions = new HashMap<>();
 
-        if (raceRawData == null) {
-            return new CrawlRaceData();
-        }
-        Map<Integer, Integer> mapEntrantsPositions = new HashMap<>();
-        if (raceRawData.getResults() != null) {
-            mapEntrantsPositions = raceRawData.getResults().getWinners() == null ? new HashMap<>() : raceRawData.getResults().getWinners().stream()
-                    .collect(Collectors.toMap(result -> Integer.valueOf(result.getEntrant().getId()), PointBetWinnersRawData::getFinalPlacing));
-        }
+                    List<PointBetWinnersRawData> winnersRawData = raceRawData.getResults().getWinners();
+                    if (winnersRawData != null) {
+                        winnersRawData.forEach(winner -> mapEntrantsPositions.put(Integer.valueOf(winner.getEntrant().getId()), winner.getFinalPlacing()));
+                    }
 
-        Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
-        Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
+                    Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
+                    Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
 
+                    for (PointBetEntrantRawData entrant : raceRawData.getEntrants()) {
+                        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
+                        priceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantPrices.getOrDefault(entrant.getId(), new ArrayList<>()));
+                        mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(mapEntrantsPositions.getOrDefault(Integer.valueOf(entrant.getId()), 0), priceFluctuations));
+                    }
 
-        for (PointBetEntrantRawData entrant : raceRawData.getEntrants()) {
-            Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-            priceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantPrices.getOrDefault(entrant.getId(), new ArrayList<>()));
-            mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(mapEntrantsPositions.getOrDefault(Integer.valueOf(entrant.getId()), 0), priceFluctuations));
-        }
+                    CrawlRaceData result = new CrawlRaceData();
+                    result.setSiteEnum(SiteEnum.POINT_BET);
+                    result.setMapEntrants(mapEntrants);
 
-        CrawlRaceData result = new CrawlRaceData();
-        result.setSiteEnum(SiteEnum.POINT_BET);
-        result.setMapEntrants(mapEntrants);
-
-        String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
-        result.setStatus(statusRace);
-        if (AppConstant.STATUS_FINAL.equals(statusRace)) {
-            result.setFinalResult(Collections.singletonMap(AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing()));
-        }
-
-        return result;
+                    String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
+                    result.setStatus(statusRace);
+                    if (AppConstant.STATUS_FINAL.equals(statusRace)) {
+                        result.setFinalResult(Collections.singletonMap(AppConstant.POINT_BET_SITE_ID, raceRawData.getPlacing()));
+                    }
+                    return result;
+                });
     }
 
     private List<MeetingDto> getAllAusMeeting(List<PointBetMeetingRawData> allMeetingRawData, LocalDate date) {
@@ -114,8 +100,8 @@ public class PointBetCrawlService implements ICrawlService {
         for (MeetingDto meetingDto : meetingDtoList) {
             mapMeetingAndRace.put(MeetingMapper.toMeetingEntity(meetingDto), meetingDto.getRaces().stream().map(MeetingMapper::toRaceEntity).collect(Collectors.toList()));
         }
-        log.info("number of meeting: {}", mapMeetingAndRace.keySet().size());
-        log.info("number of race: {}", mapMeetingAndRace.values().size());
+        log.info("Number of meeting: {}", mapMeetingAndRace.keySet().size());
+        log.info("Number of race: {}", mapMeetingAndRace.values().stream().mapToLong(List::size).sum());
 
         List<RaceDto> raceDtoList = meetingDtoList.stream().map(MeetingDto::getRaces).flatMap(List::stream).collect(Collectors.toList());
         Mono<Map<String, Long>> mapUUIDToRaceIdMono = saveMeetingSiteAndRaceSite(mapMeetingAndRace);
@@ -164,44 +150,42 @@ public class PointBetCrawlService implements ICrawlService {
 
         String raceUUID = raceDto.getId();
 
-        PointBetRaceApiResponse raceRawData = crawlPointBetRaceData(raceUUID);
+        return crawlPointBetRaceData(raceUUID)
+                .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
+                .flatMapIterable(raceRawData -> {
+                    List<PointBetEntrantRawData> entrants = raceRawData.getEntrants();
 
-        if (raceRawData != null) {
-            List<PointBetEntrantRawData> entrants = raceRawData.getEntrants();
+                    String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
 
-            String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
+                    // Map entrant id to prices
+                    Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
 
-            // Map entrant id to prices
-            Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
-
-            // Set position for entrants. Currently, only four winners have position when race completed
-            if (StringUtils.hasText(raceRawData.getPlacing())) {
-                List<String> winnersId = Arrays.asList(raceRawData.getPlacing().split(","));
-                entrants.forEach(entrant -> {
-                    if (winnersId.contains(entrant.getId())) {
-                        entrant.setPosition(winnersId.indexOf(entrant.getId()) + 1);
+                    // Set position for entrants. Currently, only four winners have position when race completed
+                    if (StringUtils.hasText(raceRawData.getPlacing())) {
+                        List<String> winnersId = Arrays.asList(raceRawData.getPlacing().split(","));
+                        entrants.forEach(entrant -> {
+                            if (winnersId.contains(entrant.getId())) {
+                                entrant.setPosition(winnersId.indexOf(entrant.getId()) + 1);
+                            }
+                        });
+                        if (AppConstant.STATUS_FINAL.equals(statusRace)) {
+                            raceDto.setDistance(raceRawData.getRaceDistance());
+                            raceDto.setFinalResult(raceRawData.getPlacing());
+                            crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), raceRawData.getPlacing(), AppConstant.POINT_BET_SITE_ID);
+                        }
                     }
-                });
-                if (AppConstant.STATUS_FINAL.equals(statusRace)) {
+
+                    // Convert to entity and save from raw data
+                    List<Entrant> listEntrantEntity = EntrantMapper.toListEntrantEntity(entrants, allEntrantPrices, raceUUID);
+
                     raceDto.setDistance(raceRawData.getRaceDistance());
-                    raceDto.setFinalResult(raceRawData.getPlacing());
-                    crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), raceRawData.getPlacing(), AppConstant.POINT_BET_SITE_ID);
-                }
-            }
+                    crawUtils.saveEntrantCrawlDataToRedis(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
 
-            // Convert to entity and save from raw data
-            List<Entrant> listEntrantEntity = EntrantMapper.toListEntrantEntity(entrants, allEntrantPrices, raceUUID);
+                    crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto.getRaceId(), AppConstant.POINT_BET_SITE_ID);
 
-            raceDto.setDistance(raceRawData.getRaceDistance());
-            crawUtils.saveEntrantCrawlDataToRedis(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
+                    return listEntrantEntity.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList());
+                });
 
-            crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto.getRaceId(), AppConstant.POINT_BET_SITE_ID);
-
-            return Flux.fromIterable(listEntrantEntity.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList()));
-        } else {
-            crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date);
-            throw new ApiRequestFailedException();
-        }
     }
 
     /**
@@ -232,25 +216,10 @@ public class PointBetCrawlService implements ICrawlService {
     /**
      * This function crawl Race data from POINT BET
      */
-    public PointBetRaceApiResponse crawlPointBetRaceData(String raceUUID) {
-
-        CrawlRaceFunction crawlFunction = uuid -> {
-            String url = AppConstant.POINT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
-            Response response = ApiUtils.get(url);
-            ResponseBody body = response.body();
-            if (body != null) {
-                return new Gson().fromJson(body.string(), PointBetRaceApiResponse.class);
-            }
-
-            return null;
-        };
-
-        Object result = crawUtils.crawlRace(crawlFunction, raceUUID, this.getClass().getName());
-
-        if (result == null) {
-            return null;
-        }
-        return (PointBetRaceApiResponse) result;
+    public Mono<PointBetRaceApiResponse> crawlPointBetRaceData(String raceUUID) {
+        String raceQueryURI = AppConstant.POINT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
+        return crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, this.getClass().getName(), 0L)
+                        .filter(raceRawData -> raceRawData != null && raceRawData.getEntrants() != null);
     }
 
 }

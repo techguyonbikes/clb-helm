@@ -1,5 +1,6 @@
 package com.tvf.clb.base.dto.sportbet;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tvf.clb.base.model.sportbet.MarketRawData;
 import com.tvf.clb.base.model.sportbet.ResultsRawData;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SportBetRaceDto {
     private String name;
     List<MarketRawData>  markets;

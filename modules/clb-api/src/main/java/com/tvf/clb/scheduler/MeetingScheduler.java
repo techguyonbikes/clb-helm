@@ -1,5 +1,6 @@
 package com.tvf.clb.scheduler;
 
+import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.service.service.ICrawlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class MeetingScheduler {
     public void crawlTodayMeeting() {
         log.info("Start crawl today meeting");
         LocalDate dateObj = LocalDate.now();
-        crawlService.getTodayMeetings(dateObj).subscribe();
+        crawlService.getTodayMeetings(dateObj).onErrorComplete(ApiRequestFailedException.class::isInstance).subscribe();
     }
 
     /**
@@ -34,7 +35,7 @@ public class MeetingScheduler {
     public void crawlTomorrowMeeting() {
         log.info("Start crawl tomorrow meeting");
         LocalDate dateObj = LocalDate.now().plusDays(1);
-        crawlService.getTodayMeetings(dateObj).subscribe();
+        crawlService.getTodayMeetings(dateObj).onErrorComplete(ApiRequestFailedException.class::isInstance).subscribe();
     }
 
     /**
@@ -44,6 +45,6 @@ public class MeetingScheduler {
     public void crawlTheDayAfterTomorrowMeeting() {
         log.info("Start crawl the day after tomorrow meeting");
         LocalDate dateObj = LocalDate.now().plusDays(2);
-        crawlService.getTodayMeetings(dateObj).subscribe();
+        crawlService.getTodayMeetings(dateObj).onErrorComplete(ApiRequestFailedException.class::isInstance).subscribe();
     }
 }

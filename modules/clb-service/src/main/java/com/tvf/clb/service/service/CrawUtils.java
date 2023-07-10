@@ -1,25 +1,27 @@
 package com.tvf.clb.service.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.dto.topsport.TopSportMeetingDto;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.*;
+import com.tvf.clb.base.model.ladbrokes.LadBrokedItRaceDto;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+import reactor.util.retry.Retry;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
@@ -49,11 +51,14 @@ public class CrawUtils {
 
     private final FailedApiCallService failedApiCallService;
 
+    private final ObjectMapper objectMapper;
+
 
     public CrawUtils(ServiceLookup serviceLookup, MeetingSiteRepository meetingSiteRepository,
                      RaceSiteRepository raceSiteRepository, MeetingRepository meetingRepository,
                      RaceRepository raceRepository, RaceRedisService raceRedisService,
-                     EntrantRepository entrantRepository, FailedApiCallService failedApiCallService) {
+                     EntrantRepository entrantRepository, FailedApiCallService failedApiCallService,
+                     ObjectMapper objectMapper) {
         this.serviceLookup = serviceLookup;
         this.meetingSiteRepository = meetingSiteRepository;
         this.raceSiteRepository = raceSiteRepository;
@@ -62,6 +67,7 @@ public class CrawUtils {
         this.raceRedisService = raceRedisService;
         this.entrantRepository = entrantRepository;
         this.failedApiCallService = failedApiCallService;
+        this.objectMapper = objectMapper;
     }
 
     public void saveEntrantCrawlDataToRedis(List<Entrant> entrants, RaceDto raceDto, Integer site) {
@@ -132,6 +138,7 @@ public class CrawUtils {
             List<Race> newRaces = entry.getValue();
 
             checkMeetingWrongAdvertisedStart(newMeeting, newRaces);
+            newRaces = removeDuplicateRaceNumber(newRaces);
 
             Mono<Long> meetingId = getMeetingIdAndCompareMeetingNames(newMeeting, newRaces, site);
             newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, site, id)));
@@ -238,11 +245,8 @@ public class CrawUtils {
     public Mono<CrawlRaceData> crawlNewDataByRaceUUID(Map<Integer, String> mapSiteRaceUUID) {
 
         return Flux.fromIterable(mapSiteRaceUUID.entrySet())
-                .parallel().runOn(Schedulers.parallel())
-                .map(entry ->
-                        serviceLookup.forBean(ICrawlService.class, SiteEnum.getSiteNameById(entry.getKey()))
-                                .getEntrantByRaceUUID(entry.getValue()))
-                .sequential()
+                .flatMap(entry -> serviceLookup.forBean(ICrawlService.class, SiteEnum.getSiteNameById(entry.getKey()))
+                                               .getEntrantByRaceUUID(entry.getValue()))
                 .collectList()
                 .map(listRaceNewData -> {
 
@@ -387,6 +391,19 @@ public class CrawUtils {
         }
     }
 
+    private List<Race> removeDuplicateRaceNumber(List<Race> races) {
+        races.sort(Comparator.comparing(Race::getNumber));
+        Integer lastNumber = -1;
+        List<Race> result = new ArrayList<>();
+        for (Race race : races) {
+            if (! race.getNumber().equals(lastNumber)) {
+                result.add(race);
+                lastNumber = race.getNumber();
+            }
+        }
+        return result;
+    }
+
     public void updateRaceFinalResultIntoDB(Long raceId, String finalResult, Integer siteId) {
         raceRepository.findById(raceId).subscribe(race -> checkRaceFinalResultThenSave(race, finalResult, siteId));
     }
@@ -471,6 +488,30 @@ public class CrawUtils {
         log.error("[{}] Crawling race data (uuid = {}) failed after {} retries", simpleClassName, raceUUID, MAX_RETRIES);
 
         return null;
+    }
+
+    public <T> Mono<T> crawlData(WebClient webClient, String uri, Class<T> returnType, String className, Long delayCrawlTime) throws ApiRequestFailedException {
+
+        String simpleClassName = className.substring(className.lastIndexOf(".") + 1);
+
+        Retry retryConfig = Retry.backoff(2, Duration.ofSeconds(1))
+                .doBeforeRetry(retrySignal -> log.info("[{}] Got exception \"{}\" while crawling data (uri = {}), retry attempt {}", simpleClassName, retrySignal.failure().getMessage(), uri, retrySignal.totalRetries() + 1))
+                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new ApiRequestFailedException(String.format("[%s] Retry exhausted (uri = %s)", simpleClassName, uri)));
+
+        return webClient.get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(String.class)
+                .delayElement(Duration.ofSeconds(delayCrawlTime))
+                .<T>handle((bodyString, sink) -> {
+                    try {
+                        sink.next(objectMapper.readValue(bodyString, returnType));
+                    } catch (JsonProcessingException e) {
+                        sink.error(new ApiRequestFailedException(String.format("Can not map body to type %s with exception detail: %s", returnType.getSimpleName(), e.getMessage())));
+                    }
+                })
+                .retryWhen(retryConfig)
+                .doOnError(throwable -> log.error("[{}] Crawling data (uri = {}) failed after {} retries", simpleClassName, uri, MAX_RETRIES));
     }
 
     public Mono<Long> getIdForNewRace(RaceDto newRace, List<Entrant> newEntrants){

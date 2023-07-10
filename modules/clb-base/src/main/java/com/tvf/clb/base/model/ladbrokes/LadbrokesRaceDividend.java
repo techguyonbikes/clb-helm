@@ -1,6 +1,7 @@
-package com.tvf.clb.base.model;
+package com.tvf.clb.base.model.ladbrokes;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tvf.clb.base.LadbrokesDividendStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,9 +12,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LadbrokesRaceDividend {
     private String id;
-    @SerializedName("market_id")
+    @JsonProperty("market_id")
     private String marketId;
     private LadbrokesDividendStatus status;
 }

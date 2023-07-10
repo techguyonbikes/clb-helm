@@ -1,6 +1,7 @@
 package com.tvf.clb.base.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,11 +13,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class VenueRawData {
     private String id;
     private String name;
     private String state;
     private String country;
-    @SerializedName("category_id")
+    @JsonProperty("category_id")
     private String categoryId;
 }

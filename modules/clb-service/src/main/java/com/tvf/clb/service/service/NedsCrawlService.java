@@ -1,24 +1,21 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.*;
-import com.tvf.clb.base.utils.ApiUtils;
+import com.tvf.clb.base.model.ladbrokes.LadBrokedItMeetingDto;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceApiResponse;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceResult;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.ConvertBase;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,82 +32,78 @@ public class NedsCrawlService implements ICrawlService{
     @Autowired
     private CrawUtils crawUtils;
 
+    @Autowired
+    private WebClient nedsWebClient;
+
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
 
         log.info("Start getting the API from Ned.");
 
-        CrawlMeetingFunction crawlFunction = crawDate -> {
-            String url = AppConstant.NEDS_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
-            Response response = ApiUtils.get(url);
-            ResponseBody body = response.body();
-            Gson gson = new GsonBuilder().setDateFormat(AppConstant.DATE_TIME_FORMAT_LONG).create();
-            if (body != null) {
-                LadBrokedItMeetingDto rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
+        String meetingQueryURI = AppConstant.NEDS_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
+        String className = this.getClass().getName();
 
-                return getAllAusMeeting(rawData, date);
-            }
-            return null;
-        };
-
-        return crawUtils.crawlMeeting(crawlFunction, date, 20000L, this.getClass().getName());
+        return crawUtils.crawlData(nedsWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 20L)
+                .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
+                .flatMapIterable(nedMeetingRawData -> getAllAusMeeting(nedMeetingRawData, date));
     }
 
     @Override
-    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
+    public Mono<CrawlRaceData> getEntrantByRaceUUID(String raceId) {
+        Mono<LadbrokesRaceApiResponse> nedsRaceApiResponseMono = getNedsRaceDto(raceId);
 
-        LadBrokedItRaceDto raceDto = getNedsRaceDto(raceId);
+        return nedsRaceApiResponseMono
+                .onErrorResume(throwable -> Mono.empty())
+                .filter(apiResponse -> apiResponse.getData() != null && apiResponse.getData().getRaces() != null)
+                .map(LadbrokesRaceApiResponse::getData)
+                .map(raceDto -> {
+                    Map<String, LadbrokesRaceResult> results = raceDto.getResults();
 
-        if (raceDto == null || raceDto.getRaces() == null) {
-            return new CrawlRaceData();
-        }
+                    Map<String, Integer> positions = new HashMap<>();
+                    if (results != null) {
+                        positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
+                    } else {
+                        positions.put(AppConstant.POSITION, 0);
+                    }
+                    HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
+                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
 
-        Map<String, LadbrokesRaceResult> results = raceDto.getResults();
+                    Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
+                    allEntrant.forEach(x -> {
+                        List<Float> entrantPrice;
+                        if (allEntrantPrices == null) {
+                            entrantPrice = new ArrayList<>();
+                        } else {
+                            entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
+                                    : new ArrayList<>(allEntrantPrices.get(x.getId()));
+                        }
+                        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
+                        priceFluctuations.put(AppConstant.NED_SITE_ID, entrantPrice);
+                        mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+                    });
 
-        Map<String, Integer> positions = new HashMap<>();
-        if (results != null) {
-            positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
-        } else {
-            positions.put(AppConstant.POSITION, 0);
-        }
-        HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-        List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+                    CrawlRaceData result = new CrawlRaceData();
+                    result.setSiteEnum(SiteEnum.NED);
+                    result.setMapEntrants(mapEntrants);
 
-        Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
-        allEntrant.forEach(x -> {
-            List<Float> entrantPrice;
-            if (allEntrantPrices == null) {
-                entrantPrice = new ArrayList<>();
-            } else {
-                entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
-                        : new ArrayList<>(allEntrantPrices.get(x.getId()));
-            }
-            Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-            priceFluctuations.put(AppConstant.NED_SITE_ID, entrantPrice);
-            mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
-        });
+                    Optional<String> optionalStatus = getStatusFromRaceMarket(raceDto.getMarkets());
+                    if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
+                        String top4Entrants = getWinnerEntrants(allEntrant)
+                                .map(entrant -> String.valueOf(entrant.getNumber()))
+                                .collect(Collectors.joining(","));
 
-        CrawlRaceData result = new CrawlRaceData();
-        result.setSiteEnum(SiteEnum.NED);
-        result.setMapEntrants(mapEntrants);
+                        result.setFinalResult(Collections.singletonMap(AppConstant.NED_SITE_ID, top4Entrants));
+                    }
 
-        Optional<String> optionalStatus = getStatusFromRaceMarket(raceDto.getMarkets());
-        if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
-            String top4Entrants = getWinnerEntrants(allEntrant)
-                                        .map(entrant -> String.valueOf(entrant.getNumber()))
-                                        .collect(Collectors.joining(","));
-
-            result.setFinalResult(Collections.singletonMap(AppConstant.NED_SITE_ID, top4Entrants));
-        }
-
-        return result;
+                    return result;
+                });
     }
 
     private List<MeetingDto> getAllAusMeeting(LadBrokedItMeetingDto ladBrokedItMeetingDto, LocalDate date) {
 
         Collection<VenueRawData> venues = ladBrokedItMeetingDto.getVenues().values();
-        log.info("[NEDS] Sum all meetings: "+ladBrokedItMeetingDto.getMeetings().values().size());
-        log.info("[NEDS] Sum all races: "+ladBrokedItMeetingDto.getRaces().values().size());
+        log.info("[NEDS] Sum all meetings: {}", ladBrokedItMeetingDto.getMeetings().values().size());
+        log.info("[NEDS] Sum all races: {}", ladBrokedItMeetingDto.getRaces().values().size());
         List<String> venuesId = venues.stream().map(VenueRawData::getId).collect(Collectors.toList());
 
         Map<String, VenueRawData> meetingVenue = venues.stream().collect(Collectors.toMap(VenueRawData::getId, Function.identity()));
@@ -150,45 +143,41 @@ public class NedsCrawlService implements ICrawlService{
     public Flux<EntrantDto> crawlAndSaveEntrantsInRace(RaceDto raceDto, LocalDate date) {
 
         String raceUUID = raceDto.getId();
-        LadBrokedItRaceDto raceRawData = getNedsRaceDto(raceUUID);
-        if (raceRawData != null) {
-            if (raceRawData.getRaces() == null || raceRawData.getMeetings() == null) {
-                return Flux.empty();
-            }
-            Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
-            Map<String, Integer> positions = new HashMap<>();
-            if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
-            } else {
-                positions.put(AppConstant.POSITION, 0);
-            }
+        Mono<LadbrokesRaceApiResponse> nedsRaceApiResponseMono = getNedsRaceDto(raceUUID);
 
-            HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
-            List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
+        return nedsRaceApiResponseMono
+                .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
+                .mapNotNull(LadbrokesRaceApiResponse::getData)
+                .filter(raceRawData -> raceRawData.getRaces() != null || raceRawData.getMeetings() != null)
+                .flatMapIterable(raceRawData -> {
+                    Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
+                    Map<String, Integer> positions = new HashMap<>();
+                    if (results != null) {
+                        positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
+                    } else {
+                        positions.put(AppConstant.POSITION, 0);
+                    }
 
-            Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
-            if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
-                String top4Entrants = getWinnerEntrants(allEntrant)
-                        .map(entrant -> String.valueOf(entrant.getNumber()))
-                        .collect(Collectors.joining(","));
+                    HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
+                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
 
-                raceDto.setFinalResult(top4Entrants);
-                crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.NED_SITE_ID);
-            }
+                    Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
+                    if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
+                        String top4Entrants = getWinnerEntrants(allEntrant)
+                                .map(entrant -> String.valueOf(entrant.getNumber()))
+                                .collect(Collectors.joining(","));
 
-            saveEntrant(allEntrant, raceDto);
-            return Flux.fromIterable(allEntrant)
-                    .flatMap(r -> {
-                        List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(r.getId());
-                        EntrantDto entrantDto = EntrantMapper.toEntrantDto(r, entrantPrices);
-                        return Mono.just(entrantDto);
-                    });
+                        raceDto.setFinalResult(top4Entrants);
+                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.NED_SITE_ID);
+                    }
 
-        } else  {
-            crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date);
-            throw new ApiRequestFailedException();
-        }
+                    saveEntrant(allEntrant, raceDto);
 
+                    return allEntrant.stream().map(entrant -> {
+                        List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(entrant.getId());
+                        return EntrantMapper.toEntrantDto(entrant, entrantPrices);
+                    }).collect(Collectors.toList());
+                });
     }
 
     private Stream<EntrantRawData> getWinnerEntrants(List<EntrantRawData> entrants) {
@@ -210,21 +199,8 @@ public class NedsCrawlService implements ICrawlService{
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.NED_SITE_ID);
     }
 
-    public LadBrokedItRaceDto getNedsRaceDto(String raceId) {
-
-        CrawlRaceFunction crawlFunction = raceUUID -> {
-            String url = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-            Response response = ApiUtils.get(url);
-            JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
-            Gson gson = new GsonBuilder().create();
-            return gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
-        };
-
-        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
-
-        if (result == null) {
-            return null;
-        }
-        return (LadBrokedItRaceDto) result;
+    public Mono<LadbrokesRaceApiResponse> getNedsRaceDto(String raceUUID) {
+        String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
+        return crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, this.getClass().getName(), 0L);
     }
 }

@@ -1,16 +1,11 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.dto.tab.TabBetMeetingDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
@@ -18,12 +13,10 @@ import com.tvf.clb.base.model.tab.TabMeetingRawData;
 import com.tvf.clb.base.model.tab.TabPriceFlucsRawData;
 import com.tvf.clb.base.model.tab.TabRacesData;
 import com.tvf.clb.base.model.tab.TabRunnerRawData;
-import com.tvf.clb.base.utils.ApiUtils;
 import com.tvf.clb.base.utils.AppConstant;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -38,32 +31,27 @@ public class TabCrawlService implements ICrawlService{
     @Autowired
     private CrawUtils crawUtils;
 
+    @Autowired
+    public WebClient tabWebClient;
+
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
         log.info("Start getting the API from TAB.");
+        String meetingQueryURI = AppConstant.TAB_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
+        String className = this.getClass().getName();
 
-        CrawlMeetingFunction crawlFunction = crawlDate -> {
-            String url = AppConstant.TAB_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
-            Response response = ApiUtils.get(url);
-            ResponseBody body = response.body();
-            Gson gson = new GsonBuilder().setDateFormat(AppConstant.DATE_TIME_FORMAT_LONG).create();
-            if (body != null) {
-                TabBetMeetingDto rawData = gson.fromJson(body.string(), TabBetMeetingDto.class);
-                return getAllAusMeeting(rawData,date);
-            }
-
-            return null;
-        };
-
-        return crawUtils.crawlMeeting(crawlFunction, date, 20000L, this.getClass().getName());
+        return crawUtils.crawlData(tabWebClient, meetingQueryURI, TabBetMeetingDto.class, className, 20L)
+                .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
+                .mapNotNull(TabBetMeetingDto::getMeetings)
+                .flatMapIterable(tabMeetingRawData -> getAllAusMeeting(tabMeetingRawData, date));
     }
 
-    private List<MeetingDto> getAllAusMeeting(TabBetMeetingDto meetingRawData,LocalDate date) {
-        log.info("[TAB]  Sum all meeting: "+meetingRawData.getMeetings().size());
-        log.info("[TAB] Sum all race: "+meetingRawData.getMeetings().stream().mapToInt(m -> m.getRaces().size()).sum());
+    private List<MeetingDto> getAllAusMeeting(List<TabMeetingRawData> meetingRawData,LocalDate date) {
+        log.info("[TAB]  Sum all meeting: {}", meetingRawData.size());
+        log.info("[TAB] Sum all race: {}", meetingRawData.stream().mapToInt(m -> m.getRaces().size()).sum());
         List<MeetingDto> meetingDtoList = new ArrayList<>();
         Map<Meeting, List<Race>> mapMeetingAndRace = new HashMap<>();
-        for (TabMeetingRawData localMeeting : meetingRawData.getMeetings()) {
+        for (TabMeetingRawData localMeeting : meetingRawData) {
             List<TabRacesData> localRace =localMeeting.getRaces();
             MeetingDto meetingDto =MeetingMapper.toMeetingTABDto(localMeeting,localRace);
             meetingDtoList.add(meetingDto);
@@ -79,69 +67,60 @@ public class TabCrawlService implements ICrawlService{
     }
 
     @Override
-    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
-        TabRunnerRawData runnerRawData = crawlRunnerDataTAB(raceId);
+    public Mono<CrawlRaceData> getEntrantByRaceUUID(String raceId) {
+        return crawlRunnerDataTAB(raceId)
+                .onErrorResume(throwable -> Mono.empty())
+                .filter(apiResponse -> apiResponse.getRunners() != null)
+                .map(raceDto -> {
 
-        if (runnerRawData == null) {
-            return new CrawlRaceData();
-        }
+                    List<EntrantRawData> allEntrant = getListEntrant(raceId, raceDto);
 
-        // TODO fix this bug, sometime api return null because of wrong race UUID
-        if(runnerRawData.getRunners() == null && runnerRawData.getResults() == null) {
-            log.debug("Null runner data at site Tab, raceUUID = {}: ", raceId);
-            return new CrawlRaceData();
-        }
+                    Map<Integer, CrawlEntrantData> mapEtrants = new HashMap<>();
+                    allEntrant.forEach(x -> {
+                        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
+                        priceFluctuations.put(AppConstant.TAB_SITE_ID, Optional.ofNullable(x.getPriceFluctuations()).orElse(new ArrayList<>()));
+                        mapEtrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+                    });
 
-        List<EntrantRawData> allEntrant = getListEntrant(raceId, runnerRawData);
+                    CrawlRaceData result = new CrawlRaceData();
+                    result.setSiteEnum(SiteEnum.TAB);
+                    result.setMapEntrants(mapEtrants);
 
-        Map<Integer, CrawlEntrantData> mapEtrants = new HashMap<>();
-        allEntrant.forEach(x -> {
-            Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-            priceFluctuations.put(AppConstant.TAB_SITE_ID, Optional.ofNullable(x.getPriceFluctuations()).orElse(new ArrayList<>()));
-            mapEtrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
-        });
+                    if (isRaceStatusFinal(raceDto)) {
+                        String finalResult = raceDto.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
+                        result.setFinalResult(Collections.singletonMap(AppConstant.TAB_SITE_ID, finalResult));
+                    }
 
-        CrawlRaceData result = new CrawlRaceData();
-        result.setSiteEnum(SiteEnum.TAB);
-        result.setMapEntrants(mapEtrants);
-
-        if (isRaceStatusFinal(runnerRawData)) {
-            String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
-            result.setFinalResult(Collections.singletonMap(AppConstant.TAB_SITE_ID, finalResult));
-        }
-
-        return result;
+                    return result;
+                });
     }
 
     @Override
     public Flux<EntrantDto> crawlAndSaveEntrantsInRace(RaceDto raceDto, LocalDate date) {
 
         String raceUUID = raceDto.getId();
-        TabRunnerRawData runnerRawData = crawlRunnerDataTAB(raceUUID);
-        // TODO fix this bug, sometime api return null because of wrong race UUID
 
-        if (runnerRawData != null) {
-            if (runnerRawData.getResults() == null && runnerRawData.getRunners() == null) {
-                log.debug("Site tab get Entrant by raceUUID not found: "+raceUUID);
-                return Flux.empty();
-            }
-            List<EntrantRawData> allEntrant = getListEntrant(raceUUID, runnerRawData);
+        return crawlRunnerDataTAB(raceUUID)
+                .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
+                .flatMapMany(runnerRawData -> {
+                    if (runnerRawData.getResults() == null && runnerRawData.getRunners() == null) {
+                        log.debug("Site tab get Entrant by raceUUID not found: {}", raceUUID);
+                        return Flux.empty();
+                    }
+                    List<EntrantRawData> allEntrant = getListEntrant(raceUUID, runnerRawData);
 
-            if (isRaceStatusFinal(runnerRawData)) {
-                String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
-                raceDto.setDistance(runnerRawData.getRaceDistance());
-                raceDto.setFinalResult(finalResult);
-                crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.TAB_SITE_ID);
-            }
-            raceDto.setDistance(runnerRawData.getRaceDistance());
-            saveEntrant(allEntrant, raceDto);
-            return Flux.fromIterable(allEntrant)
-                    .flatMap(r -> Mono.just(EntrantMapper.toEntrantDto(r)));
+                    if (isRaceStatusFinal(runnerRawData)) {
+                        String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
+                        raceDto.setDistance(runnerRawData.getRaceDistance());
+                        raceDto.setFinalResult(finalResult);
+                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.TAB_SITE_ID);
+                    }
+                    raceDto.setDistance(runnerRawData.getRaceDistance());
+                    saveEntrant(allEntrant, raceDto);
 
-        } else {
-            crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date);
-            throw new ApiRequestFailedException();
-        }
+                    return Flux.fromIterable(allEntrant)
+                            .flatMap(r -> Mono.just(EntrantMapper.toEntrantDto(r)));
+                });
     }
 
     private boolean isRaceStatusFinal(TabRunnerRawData runnerRawData) {
@@ -168,22 +147,9 @@ public class TabCrawlService implements ICrawlService{
                 }).collect(Collectors.toList());
     }
 
-    public TabRunnerRawData crawlRunnerDataTAB(String raceId) {
-
-        CrawlRaceFunction crawlFunction = raceUUID -> {
-            String url = AppConstant.TAB_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-            Response response = ApiUtils.get(url);
-            JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
-            Gson gson = new GsonBuilder().create();
-            return gson.fromJson(jsonObject, TabRunnerRawData.class);
-        };
-
-        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
-
-        if (result == null) {
-            return null;
-        }
-        return (TabRunnerRawData) result;
+    public Mono<TabRunnerRawData> crawlRunnerDataTAB(String raceId) {
+        String raceQueryURI = AppConstant.TAB_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
+        return crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, this.getClass().getName(), 0L);
     }
 
 }

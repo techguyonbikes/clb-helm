@@ -1,7 +1,8 @@
 package com.tvf.clb.base.model;
 
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,26 +19,27 @@ import java.util.Objects;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EntrantRawData {
     private String id;
     private String raceId;
-    @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
+    @JsonDeserialize(using = UpperCaseAndTrimStringDeserializer.class)
     private String name;
     private int barrier;
     private int number;
-    @SerializedName("market_id")
+    @JsonProperty("market_id")
     private String marketId;
     private boolean visible;
 
-    @SerializedName("pricefluctuations")
+    @JsonProperty("pricefluctuations")
     private List<Float> priceFluctuations;
-    @SerializedName("form_summary")
+    @JsonProperty("form_summary")
     public FormSummaryRawData formSummary;
-    @SerializedName("is_scratched")
+    @JsonProperty("is_scratched")
     private String isScratched;
-    @SerializedName("scratch_time")
+    @JsonProperty("scratch_time")
     private Instant scratchedTime;
-    @SerializedName("position")
+    @JsonProperty("position")
     private Integer position;
 
     @Override

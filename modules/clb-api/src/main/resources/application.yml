@@ -59,6 +59,10 @@ spring:
       retries: 3
     topics:
       generic: test-topic
+  task:
+    scheduling:
+      pool:
+        size: 5
 socket-server:
   host: ${socket.host:34.129.159.192}
   port: 20002

@@ -1,5 +1,7 @@
 package com.tvf.clb.base.model.tab;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.annotations.JsonAdapter;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.AllArgsConstructor;
@@ -11,9 +13,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TabRacesData {
     private Integer raceNumber;
-    @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
+    @JsonDeserialize(using = UpperCaseAndTrimStringDeserializer.class)
     private String raceName;
     private String raceClassConditions;
     private String raceStartTime;
@@ -27,12 +30,12 @@ public class TabRacesData {
     private boolean allIn;
     private boolean allowBundle;
     private String cashOutEligibility;
-    //List<String> results;
 
     @Getter
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     class skyRacing {
         private String audio;
         private String video;

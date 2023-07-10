@@ -2,6 +2,7 @@ package com.tvf.clb.controller;
 
 import com.tvf.clb.base.dto.MeetingDto;
 import com.tvf.clb.base.dto.MeetingOptions;
+import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.service.service.ICrawlService;
 import com.tvf.clb.service.service.MeetingService;
@@ -26,9 +27,9 @@ public class MeetingController {
     private MeetingService meetingService;
 
     @GetMapping("/crawl")
-    public Flux<MeetingDto> crawlTodayMeeting(@RequestParam(value = "date", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public Flux<MeetingDto> crawlTodayMeeting(@RequestParam(value = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         ICrawlService crawlService = serviceLookup.forBean(ICrawlService.class, AppConstant.LAD_BROKE);
-        return crawlService.getTodayMeetings(date);
+        return crawlService.getTodayMeetings(date).onErrorComplete(ApiRequestFailedException.class::isInstance);
     }
 
     @GetMapping("")

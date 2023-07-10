@@ -1,5 +1,7 @@
 package com.tvf.clb.base.model.zbet;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZBetRaceRawData {
     private Long id;
     private Integer number;
@@ -21,10 +24,10 @@ public class ZBetRaceRawData {
     private List<Deductions> deductions;
     private List<ZBetEntrantData> selections;
 
-    @SerializedName("displayed_results")
+    @JsonProperty("displayed_results")
     private List<ZBetResultsRawData> displayedResults;
 
-    @SerializedName("result_string")
+    @JsonProperty("result_string")
     private String finalResult;
 }
 

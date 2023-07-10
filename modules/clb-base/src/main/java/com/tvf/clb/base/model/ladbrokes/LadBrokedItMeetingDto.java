@@ -1,6 +1,7 @@
-package com.tvf.clb.base.dto;
+package com.tvf.clb.base.model.ladbrokes;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
 import com.tvf.clb.base.model.VenueRawData;
@@ -17,9 +18,10 @@ import java.util.HashMap;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LadBrokedItMeetingDto {
     private Object compounds;
-    @SerializedName("domestic_countries")
+    @JsonProperty("domestic_countries")
     private String domesticCountries;
     private HashMap<String, MeetingRawData> meetings;
     private HashMap<String, RaceRawData> races;

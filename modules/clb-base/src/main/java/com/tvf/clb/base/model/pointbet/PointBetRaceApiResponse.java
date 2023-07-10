@@ -1,7 +1,8 @@
 package com.tvf.clb.base.model.pointbet;
 
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.*;
 
@@ -12,13 +13,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PointBetRaceApiResponse {
 
-    @SerializedName("outcomes")
+    @JsonProperty("outcomes")
     List<PointBetEntrantRawData> entrants;
     private String trackCondition;
     private Integer raceDistance;
-    @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
+    @JsonDeserialize(using = UpperCaseAndTrimStringDeserializer.class)
     private String name;
     private String countryCode;
     private Integer racingType;

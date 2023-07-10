@@ -1,9 +1,6 @@
 package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.entity.*;
@@ -12,7 +9,10 @@ import com.tvf.clb.base.kafka.payload.EventTypeEnum;
 import com.tvf.clb.base.kafka.payload.KafkaPayload;
 import com.tvf.clb.base.kafka.service.CloudbetKafkaService;
 import com.tvf.clb.base.model.*;
-import com.tvf.clb.base.utils.ApiUtils;
+import com.tvf.clb.base.model.ladbrokes.LadBrokedItMeetingDto;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceApiResponse;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceResult;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.ConvertBase;
 import com.tvf.clb.service.repository.EntrantRepository;
@@ -20,11 +20,11 @@ import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
@@ -67,77 +67,62 @@ public class LadBrokeCrawlService implements ICrawlService {
     @Autowired
     private CloudbetKafkaService kafkaService;
 
+    @Autowired
+    private WebClient ladbrokesWebClient;
+
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
-        CrawlMeetingFunction crawlFunction = crawlDate -> {
-            todayData.setLastTimeCrawl(Instant.now());
-            String url = AppConstant.LAD_BROKES_IT_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
-            Response response = ApiUtils.get(url);
-            ResponseBody body = response.body();
-            Gson gson = new GsonBuilder().setDateFormat(AppConstant.DATE_TIME_FORMAT_LONG).create();
-            if (body != null) {
-                LadBrokedItMeetingDto rawData = gson.fromJson(body.string(), LadBrokedItMeetingDto.class);
+        String meetingQueryURI = AppConstant.LAD_BROKES_IT_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
+        String className = this.getClass().getName();
 
-                return getAllAusMeeting(rawData, date);
-            }
-            return null;
-        };
-
-        return crawUtils.crawlMeeting(crawlFunction, date, 0L, this.getClass().getName());
+        return crawUtils.crawlData(ladbrokesWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 0L)
+                        .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
+                        .doOnNext(ladBrokedItMeetingDto -> todayData.setLastTimeCrawl(Instant.now()))
+                        .flatMapIterable(ladBrokedItMeetingDto -> getAllAusMeeting(ladBrokedItMeetingDto, date));
     }
 
     @Override
-    public CrawlRaceData getEntrantByRaceUUID(String raceId) {
-        LadBrokedItRaceDto raceDto = getLadBrokedItRaceDto(raceId);
+    public Mono<CrawlRaceData> getEntrantByRaceUUID(String raceId) {
+        Mono<LadbrokesRaceApiResponse> ladbrokesRaceApiResponseMono = getLadBrokedItRaceDto(raceId);
 
-        if (raceDto == null || raceDto.getRaces() == null) {
-            return new CrawlRaceData();
-        }
+        return ladbrokesRaceApiResponseMono
+                .onErrorResume(throwable -> Mono.empty())
+                .filter(apiResponse -> apiResponse.getData() != null && apiResponse.getData().getRaces() != null)
+                .map(LadbrokesRaceApiResponse::getData)
+                .map(raceDto -> {
+                    Map<String, LadbrokesRaceResult> results = raceDto.getResults();
+                    Map<String, Integer> positions = new HashMap<>();
+                    if (results != null) {
+                        positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
+                    } else {
+                        positions.put(AppConstant.POSITION, 0);
+                    }
+                    HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
+                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
 
-        Map<String, LadbrokesRaceResult> results = raceDto.getResults();
-        Map<String, Integer> positions = new HashMap<>();
-        if (results != null) {
-            positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
-        } else {
-            positions.put(AppConstant.POSITION, 0);
-        }
-        HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-        List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+                    Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
+                    allEntrant.forEach(x -> entrantMap.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.LAD_BROKE_SITE_ID)));
 
-        Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
-        allEntrant.forEach(x -> {
-            List<Float> entrantPrice;
-            if (allEntrantPrices == null) {
-                entrantPrice = new ArrayList<>();
-            } else {
-                entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
-                        : new ArrayList<>(allEntrantPrices.get(x.getId()));
-            }
+                    CrawlRaceData result = new CrawlRaceData();
+                    result.setSiteEnum(SiteEnum.LAD_BROKE);
+                    result.setMapEntrants(entrantMap);
+                    result.setAdvertisedStart(raceDto.getRaces().get(raceId).getAdvertisedStart());
+                    result.setActualStart(raceDto.getRaces().get(raceId).getActualStart());
 
-            Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-            priceFluctuations.put(AppConstant.LAD_BROKE_SITE_ID, entrantPrice);
-            entrantMap.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.LAD_BROKE_SITE_ID));
-        });
+                    Optional<String> optionalStatus = getStatusFromRaceMarket(raceDto.getMarkets());
 
-        CrawlRaceData result = new CrawlRaceData();
-        result.setSiteEnum(SiteEnum.LAD_BROKE);
-        result.setMapEntrants(entrantMap);
-        result.setAdvertisedStart(raceDto.getRaces().get(raceId).getAdvertisedStart());
-        result.setActualStart(raceDto.getRaces().get(raceId).getActualStart());
+                    if (optionalStatus.isPresent()) {
+                        String status = optionalStatus.get();
+                        result.setStatus(status);
+                        if (status.equals(AppConstant.STATUS_FINAL)) {
+                            String top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
+                                    .collect(Collectors.joining(","));
+                            result.setFinalResult(Collections.singletonMap(AppConstant.LAD_BROKE_SITE_ID, top4Entrants));
+                        }
+                    }
 
-        Optional<String> optionalStatus = getStatusFromRaceMarket(raceDto.getMarkets());
-
-        if (optionalStatus.isPresent()) {
-            String status = optionalStatus.get();
-            result.setStatus(status);
-            if (status.equals(AppConstant.STATUS_FINAL)) {
-                String top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
-                        .collect(Collectors.joining(","));
-                result.setFinalResult(Collections.singletonMap(AppConstant.LAD_BROKE_SITE_ID, top4Entrants));
-            }
-        }
-
-        return result;
+                    return result;
+                });
     }
 
     private List<MeetingDto> getAllAusMeeting(LadBrokedItMeetingDto ladBrokedItMeetingDto, LocalDate date) {
@@ -177,51 +162,48 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     private Flux<Entrant> getEntrantByRaceId(String raceId, Long generalRaceId) {
 
-        LadBrokedItRaceDto raceRawData = getLadBrokedItRaceDto(raceId);
+        Mono<LadbrokesRaceApiResponse> ladbrokesRaceApiResponseMono = getLadBrokedItRaceDto(raceId);
 
-        if (raceRawData != null) {
-            if (raceRawData.getRaces() == null || raceRawData.getMeetings() == null) {
-                return Flux.empty();
-            }
-            Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
-            Map<String, Integer> positions = new HashMap<>();
-            String meetingName = raceRawData.getMeetings().get(raceRawData.getRaces().get(raceId).getMeetingId()).getAsJsonObject().get("name").getAsString();
-            if(meetingName.contains(" ")){
-                meetingName = meetingName.replace(" ","-").toLowerCase();
-            }
-            String distance = raceRawData.getRaces().get(raceId).getAdditionalInfo().get(AppConstant.DISTANCE).getAsString();
-            String silkUrl= raceRawData.getRaces().get(raceId).getSilkUrl();
-            String fullFormUrl= raceRawData.getRaces().get(raceId).getFullFormUrl();
-            HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
+        return ladbrokesRaceApiResponseMono
+                .mapNotNull(LadbrokesRaceApiResponse::getData)
+                .flatMapMany(raceRawData -> {
+                    if (raceRawData.getRaces() == null || raceRawData.getMeetings() == null) {
+                        return Flux.empty();
+                    }
+                    Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
+                    Map<String, Integer> positions = new HashMap<>();
+                    String meetingName = raceRawData.getMeetings().get(raceRawData.getRaces().get(raceId).getMeetingId()).get("name").asText();
+                    if(meetingName.contains(" ")){
+                        meetingName = meetingName.replace(" ","-").toLowerCase();
+                    }
+                    String distance = raceRawData.getRaces().get(raceId).getAdditionalInfo().get(AppConstant.DISTANCE).asText();
+                    String silkUrl= raceRawData.getRaces().get(raceId).getSilkUrl();
+                    String fullFormUrl= raceRawData.getRaces().get(raceId).getFullFormUrl();
+                    HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
 
+                    if (results != null) {
+                        positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
+                    } else {
+                        positions.put(AppConstant.POSITION, 0);
+                    }
 
-            if (results != null) {
-                positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
-            } else {
-                positions.put(AppConstant.POSITION, 0);
-            }
+                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceId, positions);
 
-            List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceId, positions);
+                    String top4Entrants = null;
 
-            String top4Entrants = null;
+                    Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
+                    if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
+                        top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
+                                .collect(Collectors.joining(","));
 
-            Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
-            if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
-                top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
-                        .collect(Collectors.joining(","));
+                        crawUtils.updateRaceFinalResultIntoDB(generalRaceId, top4Entrants, SiteEnum.LAD_BROKE.getId());
+                    }
 
-                crawUtils.updateRaceFinalResultIntoDB(generalRaceId, top4Entrants, SiteEnum.LAD_BROKE.getId());
-            }
+                    RaceDto raceDto = RaceResponseMapper.toRaceDTO(raceRawData.getRaces().get(raceId), meetingName, top4Entrants, optionalStatus.orElse(null));
 
-            RaceDto raceDto = RaceResponseMapper.toRaceDTO(raceRawData.getRaces().get(raceId), meetingName, top4Entrants, optionalStatus.orElse(null));
-
-            return raceRepository.setUpdateRaceDistanceAndSilkUrlAndFullFormUrlById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), silkUrl, fullFormUrl)
-                    .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto));
-
-        } else {
-            throw new ApiRequestFailedException();
-        }
-
+                    return raceRepository.setUpdateRaceDistanceAndSilkUrlAndFullFormUrlById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), silkUrl, fullFormUrl)
+                            .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto));
+                });
     }
 
     private Optional<String> getStatusFromRaceMarket(Map<String, LadbrokesMarketsRawData> marketsRawDataMap) {
@@ -256,7 +238,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                             }
                                         });
 
-                                        log.info("Meeting need to be update or insert " + meetingsNeedUpdateOrInsert.size());
+                                        log.info("Meeting need to be update or insert {}", meetingsNeedUpdateOrInsert.size());
                                         Flux.fromIterable(meetingsNeedUpdateOrInsert)
                                                 .parallel() // parallelize the processing
                                                 .runOn(Schedulers.parallel()) // specify the parallel scheduler
@@ -312,7 +294,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                 }
                             });
 
-                            log.info("Race need to be update is " + raceNeedUpdateOrInsert.size());
+                            log.info("Race need to be update is {}", raceNeedUpdateOrInsert.size());
                             Flux.fromIterable(raceNeedUpdateOrInsert)
                                     .parallel() // parallelize the processing
                                     .runOn(Schedulers.parallel()) // specify the parallel scheduler
@@ -331,10 +313,7 @@ public class LadBrokeCrawlService implements ICrawlService {
 
                                         AtomicBoolean isApiRequestFailed = new AtomicBoolean(false);
                                         Flux.fromIterable(mapRaceUUIDAndId.entrySet())
-                                                .parallel()
-                                                .runOn(Schedulers.parallel())
                                                 .flatMap(entry -> getEntrantByRaceId(entry.getKey(), entry.getValue()))
-                                                .sequential()
                                                 .collectList()
                                                 .onErrorContinue((throwable, o) -> {
                                                     if (throwable instanceof ApiRequestFailedException) {
@@ -426,22 +405,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                 );
     }
 
-    private LadBrokedItRaceDto getLadBrokedItRaceDto(String raceId) {
-
-        CrawlRaceFunction crawlFunction = uuid -> {
-            String url = AppConstant.LAD_BROKES_IT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-            Response response = ApiUtils.get(url);
-            JsonObject jsonObject = JsonParser.parseString(response.body().string()).getAsJsonObject();
-            Gson gson = new GsonBuilder().create();
-            return gson.fromJson(jsonObject.get("data"), LadBrokedItRaceDto.class);
-        };
-
-        Object result = crawUtils.crawlRace(crawlFunction, raceId, this.getClass().getName());
-
-        if (result == null) {
-            return null;
-        }
-        return (LadBrokedItRaceDto) result;
+    private Mono<LadbrokesRaceApiResponse> getLadBrokedItRaceDto(String raceUUID) throws ApiRequestFailedException {
+        String raceQueryURI = AppConstant.LAD_BROKES_IT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
+        return crawUtils.crawlData(ladbrokesWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, this.getClass().getName(), 0L);
     }
 
     //after every thing is implement for first time then we call all site. we need to save all common data first
@@ -454,14 +420,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         return Flux.fromIterable(crawlServices)
                 .parallel()
                 .runOn(Schedulers.parallel())
-                .flatMap(x -> {
-                    try {
-                        return x.getTodayMeetings(date);
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                        return Flux.empty();
-                    }
-                })
+                .flatMap(x -> x.getTodayMeetings(date).onErrorComplete())
                 .sequential();
     }
 }

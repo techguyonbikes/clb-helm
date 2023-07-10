@@ -1,13 +1,15 @@
 package com.tvf.clb.base.model;
 
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
 import java.util.List;
 
 @Getter
@@ -15,29 +17,30 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MeetingRawData {
     private String id;
-    @JsonAdapter(UpperCaseAndTrimStringDeserializer.class)
+    @JsonDeserialize(using = UpperCaseAndTrimStringDeserializer.class)
     private String name;
-    @SerializedName("advertised_date")
+    @JsonProperty("advertised_date")
     private String advertisedDate;
-    @SerializedName("category_id")
+    @JsonProperty("category_id")
     private String categoryId;
-    @SerializedName("venue_id")
+    @JsonProperty("venue_id")
     private String venueId;
-    @SerializedName("race_ids")
+    @JsonProperty("race_ids")
     private List<String> raceIds;
-    @SerializedName("track_condition")
+    @JsonProperty("track_condition")
     private String trackCondition;
     private String country;
     private String state;
-    @SerializedName("has_fixed")
+    @JsonProperty("has_fixed")
     private boolean hasFixed;
-    @SerializedName("region_id")
+    @JsonProperty("region_id")
     private String regionId;
-    @SerializedName("feed_id")
+    @JsonProperty("feed_id")
     private String feedId;
-    @SerializedName("compound_ids")
+    @JsonProperty("compound_ids")
     private List<String> compoundIds;
     private String racingTypeName;
 }

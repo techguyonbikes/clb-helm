@@ -34,23 +34,45 @@ public class AppConstant {
     public static final String NOT_SCRATCHED_NAME = "not scratched";
     public static final String DATE_PARAM = "{date}";
     public static final String ID_PARAM = "{id}";
-    public static final String LAD_BROKES_IT_MEETING_QUERY = "https://api.ladbrokes.com.au/v2/racing/meeting?date={date}&timezone=Kingston/Adelaide/Perth";
 
-    public static final String LAD_BROKES_IT_RACE_QUERY= "https://api.ladbrokes.com.au/rest/v1/racing/?method=racecard&id={id}";
+    public static final String LAD_BROKES_BASE_URL = "https://api.ladbrokes.com.au";
+    public static final String LAD_BROKES_IT_MEETING_QUERY = "/v2/racing/meeting?date={date}&timezone=Kingston/Adelaide/Perth";
 
-    public static final String NEDS_MEETING_QUERY = "https://api.neds.com.au/v2/racing/meeting?date={date}&timezone=Kingston/Adelaide/Perth";
+    public static final String LAD_BROKES_IT_RACE_QUERY= "/rest/v1/racing/?method=racecard&id={id}";
 
-    public static final String NEDS_RACE_QUERY= "https://api.neds.com.au/rest/v1/racing/?method=racecard&id={id}";
+    public static final String NEDS_BASE_URL = "https://api.neds.com.au";
 
-    public static final String POINT_BET_MEETING_QUERY = "https://api.au.pointsbet.com/api/v2/racing/meetings/index?localdate={date}&localstartoffsetmins=420&localendoffsetmins=420";
+    public static final String NEDS_MEETING_QUERY = "/v2/racing/meeting?date={date}&timezone=Kingston/Adelaide/Perth";
 
-    public static final String POINT_BET_RACE_QUERY= "https://api.au.pointsbet.com/api/v2/racing/races/{id}";
+    public static final String NEDS_RACE_QUERY= "/rest/v1/racing/?method=racecard&id={id}";
+
+    public static final String POINT_BET_BASE_URL = "https://api.au.pointsbet.com/api/v2/racing";
+
+    public static final String POINT_BET_MEETING_QUERY = "/meetings/index?localdate={date}&localstartoffsetmins=420&localendoffsetmins=420";
+
+    public static final String POINT_BET_RACE_QUERY= "/races/{id}";
+
+    public static final String ZBET_BASE_URL = "https://api.zbet.com.au";
+
+    public static final String ZBET_MEETING_QUERY = "/api/v2/combined/meetings/races?date={date}";
+
+    public static final String ZBET_RACE_QUERY = "/api/v2/combined/race/selections?race_id={id}";
+
+    public static final String TAB_BASE_URL = "https://api.beta.tab.com.au";
+
+    public static final String TAB_MEETING_QUERY = "/v1/tab-info-service/racing/dates/{date}/meetings?jurisdiction=NSW&returnOffers=true&returnPromo=false";
+
+    public static final String TAB_RACE_QUERY= "/v1/tab-info-service/racing/dates/{id}?returnPromo=true&returnOffers=true&jurisdiction=NSW";
+
+    public static final String SPORT_BET_BASE_URL = "https://www.sportsbet.com.au/apigw/sportsbook-racing/Sportsbook/Racing";
+
+    public static final String SPORT_BET_MEETING_QUERY= "/AllRacing/{date}";
+
+    public static final String SPORT_BET_RACE_QUERY="/Events/{id}/RacecardWithContext";
 
     public static final String HARNESS_RACING = "Harness Racing";
     public static final String GREYHOUND_RACING = "Greyhound Racing";
     public static final String HORSE_RACING = "Horse Racing";
-    public static final String ZBET_MEETING_QUERY = "https://api.zbet.com.au/api/v2/combined/meetings/races?date={date}";
-    public static final String ZBET_RACE_QUERY = "https://api.zbet.com.au/api/v2/combined/race/selections?race_id={id}";
 
     public static final String HARNESS_FEED_TYPE = "harness_racing";
     public static final String HORSE_FEED_TYPE = "horse_racing";
@@ -63,10 +85,6 @@ public class AppConstant {
     public static final ZoneId UTC_ZONE_ID = ZoneId.of("UTC");
 
     public static final ZoneId AU_ZONE_ID = ZoneId.of("Australia/Sydney");
-    public static final String TAB_BET_MEETING_QUERY = "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{date}/meetings?jurisdiction=NSW&returnOffers=true&returnPromo=false";
-    public static final String TAB_BET_RACE_QUERY= "https://api.beta.tab.com.au/v1/tab-info-service/racing/dates/{id}?returnPromo=true&returnOffers=true&jurisdiction=NSW";
-    public static final String SPORT_BET_MEETING_QUERY= "https://www.sportsbet.com.au/apigw/sportsbook-racing/Sportsbook/Racing/AllRacing/{date}";
-    public static final String SPORT_BET_RACE_QUERY="https://www.sportsbet.com.au/apigw/sportsbook-racing/Sportsbook/Racing/Events/{id}/RacecardWithContext";
 
     public static final String AUS = "AUS";
 
