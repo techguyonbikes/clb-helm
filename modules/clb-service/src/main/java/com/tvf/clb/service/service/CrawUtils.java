@@ -409,10 +409,8 @@ public class CrawUtils {
     }
 
     private void checkRaceFinalResultThenSave(Race race, String finalResult, Integer siteId) {
-        Map<Integer, String> existedFinalResult;
-        if (race.getResultsDisplay() != null) {
-            existedFinalResult = CommonUtils.getMapRaceFinalResultFromJsonb(race.getResultsDisplay());
-        } else {
+        Map<Integer, String> existedFinalResult = CommonUtils.getMapRaceFinalResultFromJsonb(race.getResultsDisplay());
+        if (existedFinalResult == null) {
             existedFinalResult = new HashMap<>();
         }
         existedFinalResult.put(siteId, finalResult);

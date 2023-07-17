@@ -19,8 +19,8 @@ public interface RaceRepository extends R2dbcRepository<Race, Long> {
 
     Flux<Race> findAllByNumberInAndMeetingIdIn(List<Integer> number, List<Long> meetingIds);
 
-    @Query("Update clb_db.race set distance =:distance, silk_url= :silkUrl, full_form_url= :fullFormUrl WHERE id =:raceId")
-    Mono<Race> setUpdateRaceDistanceAndSilkUrlAndFullFormUrlById(@Param("raceId") Long raceId, @Param("distance") Integer distance, @Param("silkUrl") String silkUrl, @Param("fullFormUrl") String fullFormUrl);
+    @Query("Update clb_db.race set distance = :distance, results_display = :result, silk_url = :silkUrl, full_form_url= :fullFormUrl WHERE id = :raceId")
+    Mono<Race> updateDistanceAndResultsDisplayAndSilkUrlAndFullFormUrlById(@Param("raceId") Long raceId, @Param("distance") Integer distance, @Param("result") Json result, @Param("silkUrl") String silkUrl, @Param("fullFormUrl") String fullFormUrl);
 
     @Query("Update clb_db.race set results_display = :result WHERE id = :raceId")
     Mono<Race> updateRaceFinalResultById(@Param("result") Json result, @Param("raceId") Long raceId);

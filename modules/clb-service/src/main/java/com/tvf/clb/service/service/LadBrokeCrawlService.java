@@ -14,14 +14,14 @@ import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
 import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceApiResponse;
 import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceResult;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,33 +41,17 @@ import static com.tvf.clb.base.utils.CommonUtils.setIfPresent;
 
 @ClbService(componentType = AppConstant.LAD_BROKE)
 @Slf4j
+@AllArgsConstructor
 public class LadBrokeCrawlService implements ICrawlService {
 
-    @Autowired
     private MeetingRepository meetingRepository;
-
-    @Autowired
     private RaceRepository raceRepository;
-
-    @Autowired
     private EntrantRepository entrantRepository;
-
-    @Autowired
     private CrawUtils crawUtils;
-
-    @Autowired
     private ServiceLookup serviceLookup;
-
-    @Autowired
     private RaceRedisService raceRedisService;
-
-    @Autowired
     private TodayData todayData;
-
-    @Autowired
     private CloudbetKafkaService kafkaService;
-
-    @Autowired
     private WebClient ladbrokesWebClient;
 
     @Override
@@ -160,52 +144,6 @@ public class LadBrokeCrawlService implements ICrawlService {
         return meetingDtoList;
     }
 
-    private Flux<Entrant> getEntrantByRaceId(String raceId, Long generalRaceId) {
-
-        Mono<LadbrokesRaceApiResponse> ladbrokesRaceApiResponseMono = getLadBrokedItRaceDto(raceId);
-
-        return ladbrokesRaceApiResponseMono
-                .mapNotNull(LadbrokesRaceApiResponse::getData)
-                .flatMapMany(raceRawData -> {
-                    if (raceRawData.getRaces() == null || raceRawData.getMeetings() == null) {
-                        return Flux.empty();
-                    }
-                    Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
-                    Map<String, Integer> positions = new HashMap<>();
-                    String meetingName = raceRawData.getMeetings().get(raceRawData.getRaces().get(raceId).getMeetingId()).get("name").asText();
-                    if(meetingName.contains(" ")){
-                        meetingName = meetingName.replace(" ","-").toLowerCase();
-                    }
-                    String distance = raceRawData.getRaces().get(raceId).getAdditionalInfo().get(AppConstant.DISTANCE).asText();
-                    String silkUrl= raceRawData.getRaces().get(raceId).getSilkUrl();
-                    String fullFormUrl= raceRawData.getRaces().get(raceId).getFullFormUrl();
-                    HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
-
-                    if (results != null) {
-                        positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
-                    } else {
-                        positions.put(AppConstant.POSITION, 0);
-                    }
-
-                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceId, positions);
-
-                    String top4Entrants = null;
-
-                    Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
-                    if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
-                        top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
-                                .collect(Collectors.joining(","));
-
-                        crawUtils.updateRaceFinalResultIntoDB(generalRaceId, top4Entrants, SiteEnum.LAD_BROKE.getId());
-                    }
-
-                    RaceDto raceDto = RaceResponseMapper.toRaceDTO(raceRawData.getRaces().get(raceId), meetingName, top4Entrants, optionalStatus.orElse(null));
-
-                    return raceRepository.setUpdateRaceDistanceAndSilkUrlAndFullFormUrlById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), silkUrl, fullFormUrl)
-                            .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto));
-                });
-    }
-
     private Optional<String> getStatusFromRaceMarket(Map<String, LadbrokesMarketsRawData> marketsRawDataMap) {
         Optional<LadbrokesMarketsRawData> finalFieldMarket = marketsRawDataMap.values().stream().filter(market -> market.getName().equals(AppConstant.MARKETS_NAME)).findFirst();
         return finalFieldMarket.flatMap(market -> ConvertBase.getLadbrokeRaceStatus(market.getMarketStatusId()));
@@ -224,43 +162,38 @@ public class LadBrokeCrawlService implements ICrawlService {
         Flux<MeetingAndSiteUUID> existingMeetingFlux = meetingRepository.findAllByMeetingUUIDInAndSiteId(uuidList, SiteEnum.LAD_BROKE.getId());
 
         existingMeetingFlux.collectList()
-                           .subscribe(existingMeetings ->
-                                    {
-                                        Map<String, Meeting> mapUUIDToMeeting = existingMeetings.stream().collect(Collectors.toMap(MeetingAndSiteUUID::getSiteUUID, Function.identity()));
+                    .map(existingMeetings -> {
+                        Map<String, Meeting> mapUUIDToMeeting = existingMeetings.stream().collect(Collectors.toMap(MeetingAndSiteUUID::getSiteUUID, Function.identity()));
 
-                                        List<Meeting> meetingsNeedUpdateOrInsert = new ArrayList<>();
-                                        newMeetings.forEach(newMeeting -> {
-                                            String newMeetingUUID = newMeeting.getMeetingId();
-                                            if (! mapUUIDToMeeting.containsKey(newMeetingUUID)) {
-                                                meetingsNeedUpdateOrInsert.add(newMeeting);
-                                            } else {
-                                                newMeeting.setId(mapUUIDToMeeting.get(newMeetingUUID).getId());
-                                            }
-                                        });
+                        List<Meeting> meetingsNeedUpdateOrInsert = new ArrayList<>();
+                        newMeetings.forEach(newMeeting -> {
+                            String newMeetingUUID = newMeeting.getMeetingId();
+                            if (! mapUUIDToMeeting.containsKey(newMeetingUUID)) {
+                                meetingsNeedUpdateOrInsert.add(newMeeting);
+                            } else {
+                                newMeeting.setId(mapUUIDToMeeting.get(newMeetingUUID).getId());
+                            }
+                        });
+                        log.info("Meeting need to be update or insert {}", meetingsNeedUpdateOrInsert.size());
+                        return meetingsNeedUpdateOrInsert;
+                    })
+                    .flatMap(meetingsNeedUpdateOrInsert -> Flux.fromIterable(meetingsNeedUpdateOrInsert)
+                                                               .flatMap(meeting -> meetingRepository.save(meeting))
+                                                               .collectList()
+                    )
+                    .flatMapMany(savedMeetings -> {
+                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedMeetings))).build();
+                        kafkaService.publishKafka(payload, null);
 
-                                        log.info("Meeting need to be update or insert {}", meetingsNeedUpdateOrInsert.size());
-                                        Flux.fromIterable(meetingsNeedUpdateOrInsert)
-                                                .parallel() // parallelize the processing
-                                                .runOn(Schedulers.parallel()) // specify the parallel scheduler
-                                                .flatMap(meeting -> meetingRepository.save(meeting))
-                                                .sequential() // switch back to sequential processing
-                                                .collectList()
-                                                .subscribe(savedMeetings -> {
-                                                    if (! CollectionUtils.isEmpty(savedMeetings)) {
-                                                        List<MeetingSite> meetingSites = savedMeetings.stream().map(meeting -> MeetingMapper.toMetingSite(meeting, SiteEnum.LAD_BROKE.getId(), meeting.getId())).collect(Collectors.toList());
-                                                        crawUtils.saveMeetingSite(savedMeetings, Flux.fromIterable(meetingSites), SiteEnum.LAD_BROKE.getId()).subscribe();
-                                                    }
-                                                    saveRace(raceDtoList, newMeetings, date);
-
-                                                    KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedMeetings))).build();
-                                                    kafkaService.publishKafka(payload, null);
-                                                    log.info("All meetings processed successfully");
-                                                });
-                        }
-                );
+                        List<MeetingSite> meetingSites = savedMeetings.stream().map(meeting -> MeetingMapper.toMetingSite(meeting, SiteEnum.LAD_BROKE.getId(), meeting.getId())).collect(Collectors.toList());
+                        return crawUtils.saveMeetingSite(savedMeetings, Flux.fromIterable(meetingSites), SiteEnum.LAD_BROKE.getId())
+                                        .doOnComplete(() -> log.info("All meetings processed successfully"));
+                    })
+                    .then(Mono.defer(() -> saveRace(raceDtoList, newMeetings, date)))
+                    .subscribe();
     }
 
-    public void saveRace(List<RaceDto> raceDtoList, List<Meeting> meetings, LocalDate date) {
+    public Mono<Void> saveRace(List<RaceDto> raceDtoList, List<Meeting> meetings, LocalDate date) {
         Map<String, Meeting> meetingUUIDMap = meetings.stream()
                                                     .filter(meeting -> meeting.getMeetingId() != null)
                                                     .collect(Collectors.toMap(Meeting::getMeetingId, Function.identity(), (first, second) -> first));
@@ -269,73 +202,53 @@ public class LadBrokeCrawlService implements ICrawlService {
         List<Long> meetingIds = meetings.stream().map(Meeting::getId).collect(Collectors.toList());
         Flux<Race> existedRaces = raceRepository.findAllByNumberInAndMeetingIdIn(raceNumbers, meetingIds);
 
-        existedRaces.collectList()
-                .subscribe(existed ->
-                        {
-                            Map<String, Race> raceMeetingIdNumberMap = existed.stream()
-                                    .collect(Collectors.toMap(race -> race.getMeetingId() + " " + race.getNumber(), Function.identity()));
-                            List<Race> raceNeedUpdateOrInsert = new ArrayList<>();
+        return existedRaces.collectList()
+                    .map(existed -> {
+                        Map<String, Race> raceMeetingIdNumberMap = existed.stream()
+                                .collect(Collectors.toMap(race -> race.getMeetingId() + " " + race.getNumber(), Function.identity()));
+                        List<Race> raceNeedUpdateOrInsert = new ArrayList<>();
 
-                            newRaces.forEach(newRace -> {
-                                String key = meetingUUIDMap.get(newRace.getMeetingUUID()).getId() + " " + newRace.getNumber();
-                                if (raceMeetingIdNumberMap.containsKey(key)) {
-                                    Race existing = raceMeetingIdNumberMap.get(key);
-                                    setIfPresent(newRace.getName(), existing::setName);
-                                    setIfPresent(newRace.getAdvertisedStart(), existing::setAdvertisedStart);
-                                    setIfPresent(newRace.getActualStart(), existing::setActualStart);
-                                    setIfPresent(newRace.getMeetingUUID(), existing::setMeetingUUID);
-                                    setIfPresent(newRace.getRaceId(), existing::setRaceId);
-                                    setIfPresent(newRace.getStatus(), existing::setStatus);
-                                    setIfPresent(newRace.getRaceSiteUrl(), existing::setRaceSiteUrl);
-                                    raceNeedUpdateOrInsert.add(existing);
-                                } else {
-                                    newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());
-                                    raceNeedUpdateOrInsert.add(newRace);
-                                }
-                            });
+                        newRaces.forEach(newRace -> {
+                            String key = meetingUUIDMap.get(newRace.getMeetingUUID()).getId() + " " + newRace.getNumber();
+                            if (raceMeetingIdNumberMap.containsKey(key)) {
+                                Race existing = raceMeetingIdNumberMap.get(key);
+                                setIfPresent(newRace.getName(), existing::setName);
+                                setIfPresent(newRace.getAdvertisedStart(), existing::setAdvertisedStart);
+                                setIfPresent(newRace.getActualStart(), existing::setActualStart);
+                                setIfPresent(newRace.getMeetingUUID(), existing::setMeetingUUID);
+                                setIfPresent(newRace.getRaceId(), existing::setRaceId);
+                                setIfPresent(newRace.getStatus(), existing::setStatus);
+                                setIfPresent(newRace.getRaceSiteUrl(), existing::setRaceSiteUrl);
+                                raceNeedUpdateOrInsert.add(existing);
+                            } else {
+                                newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());
+                                raceNeedUpdateOrInsert.add(newRace);
+                            }
+                        });
 
-                            log.info("Race need to be update is {}", raceNeedUpdateOrInsert.size());
-                            Flux.fromIterable(raceNeedUpdateOrInsert)
-                                    .parallel() // parallelize the processing
-                                    .runOn(Schedulers.parallel()) // specify the parallel scheduler
-                                    .flatMap(race -> raceRepository.save(race))
-                                    .sequential() // switch back to sequential processing
-                                    .collectList()
-                                    .subscribe(savedRace -> {
-                                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedRace))).build();
-                                        kafkaService.publishKafka(payload, null);
+                        log.info("Race need to be update is {}", raceNeedUpdateOrInsert.size());
+                        return raceNeedUpdateOrInsert;
+                    })
+                    .flatMap(raceNeedUpdateOrInsert -> Flux.fromIterable(raceNeedUpdateOrInsert)
+                                                           .flatMap(race -> raceRepository.save(race))
+                                                           .collectList()
+                    )
+                    .flatMap(savedRace -> {
+                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedRace))).build();
+                        kafkaService.publishKafka(payload, null);
+                        saveRaceToTodayData(savedRace);
 
-                                        List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
-                                        crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId()).subscribe();
+                        List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
+                        Map<String, Long> mapRaceUUIDAndId = savedRace.stream().filter(race -> race.getRaceId() != null && race.getId() != null)
+                                .collect(Collectors.toMap(Race::getRaceId, Race::getId, (first, second) -> first));
 
-                                        Map<String, Long> mapRaceUUIDAndId = savedRace.stream().filter(race -> race.getRaceId() != null && race.getId() != null)
-                                                        .collect(Collectors.toMap(Race::getRaceId, Race::getId, (first, second) -> first));
-
-                                        AtomicBoolean isApiRequestFailed = new AtomicBoolean(false);
-                                        Flux.fromIterable(mapRaceUUIDAndId.entrySet())
-                                                .flatMap(entry -> getEntrantByRaceId(entry.getKey(), entry.getValue()))
-                                                .collectList()
-                                                .onErrorContinue((throwable, o) -> {
-                                                    if (throwable instanceof ApiRequestFailedException) {
-                                                        isApiRequestFailed.set(true);
-                                                    } else {
-                                                        log.error("Got {} exception while crawling race {}", throwable.getMessage(), o);
-                                                    }
-                                                })
-                                                .doFinally(entrants -> {
-                                                    if (isApiRequestFailed.get()) {
-                                                        crawUtils.saveFailedCrawlMeeting(this.getClass().getName(), date);
-                                                    }
-                                                })
-                                                .flatMapMany(x -> getMeetingFromAllSite(date))
-                                                .subscribe();
-
-                                        saveRaceToTodayData(savedRace);
-
-                                        log.info("All races processed successfully");
-                                    });
-                        }
-                );
+                        return crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId())
+                                        .then(Mono.just(mapRaceUUIDAndId));
+                    })
+                    .flatMapMany(mapRaceUUIDAndId -> crawlAndSaveEntrants(mapRaceUUIDAndId, date))
+                    .doOnComplete(() -> log.info("All races and entrants processed successfully"))
+                    .thenMany(getMeetingFromAllSite(date))
+                    .then();
     }
 
     private void saveRaceToTodayData(List<Race> savedRace) {
@@ -351,58 +264,119 @@ public class LadBrokeCrawlService implements ICrawlService {
         savedRace.forEach(race -> todayData.addOrUpdateRace(race.getAdvertisedStart().toEpochMilli(), race.getId()));
     }
 
-    public Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, RaceDto raceDto) {
+    private Flux<Entrant> crawlAndSaveEntrants(Map<String, Long> mapRaceUUIDAndId, LocalDate date) {
+        AtomicBoolean isApiRequestFailed = new AtomicBoolean(false);
+
+        return Flux.fromIterable(mapRaceUUIDAndId.entrySet())
+                   .flatMap(entry -> getEntrantByRaceId(entry.getKey(), entry.getValue()))
+                   .onErrorContinue((throwable, o) -> {
+                       if (throwable instanceof ApiRequestFailedException) {
+                           isApiRequestFailed.set(true);
+                       } else {
+                           log.error("Got exception \"{}\" while crawling race caused by {}", throwable.getMessage(), o);
+                       }
+                   })
+                   .doFinally(signalType -> {
+                       if (isApiRequestFailed.get()) {
+                           crawUtils.saveFailedCrawlMeeting(this.getClass().getName(), date);
+                       }
+                   });
+    }
+
+    private Flux<Entrant> getEntrantByRaceId(String raceId, Long generalRaceId) {
+
+        Mono<LadbrokesRaceApiResponse> ladbrokesRaceApiResponseMono = getLadBrokedItRaceDto(raceId);
+
+        return ladbrokesRaceApiResponseMono
+                .mapNotNull(LadbrokesRaceApiResponse::getData)
+                .flatMapMany(raceRawData -> {
+                    if (raceRawData.getRaces() == null || raceRawData.getMeetings() == null) {
+                        return Flux.empty();
+                    }
+                    Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
+                    Map<String, Integer> positions = new HashMap<>();
+                    String meetingName = raceRawData.getMeetings().get(raceRawData.getRaces().get(raceId).getMeetingId()).get("name").asText();
+                    if(meetingName.contains(" ")){
+                        meetingName = meetingName.replace(" ","-").toLowerCase();
+                    }
+                    String distance = raceRawData.getRaces().get(raceId).getAdditionalInfo().get(AppConstant.DISTANCE).asText();
+                    String silkUrl = raceRawData.getRaces().get(raceId).getSilkUrl();
+                    String fullFormUrl = raceRawData.getRaces().get(raceId).getFullFormUrl();
+                    HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
+
+                    if (results != null) {
+                        positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
+                    } else {
+                        positions.put(AppConstant.POSITION, 0);
+                    }
+
+                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceId, positions);
+
+                    String top4Entrants = null;
+                    Map<Integer, String> resultDisplay = null;
+                    Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
+                    if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
+                        top4Entrants = getWinnerEntrants(allEntrant).map(entrant -> String.valueOf(entrant.getNumber()))
+                                .collect(Collectors.joining(","));
+                        resultDisplay = Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), top4Entrants);
+                    }
+
+                    RaceDto raceDto = RaceResponseMapper.toRaceDTO(raceRawData.getRaces().get(raceId), meetingName, top4Entrants, optionalStatus.orElse(null));
+
+                    return raceRepository.updateDistanceAndResultsDisplayAndSilkUrlAndFullFormUrlById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), CommonUtils.toJsonb(resultDisplay), silkUrl, fullFormUrl)
+                            .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto));
+                });
+    }
+
+     private Flux<Entrant> saveEntrant(List<EntrantRawData> entrantRawData, String raceUUID, Long raceId, RaceDto raceDto) {
         List<Entrant> newEntrants = entrantRawData.stream().map(m -> MeetingMapper.toEntrantEntity(m, AppConstant.LAD_BROKE_SITE_ID)).collect(Collectors.toList());
         Flux<Entrant> existedEntrants = entrantRepository.findByRaceId(raceId);
 
         return existedEntrants
                 .collectList()
-                .flatMapMany(existed ->
-                        {
-                            Map<Integer, Entrant> mapNumberToEntrant = existed.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity()));
+                .map(existed -> {
+                    Map<Integer, Entrant> mapNumberToEntrant = existed.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity()));
 
-                            newEntrants.forEach(newEntrant -> {
-                                Integer entrantNumber = newEntrant.getNumber();
-                                if (mapNumberToEntrant.containsKey(entrantNumber)) {
-                                    Entrant existing = mapNumberToEntrant.get(entrantNumber);
-                                    setIfPresent(newEntrant.getName(), existing::setName);
-                                    setIfPresent(newEntrant.getScratchedTime(), existing::setScratchedTime);
-                                    setIfPresent(newEntrant.isScratched(), existing::setScratched);
-                                    setIfPresent(newEntrant.getRiderOrDriver(), existing::setRiderOrDriver);
-                                    setIfPresent(newEntrant.getTrainerName(), existing::setTrainerName);
-                                    setIfPresent(newEntrant.getLast6Starts(), existing::setLast6Starts);
-                                    setIfPresent(newEntrant.getBestTime(), existing::setBestTime);
-                                    setIfPresent(newEntrant.getHandicapWeight(), existing::setHandicapWeight);
-                                    setIfPresent(newEntrant.getEntrantComment(), existing::setEntrantComment);
-                                    setIfPresent(newEntrant.getBestMileRate(), existing::setBestMileRate);
-                                } else {
-                                    newEntrant.setRaceId(raceId);
-                                    mapNumberToEntrant.put(entrantNumber, newEntrant);
-                                }
-                            });
-
-                            Collection<Entrant> entrantNeedUpdateOrInsert = mapNumberToEntrant.values();
-                            log.info("Entrant need to be update is {}", entrantNeedUpdateOrInsert.size());
-
-                            return entrantRepository.saveAll(entrantNeedUpdateOrInsert)
-                                    .collectList()
-                                    .flatMapMany(saved -> {
-                                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(saved))).build();
-                                        kafkaService.publishKafka(payload, null);
-
-                                        log.info("{} entrants save into redis and database", saved.size());
-                                        RaceResponseDto raceResponseDto = RaceResponseMapper.toRaceResponseDto(saved, raceUUID, raceId, raceDto);
-
-                                        return raceRedisService.hasKey(raceId).flatMap(hasKey -> {
-                                            if (Boolean.FALSE.equals(hasKey)) {
-                                                return raceRedisService.saveRace(raceId, raceResponseDto);
-                                            } else {
-                                                return raceRedisService.updateRace(raceId, raceResponseDto);
-                                            }
-                                        }).thenMany(Flux.fromIterable(saved));
-                                    });
+                    newEntrants.forEach(newEntrant -> {
+                        Integer entrantNumber = newEntrant.getNumber();
+                        if (mapNumberToEntrant.containsKey(entrantNumber)) {
+                            Entrant existing = mapNumberToEntrant.get(entrantNumber);
+                            setIfPresent(newEntrant.getName(), existing::setName);
+                            setIfPresent(newEntrant.getScratchedTime(), existing::setScratchedTime);
+                            setIfPresent(newEntrant.isScratched(), existing::setScratched);
+                            setIfPresent(newEntrant.getRiderOrDriver(), existing::setRiderOrDriver);
+                            setIfPresent(newEntrant.getTrainerName(), existing::setTrainerName);
+                            setIfPresent(newEntrant.getLast6Starts(), existing::setLast6Starts);
+                            setIfPresent(newEntrant.getBestTime(), existing::setBestTime);
+                            setIfPresent(newEntrant.getHandicapWeight(), existing::setHandicapWeight);
+                            setIfPresent(newEntrant.getEntrantComment(), existing::setEntrantComment);
+                            setIfPresent(newEntrant.getBestMileRate(), existing::setBestMileRate);
+                        } else {
+                            newEntrant.setRaceId(raceId);
+                            mapNumberToEntrant.put(entrantNumber, newEntrant);
                         }
-                );
+                    });
+
+                    Collection<Entrant> entrantNeedUpdateOrInsert = mapNumberToEntrant.values();
+                    log.info("Entrant need to be update is {}", entrantNeedUpdateOrInsert.size());
+                    return entrantNeedUpdateOrInsert;
+                })
+                .flatMap(entrantNeedUpdateOrInsert -> entrantRepository.saveAll(entrantNeedUpdateOrInsert).collectList())
+                .flatMapMany(savedEntrants -> {
+                    KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedEntrants))).build();
+                    kafkaService.publishKafka(payload, null);
+
+                    log.info("{} entrants save into redis and database", savedEntrants.size());
+                    RaceResponseDto raceResponseDto = RaceResponseMapper.toRaceResponseDto(savedEntrants, raceUUID, raceId, raceDto);
+
+                    return raceRedisService.hasKey(raceId).flatMap(hasKey -> {
+                        if (Boolean.FALSE.equals(hasKey)) {
+                            return raceRedisService.saveRace(raceId, raceResponseDto);
+                        } else {
+                            return raceRedisService.updateRace(raceId, raceResponseDto);
+                        }
+                    }).thenMany(Flux.fromIterable(savedEntrants));
+                });
     }
 
     private Mono<LadbrokesRaceApiResponse> getLadBrokedItRaceDto(String raceUUID) throws ApiRequestFailedException {
