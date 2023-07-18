@@ -2,12 +2,16 @@ package com.tvf.clb.base.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.tvf.clb.base.dto.EntrantMapper;
 import com.tvf.clb.base.dto.RaceDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.PriceHistoryData;
+import com.tvf.clb.base.model.ladbrokes.LadBrokedItRaceDto;
+import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
 import io.r2dbc.postgresql.codec.Json;
 
 import java.lang.reflect.Type;
@@ -314,5 +318,31 @@ public class CommonUtils {
     public static Integer getStatusOrder(String status) {
         return statusOrder.get(status);
     }
+
+    public static List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
+        LadbrokesMarketsRawData marketsRawData = raceDto.getMarkets().values().stream()
+                .filter(m -> AppConstant.MARKETS_NAME.equals(m.getName())).findFirst()
+                .orElseThrow(() -> new RuntimeException("No markets found"));
+
+        List<EntrantRawData> result = new ArrayList<>();
+
+        if (marketsRawData.getEntrantIds() != null) {
+            marketsRawData.getEntrantIds().forEach(x -> {
+                EntrantRawData data = raceDto.getEntrants().get(x);
+                if (data.getFormSummary() != null && data.getId() != null) {
+                    EntrantRawData entrantRawData = EntrantMapper.mapPrices(
+                            data,
+                            allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(data.getId(), new ArrayList<>()),
+                            positions.getOrDefault(data.getId(), 0)
+                    );
+                    entrantRawData.setRaceId(raceId);
+                    result.add(entrantRawData);
+                }
+            });
+        }
+
+        return result;
+    }
+
 
 }

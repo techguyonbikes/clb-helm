@@ -11,6 +11,7 @@ import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
 import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceApiResponse;
 import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceResult;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ public class NedsCrawlService implements ICrawlService{
                         positions.put(AppConstant.POSITION, 0);
                     }
                     HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
 
                     Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
                     allEntrant.forEach(x -> {
@@ -159,7 +160,7 @@ public class NedsCrawlService implements ICrawlService{
                     }
 
                     HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
-                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
+                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
 
                     Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
                     if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
@@ -192,14 +193,14 @@ public class NedsCrawlService implements ICrawlService{
         return finalFieldMarket.flatMap(market -> ConvertBase.getLadbrokeRaceStatus(market.getMarketStatusId()));
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto) {
+    private void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
 
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.NED_SITE_ID);
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.NED_SITE_ID);
     }
 
-    public Mono<LadbrokesRaceApiResponse> getNedsRaceDto(String raceUUID) {
+    private Mono<LadbrokesRaceApiResponse> getNedsRaceDto(String raceUUID) {
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
         return crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, this.getClass().getName(), 0L);
     }

@@ -82,7 +82,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                         positions.put(AppConstant.POSITION, 0);
                     }
                     HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
 
                     Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
                     allEntrant.forEach(x -> entrantMap.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.LAD_BROKE_SITE_ID)));
@@ -310,7 +310,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                         positions.put(AppConstant.POSITION, 0);
                     }
 
-                    List<EntrantRawData> allEntrant = crawUtils.getListEntrant(raceRawData, allEntrantPrices, raceId, positions);
+                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceRawData, allEntrantPrices, raceId, positions);
 
                     String top4Entrants = null;
                     Map<Integer, String> resultDisplay = null;

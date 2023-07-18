@@ -340,31 +340,6 @@ public class CrawUtils {
     );
     }
 
-    public List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
-        LadbrokesMarketsRawData marketsRawData = raceDto.getMarkets().values().stream()
-                .filter(m -> AppConstant.MARKETS_NAME.equals(m.getName())).findFirst()
-                .orElseThrow(() -> new RuntimeException("No markets found"));
-
-        List<EntrantRawData> result = new ArrayList<>();
-
-        if (marketsRawData.getEntrantIds() != null) {
-            marketsRawData.getEntrantIds().forEach(x -> {
-                EntrantRawData data = raceDto.getEntrants().get(x);
-                if (data.getFormSummary() != null && data.getId() != null) {
-                    EntrantRawData entrantRawData = EntrantMapper.mapPrices(
-                            data,
-                            allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(data.getId(), new ArrayList<>()),
-                            positions.getOrDefault(data.getId(), 0)
-                    );
-                    entrantRawData.setRaceId(raceId);
-                    result.add(entrantRawData);
-                }
-            });
-        }
-
-        return result;
-    }
-
     public void checkMeetingWrongAdvertisedStart(MeetingRawData meeting, List<RaceRawData> races) {
         Optional<RaceRawData> lastRace = races.stream().max(Comparator.comparing(RaceRawData::getAdvertisedStart));
 
