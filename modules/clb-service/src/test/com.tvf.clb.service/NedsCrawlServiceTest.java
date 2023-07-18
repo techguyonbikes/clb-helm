@@ -13,7 +13,6 @@ import com.tvf.clb.base.utils.InstantDeserializer;
 import com.tvf.clb.service.service.CrawUtils;
 import com.tvf.clb.service.service.NedsCrawlService;
 import org.junit.jupiter.api.AfterEach;
-//import org.junit.jupiter.api.AssertThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -154,7 +153,7 @@ class NedsCrawlServiceTest {
 
     @Test
     void giveNotNullRaceId_whenGetEntrantByRaceUUID_thenReturnMonoCrawlRaceData() throws IOException {
-        String raceId = "9cb540d1-2bd1-4af1-a2ab-683c5909be41";
+        String raceId = UUID.randomUUID().toString();
         Mono<LadbrokesRaceApiResponse> raceDto = Mono.just(getDataCrawlRace("src/test/resources/neds/NedsRaceData.json"));
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
@@ -165,15 +164,16 @@ class NedsCrawlServiceTest {
                 .expectNextMatches(crawlRaceData -> SiteEnum.NED.getId() == crawlRaceData.getSiteEnum().getId() &&
                         CollectionUtils.isEmpty(crawlRaceData.getInterimResult()) &&
                         crawlRaceData.getActualStart() == null &&
-                        crawlRaceData.getAdvertisedStart() == null
-
+                        crawlRaceData.getAdvertisedStart() == null &&
+                        !CollectionUtils.isEmpty(crawlRaceData.getMapEntrants()) &&
+                        crawlRaceData.getFinalResult().get(SiteEnum.NED.getId()).equals("5,11,10,7")
                 )
                 .verifyComplete();
     }
 
     @Test
     void givePositionAndPriceIsNull_whenGetEntrantByRaceUUID_thenReturnMonoCrawlRaceData() throws IOException {
-        String raceId = "f7878345-7aae-46ca-a5f7-2b5fdd321276";
+        String raceId = UUID.randomUUID().toString();
         Mono<LadbrokesRaceApiResponse> raceDto = Mono.just(getDataCrawlRace("src/test/resources/neds/NedsRaceData_TestPosition.json"));
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
@@ -223,7 +223,7 @@ class NedsCrawlServiceTest {
     @Test
     void givePositionIsNull_whenCrawlAndSaveEntrantsInRace_thenReturnFluxEntrantDto() throws IOException {
         RaceDto raceDto = new RaceDto();
-        raceDto.setId("f7878345-7aae-46ca-a5f7-2b5fdd321276");
+        raceDto.setId(UUID.randomUUID().toString());
         Mono<LadbrokesRaceApiResponse> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/neds/NedsRaceData_TestPosition.json"));
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
@@ -242,7 +242,7 @@ class NedsCrawlServiceTest {
     void giveNotNullRaceId_whenCrawlAndSaveEntrantsInRace_thenReturnFluxEntrantDto() throws IOException {
 
         RaceDto raceDto = new RaceDto();
-        raceDto.setId("9cb540d1-2bd1-4af1-a2ab-683c5909be41");
+        raceDto.setId(UUID.randomUUID().toString());
         Mono<LadbrokesRaceApiResponse> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/neds/NedsRaceData.json"));
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());

@@ -21,10 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
 public class EntrantMapper {
@@ -164,6 +161,17 @@ public class EntrantMapper {
                 .position(position.indexOf(runner.getRunnerNumber()) + 1)
                 .build();
     }
+
+    public static EntrantDto toEntrantDto(ZBetEntrantData entrantData, List<Float> price){
+        return EntrantDto.builder()
+                .id(String.valueOf(entrantData.getId()))
+                .name(entrantData.getName())
+                .barrier(entrantData.getBarrier())
+                .number(entrantData.getNumber())
+                .currentSitePrice(price)
+                .build();
+    }
+
 
     public static EntrantRawData mapCrawlEntrant(String raceId, ZBetEntrantData entrant, List<Float> prices, Map<Integer, Integer> position) {
         Instant reqInstant = null;

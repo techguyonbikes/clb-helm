@@ -76,10 +76,7 @@ public class ZBetCrawlService implements ICrawlService {
                 });
     }
 
-    public List<EntrantRawData> getListEntrant(String raceId, ZBetRaceRawData raceDto) {
-        if (raceDto == null || raceId == null || CollectionUtils.isEmpty(raceDto.getSelections())){
-            return new ArrayList<>();
-        }
+    private List<EntrantRawData> getListEntrant(String raceId, ZBetRaceRawData raceDto) {
         Map<Integer, Integer> positionResult = crawUtils.getPositionInResult(raceDto.getFinalResult());
 
         return raceDto.getSelections().stream().filter(f -> f.getName() != null && f.getNumber() != null)
@@ -121,7 +118,7 @@ public class ZBetCrawlService implements ICrawlService {
 
         return getZBetRaceData(raceUUID)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
-                .flatMapMany(raceRawData -> {
+                .flatMapIterable(raceRawData -> {
                     List<ZBetEntrantData> allEntrant = raceRawData.getSelections();
                     raceDto.setDistance(raceRawData.getDistance());
                     if (AppConstant.STATUS_FINAL.equals(raceDto.getStatus()) && raceRawData.getFinalResult() != null) {
@@ -131,16 +128,16 @@ public class ZBetCrawlService implements ICrawlService {
                     }
                     saveEntrant(allEntrant, raceDto);
 
-                    return Flux.empty();
+                    return allEntrant.stream().map(entrantData -> EntrantMapper.toEntrantDto(entrantData, buildPriceFluctuations(entrantData))).collect(Collectors.toList());
                 });
     }
 
-    public void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto) {
+    private void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto) {
         if (entrantRawData == null || raceDto == null){
             return;
         }
         List<Entrant> newEntrants = entrantRawData.stream().distinct()
-                .map(meeting -> MeetingMapper.toEntrantEntity(meeting, buildPriceFluctuations(meeting))).collect(Collectors.toList());
+                .map(entrantData -> MeetingMapper.toEntrantEntity(entrantData, buildPriceFluctuations(entrantData))).collect(Collectors.toList());
 
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.ZBET_SITE_ID);
 
