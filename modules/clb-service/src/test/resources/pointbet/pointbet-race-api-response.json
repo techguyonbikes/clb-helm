@@ -1,0 +1,1749 @@
+{
+  "eventId": "38395453",
+  "name": "The Beckley Centre Geelong (250+Rank)",
+  "countryCode": "AUS",
+  "countryName": "Australia",
+  "racingType": 4,
+  "venue": "Geelong",
+  "hasRaceVision": false,
+  "raceNumber": 1,
+  "advertisedStartDateTime": "2023-07-18T05:30:00Z",
+  "tradingStatus": 4,
+  "resultStatus": 2,
+  "placing": "2,1,4,7",
+  "isVisible": true,
+  "allowedWinBetTypes": [
+
+  ],
+  "allowedPlaceBetTypes": [
+
+  ],
+  "exoticAllowedDividendTypes": {
+    "1": [
+
+    ],
+    "2": [
+
+    ],
+    "3": [
+
+    ],
+    "4": [
+
+    ]
+  },
+  "outcomes": [
+    {
+      "outcomeId": 1,
+      "outcomeName": "Son Of Cecil",
+      "fixedPrices": [
+        {
+          "marketTypeCode": "PLC",
+          "price": 1.90000000,
+          "points": 0.0,
+          "fixedMarketId": 195515537,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        },
+        {
+          "marketTypeCode": "WIN",
+          "price": 4.00000000,
+          "points": 0.0,
+          "fixedMarketId": 195515545,
+          "openPrice": 3.60000000,
+          "currentFluc": 4.00000000,
+          "currentFluc1": 3.90000000,
+          "currentFluc2": 4.00000000,
+          "isCashoutAllowed": false,
+          "flucs": [
+            {
+              "offset": 22,
+              "price": 3.60
+            },
+            {
+              "offset": 15,
+              "price": 3.60
+            },
+            {
+              "offset": 14,
+              "price": 3.70
+            },
+            {
+              "offset": 13,
+              "price": 3.80
+            },
+            {
+              "offset": 12,
+              "price": 3.90
+            },
+            {
+              "offset": 11,
+              "price": 3.80
+            },
+            {
+              "offset": 10,
+              "price": 3.90
+            },
+            {
+              "offset": 9,
+              "price": 4.00
+            },
+            {
+              "offset": 8,
+              "price": 3.80
+            },
+            {
+              "offset": 7,
+              "price": 3.90
+            },
+            {
+              "offset": 6,
+              "price": 3.80
+            },
+            {
+              "offset": 5,
+              "price": 3.90
+            },
+            {
+              "offset": 4,
+              "price": 3.80
+            },
+            {
+              "offset": 3,
+              "price": 4.00
+            },
+            {
+              "offset": 2,
+              "price": 3.90
+            },
+            {
+              "offset": 1,
+              "price": 4.00
+            }
+          ]
+        }
+      ],
+      "totePlacePrices": [
+
+      ],
+      "toteWinPrices": [
+
+      ],
+      "barrierBox": 1,
+      "trainer": "Alfred Spiteri",
+      "jockeyDriver": "",
+      "shortForm": "36225",
+      "weight": 0.0,
+      "scratched": false,
+      "rating": "",
+      "srmPrices": [
+
+      ],
+      "deduction": null
+    },
+    {
+      "outcomeId": 2,
+      "outcomeName": "Nimble Willow",
+      "fixedPrices": [
+        {
+          "marketTypeCode": "PLC",
+          "price": 2.70000000,
+          "points": 0.0,
+          "fixedMarketId": 195515538,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        },
+        {
+          "marketTypeCode": "WIN",
+          "price": 6.50000000,
+          "points": 0.0,
+          "fixedMarketId": 195515546,
+          "openPrice": 4.00000000,
+          "currentFluc": 6.50000000,
+          "currentFluc1": 6.00000000,
+          "currentFluc2": 5.50000000,
+          "isCashoutAllowed": false,
+          "flucs": [
+            {
+              "offset": 22,
+              "price": 4.00
+            },
+            {
+              "offset": 14,
+              "price": 4.00
+            },
+            {
+              "offset": 13,
+              "price": 4.20
+            },
+            {
+              "offset": 12,
+              "price": 4.40
+            },
+            {
+              "offset": 11,
+              "price": 4.20
+            },
+            {
+              "offset": 10,
+              "price": 4.40
+            },
+            {
+              "offset": 9,
+              "price": 4.20
+            },
+            {
+              "offset": 8,
+              "price": 4.40
+            },
+            {
+              "offset": 7,
+              "price": 4.50
+            },
+            {
+              "offset": 6,
+              "price": 4.60
+            },
+            {
+              "offset": 5,
+              "price": 4.80
+            },
+            {
+              "offset": 4,
+              "price": 5.00
+            },
+            {
+              "offset": 3,
+              "price": 5.50
+            },
+            {
+              "offset": 2,
+              "price": 6.00
+            },
+            {
+              "offset": 1,
+              "price": 6.50
+            }
+          ]
+        }
+      ],
+      "totePlacePrices": [
+
+      ],
+      "toteWinPrices": [
+
+      ],
+      "barrierBox": 2,
+      "trainer": "Debbie Goudge",
+      "jockeyDriver": "",
+      "shortForm": "64",
+      "weight": 0.0,
+      "scratched": false,
+      "rating": "",
+      "srmPrices": [
+
+      ],
+      "deduction": null
+    },
+    {
+      "outcomeId": 3,
+      "outcomeName": "Squiggly Izzy",
+      "fixedPrices": [
+        {
+          "marketTypeCode": "PLC",
+          "price": 1.55000000,
+          "points": 0.0,
+          "fixedMarketId": 195515539,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        },
+        {
+          "marketTypeCode": "WIN",
+          "price": 3.20000000,
+          "points": 0.0,
+          "fixedMarketId": 195515547,
+          "openPrice": 3.20000000,
+          "currentFluc": 3.20000000,
+          "currentFluc1": 3.30000000,
+          "currentFluc2": 3.20000000,
+          "isCashoutAllowed": false,
+          "flucs": [
+            {
+              "offset": 22,
+              "price": 3.20
+            },
+            {
+              "offset": 18,
+              "price": 3.20
+            },
+            {
+              "offset": 17,
+              "price": 3.10
+            },
+            {
+              "offset": 16,
+              "price": 3.20
+            },
+            {
+              "offset": 15,
+              "price": 3.30
+            },
+            {
+              "offset": 14,
+              "price": 3.20
+            },
+            {
+              "offset": 13,
+              "price": 3.30
+            },
+            {
+              "offset": 12,
+              "price": 3.40
+            },
+            {
+              "offset": 11,
+              "price": 3.50
+            },
+            {
+              "offset": 10,
+              "price": 3.40
+            },
+            {
+              "offset": 9,
+              "price": 3.20
+            },
+            {
+              "offset": 8,
+              "price": 3.10
+            },
+            {
+              "offset": 7,
+              "price": 3.20
+            },
+            {
+              "offset": 6,
+              "price": 3.10
+            },
+            {
+              "offset": 5,
+              "price": 3.20
+            },
+            {
+              "offset": 4,
+              "price": 3.30
+            },
+            {
+              "offset": 3,
+              "price": 3.20
+            },
+            {
+              "offset": 2,
+              "price": 3.30
+            },
+            {
+              "offset": 1,
+              "price": 3.20
+            }
+          ]
+        }
+      ],
+      "totePlacePrices": [
+
+      ],
+      "toteWinPrices": [
+
+      ],
+      "barrierBox": 3,
+      "trainer": "Leslie Kenyon",
+      "jockeyDriver": "",
+      "shortForm": "5",
+      "weight": 0.0,
+      "scratched": false,
+      "rating": "",
+      "srmPrices": [
+
+      ],
+      "deduction": null
+    },
+    {
+      "outcomeId": 4,
+      "outcomeName": "I'm A Gizmo",
+      "fixedPrices": [
+        {
+          "marketTypeCode": "PLC",
+          "price": 2.40000000,
+          "points": 0.0,
+          "fixedMarketId": 195515540,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        },
+        {
+          "marketTypeCode": "WIN",
+          "price": 8.00000000,
+          "points": 0.0,
+          "fixedMarketId": 195515548,
+          "openPrice": 17.00000000,
+          "currentFluc": 8.00000000,
+          "currentFluc1": 8.50000000,
+          "currentFluc2": 8.00000000,
+          "isCashoutAllowed": false,
+          "flucs": [
+            {
+              "offset": 22,
+              "price": 17.00
+            },
+            {
+              "offset": 20,
+              "price": 17.00
+            },
+            {
+              "offset": 19,
+              "price": 18.00
+            },
+            {
+              "offset": 18,
+              "price": 14.00
+            },
+            {
+              "offset": 17,
+              "price": 11.00
+            },
+            {
+              "offset": 16,
+              "price": 9.50
+            },
+            {
+              "offset": 15,
+              "price": 9.00
+            },
+            {
+              "offset": 14,
+              "price": 9.50
+            },
+            {
+              "offset": 13,
+              "price": 9.00
+            },
+            {
+              "offset": 12,
+              "price": 8.50
+            },
+            {
+              "offset": 11,
+              "price": 8.00
+            },
+            {
+              "offset": 10,
+              "price": 8.50
+            },
+            {
+              "offset": 9,
+              "price": 8.00
+            },
+            {
+              "offset": 8,
+              "price": 8.50
+            },
+            {
+              "offset": 7,
+              "price": 8.00
+            },
+            {
+              "offset": 6,
+              "price": 8.50
+            },
+            {
+              "offset": 5,
+              "price": 8.00
+            },
+            {
+              "offset": 4,
+              "price": 8.50
+            },
+            {
+              "offset": 3,
+              "price": 8.00
+            },
+            {
+              "offset": 2,
+              "price": 8.50
+            },
+            {
+              "offset": 1,
+              "price": 8.00
+            }
+          ]
+        }
+      ],
+      "totePlacePrices": [
+
+      ],
+      "toteWinPrices": [
+
+      ],
+      "barrierBox": 4,
+      "trainer": "Kenneth Howat",
+      "jockeyDriver": "",
+      "shortForm": "64224",
+      "weight": 0.0,
+      "scratched": false,
+      "rating": "",
+      "srmPrices": [
+
+      ],
+      "deduction": null
+    },
+    {
+      "outcomeId": 5,
+      "outcomeName": "Vacant Box",
+      "fixedPrices": [
+        {
+          "marketTypeCode": "PLC",
+          "price": 0.0,
+          "points": 0.0,
+          "fixedMarketId": 195515541,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        },
+        {
+          "marketTypeCode": "WIN",
+          "price": 0.0,
+          "points": 0.0,
+          "fixedMarketId": 195515549,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        }
+      ],
+      "totePlacePrices": [
+
+      ],
+      "toteWinPrices": [
+
+      ],
+      "barrierBox": 5,
+      "trainer": "",
+      "jockeyDriver": "",
+      "shortForm": "",
+      "weight": 0.0,
+      "scratched": true,
+      "rating": "",
+      "srmPrices": [
+
+      ],
+      "deduction": {
+        "scratchedTime": "0001-01-01T00:00:00",
+        "win": 0.0,
+        "place1": 0.0,
+        "place2": 0.0,
+        "place3": 0.0
+      }
+    },
+    {
+      "outcomeId": 6,
+      "outcomeName": "Willa Bale",
+      "fixedPrices": [
+        {
+          "marketTypeCode": "PLC",
+          "price": 1.37000000,
+          "points": 0.0,
+          "fixedMarketId": 195515542,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        },
+        {
+          "marketTypeCode": "WIN",
+          "price": 2.75000000,
+          "points": 0.0,
+          "fixedMarketId": 195515550,
+          "openPrice": 2.85000000,
+          "currentFluc": 2.75000000,
+          "currentFluc1": 2.80000000,
+          "currentFluc2": 2.85000000,
+          "isCashoutAllowed": false,
+          "flucs": [
+            {
+              "offset": 22,
+              "price": 2.85
+            },
+            {
+              "offset": 15,
+              "price": 2.85
+            },
+            {
+              "offset": 14,
+              "price": 2.80
+            },
+            {
+              "offset": 13,
+              "price": 2.75
+            },
+            {
+              "offset": 12,
+              "price": 2.70
+            },
+            {
+              "offset": 11,
+              "price": 2.65
+            },
+            {
+              "offset": 10,
+              "price": 2.70
+            },
+            {
+              "offset": 9,
+              "price": 2.65
+            },
+            {
+              "offset": 8,
+              "price": 2.60
+            },
+            {
+              "offset": 7,
+              "price": 2.65
+            },
+            {
+              "offset": 6,
+              "price": 2.70
+            },
+            {
+              "offset": 5,
+              "price": 2.75
+            },
+            {
+              "offset": 4,
+              "price": 2.80
+            },
+            {
+              "offset": 3,
+              "price": 2.85
+            },
+            {
+              "offset": 2,
+              "price": 2.80
+            },
+            {
+              "offset": 1,
+              "price": 2.75
+            }
+          ]
+        }
+      ],
+      "totePlacePrices": [
+
+      ],
+      "toteWinPrices": [
+
+      ],
+      "barrierBox": 6,
+      "trainer": "Correy Grenfell",
+      "jockeyDriver": "",
+      "shortForm": "43",
+      "weight": 0.0,
+      "scratched": false,
+      "rating": "",
+      "srmPrices": [
+
+      ],
+      "deduction": null
+    },
+    {
+      "outcomeId": 7,
+      "outcomeName": "Perfect Stranger",
+      "fixedPrices": [
+        {
+          "marketTypeCode": "PLC",
+          "price": 19.00000000,
+          "points": 0.0,
+          "fixedMarketId": 195515543,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        },
+        {
+          "marketTypeCode": "WIN",
+          "price": 67.00000000,
+          "points": 0.0,
+          "fixedMarketId": 195515551,
+          "openPrice": 67.00000000,
+          "currentFluc": 67.00000000,
+          "currentFluc1": 81.00000000,
+          "currentFluc2": 67.00000000,
+          "isCashoutAllowed": false,
+          "flucs": [
+            {
+              "offset": 22,
+              "price": 67.00
+            },
+            {
+              "offset": 13,
+              "price": 67.00
+            },
+            {
+              "offset": 12,
+              "price": 61.00
+            },
+            {
+              "offset": 11,
+              "price": 67.00
+            },
+            {
+              "offset": 10,
+              "price": 81.00
+            },
+            {
+              "offset": 9,
+              "price": 67.00
+            },
+            {
+              "offset": 8,
+              "price": 81.00
+            },
+            {
+              "offset": 7,
+              "price": 91.00
+            },
+            {
+              "offset": 6,
+              "price": 101.00
+            },
+            {
+              "offset": 5,
+              "price": 91.00
+            },
+            {
+              "offset": 4,
+              "price": 81.00
+            },
+            {
+              "offset": 3,
+              "price": 67.00
+            },
+            {
+              "offset": 2,
+              "price": 81.00
+            },
+            {
+              "offset": 1,
+              "price": 67.00
+            }
+          ]
+        }
+      ],
+      "totePlacePrices": [
+
+      ],
+      "toteWinPrices": [
+
+      ],
+      "barrierBox": 7,
+      "trainer": "Joe Uglietta",
+      "jockeyDriver": "",
+      "shortForm": "65436",
+      "weight": 0.0,
+      "scratched": false,
+      "rating": "",
+      "srmPrices": [
+
+      ],
+      "deduction": null
+    },
+    {
+      "outcomeId": 8,
+      "outcomeName": "Laid Back",
+      "fixedPrices": [
+        {
+          "marketTypeCode": "PLC",
+          "price": 7.50000000,
+          "points": 0.0,
+          "fixedMarketId": 195515544,
+          "openPrice": null,
+          "currentFluc": null,
+          "currentFluc1": null,
+          "currentFluc2": null,
+          "isCashoutAllowed": false,
+          "flucs": [
+
+          ]
+        },
+        {
+          "marketTypeCode": "WIN",
+          "price": 29.00000000,
+          "points": 0.0,
+          "fixedMarketId": 195515552,
+          "openPrice": 19.00000000,
+          "currentFluc": 29.00000000,
+          "currentFluc1": 26.00000000,
+          "currentFluc2": 29.00000000,
+          "isCashoutAllowed": false,
+          "flucs": [
+            {
+              "offset": 22,
+              "price": 19.00
+            },
+            {
+              "offset": 14,
+              "price": 19.00
+            },
+            {
+              "offset": 13,
+              "price": 20.00
+            },
+            {
+              "offset": 12,
+              "price": 21.00
+            },
+            {
+              "offset": 11,
+              "price": 23.00
+            },
+            {
+              "offset": 10,
+              "price": 21.00
+            },
+            {
+              "offset": 9,
+              "price": 23.00
+            },
+            {
+              "offset": 8,
+              "price": 26.00
+            },
+            {
+              "offset": 7,
+              "price": 29.00
+            },
+            {
+              "offset": 6,
+              "price": 26.00
+            },
+            {
+              "offset": 5,
+              "price": 29.00
+            },
+            {
+              "offset": 4,
+              "price": 26.00
+            },
+            {
+              "offset": 3,
+              "price": 29.00
+            },
+            {
+              "offset": 2,
+              "price": 26.00
+            },
+            {
+              "offset": 1,
+              "price": 29.00
+            }
+          ]
+        }
+      ],
+      "totePlacePrices": [
+
+      ],
+      "toteWinPrices": [
+
+      ],
+      "barrierBox": 8,
+      "trainer": "Craig Treherne",
+      "jockeyDriver": "",
+      "shortForm": "45566",
+      "weight": 0.0,
+      "scratched": false,
+      "rating": "",
+      "srmPrices": [
+
+      ],
+      "deduction": null
+    }
+  ],
+  "trackCondition": "Good",
+  "weatherCondition": "Showers",
+  "bettingCloseTime": "2023-07-18T05:30:35.417Z",
+  "raceDistance": 400,
+  "isMultiAllowed": true,
+  "meetingRaces": [
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395453",
+      "name": "The Beckley Centre Geelong (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 1,
+      "advertisedStartDateTime": "2023-07-18T05:30:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "2,1,4,7",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395454",
+      "name": "Merv Jennings Signs (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 2,
+      "advertisedStartDateTime": "2023-07-18T05:49:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "2,3,6,4",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395456",
+      "name": "Millers Muzzles (0-1 Win) (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 3,
+      "advertisedStartDateTime": "2023-07-18T06:07:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "8,6,7,2",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395457",
+      "name": "Sportsbet Make It A Multi (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 4,
+      "advertisedStartDateTime": "2023-07-18T06:32:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "6,2,3,1",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395458",
+      "name": "Parker Pumps (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 5,
+      "advertisedStartDateTime": "2023-07-18T06:47:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "8,6,1,4",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395459",
+      "name": "Np Electrical (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 6,
+      "advertisedStartDateTime": "2023-07-18T07:07:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "7,5,8,2",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395460",
+      "name": "Geelong Printing (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 7,
+      "advertisedStartDateTime": "2023-07-18T07:26:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "6,8,1,5",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395461",
+      "name": "Greyhound Clubs Victoria (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 8,
+      "advertisedStartDateTime": "2023-07-18T07:45:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "8,1,2,4",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395462",
+      "name": "Download The Watchdog App (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 9,
+      "advertisedStartDateTime": "2023-07-18T08:03:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "4,7,3,1",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395467",
+      "name": "Free Admission To All Race Meets (250+)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 10,
+      "advertisedStartDateTime": "2023-07-18T08:24:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "1,2,4,7",
+      "isVisible": true
+    },
+    {
+      "hashCode": 1736335147,
+      "version": 1689658482338,
+      "eventId": "38395468",
+      "name": "Sportsbet Bet With Mates (250+Rank)",
+      "countryCode": "AUS",
+      "countryName": "Australia",
+      "racingType": 4,
+      "venue": "Geelong",
+      "hasRaceVision": false,
+      "raceNumber": 11,
+      "advertisedStartDateTime": "2023-07-18T08:39:00Z",
+      "tradingStatus": 4,
+      "resultStatus": 2,
+      "placing": "6,1,3,8",
+      "isVisible": true
+    }
+  ],
+  "eventMultiples": [
+
+  ],
+  "isJockeySilkExist": false,
+  "results": {
+    "winners": [
+      {
+        "finalPlacing": 1,
+        "finalPlacingText": "1st",
+        "outcome": {
+          "outcomeId": 2,
+          "outcomeName": "Nimble Willow",
+          "fixedPrices": [
+            {
+              "marketTypeCode": "PLC",
+              "price": 2.70000000,
+              "points": 0.0,
+              "fixedMarketId": 195515538,
+              "openPrice": null,
+              "currentFluc": null,
+              "currentFluc1": null,
+              "currentFluc2": null,
+              "isCashoutAllowed": false,
+              "flucs": [
+
+              ]
+            },
+            {
+              "marketTypeCode": "WIN",
+              "price": 6.50000000,
+              "points": 0.0,
+              "fixedMarketId": 195515546,
+              "openPrice": 4.00000000,
+              "currentFluc": 6.50000000,
+              "currentFluc1": 6.00000000,
+              "currentFluc2": 5.50000000,
+              "isCashoutAllowed": false,
+              "flucs": [
+                {
+                  "offset": 22,
+                  "price": 4.00
+                },
+                {
+                  "offset": 14,
+                  "price": 4.00
+                },
+                {
+                  "offset": 13,
+                  "price": 4.20
+                },
+                {
+                  "offset": 12,
+                  "price": 4.40
+                },
+                {
+                  "offset": 11,
+                  "price": 4.20
+                },
+                {
+                  "offset": 10,
+                  "price": 4.40
+                },
+                {
+                  "offset": 9,
+                  "price": 4.20
+                },
+                {
+                  "offset": 8,
+                  "price": 4.40
+                },
+                {
+                  "offset": 7,
+                  "price": 4.50
+                },
+                {
+                  "offset": 6,
+                  "price": 4.60
+                },
+                {
+                  "offset": 5,
+                  "price": 4.80
+                },
+                {
+                  "offset": 4,
+                  "price": 5.00
+                },
+                {
+                  "offset": 3,
+                  "price": 5.50
+                },
+                {
+                  "offset": 2,
+                  "price": 6.00
+                },
+                {
+                  "offset": 1,
+                  "price": 6.50
+                }
+              ]
+            }
+          ],
+          "totePlacePrices": [
+
+          ],
+          "toteWinPrices": [
+
+          ],
+          "barrierBox": 2,
+          "trainer": "Debbie Goudge",
+          "jockeyDriver": "",
+          "shortForm": "64",
+          "weight": 0.0,
+          "scratched": false,
+          "rating": "",
+          "srmPrices": [
+
+          ],
+          "deduction": null
+        },
+        "straightDividends": [
+          {
+            "marketType": "WIN",
+            "dividendTypeCode": "MIDDIV",
+            "dividend": 7.5000
+          },
+          {
+            "marketType": "WIN",
+            "dividendTypeCode": "VIC",
+            "dividend": 7.5000
+          },
+          {
+            "marketType": "WIN",
+            "dividendTypeCode": "NSW",
+            "dividend": 7.3000
+          },
+          {
+            "marketType": "WIN",
+            "dividendTypeCode": "Tatts",
+            "dividend": 9.6000
+          },
+          {
+            "marketType": "PLC",
+            "dividendTypeCode": "MIDDIV",
+            "dividend": 5.1000
+          },
+          {
+            "marketType": "PLC",
+            "dividendTypeCode": "VIC",
+            "dividend": 5.3000
+          },
+          {
+            "marketType": "PLC",
+            "dividendTypeCode": "NSW",
+            "dividend": 4.3000
+          },
+          {
+            "marketType": "PLC",
+            "dividendTypeCode": "Tatts",
+            "dividend": 5.1000
+          }
+        ]
+      },
+      {
+        "finalPlacing": 2,
+        "finalPlacingText": "2nd",
+        "outcome": {
+          "outcomeId": 1,
+          "outcomeName": "Son Of Cecil",
+          "fixedPrices": [
+            {
+              "marketTypeCode": "PLC",
+              "price": 1.90000000,
+              "points": 0.0,
+              "fixedMarketId": 195515537,
+              "openPrice": null,
+              "currentFluc": null,
+              "currentFluc1": null,
+              "currentFluc2": null,
+              "isCashoutAllowed": false,
+              "flucs": [
+
+              ]
+            },
+            {
+              "marketTypeCode": "WIN",
+              "price": 4.00000000,
+              "points": 0.0,
+              "fixedMarketId": 195515545,
+              "openPrice": 3.60000000,
+              "currentFluc": 4.00000000,
+              "currentFluc1": 3.90000000,
+              "currentFluc2": 4.00000000,
+              "isCashoutAllowed": false,
+              "flucs": [
+                {
+                  "offset": 22,
+                  "price": 3.60
+                },
+                {
+                  "offset": 15,
+                  "price": 3.60
+                },
+                {
+                  "offset": 14,
+                  "price": 3.70
+                },
+                {
+                  "offset": 13,
+                  "price": 3.80
+                },
+                {
+                  "offset": 12,
+                  "price": 3.90
+                },
+                {
+                  "offset": 11,
+                  "price": 3.80
+                },
+                {
+                  "offset": 10,
+                  "price": 3.90
+                },
+                {
+                  "offset": 9,
+                  "price": 4.00
+                },
+                {
+                  "offset": 8,
+                  "price": 3.80
+                },
+                {
+                  "offset": 7,
+                  "price": 3.90
+                },
+                {
+                  "offset": 6,
+                  "price": 3.80
+                },
+                {
+                  "offset": 5,
+                  "price": 3.90
+                },
+                {
+                  "offset": 4,
+                  "price": 3.80
+                },
+                {
+                  "offset": 3,
+                  "price": 4.00
+                },
+                {
+                  "offset": 2,
+                  "price": 3.90
+                },
+                {
+                  "offset": 1,
+                  "price": 4.00
+                }
+              ]
+            }
+          ],
+          "totePlacePrices": [
+
+          ],
+          "toteWinPrices": [
+
+          ],
+          "barrierBox": 1,
+          "trainer": "Alfred Spiteri",
+          "jockeyDriver": "",
+          "shortForm": "36225",
+          "weight": 0.0,
+          "scratched": false,
+          "rating": "",
+          "srmPrices": [
+
+          ],
+          "deduction": null
+        },
+        "straightDividends": [
+          {
+            "marketType": "PLC",
+            "dividendTypeCode": "MIDDIV",
+            "dividend": 2.6000
+          },
+          {
+            "marketType": "PLC",
+            "dividendTypeCode": "VIC",
+            "dividend": 2.3000
+          },
+          {
+            "marketType": "PLC",
+            "dividendTypeCode": "NSW",
+            "dividend": 2.6000
+          },
+          {
+            "marketType": "PLC",
+            "dividendTypeCode": "Tatts",
+            "dividend": 2.6000
+          }
+        ]
+      },
+      {
+        "finalPlacing": 3,
+        "finalPlacingText": "3rd",
+        "outcome": {
+          "outcomeId": 4,
+          "outcomeName": "I'm A Gizmo",
+          "fixedPrices": [
+            {
+              "marketTypeCode": "PLC",
+              "price": 2.40000000,
+              "points": 0.0,
+              "fixedMarketId": 195515540,
+              "openPrice": null,
+              "currentFluc": null,
+              "currentFluc1": null,
+              "currentFluc2": null,
+              "isCashoutAllowed": false,
+              "flucs": [
+
+              ]
+            },
+            {
+              "marketTypeCode": "WIN",
+              "price": 8.00000000,
+              "points": 0.0,
+              "fixedMarketId": 195515548,
+              "openPrice": 17.00000000,
+              "currentFluc": 8.00000000,
+              "currentFluc1": 8.50000000,
+              "currentFluc2": 8.00000000,
+              "isCashoutAllowed": false,
+              "flucs": [
+                {
+                  "offset": 22,
+                  "price": 17.00
+                },
+                {
+                  "offset": 20,
+                  "price": 17.00
+                },
+                {
+                  "offset": 19,
+                  "price": 18.00
+                },
+                {
+                  "offset": 18,
+                  "price": 14.00
+                },
+                {
+                  "offset": 17,
+                  "price": 11.00
+                },
+                {
+                  "offset": 16,
+                  "price": 9.50
+                },
+                {
+                  "offset": 15,
+                  "price": 9.00
+                },
+                {
+                  "offset": 14,
+                  "price": 9.50
+                },
+                {
+                  "offset": 13,
+                  "price": 9.00
+                },
+                {
+                  "offset": 12,
+                  "price": 8.50
+                },
+                {
+                  "offset": 11,
+                  "price": 8.00
+                },
+                {
+                  "offset": 10,
+                  "price": 8.50
+                },
+                {
+                  "offset": 9,
+                  "price": 8.00
+                },
+                {
+                  "offset": 8,
+                  "price": 8.50
+                },
+                {
+                  "offset": 7,
+                  "price": 8.00
+                },
+                {
+                  "offset": 6,
+                  "price": 8.50
+                },
+                {
+                  "offset": 5,
+                  "price": 8.00
+                },
+                {
+                  "offset": 4,
+                  "price": 8.50
+                },
+                {
+                  "offset": 3,
+                  "price": 8.00
+                },
+                {
+                  "offset": 2,
+                  "price": 8.50
+                },
+                {
+                  "offset": 1,
+                  "price": 8.00
+                }
+              ]
+            }
+          ],
+          "totePlacePrices": [
+
+          ],
+          "toteWinPrices": [
+
+          ],
+          "barrierBox": 4,
+          "trainer": "Kenneth Howat",
+          "jockeyDriver": "",
+          "shortForm": "64224",
+          "weight": 0.0,
+          "scratched": false,
+          "rating": "",
+          "srmPrices": [
+
+          ],
+          "deduction": null
+        },
+        "straightDividends": [
+
+        ]
+      },
+      {
+        "finalPlacing": 4,
+        "finalPlacingText": "4th",
+        "outcome": {
+          "outcomeId": 7,
+          "outcomeName": "Perfect Stranger",
+          "fixedPrices": [
+            {
+              "marketTypeCode": "PLC",
+              "price": 19.00000000,
+              "points": 0.0,
+              "fixedMarketId": 195515543,
+              "openPrice": null,
+              "currentFluc": null,
+              "currentFluc1": null,
+              "currentFluc2": null,
+              "isCashoutAllowed": false,
+              "flucs": [
+
+              ]
+            },
+            {
+              "marketTypeCode": "WIN",
+              "price": 67.00000000,
+              "points": 0.0,
+              "fixedMarketId": 195515551,
+              "openPrice": 67.00000000,
+              "currentFluc": 67.00000000,
+              "currentFluc1": 81.00000000,
+              "currentFluc2": 67.00000000,
+              "isCashoutAllowed": false,
+              "flucs": [
+                {
+                  "offset": 22,
+                  "price": 67.00
+                },
+                {
+                  "offset": 13,
+                  "price": 67.00
+                },
+                {
+                  "offset": 12,
+                  "price": 61.00
+                },
+                {
+                  "offset": 11,
+                  "price": 67.00
+                },
+                {
+                  "offset": 10,
+                  "price": 81.00
+                },
+                {
+                  "offset": 9,
+                  "price": 67.00
+                },
+                {
+                  "offset": 8,
+                  "price": 81.00
+                },
+                {
+                  "offset": 7,
+                  "price": 91.00
+                },
+                {
+                  "offset": 6,
+                  "price": 101.00
+                },
+                {
+                  "offset": 5,
+                  "price": 91.00
+                },
+                {
+                  "offset": 4,
+                  "price": 81.00
+                },
+                {
+                  "offset": 3,
+                  "price": 67.00
+                },
+                {
+                  "offset": 2,
+                  "price": 81.00
+                },
+                {
+                  "offset": 1,
+                  "price": 67.00
+                }
+              ]
+            }
+          ],
+          "totePlacePrices": [
+
+          ],
+          "toteWinPrices": [
+
+          ],
+          "barrierBox": 7,
+          "trainer": "Joe Uglietta",
+          "jockeyDriver": "",
+          "shortForm": "65436",
+          "weight": 0.0,
+          "scratched": false,
+          "rating": "",
+          "srmPrices": [
+
+          ],
+          "deduction": null
+        },
+        "straightDividends": [
+
+        ]
+      }
+    ],
+    "straightDividendTypes": [
+      "MIDDIV",
+      "VIC",
+      "NSW",
+      "Tatts"
+    ],
+    "exoticDividendTypes": [
+      "VIC"
+    ],
+    "multipleDividendTypes": [
+
+    ],
+    "exoticDividends": [
+      {
+        "exoticType": 1,
+        "betDetailTypeCode": "QN",
+        "winningSelection": "2,1",
+        "outcomeId1": 2,
+        "outcomeId2": 1,
+        "outcomeId3": 4,
+        "outcomeId4": 7,
+        "dividends": [
+          {
+            "dividendTypeCode": "VIC",
+            "dividend": 13.4000
+          }
+        ]
+      },
+      {
+        "exoticType": 2,
+        "betDetailTypeCode": "EX",
+        "winningSelection": "2,1",
+        "outcomeId1": 2,
+        "outcomeId2": 1,
+        "outcomeId3": 4,
+        "outcomeId4": 7,
+        "dividends": [
+          {
+            "dividendTypeCode": "VIC",
+            "dividend": 45.1000
+          }
+        ]
+      },
+      {
+        "exoticType": 3,
+        "betDetailTypeCode": "TF",
+        "winningSelection": "2,1,4",
+        "outcomeId1": 2,
+        "outcomeId2": 1,
+        "outcomeId3": 4,
+        "outcomeId4": 7,
+        "dividends": [
+          {
+            "dividendTypeCode": "VIC",
+            "dividend": 199.0000
+          }
+        ]
+      },
+      {
+        "exoticType": 4,
+        "betDetailTypeCode": "FF",
+        "winningSelection": "2,1,4,7",
+        "outcomeId1": 2,
+        "outcomeId2": 1,
+        "outcomeId3": 4,
+        "outcomeId4": 7,
+        "dividends": [
+          {
+            "dividendTypeCode": "VIC",
+            "dividend": 749.0000
+          }
+        ]
+      }
+    ],
+    "multipleDividends": [
+
+    ],
+    "raceClass": "",
+    "prizeMoney": null
+  },
+  "tip": null,
+  "masterCategoryName": "Australian Greyhound",
+  "sameRaceMulti": {
+    "isVisible": false,
+    "allowBetPlacement": false,
+    "code": "SRM01",
+    "message": "Same race multi is unavailable"
+  },
+  "hashCode": 1736335147,
+  "version": 1689658482338
+}
