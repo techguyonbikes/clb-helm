@@ -1,0 +1,4863 @@
+{
+  "status": 200,
+  "data": {
+    "races": {
+      "c8df6b51-6939-40af-a387-97d8fca785be": {
+        "id": "c8df6b51-6939-40af-a387-97d8fca785be",
+        "meeting_id": "b84645e7-ed07-49d1-9fe9-d8ac3a8425bd",
+        "name": "Derby Trial S. Stakes",
+        "number": 5,
+        "advertised_start": {
+          "seconds": 1689646500
+        },
+        "actual_start": {
+          "seconds": 1689646500
+        },
+        "market_ids": [
+          "cd5b255b-e1fe-4476-acad-df6973604d67",
+          "6a94d4f0-4465-4984-980c-6e0b35119533"
+        ],
+        "substitutions": [
+          {
+            "id": "21c9fa36-36eb-5d99-bb86-fafbb4c0277e",
+            "race_id": "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+            "entrant_id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f",
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "334caa4f-d8da-5322-9527-51ba0e49ed25",
+            "race_id": "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+            "entrant_id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f",
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "669c5a9b-5246-527f-baaf-a1707e4dfc7e",
+            "race_id": "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+            "entrant_id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f",
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          }
+        ],
+        "additional_info": {
+          "distance": 1609,
+          "distance_type": {
+            "name": "Metres",
+            "short_name": "m"
+          },
+          "track_condition": {
+            "name": "Good",
+            "short_name": "good"
+          },
+          "weather": {
+            "name": "OCAST",
+            "short_name": "ocast",
+            "icon_uri": "OCAST"
+          },
+          "additional_data": "{\"revealed_race_info\":{\"track_name\":\"\",\"state\":\"\",\"country\":\"\",\"number\":0,\"race_name\":\"\",\"time\":\"1970-01-01T00:00:00Z\"}}",
+          "generated": 1,
+          "silk_base_url": "drr38safykj6s.cloudfront.net"
+        },
+        "dividends": [
+          {
+            "id": "ba4d2938-0580-5172-adfd-db0b8b6ef482",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 49,
+            "pool_size": 239.1,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "0898e3c2-7654-5650-903c-1adae4497ca4",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 31.9,
+            "pool_size": 33.3,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "3cc072e7-0ef5-5b65-8afa-d061ade763bd",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.5,
+            "pool_size": 358.67,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "0cf27e91-64d4-5753-a3a0-330dfaef2fbb",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 34,
+            "pool_size": 177.14,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "0898e3c2-7654-5650-903c-1adae4497ca4",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 31.9,
+            "pool_size": 33.3,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "93d785d1-ec79-54ea-8a56-9f41a31e48e8",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 12.2,
+            "pool_size": 186.21,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "09d8115f-f105-58e5-8599-a510e05c591c",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.5,
+            "pool_size": 358.67,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "bfaf623a-4de0-5513-a014-dbc49d2e82c2",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.2,
+            "pool_size": 1255.55,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "50e7ae80-fa6f-56d6-a089-d93f83c9622d",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "pool_size": 2.6,
+            "jackpot_size": 0.4,
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "28d39204-79d9-5549-9104-2a2058e8870f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 28.8,
+            "pool_size": 236.86,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "5739f5fb-24b8-5fa3-8b9e-8ea92a413e39",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.2,
+            "pool_size": 1255.55,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "0cf27e91-64d4-5753-a3a0-330dfaef2fbb",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 34,
+            "pool_size": 177.14,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "0ed6ca5b-d5cf-58fc-8be4-17a2437083b7",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 31.9,
+            "pool_size": 33.3,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "ffc98327-6d45-59e6-8840-2aebc80b5177",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 12.2,
+            "pool_size": 186.21,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "4a410ae8-20f2-5ef4-9122-c79d2cc5e389",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 10,
+            "pool_size": 24.4,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "018247cd-96c2-59e6-9ad2-b0e02040a735",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 28.8,
+            "pool_size": 236.86,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "ba4d2938-0580-5172-adfd-db0b8b6ef482",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 49,
+            "pool_size": 239.1,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "6eb4af9b-f757-5338-af2b-8c009c5784c8",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 49,
+            "pool_size": 239.1,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "ef37726f-ff73-5896-8c3e-a77ce11149fe",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "dividend": 3.2,
+            "pool_size": 14,
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "ea4a9257-f69e-504d-91d5-ad96957a3df4",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "fabe6c5e-b568-5832-9947-d91c4f8c5bd1",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "pool_size": 2.6,
+            "jackpot_size": 0.4,
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "4a410ae8-20f2-5ef4-9122-c79d2cc5e389",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 10,
+            "pool_size": 24.4,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "92d90317-8b5a-5cc0-add8-13f5ae7a2601",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 10,
+            "pool_size": 24.4,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "bb2e3ccb-3477-5887-874a-2ac8f882d66b",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "ffc98327-6d45-59e6-8840-2aebc80b5177",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 12.2,
+            "pool_size": 186.21,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "3ae6436f-212f-5183-9fde-137367f50c07",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.2,
+            "pool_size": 950.9,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "018247cd-96c2-59e6-9ad2-b0e02040a735",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 28.8,
+            "pool_size": 236.86,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "0b0dd694-827a-577a-91e9-91a2b0777a3b",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "dividend": 3.2,
+            "pool_size": 14,
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "93d785d1-ec79-54ea-8a56-9f41a31e48e8",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 12.2,
+            "pool_size": 186.21,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "0ed6ca5b-d5cf-58fc-8be4-17a2437083b7",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 31.9,
+            "pool_size": 33.3,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "7955d53d-55cb-556c-b85a-d04f89ac9b70",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 34,
+            "pool_size": 177.14,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "7955d53d-55cb-556c-b85a-d04f89ac9b70",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 34,
+            "pool_size": 177.14,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "6eb4af9b-f757-5338-af2b-8c009c5784c8",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 49,
+            "pool_size": 239.1,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "28d39204-79d9-5549-9104-2a2058e8870f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 28.8,
+            "pool_size": 236.86,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "92d90317-8b5a-5cc0-add8-13f5ae7a2601",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 10,
+            "pool_size": 24.4,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "9c775657-8493-5c7d-9143-527733091ea1",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.2,
+            "pool_size": 950.9,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          }
+        ],
+        "dividend_entrant_maps": [
+          {
+            "id": "c9586a44-dc7f-46ec-af42-08f3f9c3fee8",
+            "dividend_id": "ba4d2938-0580-5172-adfd-db0b8b6ef482",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "a88248c2-ac2d-46c7-8087-98f9038f0235",
+            "dividend_id": "0898e3c2-7654-5650-903c-1adae4497ca4",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "1f5864d1-4137-4d96-8933-3d63fa2f29bd",
+            "dividend_id": "3cc072e7-0ef5-5b65-8afa-d061ade763bd",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "d6cd55ea-5d6f-4a46-b099-8cb5caeac916",
+            "dividend_id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "35fbcfdf-26a4-4e25-9449-d5dee7c67c8a",
+            "dividend_id": "0cf27e91-64d4-5753-a3a0-330dfaef2fbb",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "95473afd-81ef-445d-89dc-28933955ba63",
+            "dividend_id": "0898e3c2-7654-5650-903c-1adae4497ca4",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "0a932b0a-b698-4fbc-802a-cfe285c7288c",
+            "dividend_id": "93d785d1-ec79-54ea-8a56-9f41a31e48e8",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "3fa5e911-d387-4322-9d9b-cb7601d3097d",
+            "dividend_id": "09d8115f-f105-58e5-8599-a510e05c591c",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "bf59130a-9440-45d2-98e4-a7eacadcc98e",
+            "dividend_id": "bfaf623a-4de0-5513-a014-dbc49d2e82c2",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "e076aa13-792e-465d-9ac0-a7f0e39b7a88",
+            "dividend_id": "50e7ae80-fa6f-56d6-a089-d93f83c9622d",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "84b2bbb3-15a5-40ee-9050-cf1a62e2d1aa",
+            "dividend_id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "30a70366-a352-4f55-afef-f1c7372a5d9b",
+            "dividend_id": "28d39204-79d9-5549-9104-2a2058e8870f",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "525a83e6-8b97-437d-8b4c-ee24bb7b0813",
+            "dividend_id": "5739f5fb-24b8-5fa3-8b9e-8ea92a413e39",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "a017cd5d-fc42-43ac-abc3-5da0929371b6",
+            "dividend_id": "0cf27e91-64d4-5753-a3a0-330dfaef2fbb",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "2938bbb8-d851-49d5-9820-9351deff90db",
+            "dividend_id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "788a0e6e-2aeb-403f-bf3e-ef82ae9ea83a",
+            "dividend_id": "0ed6ca5b-d5cf-58fc-8be4-17a2437083b7",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "0d32793c-7b1d-488d-be91-8e848ee41106",
+            "dividend_id": "ffc98327-6d45-59e6-8840-2aebc80b5177",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "c3c744fa-b77d-401f-b273-1e83042c9c75",
+            "dividend_id": "4a410ae8-20f2-5ef4-9122-c79d2cc5e389",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "599d6034-70d6-4e9f-b076-214f00138d60",
+            "dividend_id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "6b5c167a-7725-470b-8d9a-0f31f36ae6a2",
+            "dividend_id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "a66ee93f-4ca2-40be-ba37-64a50b1312c4",
+            "dividend_id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "ff0ecc43-2bbe-4553-bc37-b92328730692",
+            "dividend_id": "018247cd-96c2-59e6-9ad2-b0e02040a735",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "7ec7851a-58c8-41fc-b7b0-9345a5889c09",
+            "dividend_id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "1fb43941-4b89-4807-b748-5e9f2254abaa",
+            "dividend_id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "e5996d1f-ba99-48b3-b190-a81b437c6ebe",
+            "dividend_id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "3fecf1ca-cb77-4acf-bb8d-e60a5271184e",
+            "dividend_id": "ba4d2938-0580-5172-adfd-db0b8b6ef482",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "4bbd405b-fe42-46af-a322-3dbe579c40e2",
+            "dividend_id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "d6b75f4a-1d8c-448a-829b-376d9257c416",
+            "dividend_id": "6eb4af9b-f757-5338-af2b-8c009c5784c8",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "71c457b6-2a06-4351-a88e-9da61b26bbd5",
+            "dividend_id": "ef37726f-ff73-5896-8c3e-a77ce11149fe",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "7fe841fe-4de5-4bfd-9395-dcd696bbc744",
+            "dividend_id": "ea4a9257-f69e-504d-91d5-ad96957a3df4",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "564afad4-575b-4051-9832-1ec1297dd2c1",
+            "dividend_id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "6487b2a2-7f95-4c79-ba9e-62219724c3d5",
+            "dividend_id": "fabe6c5e-b568-5832-9947-d91c4f8c5bd1",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "61a8b1a9-8608-4a89-9a38-da8af064ec35",
+            "dividend_id": "4a410ae8-20f2-5ef4-9122-c79d2cc5e389",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "483b592e-cd64-464e-8b49-5a06dbf1100a",
+            "dividend_id": "92d90317-8b5a-5cc0-add8-13f5ae7a2601",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "2ec492d2-17b8-4195-9fdd-f9ef6fedcb4c",
+            "dividend_id": "bb2e3ccb-3477-5887-874a-2ac8f882d66b",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "24e60aa0-1905-4dc5-a83c-b3e7d68423a2",
+            "dividend_id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "198a8282-4849-45fc-a9dc-99c9ce6ce0e7",
+            "dividend_id": "ffc98327-6d45-59e6-8840-2aebc80b5177",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "9cea4b34-64b1-4583-a471-17032957b508",
+            "dividend_id": "3ae6436f-212f-5183-9fde-137367f50c07",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "cee34c27-d220-4f5e-b773-cd394591f72b",
+            "dividend_id": "018247cd-96c2-59e6-9ad2-b0e02040a735",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "248f09af-6017-4a5d-a924-b73f1c3e0035",
+            "dividend_id": "0b0dd694-827a-577a-91e9-91a2b0777a3b",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "1f110363-63f2-47fa-be8e-0c4962ee3242",
+            "dividend_id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "7aecf21a-3d70-4c01-a31f-a15ea5f7c1c5",
+            "dividend_id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "5b6bbe35-ad7b-4857-b086-26da5256ab00",
+            "dividend_id": "93d785d1-ec79-54ea-8a56-9f41a31e48e8",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "68f1efaf-1ac0-4774-b1c6-ff7a82b58bae",
+            "dividend_id": "0ed6ca5b-d5cf-58fc-8be4-17a2437083b7",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "1bf243ab-ba85-44f3-9a9f-55d9db52a7e2",
+            "dividend_id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "fbdd2913-40c9-4945-b65e-05168836521c",
+            "dividend_id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "b547a71d-ca53-4147-9564-e6a16994c85c",
+            "dividend_id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "987c197c-39be-4df6-a356-1ac146bdfdc7",
+            "dividend_id": "7955d53d-55cb-556c-b85a-d04f89ac9b70",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "748b64e4-7151-4b2f-ab21-854173813c72",
+            "dividend_id": "7955d53d-55cb-556c-b85a-d04f89ac9b70",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "a9b1fc8c-55f9-483a-9090-8510b4b0c705",
+            "dividend_id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "1797bdd8-4a20-4c09-8ae3-ec254183be75",
+            "dividend_id": "6eb4af9b-f757-5338-af2b-8c009c5784c8",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "87503185-5ef8-42e9-b207-9d273139ed2a",
+            "dividend_id": "28d39204-79d9-5549-9104-2a2058e8870f",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "cfeab6be-ae67-4771-945b-2525fea95064",
+            "dividend_id": "92d90317-8b5a-5cc0-add8-13f5ae7a2601",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "3baa9853-c591-4891-a879-a1ac1b8c1a9b",
+            "dividend_id": "9c775657-8493-5c7d-9143-527733091ea1",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          }
+        ],
+        "visible": true,
+        "silk_url": "https://cdn.prod.pricekinetics.com/silks/sprites/cerberus/254754_5_SPRITE_64x64.png",
+        "full_form_url": "https://ladbrokesform.com.au/form/1ffff631-2c04-46b8-b397-74ef61d46bf0"
+      }
+    },
+    "markets": {
+      "6a94d4f0-4465-4984-980c-6e0b35119533": {
+        "id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "race_id": "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+        "market_type_id": "44a76f1f-f68a-4696-af47-5b087a501ce4",
+        "market_status_id": "46b6910d-8379-44fb-855c-afbbdee3b007",
+        "name": "Final Field",
+        "advertised_start": {
+          "seconds": 1689646500
+        },
+        "actual_start": {
+          "seconds": 1689647182
+        },
+        "market_rule_id": "08016b1d-a49c-4294-a888-8098d5265a41",
+        "entrant_ids": [
+          "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+          "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+          "eeb53661-0516-4bd7-81f1-e18035026bee",
+          "aa30fcd1-7395-4412-af0d-d20a5fecd410",
+          "de371ff4-1baa-45a9-a37f-03267141e5c5",
+          "cdcc2de6-c56a-4245-84af-9fa6fb392f8d",
+          "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f"
+        ],
+        "result_ids": [
+          "de371ff4-1baa-45a9-a37f-03267141e5c5",
+          "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+          "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+          "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f"
+        ],
+        "feed_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "visible": true,
+        "num_winners": 1
+      },
+      "cd5b255b-e1fe-4476-acad-df6973604d67": {
+        "id": "cd5b255b-e1fe-4476-acad-df6973604d67",
+        "race_id": "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+        "market_type_id": "de1c739e-47d5-4aaf-b87b-fd5aa17c6466",
+        "market_status_id": "46b6910d-8379-44fb-855c-afbbdee3b007",
+        "name": "Live Racing",
+        "advertised_start": {
+          "seconds": 1689646500
+        },
+        "actual_start": {
+          "seconds": 1689647182
+        },
+        "entrant_ids": [
+          "6a8b2158-eba3-46d3-b384-5c9a34cae6b4",
+          "09fdf77d-1272-476f-a586-664c68ee5ce4",
+          "342054c2-b516-454a-a1e6-8d7fbea81453",
+          "e5ddb107-3eaa-4ca7-88bb-448ced4be43d"
+        ],
+        "feed_id": "cd5b255b-e1fe-4476-acad-df6973604d67",
+        "visible": true,
+        "num_winners": 1
+      }
+    },
+    "meetings": {
+      "b84645e7-ed07-49d1-9fe9-d8ac3a8425bd": {
+        "id": "b84645e7-ed07-49d1-9fe9-d8ac3a8425bd",
+        "name": "Assiniboia Downs",
+        "advertised_date": {
+          "seconds": 1689638400
+        },
+        "category_id": "4a2788f8-e825-4d36-9894-efd4baf1cfae",
+        "venue_id": "1b16a7b8-0633-41a7-bbc0-523722ab3881",
+        "race_ids": [
+          "a4b67153-60b0-47b5-b393-ce45f2b0b44c",
+          "db4157c1-ef1a-44d5-976c-312a44652baa",
+          "e38b7720-380c-4ffd-9f67-7833c2048feb",
+          "c83599f3-9650-436a-88c3-f2b91ee5b53a",
+          "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+          "ee9ab3ca-8c9b-451e-be14-d9bbca765bd0",
+          "f06b2983-26ac-462f-9b22-d5a6dc77230d"
+        ],
+        "dividends": [
+          {
+            "id": "ba4d2938-0580-5172-adfd-db0b8b6ef482",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 49,
+            "pool_size": 239.1,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "0898e3c2-7654-5650-903c-1adae4497ca4",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 31.9,
+            "pool_size": 33.3,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "3cc072e7-0ef5-5b65-8afa-d061ade763bd",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.5,
+            "pool_size": 358.67,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "0cf27e91-64d4-5753-a3a0-330dfaef2fbb",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 34,
+            "pool_size": 177.14,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "0898e3c2-7654-5650-903c-1adae4497ca4",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 31.9,
+            "pool_size": 33.3,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "93d785d1-ec79-54ea-8a56-9f41a31e48e8",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 12.2,
+            "pool_size": 186.21,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "09d8115f-f105-58e5-8599-a510e05c591c",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.5,
+            "pool_size": 358.67,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "bfaf623a-4de0-5513-a014-dbc49d2e82c2",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.2,
+            "pool_size": 1255.55,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "50e7ae80-fa6f-56d6-a089-d93f83c9622d",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "pool_size": 2.6,
+            "jackpot_size": 0.4,
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "28d39204-79d9-5549-9104-2a2058e8870f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 28.8,
+            "pool_size": 236.86,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "5739f5fb-24b8-5fa3-8b9e-8ea92a413e39",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.2,
+            "pool_size": 1255.55,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "0cf27e91-64d4-5753-a3a0-330dfaef2fbb",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 34,
+            "pool_size": 177.14,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "0ed6ca5b-d5cf-58fc-8be4-17a2437083b7",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 31.9,
+            "pool_size": 33.3,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "ffc98327-6d45-59e6-8840-2aebc80b5177",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 12.2,
+            "pool_size": 186.21,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "4a410ae8-20f2-5ef4-9122-c79d2cc5e389",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 10,
+            "pool_size": 24.4,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "018247cd-96c2-59e6-9ad2-b0e02040a735",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 28.8,
+            "pool_size": 236.86,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "ba4d2938-0580-5172-adfd-db0b8b6ef482",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 49,
+            "pool_size": 239.1,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "6eb4af9b-f757-5338-af2b-8c009c5784c8",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 49,
+            "pool_size": 239.1,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "ef37726f-ff73-5896-8c3e-a77ce11149fe",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "dividend": 3.2,
+            "pool_size": 14,
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "ea4a9257-f69e-504d-91d5-ad96957a3df4",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "fabe6c5e-b568-5832-9947-d91c4f8c5bd1",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "pool_size": 2.6,
+            "jackpot_size": 0.4,
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "4a410ae8-20f2-5ef4-9122-c79d2cc5e389",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 10,
+            "pool_size": 24.4,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "92d90317-8b5a-5cc0-add8-13f5ae7a2601",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 10,
+            "pool_size": 24.4,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "bb2e3ccb-3477-5887-874a-2ac8f882d66b",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "ffc98327-6d45-59e6-8840-2aebc80b5177",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 12.2,
+            "pool_size": 186.21,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "3ae6436f-212f-5183-9fde-137367f50c07",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.2,
+            "pool_size": 950.9,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          {
+            "id": "018247cd-96c2-59e6-9ad2-b0e02040a735",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 28.8,
+            "pool_size": 236.86,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "0b0dd694-827a-577a-91e9-91a2b0777a3b",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3d1ea299-0a07-4029-a58e-2c627d9200f0",
+            "dividend": 3.2,
+            "pool_size": 14,
+            "compound_id": "8bcdfc78-bc03-52ff-a206-b3f8fcb87f9a",
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "93d785d1-ec79-54ea-8a56-9f41a31e48e8",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 12.2,
+            "pool_size": 186.21,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "0ed6ca5b-d5cf-58fc-8be4-17a2437083b7",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 31.9,
+            "pool_size": 33.3,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 73.2,
+            "pool_size": 754.72,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 47.4,
+            "pool_size": 291.9,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "7955d53d-55cb-556c-b85a-d04f89ac9b70",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 34,
+            "pool_size": 177.14,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "7955d53d-55cb-556c-b85a-d04f89ac9b70",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 34,
+            "pool_size": 177.14,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+          },
+          {
+            "id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "7e338cf8-5ab7-4332-ad79-2bc78a651d87",
+            "dividend": 70.7,
+            "pool_size": 1266.66,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "6eb4af9b-f757-5338-af2b-8c009c5784c8",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "f63e5a0d-54c7-46b5-8a7f-106705dfb89a",
+            "dividend": 49,
+            "pool_size": 239.1,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "28d39204-79d9-5549-9104-2a2058e8870f",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 28.8,
+            "pool_size": 236.86,
+            "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+          },
+          {
+            "id": "92d90317-8b5a-5cc0-add8-13f5ae7a2601",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+              "name": "Final"
+            },
+            "product_type_id": "3ad5004f-36cf-4b5b-9cf8-de03fbbccf80",
+            "dividend": 10,
+            "pool_size": 24.4,
+            "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+          },
+          {
+            "id": "9c775657-8493-5c7d-9143-527733091ea1",
+            "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+            "status": {
+              "id": "eb99237a-939d-4423-a5be-8b305db41439",
+              "name": "Interim"
+            },
+            "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+            "dividend": 3.2,
+            "pool_size": 950.9,
+            "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          }
+        ],
+        "dividend_entrant_maps": [
+          {
+            "id": "c9586a44-dc7f-46ec-af42-08f3f9c3fee8",
+            "dividend_id": "ba4d2938-0580-5172-adfd-db0b8b6ef482",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "a88248c2-ac2d-46c7-8087-98f9038f0235",
+            "dividend_id": "0898e3c2-7654-5650-903c-1adae4497ca4",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "1f5864d1-4137-4d96-8933-3d63fa2f29bd",
+            "dividend_id": "3cc072e7-0ef5-5b65-8afa-d061ade763bd",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "d6cd55ea-5d6f-4a46-b099-8cb5caeac916",
+            "dividend_id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "35fbcfdf-26a4-4e25-9449-d5dee7c67c8a",
+            "dividend_id": "0cf27e91-64d4-5753-a3a0-330dfaef2fbb",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "95473afd-81ef-445d-89dc-28933955ba63",
+            "dividend_id": "0898e3c2-7654-5650-903c-1adae4497ca4",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "0a932b0a-b698-4fbc-802a-cfe285c7288c",
+            "dividend_id": "93d785d1-ec79-54ea-8a56-9f41a31e48e8",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "3fa5e911-d387-4322-9d9b-cb7601d3097d",
+            "dividend_id": "09d8115f-f105-58e5-8599-a510e05c591c",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "bf59130a-9440-45d2-98e4-a7eacadcc98e",
+            "dividend_id": "bfaf623a-4de0-5513-a014-dbc49d2e82c2",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "e076aa13-792e-465d-9ac0-a7f0e39b7a88",
+            "dividend_id": "50e7ae80-fa6f-56d6-a089-d93f83c9622d",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "84b2bbb3-15a5-40ee-9050-cf1a62e2d1aa",
+            "dividend_id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "30a70366-a352-4f55-afef-f1c7372a5d9b",
+            "dividend_id": "28d39204-79d9-5549-9104-2a2058e8870f",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "525a83e6-8b97-437d-8b4c-ee24bb7b0813",
+            "dividend_id": "5739f5fb-24b8-5fa3-8b9e-8ea92a413e39",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "a017cd5d-fc42-43ac-abc3-5da0929371b6",
+            "dividend_id": "0cf27e91-64d4-5753-a3a0-330dfaef2fbb",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "2938bbb8-d851-49d5-9820-9351deff90db",
+            "dividend_id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "788a0e6e-2aeb-403f-bf3e-ef82ae9ea83a",
+            "dividend_id": "0ed6ca5b-d5cf-58fc-8be4-17a2437083b7",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "0d32793c-7b1d-488d-be91-8e848ee41106",
+            "dividend_id": "ffc98327-6d45-59e6-8840-2aebc80b5177",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "c3c744fa-b77d-401f-b273-1e83042c9c75",
+            "dividend_id": "4a410ae8-20f2-5ef4-9122-c79d2cc5e389",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "599d6034-70d6-4e9f-b076-214f00138d60",
+            "dividend_id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "6b5c167a-7725-470b-8d9a-0f31f36ae6a2",
+            "dividend_id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "a66ee93f-4ca2-40be-ba37-64a50b1312c4",
+            "dividend_id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "ff0ecc43-2bbe-4553-bc37-b92328730692",
+            "dividend_id": "018247cd-96c2-59e6-9ad2-b0e02040a735",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "7ec7851a-58c8-41fc-b7b0-9345a5889c09",
+            "dividend_id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "1fb43941-4b89-4807-b748-5e9f2254abaa",
+            "dividend_id": "a9843270-b04f-5558-91ca-dd0d5b04ec71",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "e5996d1f-ba99-48b3-b190-a81b437c6ebe",
+            "dividend_id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "3fecf1ca-cb77-4acf-bb8d-e60a5271184e",
+            "dividend_id": "ba4d2938-0580-5172-adfd-db0b8b6ef482",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "4bbd405b-fe42-46af-a322-3dbe579c40e2",
+            "dividend_id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "d6b75f4a-1d8c-448a-829b-376d9257c416",
+            "dividend_id": "6eb4af9b-f757-5338-af2b-8c009c5784c8",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "71c457b6-2a06-4351-a88e-9da61b26bbd5",
+            "dividend_id": "ef37726f-ff73-5896-8c3e-a77ce11149fe",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "7fe841fe-4de5-4bfd-9395-dcd696bbc744",
+            "dividend_id": "ea4a9257-f69e-504d-91d5-ad96957a3df4",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "564afad4-575b-4051-9832-1ec1297dd2c1",
+            "dividend_id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "6487b2a2-7f95-4c79-ba9e-62219724c3d5",
+            "dividend_id": "fabe6c5e-b568-5832-9947-d91c4f8c5bd1",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "61a8b1a9-8608-4a89-9a38-da8af064ec35",
+            "dividend_id": "4a410ae8-20f2-5ef4-9122-c79d2cc5e389",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "483b592e-cd64-464e-8b49-5a06dbf1100a",
+            "dividend_id": "92d90317-8b5a-5cc0-add8-13f5ae7a2601",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "2ec492d2-17b8-4195-9fdd-f9ef6fedcb4c",
+            "dividend_id": "bb2e3ccb-3477-5887-874a-2ac8f882d66b",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "24e60aa0-1905-4dc5-a83c-b3e7d68423a2",
+            "dividend_id": "ac2baf11-d07b-565f-a4bd-af696c0cc0ff",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "198a8282-4849-45fc-a9dc-99c9ce6ce0e7",
+            "dividend_id": "ffc98327-6d45-59e6-8840-2aebc80b5177",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "9cea4b34-64b1-4583-a471-17032957b508",
+            "dividend_id": "3ae6436f-212f-5183-9fde-137367f50c07",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "cee34c27-d220-4f5e-b773-cd394591f72b",
+            "dividend_id": "018247cd-96c2-59e6-9ad2-b0e02040a735",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "248f09af-6017-4a5d-a924-b73f1c3e0035",
+            "dividend_id": "0b0dd694-827a-577a-91e9-91a2b0777a3b",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 2
+          },
+          {
+            "id": "1f110363-63f2-47fa-be8e-0c4962ee3242",
+            "dividend_id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "7aecf21a-3d70-4c01-a31f-a15ea5f7c1c5",
+            "dividend_id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "5b6bbe35-ad7b-4857-b086-26da5256ab00",
+            "dividend_id": "93d785d1-ec79-54ea-8a56-9f41a31e48e8",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "68f1efaf-1ac0-4774-b1c6-ff7a82b58bae",
+            "dividend_id": "0ed6ca5b-d5cf-58fc-8be4-17a2437083b7",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "1bf243ab-ba85-44f3-9a9f-55d9db52a7e2",
+            "dividend_id": "e86e25d4-6fa8-54e7-b16d-302476ebd25e",
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+            "position": 3
+          },
+          {
+            "id": "fbdd2913-40c9-4945-b65e-05168836521c",
+            "dividend_id": "42df4c96-2a9c-5d24-b61c-858a631a298c",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "b547a71d-ca53-4147-9564-e6a16994c85c",
+            "dividend_id": "656abd8e-2062-5ad2-9a31-0e07156e9c7f",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "987c197c-39be-4df6-a356-1ac146bdfdc7",
+            "dividend_id": "7955d53d-55cb-556c-b85a-d04f89ac9b70",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          },
+          {
+            "id": "748b64e4-7151-4b2f-ab21-854173813c72",
+            "dividend_id": "7955d53d-55cb-556c-b85a-d04f89ac9b70",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "a9b1fc8c-55f9-483a-9090-8510b4b0c705",
+            "dividend_id": "f71792b2-e653-5d02-8187-d4f4b789d880",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "1797bdd8-4a20-4c09-8ae3-ec254183be75",
+            "dividend_id": "6eb4af9b-f757-5338-af2b-8c009c5784c8",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "87503185-5ef8-42e9-b207-9d273139ed2a",
+            "dividend_id": "28d39204-79d9-5549-9104-2a2058e8870f",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "cfeab6be-ae67-4771-945b-2525fea95064",
+            "dividend_id": "92d90317-8b5a-5cc0-add8-13f5ae7a2601",
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+            "position": 2
+          },
+          {
+            "id": "3baa9853-c591-4891-a879-a1ac1b8c1a9b",
+            "dividend_id": "9c775657-8493-5c7d-9143-527733091ea1",
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+            "position": 1
+          }
+        ],
+        "region_id": "1d8f0778-6588-48e3-8b41-24a6c5cee494",
+        "track_condition": "Good",
+        "weather": "OCAST",
+        "country": "CA",
+        "state": "MB"
+      }
+    },
+    "prices": {
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:06ee91c7-333a-4748-bb9a-7e95e19f3631:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:0f9c40b5-90b3-4c6c-a52c-2535ddfc9a7f:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:15832bcb-dd03-4f43-ab62-35f26be5eedb:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:1c87e595-5b1d-4a27-bf86-5e79df233c09:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:32e19034-d1e6-4c52-acf1-be657a8676ee:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:3923efa8-4670-4e95-b004-e72c88ccf302:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:545d8773-fad9-40bd-846f-761de5d57845:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:5a29fbea-fa7c-4c45-9c0e-c0c7046ecc33:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:6c71e538-c0b4-4ea9-922b-8b8738e2ca81:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:8cd431d1-0b8c-4db3-855e-084d9c2e985e:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:940b8704-e497-4a76-b390-00918ff7d282:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:97e62963-6d7d-4227-8d89-50196841fa35:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:9bc605e1-f00a-432c-8441-d39f8e61b95e:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 25
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:bbc49806-2708-499c-af28-c17e8068b400:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:c56d8ff7-5883-4380-81b6-23cb0e2e130c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:d1b31dc3-eca9-4364-9ed3-156b91398bca:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:d23bced6-2a5e-46a0-b654-4b5af58c8459:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:d2eafde0-291c-422b-917e-d844601d9b4c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:d8a13e94-2d39-4b19-8e9a-3d1d471f5d04:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4:f9a2e5da-3bb8-4176-a140-aa0a4a84154f:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:06ee91c7-333a-4748-bb9a-7e95e19f3631:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:0f9c40b5-90b3-4c6c-a52c-2535ddfc9a7f:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:15832bcb-dd03-4f43-ab62-35f26be5eedb:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:1c87e595-5b1d-4a27-bf86-5e79df233c09:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:32e19034-d1e6-4c52-acf1-be657a8676ee:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:3923efa8-4670-4e95-b004-e72c88ccf302:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:545d8773-fad9-40bd-846f-761de5d57845:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:5a29fbea-fa7c-4c45-9c0e-c0c7046ecc33:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:6c71e538-c0b4-4ea9-922b-8b8738e2ca81:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:8cd431d1-0b8c-4db3-855e-084d9c2e985e:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:940b8704-e497-4a76-b390-00918ff7d282:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:97e62963-6d7d-4227-8d89-50196841fa35:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:9bc605e1-f00a-432c-8441-d39f8e61b95e:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 25
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:bbc49806-2708-499c-af28-c17e8068b400:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:c56d8ff7-5883-4380-81b6-23cb0e2e130c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:d1b31dc3-eca9-4364-9ed3-156b91398bca:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:d23bced6-2a5e-46a0-b654-4b5af58c8459:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:d2eafde0-291c-422b-917e-d844601d9b4c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:d8a13e94-2d39-4b19-8e9a-3d1d471f5d04:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453:f9a2e5da-3bb8-4176-a140-aa0a4a84154f:": {
+        "odds": {
+          "numerator": 2,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:06dfca1c-0d34-43c3-be07-68a241ef3999:": {
+        "odds": {
+          "numerator": 231,
+          "denominator": 20
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:06ee91c7-333a-4748-bb9a-7e95e19f3631:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:0f9c40b5-90b3-4c6c-a52c-2535ddfc9a7f:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:132c9ef9-1837-424a-b51c-5d590d403e5b:": {
+        "odds": {
+          "numerator": 253,
+          "denominator": 20
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:15832bcb-dd03-4f43-ab62-35f26be5eedb:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:1a658250-46ea-47ba-b530-76581c1642c6:": {
+        "odds": {
+          "numerator": 107,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:1afed515-4d14-42c8-8287-62676228ff7f:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:1c87e595-5b1d-4a27-bf86-5e79df233c09:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:1db54f32-98b1-4e1a-8974-3839e75add0c:": {
+        "odds": {
+          "numerator": 977,
+          "denominator": 100
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:1f48974a-7307-4408-8f06-8a16907d1309:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 93,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:1f48974a-7307-4408-8f06-8a16907d1309:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 73,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:1f48974a-7307-4408-8f06-8a16907d1309:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 6,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:21fa80b4-9ed1-4569-ba91-1b96022d0b06:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:225ce7dc-9681-418c-9c1e-bfece6f7556d:": {
+        "odds": {
+          "numerator": 107,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:28a9c7e1-4a4c-453d-9bc9-4aa465bb2502:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:3044819b-8abb-4d01-95f2-dba54efd4918:": {
+        "odds": {
+          "numerator": 1023,
+          "denominator": 100
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:32e19034-d1e6-4c52-acf1-be657a8676ee:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:3923efa8-4670-4e95-b004-e72c88ccf302:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:400905e9-c19f-47a6-a1ad-6a0d23145069:": {
+        "odds": {
+          "numerator": 977,
+          "denominator": 100
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:4b17332c-af6b-4e49-8f19-86336c525b54:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:524face5-f67f-490d-961b-5f1e410629da:": {
+        "odds": {
+          "numerator": 93,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:53040a01-c03b-473e-b23a-f51d34825439:": {
+        "odds": {
+          "numerator": 107,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:545d8773-fad9-40bd-846f-761de5d57845:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:5a29fbea-fa7c-4c45-9c0e-c0c7046ecc33:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:60a650be-4e80-4bc5-8521-809c74222de0:": {
+        "odds": {
+          "numerator": 4,
+          "denominator": 5
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:6c71e538-c0b4-4ea9-922b-8b8738e2ca81:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:7837e4ca-21e8-4912-b083-eac0ab755973:": {
+        "odds": {
+          "numerator": 93,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:7cd512eb-734d-4484-93a6-6c958b13d08e:": {
+        "odds": {
+          "numerator": 107,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:7d6a54e7-529a-4a05-80ce-5740deec88cc:": {
+        "odds": {
+          "numerator": 1023,
+          "denominator": 100
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:81c335c9-9f5f-4eb5-a146-465d1f2861ca:": {
+        "odds": {
+          "numerator": 121,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:821d6c21-6128-45fb-b179-12522c2e3404:": {
+        "odds": {
+          "numerator": 4,
+          "denominator": 5
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:8c974c65-5390-422d-8966-7131537dbc00:": {
+        "odds": {
+          "numerator": 93,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:8cd431d1-0b8c-4db3-855e-084d9c2e985e:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:8ef0ec7a-d052-4963-8427-bb8c55acb386:": {
+        "odds": {
+          "numerator": 253,
+          "denominator": 20
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:934c2e54-cc31-446f-85d8-bfddd7450af0:": {
+        "odds": {
+          "numerator": 121,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:940b8704-e497-4a76-b390-00918ff7d282:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:96aec81c-e9ca-403b-9187-eac4232384a3:": {
+        "odds": {
+          "numerator": 73,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:9727e357-3fde-42b8-949a-5d5633b4fc3b:": {
+        "odds": {
+          "numerator": 1023,
+          "denominator": 100
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:97e62963-6d7d-4227-8d89-50196841fa35:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:9bc605e1-f00a-432c-8441-d39f8e61b95e:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:9d56ff32-6658-4b39-8757-87025338e47c:": {
+        "odds": {
+          "numerator": 6,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:a011ef16-9459-40a8-8d4e-6fd0c8c023b9:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:a95f59f0-9605-472a-9578-a61677705b75:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 4,
+          "denominator": 5
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:ab409b13-157c-4d54-b6dc-58a02e59a704:": {
+        "odds": {
+          "numerator": 977,
+          "denominator": 100
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:af5d2af9-80aa-453c-8aa2-4a142bc802e2:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:b6f222db-12cf-46a7-93b6-51d130c84736:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:b867328d-cfdb-4ee8-85a3-3ab9fdaedef7:": {
+        "odds": {
+          "numerator": 231,
+          "denominator": 20
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:bbc49806-2708-499c-af28-c17e8068b400:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:c0d54203-de5f-4487-a3b6-b96049dfb28f:": {
+        "odds": {
+          "numerator": 93,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:c56d8ff7-5883-4380-81b6-23cb0e2e130c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:d1b31dc3-eca9-4364-9ed3-156b91398bca:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:d23bced6-2a5e-46a0-b654-4b5af58c8459:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:d2eafde0-291c-422b-917e-d844601d9b4c:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:d8a13e94-2d39-4b19-8e9a-3d1d471f5d04:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:dd2957ae-dacc-489e-a5da-f5c90e8bceb3:": {
+        "odds": {
+          "numerator": 93,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:df18c32f-31e8-4b44-ba2f-5e1d22468afa:": {
+        "odds": {
+          "numerator": 1023,
+          "denominator": 100
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:e3d2cff4-d8a0-4188-9d9d-9c996fc3bda4:": {
+        "odds": {
+          "numerator": 977,
+          "denominator": 100
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:e87af057-2cbc-45fe-b83e-6388d12f5546:": {
+        "odds": {
+          "numerator": 15,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:ed20e605-0129-40a9-90ed-4a0bcbfa7d4a:": {
+        "odds": {
+          "numerator": 73,
+          "denominator": 10
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:f613bb6e-0a10-490a-9ce4-9a275a296a7c:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:f7425e97-8284-45e0-9472-4e3eca792757:": {
+        "odds": {
+          "numerator": 4,
+          "denominator": 5
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664:f9a2e5da-3bb8-4176-a140-aa0a4a84154f:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:06dfca1c-0d34-43c3-be07-68a241ef3999:": {
+        "odds": {
+          "numerator": 147,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:06ee91c7-333a-4748-bb9a-7e95e19f3631:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:0f9c40b5-90b3-4c6c-a52c-2535ddfc9a7f:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:107c3a96-baa3-4983-9972-cd9896b8d1ad:": {
+        "odds": {
+          "numerator": 101,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:132c9ef9-1837-424a-b51c-5d590d403e5b:": {
+        "odds": {
+          "numerator": 1863,
+          "denominator": 100
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:15832bcb-dd03-4f43-ab62-35f26be5eedb:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:1a658250-46ea-47ba-b530-76581c1642c6:": {
+        "odds": {
+          "numerator": 207,
+          "denominator": 20
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:1afed515-4d14-42c8-8287-62676228ff7f:": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:1c87e595-5b1d-4a27-bf86-5e79df233c09:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:1db54f32-98b1-4e1a-8974-3839e75add0c:": {
+        "odds": {
+          "numerator": 1701,
+          "denominator": 100
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:1f48974a-7307-4408-8f06-8a16907d1309:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 9,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:1f48974a-7307-4408-8f06-8a16907d1309:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 15,
+          "denominator": 2
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:1f48974a-7307-4408-8f06-8a16907d1309:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 81,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:21fa80b4-9ed1-4569-ba91-1b96022d0b06:": {
+        "odds": {
+          "numerator": 81,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:225ce7dc-9681-418c-9c1e-bfece6f7556d:": {
+        "odds": {
+          "numerator": 207,
+          "denominator": 20
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:28a9c7e1-4a4c-453d-9bc9-4aa465bb2502:": {
+        "odds": {
+          "numerator": 17,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:3044819b-8abb-4d01-95f2-dba54efd4918:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:32e19034-d1e6-4c52-acf1-be657a8676ee:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:3923efa8-4670-4e95-b004-e72c88ccf302:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:400905e9-c19f-47a6-a1ad-6a0d23145069:": {
+        "odds": {
+          "numerator": 189,
+          "denominator": 20
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:4b17332c-af6b-4e49-8f19-86336c525b54:": {
+        "odds": {
+          "numerator": 15,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:524face5-f67f-490d-961b-5f1e410629da:": {
+        "odds": {
+          "numerator": 9,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:53040a01-c03b-473e-b23a-f51d34825439:": {
+        "odds": {
+          "numerator": 1863,
+          "denominator": 100
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:545d8773-fad9-40bd-846f-761de5d57845:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:5a29fbea-fa7c-4c45-9c0e-c0c7046ecc33:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:60a650be-4e80-4bc5-8521-809c74222de0:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:6c71e538-c0b4-4ea9-922b-8b8738e2ca81:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:7837e4ca-21e8-4912-b083-eac0ab755973:": {
+        "odds": {
+          "numerator": 81,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:7cd512eb-734d-4484-93a6-6c958b13d08e:": {
+        "odds": {
+          "numerator": 207,
+          "denominator": 20
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:7d6a54e7-529a-4a05-80ce-5740deec88cc:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:81c335c9-9f5f-4eb5-a146-465d1f2861ca:": {
+        "odds": {
+          "numerator": 891,
+          "denominator": 50
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:821d6c21-6128-45fb-b179-12522c2e3404:": {
+        "odds": {
+          "numerator": 101,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:8c974c65-5390-422d-8966-7131537dbc00:": {
+        "odds": {
+          "numerator": 9,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:8cd431d1-0b8c-4db3-855e-084d9c2e985e:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:8ef0ec7a-d052-4963-8427-bb8c55acb386:": {
+        "odds": {
+          "numerator": 161,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:934c2e54-cc31-446f-85d8-bfddd7450af0:": {
+        "odds": {
+          "numerator": 77,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:940b8704-e497-4a76-b390-00918ff7d282:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:96aec81c-e9ca-403b-9187-eac4232384a3:": {
+        "odds": {
+          "numerator": 15,
+          "denominator": 2
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:9727e357-3fde-42b8-949a-5d5633b4fc3b:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:97e62963-6d7d-4227-8d89-50196841fa35:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:9bc605e1-f00a-432c-8441-d39f8e61b95e:": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:9d56ff32-6658-4b39-8757-87025338e47c:": {
+        "odds": {
+          "numerator": 81,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:a011ef16-9459-40a8-8d4e-6fd0c8c023b9:": {
+        "odds": {
+          "numerator": 18,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:a95f59f0-9605-472a-9578-a61677705b75:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:a95f59f0-9605-472a-9578-a61677705b75:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 101,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:ab409b13-157c-4d54-b6dc-58a02e59a704:": {
+        "odds": {
+          "numerator": 189,
+          "denominator": 20
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:af5d2af9-80aa-453c-8aa2-4a142bc802e2:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:b6f222db-12cf-46a7-93b6-51d130c84736:": {
+        "odds": {
+          "numerator": 17,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:b867328d-cfdb-4ee8-85a3-3ab9fdaedef7:": {
+        "odds": {
+          "numerator": 1701,
+          "denominator": 100
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:bbc49806-2708-499c-af28-c17e8068b400:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:be051fb7-8e7c-4d44-be65-69bec6354f53:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:c0d54203-de5f-4487-a3b6-b96049dfb28f:": {
+        "odds": {
+          "numerator": 9,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:c56d8ff7-5883-4380-81b6-23cb0e2e130c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:d1b31dc3-eca9-4364-9ed3-156b91398bca:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:d23bced6-2a5e-46a0-b654-4b5af58c8459:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:d2eafde0-291c-422b-917e-d844601d9b4c:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:d8a13e94-2d39-4b19-8e9a-3d1d471f5d04:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:dd2957ae-dacc-489e-a5da-f5c90e8bceb3:": {
+        "odds": {
+          "numerator": 81,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:df18c32f-31e8-4b44-ba2f-5e1d22468afa:": {
+        "odds": {
+          "numerator": 891,
+          "denominator": 50
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:e3d2cff4-d8a0-4188-9d9d-9c996fc3bda4:": {
+        "odds": {
+          "numerator": 189,
+          "denominator": 20
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:e87af057-2cbc-45fe-b83e-6388d12f5546:": {
+        "odds": {
+          "numerator": 19,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:ed20e605-0129-40a9-90ed-4a0bcbfa7d4a:": {
+        "odds": {
+          "numerator": 9,
+          "denominator": 1
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:f613bb6e-0a10-490a-9ce4-9a275a296a7c:": {
+        "odds": {
+          "numerator": 81,
+          "denominator": 5
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:f7425e97-8284-45e0-9472-4e3eca792757:": {
+        "odds": {
+          "numerator": 101,
+          "denominator": 10
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487:f9a2e5da-3bb8-4176-a140-aa0a4a84154f:": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:06ee91c7-333a-4748-bb9a-7e95e19f3631:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:0f9c40b5-90b3-4c6c-a52c-2535ddfc9a7f:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:15832bcb-dd03-4f43-ab62-35f26be5eedb:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:1c87e595-5b1d-4a27-bf86-5e79df233c09:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:32e19034-d1e6-4c52-acf1-be657a8676ee:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:3923efa8-4670-4e95-b004-e72c88ccf302:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:545d8773-fad9-40bd-846f-761de5d57845:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:5a29fbea-fa7c-4c45-9c0e-c0c7046ecc33:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:6c71e538-c0b4-4ea9-922b-8b8738e2ca81:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:8cd431d1-0b8c-4db3-855e-084d9c2e985e:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:940b8704-e497-4a76-b390-00918ff7d282:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:97e62963-6d7d-4227-8d89-50196841fa35:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:9bc605e1-f00a-432c-8441-d39f8e61b95e:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 25
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:bbc49806-2708-499c-af28-c17e8068b400:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:c56d8ff7-5883-4380-81b6-23cb0e2e130c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:d1b31dc3-eca9-4364-9ed3-156b91398bca:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:d23bced6-2a5e-46a0-b654-4b5af58c8459:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:d2eafde0-291c-422b-917e-d844601d9b4c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:d8a13e94-2d39-4b19-8e9a-3d1d471f5d04:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4:f9a2e5da-3bb8-4176-a140-aa0a4a84154f:": {
+        "odds": {
+          "numerator": 15,
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:06dfca1c-0d34-43c3-be07-68a241ef3999:": {
+        "odds": {
+          "numerator": 27,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:06ee91c7-333a-4748-bb9a-7e95e19f3631:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:0f9c40b5-90b3-4c6c-a52c-2535ddfc9a7f:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:107c3a96-baa3-4983-9972-cd9896b8d1ad:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:132c9ef9-1837-424a-b51c-5d590d403e5b:": {
+        "odds": {
+          "numerator": 69,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:15832bcb-dd03-4f43-ab62-35f26be5eedb:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:1a658250-46ea-47ba-b530-76581c1642c6:": {
+        "odds": {
+          "numerator": 29,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:1afed515-4d14-42c8-8287-62676228ff7f:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:1c87e595-5b1d-4a27-bf86-5e79df233c09:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:1db54f32-98b1-4e1a-8974-3839e75add0c:": {
+        "odds": {
+          "numerator": 63,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:1f48974a-7307-4408-8f06-8a16907d1309:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:1f48974a-7307-4408-8f06-8a16907d1309:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 5
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:1f48974a-7307-4408-8f06-8a16907d1309:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:21fa80b4-9ed1-4569-ba91-1b96022d0b06:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 5
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:225ce7dc-9681-418c-9c1e-bfece6f7556d:": {
+        "odds": {
+          "numerator": 29,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:28a9c7e1-4a4c-453d-9bc9-4aa465bb2502:": {
+        "odds": {
+          "numerator": 7,
+          "denominator": 20
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:3044819b-8abb-4d01-95f2-dba54efd4918:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 20
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:32e19034-d1e6-4c52-acf1-be657a8676ee:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:3923efa8-4670-4e95-b004-e72c88ccf302:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:400905e9-c19f-47a6-a1ad-6a0d23145069:": {
+        "odds": {
+          "numerator": 53,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:4b17332c-af6b-4e49-8f19-86336c525b54:": {
+        "odds": {
+          "numerator": 7,
+          "denominator": 25
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:524face5-f67f-490d-961b-5f1e410629da:": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:53040a01-c03b-473e-b23a-f51d34825439:": {
+        "odds": {
+          "numerator": 69,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:545d8773-fad9-40bd-846f-761de5d57845:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:5a29fbea-fa7c-4c45-9c0e-c0c7046ecc33:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:60a650be-4e80-4bc5-8521-809c74222de0:": {
+        "odds": {
+          "numerator": 7,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:6c71e538-c0b4-4ea9-922b-8b8738e2ca81:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:7837e4ca-21e8-4912-b083-eac0ab755973:": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:7cd512eb-734d-4484-93a6-6c958b13d08e:": {
+        "odds": {
+          "numerator": 29,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:7d6a54e7-529a-4a05-80ce-5740deec88cc:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 20
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:81c335c9-9f5f-4eb5-a146-465d1f2861ca:": {
+        "odds": {
+          "numerator": 33,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:821d6c21-6128-45fb-b179-12522c2e3404:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:8c974c65-5390-422d-8966-7131537dbc00:": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:8cd431d1-0b8c-4db3-855e-084d9c2e985e:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:8ef0ec7a-d052-4963-8427-bb8c55acb386:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:934c2e54-cc31-446f-85d8-bfddd7450af0:": {
+        "odds": {
+          "numerator": 29,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:940b8704-e497-4a76-b390-00918ff7d282:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:96aec81c-e9ca-403b-9187-eac4232384a3:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 5
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:9727e357-3fde-42b8-949a-5d5633b4fc3b:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 20
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:97e62963-6d7d-4227-8d89-50196841fa35:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:9bc605e1-f00a-432c-8441-d39f8e61b95e:": {
+        "odds": {
+          "numerator": 2,
+          "denominator": 5
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:9d56ff32-6658-4b39-8757-87025338e47c:": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:a011ef16-9459-40a8-8d4e-6fd0c8c023b9:": {
+        "odds": {
+          "numerator": 7,
+          "denominator": 20
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:a95644d1-3134-43d8-b965-e83ec13a5568:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:a95f59f0-9605-472a-9578-a61677705b75:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 7,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:a95f59f0-9605-472a-9578-a61677705b75:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:a95f59f0-9605-472a-9578-a61677705b75:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:ab409b13-157c-4d54-b6dc-58a02e59a704:": {
+        "odds": {
+          "numerator": 53,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:af5d2af9-80aa-453c-8aa2-4a142bc802e2:": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:b6f222db-12cf-46a7-93b6-51d130c84736:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:b867328d-cfdb-4ee8-85a3-3ab9fdaedef7:": {
+        "odds": {
+          "numerator": 63,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:bbc49806-2708-499c-af28-c17e8068b400:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:be051fb7-8e7c-4d44-be65-69bec6354f53:": {
+        "odds": {
+          "numerator": 7,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:c0d54203-de5f-4487-a3b6-b96049dfb28f:": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:c56d8ff7-5883-4380-81b6-23cb0e2e130c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:d1b31dc3-eca9-4364-9ed3-156b91398bca:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:d23bced6-2a5e-46a0-b654-4b5af58c8459:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:d2eafde0-291c-422b-917e-d844601d9b4c:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:d8a13e94-2d39-4b19-8e9a-3d1d471f5d04:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:dd2957ae-dacc-489e-a5da-f5c90e8bceb3:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 5
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:df18c32f-31e8-4b44-ba2f-5e1d22468afa:": {
+        "odds": {
+          "numerator": 33,
+          "denominator": 50
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:e3d2cff4-d8a0-4188-9d9d-9c996fc3bda4:": {
+        "odds": {
+          "numerator": 53,
+          "denominator": 100
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:e87af057-2cbc-45fe-b83e-6388d12f5546:": {
+        "odds": {
+          "numerator": 7,
+          "denominator": 20
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:ed20e605-0129-40a9-90ed-4a0bcbfa7d4a:": {
+        "odds": {
+          "numerator": 1,
+          "denominator": 2
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:f613bb6e-0a10-490a-9ce4-9a275a296a7c:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 5
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:f7425e97-8284-45e0-9472-4e3eca792757:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 10
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f:f9a2e5da-3bb8-4176-a140-aa0a4a84154f:": {
+        "odds": {
+          "numerator": 9,
+          "denominator": 20
+        }
+      },
+      ":3ad5004f-36cf-4b5b-9cf8-de03fbbccf80:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 139,
+          "denominator": 5
+        }
+      },
+      ":3ad5004f-36cf-4b5b-9cf8-de03fbbccf80:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 9,
+          "denominator": 1
+        }
+      },
+      ":3ad5004f-36cf-4b5b-9cf8-de03fbbccf80:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 56,
+          "denominator": 5
+        }
+      },
+      ":3d1ea299-0a07-4029-a58e-2c627d9200f0:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+
+        }
+      },
+      ":3d1ea299-0a07-4029-a58e-2c627d9200f0:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+
+        }
+      },
+      ":3d1ea299-0a07-4029-a58e-2c627d9200f0:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      ":7e338cf8-5ab7-4332-ad79-2bc78a651d87:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 697,
+          "denominator": 10
+        }
+      },
+      ":7e338cf8-5ab7-4332-ad79-2bc78a651d87:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 232,
+          "denominator": 5
+        }
+      },
+      ":7e338cf8-5ab7-4332-ad79-2bc78a651d87:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 361,
+          "denominator": 5
+        }
+      },
+      ":f63e5a0d-54c7-46b5-8a7f-106705dfb89a:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 48,
+          "denominator": 1
+        }
+      },
+      ":f63e5a0d-54c7-46b5-8a7f-106705dfb89a:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 309,
+          "denominator": 10
+        }
+      },
+      ":f63e5a0d-54c7-46b5-8a7f-106705dfb89a:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 33,
+          "denominator": 1
+        }
+      },
+      "aa30fcd1-7395-4412-af0d-d20a5fecd410:1db54f32-98b1-4e1a-8974-3839e75add0c:": {
+        "odds": {
+          "numerator": 63,
+          "denominator": 25
+        }
+      },
+      "aa30fcd1-7395-4412-af0d-d20a5fecd410:1f48974a-7307-4408-8f06-8a16907d1309:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "aa30fcd1-7395-4412-af0d-d20a5fecd410:53040a01-c03b-473e-b23a-f51d34825439:": {
+        "odds": {
+          "numerator": 69,
+          "denominator": 25
+        }
+      },
+      "aa30fcd1-7395-4412-af0d-d20a5fecd410:96aec81c-e9ca-403b-9187-eac4232384a3:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "aa30fcd1-7395-4412-af0d-d20a5fecd410:dd2957ae-dacc-489e-a5da-f5c90e8bceb3:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "aa30fcd1-7395-4412-af0d-d20a5fecd410:df18c32f-31e8-4b44-ba2f-5e1d22468afa:": {
+        "odds": {
+          "numerator": 66,
+          "denominator": 25
+        }
+      },
+      "aa30fcd1-7395-4412-af0d-d20a5fecd410:ed20e605-0129-40a9-90ed-4a0bcbfa7d4a:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:1a658250-46ea-47ba-b530-76581c1642c6:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 20
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:1db54f32-98b1-4e1a-8974-3839e75add0c:": {
+        "odds": {
+          "numerator": 441,
+          "denominator": 50
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:1f48974a-7307-4408-8f06-8a16907d1309:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:1f48974a-7307-4408-8f06-8a16907d1309:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:1f48974a-7307-4408-8f06-8a16907d1309:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 42,
+          "denominator": 5
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:225ce7dc-9681-418c-9c1e-bfece6f7556d:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 20
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:3044819b-8abb-4d01-95f2-dba54efd4918:": {
+        "odds": {
+          "numerator": 473,
+          "denominator": 100
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:400905e9-c19f-47a6-a1ad-6a0d23145069:": {
+        "odds": {
+          "numerator": 113,
+          "denominator": 25
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:524face5-f67f-490d-961b-5f1e410629da:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:53040a01-c03b-473e-b23a-f51d34825439:": {
+        "odds": {
+          "numerator": 483,
+          "denominator": 50
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:60a650be-4e80-4bc5-8521-809c74222de0:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:7837e4ca-21e8-4912-b083-eac0ab755973:": {
+        "odds": {
+          "numerator": 42,
+          "denominator": 5
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:7cd512eb-734d-4484-93a6-6c958b13d08e:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 20
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:7d6a54e7-529a-4a05-80ce-5740deec88cc:": {
+        "odds": {
+          "numerator": 473,
+          "denominator": 100
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:821d6c21-6128-45fb-b179-12522c2e3404:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:8c974c65-5390-422d-8966-7131537dbc00:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:96aec81c-e9ca-403b-9187-eac4232384a3:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:9727e357-3fde-42b8-949a-5d5633b4fc3b:": {
+        "odds": {
+          "numerator": 473,
+          "denominator": 100
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:9d56ff32-6658-4b39-8757-87025338e47c:": {
+        "odds": {
+          "numerator": 42,
+          "denominator": 5
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:a95644d1-3134-43d8-b965-e83ec13a5568:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:a95f59f0-9605-472a-9578-a61677705b75:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:a95f59f0-9605-472a-9578-a61677705b75:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:ab409b13-157c-4d54-b6dc-58a02e59a704:": {
+        "odds": {
+          "numerator": 113,
+          "denominator": 25
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:be051fb7-8e7c-4d44-be65-69bec6354f53:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:c0d54203-de5f-4487-a3b6-b96049dfb28f:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:dd2957ae-dacc-489e-a5da-f5c90e8bceb3:": {
+        "odds": {
+          "numerator": 42,
+          "denominator": 5
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:df18c32f-31e8-4b44-ba2f-5e1d22468afa:": {
+        "odds": {
+          "numerator": 231,
+          "denominator": 25
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:e3d2cff4-d8a0-4188-9d9d-9c996fc3bda4:": {
+        "odds": {
+          "numerator": 113,
+          "denominator": 25
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d:ed20e605-0129-40a9-90ed-4a0bcbfa7d4a:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:06dfca1c-0d34-43c3-be07-68a241ef3999:": {
+        "odds": {
+          "numerator": 221,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:06ee91c7-333a-4748-bb9a-7e95e19f3631:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:0f9c40b5-90b3-4c6c-a52c-2535ddfc9a7f:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:107c3a96-baa3-4983-9972-cd9896b8d1ad:": {
+        "odds": {
+          "numerator": 37,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:132c9ef9-1837-424a-b51c-5d590d403e5b:": {
+        "odds": {
+          "numerator": 72,
+          "denominator": 25
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:15832bcb-dd03-4f43-ab62-35f26be5eedb:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:1a658250-46ea-47ba-b530-76581c1642c6:": {
+        "odds": {
+          "numerator": 253,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:1afed515-4d14-42c8-8287-62676228ff7f:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:1c87e595-5b1d-4a27-bf86-5e79df233c09:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:1db54f32-98b1-4e1a-8974-3839e75add0c:": {
+        "odds": {
+          "numerator": 263,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:1f48974a-7307-4408-8f06-8a16907d1309:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:1f48974a-7307-4408-8f06-8a16907d1309:d08b3b0c-45e1-48ed-8800-43caf4096857": {
+        "odds": {
+          "numerator": 5,
+          "denominator": 2
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:1f48974a-7307-4408-8f06-8a16907d1309:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:21fa80b4-9ed1-4569-ba91-1b96022d0b06:": {
+        "odds": {
+          "numerator": 5,
+          "denominator": 2
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:225ce7dc-9681-418c-9c1e-bfece6f7556d:": {
+        "odds": {
+          "numerator": 253,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:28a9c7e1-4a4c-453d-9bc9-4aa465bb2502:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:3044819b-8abb-4d01-95f2-dba54efd4918:": {
+        "odds": {
+          "numerator": 121,
+          "denominator": 50
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:32e19034-d1e6-4c52-acf1-be657a8676ee:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:3923efa8-4670-4e95-b004-e72c88ccf302:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:400905e9-c19f-47a6-a1ad-6a0d23145069:": {
+        "odds": {
+          "numerator": 231,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:4b17332c-af6b-4e49-8f19-86336c525b54:": {
+        "odds": {
+          "numerator": 23,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:524face5-f67f-490d-961b-5f1e410629da:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:53040a01-c03b-473e-b23a-f51d34825439:": {
+        "odds": {
+          "numerator": 72,
+          "denominator": 25
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:545d8773-fad9-40bd-846f-761de5d57845:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:5a29fbea-fa7c-4c45-9c0e-c0c7046ecc33:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:60a650be-4e80-4bc5-8521-809c74222de0:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:6c71e538-c0b4-4ea9-922b-8b8738e2ca81:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:7837e4ca-21e8-4912-b083-eac0ab755973:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:7cd512eb-734d-4484-93a6-6c958b13d08e:": {
+        "odds": {
+          "numerator": 253,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:7d6a54e7-529a-4a05-80ce-5740deec88cc:": {
+        "odds": {
+          "numerator": 121,
+          "denominator": 50
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:81c335c9-9f5f-4eb5-a146-465d1f2861ca:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 4
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:821d6c21-6128-45fb-b179-12522c2e3404:": {
+        "odds": {
+          "numerator": 37,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:8c974c65-5390-422d-8966-7131537dbc00:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:8cd431d1-0b8c-4db3-855e-084d9c2e985e:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:8ef0ec7a-d052-4963-8427-bb8c55acb386:": {
+        "odds": {
+          "numerator": 121,
+          "denominator": 50
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:934c2e54-cc31-446f-85d8-bfddd7450af0:": {
+        "odds": {
+          "numerator": 231,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:940b8704-e497-4a76-b390-00918ff7d282:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:96aec81c-e9ca-403b-9187-eac4232384a3:": {
+        "odds": {
+          "numerator": 5,
+          "denominator": 2
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:9727e357-3fde-42b8-949a-5d5633b4fc3b:": {
+        "odds": {
+          "numerator": 121,
+          "denominator": 50
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:97e62963-6d7d-4227-8d89-50196841fa35:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:9bc605e1-f00a-432c-8441-d39f8e61b95e:": {
+        "odds": {
+          "numerator": 5,
+          "denominator": 2
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:9d56ff32-6658-4b39-8757-87025338e47c:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:a011ef16-9459-40a8-8d4e-6fd0c8c023b9:": {
+        "odds": {
+          "numerator": 27,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:a95f59f0-9605-472a-9578-a61677705b75:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:a95f59f0-9605-472a-9578-a61677705b75:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 37,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:ab409b13-157c-4d54-b6dc-58a02e59a704:": {
+        "odds": {
+          "numerator": 231,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:af5d2af9-80aa-453c-8aa2-4a142bc802e2:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:b6f222db-12cf-46a7-93b6-51d130c84736:": {
+        "odds": {
+          "numerator": 5,
+          "denominator": 2
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:b867328d-cfdb-4ee8-85a3-3ab9fdaedef7:": {
+        "odds": {
+          "numerator": 263,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:bbc49806-2708-499c-af28-c17e8068b400:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:be051fb7-8e7c-4d44-be65-69bec6354f53:": {
+        "odds": {
+          "numerator": 12,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:c0d54203-de5f-4487-a3b6-b96049dfb28f:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:c56d8ff7-5883-4380-81b6-23cb0e2e130c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:d1b31dc3-eca9-4364-9ed3-156b91398bca:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:d23bced6-2a5e-46a0-b654-4b5af58c8459:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:d2eafde0-291c-422b-917e-d844601d9b4c:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:d8a13e94-2d39-4b19-8e9a-3d1d471f5d04:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:dd2957ae-dacc-489e-a5da-f5c90e8bceb3:": {
+        "odds": {
+          "numerator": 5,
+          "denominator": 2
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:df18c32f-31e8-4b44-ba2f-5e1d22468afa:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 4
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:e3d2cff4-d8a0-4188-9d9d-9c996fc3bda4:": {
+        "odds": {
+          "numerator": 231,
+          "denominator": 100
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:e87af057-2cbc-45fe-b83e-6388d12f5546:": {
+        "odds": {
+          "numerator": 14,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:ed20e605-0129-40a9-90ed-4a0bcbfa7d4a:": {
+        "odds": {
+          "numerator": 11,
+          "denominator": 5
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:f613bb6e-0a10-490a-9ce4-9a275a296a7c:": {
+        "odds": {
+          "numerator": 5,
+          "denominator": 2
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:f7425e97-8284-45e0-9472-4e3eca792757:": {
+        "odds": {
+          "numerator": 37,
+          "denominator": 10
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5:f9a2e5da-3bb8-4176-a140-aa0a4a84154f:": {
+        "odds": {
+          "numerator": 23,
+          "denominator": 10
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:06ee91c7-333a-4748-bb9a-7e95e19f3631:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:0f9c40b5-90b3-4c6c-a52c-2535ddfc9a7f:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:15832bcb-dd03-4f43-ab62-35f26be5eedb:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:1c87e595-5b1d-4a27-bf86-5e79df233c09:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:32e19034-d1e6-4c52-acf1-be657a8676ee:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:3923efa8-4670-4e95-b004-e72c88ccf302:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:545d8773-fad9-40bd-846f-761de5d57845:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:5a29fbea-fa7c-4c45-9c0e-c0c7046ecc33:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:6c71e538-c0b4-4ea9-922b-8b8738e2ca81:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:8cd431d1-0b8c-4db3-855e-084d9c2e985e:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:940b8704-e497-4a76-b390-00918ff7d282:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:97e62963-6d7d-4227-8d89-50196841fa35:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:9bc605e1-f00a-432c-8441-d39f8e61b95e:": {
+        "odds": {
+          "numerator": 3,
+          "denominator": 25
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:bbc49806-2708-499c-af28-c17e8068b400:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:c56d8ff7-5883-4380-81b6-23cb0e2e130c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:d1b31dc3-eca9-4364-9ed3-156b91398bca:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:d23bced6-2a5e-46a0-b654-4b5af58c8459:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:d2eafde0-291c-422b-917e-d844601d9b4c:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:d8a13e94-2d39-4b19-8e9a-3d1d471f5d04:": {
+        "odds": {
+          "denominator": 1
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d:f9a2e5da-3bb8-4176-a140-aa0a4a84154f:": {
+        "odds": {
+          "numerator": 13,
+          "denominator": 50
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:107c3a96-baa3-4983-9972-cd9896b8d1ad:": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 5
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:1a658250-46ea-47ba-b530-76581c1642c6:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 20
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:1db54f32-98b1-4e1a-8974-3839e75add0c:": {
+        "odds": {
+          "numerator": 113,
+          "denominator": 25
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:1f48974a-7307-4408-8f06-8a16907d1309:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:1f48974a-7307-4408-8f06-8a16907d1309:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:225ce7dc-9681-418c-9c1e-bfece6f7556d:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 20
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:3044819b-8abb-4d01-95f2-dba54efd4918:": {
+        "odds": {
+          "numerator": 473,
+          "denominator": 100
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:400905e9-c19f-47a6-a1ad-6a0d23145069:": {
+        "odds": {
+          "numerator": 113,
+          "denominator": 25
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:524face5-f67f-490d-961b-5f1e410629da:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:53040a01-c03b-473e-b23a-f51d34825439:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 20
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:60a650be-4e80-4bc5-8521-809c74222de0:": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 5
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:7837e4ca-21e8-4912-b083-eac0ab755973:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:7cd512eb-734d-4484-93a6-6c958b13d08e:": {
+        "odds": {
+          "numerator": 99,
+          "denominator": 20
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:7d6a54e7-529a-4a05-80ce-5740deec88cc:": {
+        "odds": {
+          "numerator": 473,
+          "denominator": 100
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:821d6c21-6128-45fb-b179-12522c2e3404:": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 5
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:8c974c65-5390-422d-8966-7131537dbc00:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:9727e357-3fde-42b8-949a-5d5633b4fc3b:": {
+        "odds": {
+          "numerator": 473,
+          "denominator": 100
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:9d56ff32-6658-4b39-8757-87025338e47c:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:a95f59f0-9605-472a-9578-a61677705b75:18ba60da-abd2-463c-a34a-dc6368377ac8": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 5
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:a95f59f0-9605-472a-9578-a61677705b75:fc1c5201-5599-4c2b-a02c-78477404f96b": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 5
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:ab409b13-157c-4d54-b6dc-58a02e59a704:": {
+        "odds": {
+          "numerator": 113,
+          "denominator": 25
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:be051fb7-8e7c-4d44-be65-69bec6354f53:": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 5
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:c0d54203-de5f-4487-a3b6-b96049dfb28f:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:dd2957ae-dacc-489e-a5da-f5c90e8bceb3:": {
+        "odds": {
+          "numerator": 43,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:df18c32f-31e8-4b44-ba2f-5e1d22468afa:": {
+        "odds": {
+          "numerator": 473,
+          "denominator": 100
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:e3d2cff4-d8a0-4188-9d9d-9c996fc3bda4:": {
+        "odds": {
+          "numerator": 113,
+          "denominator": 25
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:ed20e605-0129-40a9-90ed-4a0bcbfa7d4a:": {
+        "odds": {
+          "numerator": 21,
+          "denominator": 10
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee:f7425e97-8284-45e0-9472-4e3eca792757:": {
+        "odds": {
+          "numerator": 16,
+          "denominator": 5
+        }
+      }
+    },
+    "venues": {
+      "1b16a7b8-0633-41a7-bbc0-523722ab3881": {
+        "id": "1b16a7b8-0633-41a7-bbc0-523722ab3881",
+        "name": "Assiniboia Downs",
+        "state": "MB",
+        "country": "CA",
+        "category_id": "4a2788f8-e825-4d36-9894-efd4baf1cfae"
+      }
+    },
+    "substitutions": {
+      "21c9fa36-36eb-5d99-bb86-fafbb4c0277e": {
+        "id": "21c9fa36-36eb-5d99-bb86-fafbb4c0277e",
+        "race_id": "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+        "entrant_id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f",
+        "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+        "tote_id": "18ba60da-abd2-463c-a34a-dc6368377ac8"
+      },
+      "334caa4f-d8da-5322-9527-51ba0e49ed25": {
+        "id": "334caa4f-d8da-5322-9527-51ba0e49ed25",
+        "race_id": "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+        "entrant_id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f",
+        "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+        "tote_id": "fc1c5201-5599-4c2b-a02c-78477404f96b"
+      },
+      "669c5a9b-5246-527f-baaf-a1707e4dfc7e": {
+        "id": "669c5a9b-5246-527f-baaf-a1707e4dfc7e",
+        "race_id": "1ffff631-2c04-46b8-b397-74ef61d46bf0",
+        "entrant_id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f",
+        "product_type_id": "1f48974a-7307-4408-8f06-8a16907d1309",
+        "tote_id": "d08b3b0c-45e1-48ed-8800-43caf4096857"
+      }
+    },
+    "results": {
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664": {
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+        "result_status_id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+        "position": 3
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487": {
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+        "result_status_id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+        "position": 2
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f": {
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "entrant_id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f",
+        "result_status_id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+        "position": 4
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5": {
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+        "result_status_id": "4e97b98c-048e-4cca-a197-cccf024fd5f9",
+        "position": 1
+      }
+    },
+    "entrants": {
+      "": {
+
+      },
+      "09fdf77d-1272-476f-a586-664c68ee5ce4": {
+        "id": "09fdf77d-1272-476f-a586-664c68ee5ce4",
+        "name": "Rough Customer",
+        "barrier": 2,
+        "number": 2,
+        "market_id": "cd5b255b-e1fe-4476-acad-df6973604d67",
+        "visible": true,
+        "form_summary": {
+          "last20Starts": "2424",
+          "riderOrDriver": "Andre Martin",
+          "trainerName": "Rod Heggie",
+          "bestTime": "",
+          "handicapWeight": 53,
+          "entrantComment": "Most recently 4th of 7 at this track on June 26 over 1207m, 8 len behind Chicago's Gray carrying 55.5kg at $24.20. Before that raced on the speed and boxed on steadily 2nd of 8 at Century Mile on June 10 over 1207m, 0.8 len behind Paddys Rocket carrying 55kg at $2.30. Fully tested on his recent run.",
+          "speedmap": {
+            "settling_lengths": 6,
+            "entrant_id": "09fdf77d-1272-476f-a586-664c68ee5ce4"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "342054c2-b516-454a-a1e6-8d7fbea81453": {
+        "id": "342054c2-b516-454a-a1e6-8d7fbea81453",
+        "name": "Saxon Saga",
+        "barrier": 5,
+        "number": 5,
+        "market_id": "cd5b255b-e1fe-4476-acad-df6973604d67",
+        "visible": true,
+        "form_summary": {
+          "last20Starts": "3613116122",
+          "riderOrDriver": "Renaldo Cumberbatch",
+          "trainerName": "Wendy Anderson",
+          "bestTime": "",
+          "handicapWeight": 55.5,
+          "entrantComment": "Recent form sound. Most recently sat on the speed and boxed on steadily 2nd of 7 at this track on June 26 over 1207m, 3 len behind Chicago's Gray carrying 55.5kg at $6.95. The race before that 2nd in a small field at this track on June 5 over 1006m, 2.5 len behind Chicago's Gray with 55.5kg at $3.45. Should go well in this line up.",
+          "speedmap": {
+            "settling_lengths": 8,
+            "entrant_id": "342054c2-b516-454a-a1e6-8d7fbea81453"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664": {
+        "id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664",
+        "name": "Rough Customer",
+        "barrier": 2,
+        "number": 2,
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "visible": true,
+        "barrier_position": "2",
+        "form_summary": {
+          "last20Starts": "2424",
+          "riderOrDriver": "Andre Martin",
+          "trainerName": "Rod Heggie",
+          "bestTime": "",
+          "handicapWeight": 53,
+          "entrantComment": "Most recently 4th of 7 at this track on June 26 over 1207m, 8 len behind Chicago's Gray carrying 55.5kg at $24.20. Before that raced on the speed and boxed on steadily 2nd of 8 at Century Mile on June 10 over 1207m, 0.8 len behind Paddys Rocket carrying 55kg at $2.30. Fully tested on his recent run.",
+          "speedmap": {
+            "settling_lengths": 6,
+            "entrant_id": "3f8d014c-c1d9-4abb-9d49-161aea5f4664"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487": {
+        "id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487",
+        "name": "Green Amazon",
+        "barrier": 1,
+        "number": 1,
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "visible": true,
+        "barrier_position": "1",
+        "form_summary": {
+          "last20Starts": "85655x2313",
+          "riderOrDriver": "Sven Balroop",
+          "trainerName": "Steven Gaskin",
+          "bestTime": "",
+          "handicapWeight": 53,
+          "entrantComment": "Form hard to fault. Last start 3rd in a small field at this track on July 5 over 1207m, 12 len behind Jeff Fa Fa with 55.5kg at $19.50. Before that won by 1.75 len at this track June 20 over 1106m defeating Ron Ron with 55.5kg at $5.10. Definite winning chance. Keep safe.",
+          "speedmap": {
+            "settling_lengths": 7,
+            "entrant_id": "4ad3988d-8af1-4435-bb15-4b02f0c3a487"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4": {
+        "id": "6a8b2158-eba3-46d3-b384-5c9a34cae6b4",
+        "name": "Green Amazon",
+        "barrier": 1,
+        "number": 1,
+        "market_id": "cd5b255b-e1fe-4476-acad-df6973604d67",
+        "visible": true,
+        "form_summary": {
+          "last20Starts": "85655x2313",
+          "riderOrDriver": "Sven Balroop",
+          "trainerName": "Steven Gaskin",
+          "bestTime": "",
+          "handicapWeight": 53,
+          "entrantComment": "Form hard to fault. Last start 3rd in a small field at this track on July 5 over 1207m, 12 len behind Jeff Fa Fa with 55.5kg at $19.50. Before that won by 1.75 len at this track June 20 over 1106m defeating Ron Ron with 55.5kg at $5.10. Definite winning chance. Keep safe.",
+          "speedmap": {
+            "settling_lengths": 7,
+            "entrant_id": "6a8b2158-eba3-46d3-b384-5c9a34cae6b4"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f": {
+        "id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f",
+        "name": "Chicago's Gray",
+        "barrier": 4,
+        "number": 7,
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "visible": true,
+        "barrier_position": "4",
+        "form_summary": {
+          "last20Starts": "000x42111",
+          "riderOrDriver": "Jorge Carreno",
+          "trainerName": "M Duncan",
+          "bestTime": "",
+          "handicapWeight": 55.5,
+          "entrantComment": "On a three run winning streak. At the latest run scored a big 3 len win at this track June 26 over 1207m defeating Saxon Saga with 56kg at $3.10. Before that won by 2.5 len at this track June 5 over 1006m defeating Saxon Saga carrying 55.5kg at $1.95. Well placed. Should prove hard to beat.",
+          "speedmap": {
+            "settling_lengths": 8,
+            "entrant_id": "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "aa30fcd1-7395-4412-af0d-d20a5fecd410": {
+        "id": "aa30fcd1-7395-4412-af0d-d20a5fecd410",
+        "name": "Discovery Peak",
+        "is_scratched": true,
+        "scratch_time": {
+          "seconds": 1689633729
+        },
+        "barrier": 4,
+        "number": 4,
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "visible": true,
+        "barrier_position": "4",
+        "form_summary": {
+          "last20Starts": "x867831822",
+          "riderOrDriver": "Stanley Chadee Jr.",
+          "trainerName": "Jerry Gourneau",
+          "bestTime": "",
+          "handicapWeight": 53,
+          "entrantComment": "Last start ran on from midfield; 2nd of 7 at this track on July 12 over 1609m, 2.25 len behind Lucky Chuckee with 56kg at $9.75. Before that 2nd in a small field at this track on July 5 over 1207m, 10 len behind Jeff Fa Fa with 56kg at $24.05. Likely to be attacking the line strongly.",
+          "speedmap": {
+            "settling_lengths": 1,
+            "entrant_id": "aa30fcd1-7395-4412-af0d-d20a5fecd410"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "cdcc2de6-c56a-4245-84af-9fa6fb392f8d": {
+        "id": "cdcc2de6-c56a-4245-84af-9fa6fb392f8d",
+        "name": "Viral",
+        "is_scratched": true,
+        "scratch_time": {
+          "seconds": 1689633765
+        },
+        "barrier": 6,
+        "number": 6,
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "visible": true,
+        "barrier_position": "6",
+        "form_summary": {
+          "last20Starts": "43423x63",
+          "riderOrDriver": "Damario Bynoe",
+          "trainerName": "Steven Gaskin",
+          "bestTime": "",
+          "handicapWeight": 53,
+          "entrantComment": "Third-up today. First-up second last of 7 at Century Mile on May 27 over 1308m, 9 len behind Big Bad Intaglio carrying 54kg at $15.10. Second run from a spell 3rd of 9 at this track on July 5 over 1207m, 6 len behind Properly Connected with 54kg at $28.90. Looks tested again.",
+          "speedmap": {
+            "settling_lengths": 1,
+            "entrant_id": "cdcc2de6-c56a-4245-84af-9fa6fb392f8d"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "de371ff4-1baa-45a9-a37f-03267141e5c5": {
+        "id": "de371ff4-1baa-45a9-a37f-03267141e5c5",
+        "name": "Saxon Saga",
+        "barrier": 3,
+        "number": 5,
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "visible": true,
+        "barrier_position": "3",
+        "form_summary": {
+          "last20Starts": "3613116122",
+          "riderOrDriver": "Renaldo Cumberbatch",
+          "trainerName": "Wendy Anderson",
+          "bestTime": "",
+          "handicapWeight": 55.5,
+          "entrantComment": "Recent form sound. Most recently sat on the speed and boxed on steadily 2nd of 7 at this track on June 26 over 1207m, 3 len behind Chicago's Gray carrying 55.5kg at $6.95. The race before that 2nd in a small field at this track on June 5 over 1006m, 2.5 len behind Chicago's Gray with 55.5kg at $3.45. Should go well in this line up.",
+          "speedmap": {
+            "settling_lengths": 8,
+            "entrant_id": "de371ff4-1baa-45a9-a37f-03267141e5c5"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d": {
+        "id": "e5ddb107-3eaa-4ca7-88bb-448ced4be43d",
+        "name": "Chicago's Gray",
+        "barrier": 7,
+        "number": 7,
+        "market_id": "cd5b255b-e1fe-4476-acad-df6973604d67",
+        "visible": true,
+        "form_summary": {
+          "last20Starts": "000x42111",
+          "riderOrDriver": "Jorge Carreno",
+          "trainerName": "M Duncan",
+          "bestTime": "",
+          "handicapWeight": 55.5,
+          "entrantComment": "On a three run winning streak. At the latest run scored a big 3 len win at this track June 26 over 1207m defeating Saxon Saga with 56kg at $3.10. Before that won by 2.5 len at this track June 5 over 1006m defeating Saxon Saga carrying 55.5kg at $1.95. Well placed. Should prove hard to beat.",
+          "speedmap": {
+            "settling_lengths": 8,
+            "entrant_id": "e5ddb107-3eaa-4ca7-88bb-448ced4be43d"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      },
+      "eeb53661-0516-4bd7-81f1-e18035026bee": {
+        "id": "eeb53661-0516-4bd7-81f1-e18035026bee",
+        "name": "Mano Dura",
+        "is_scratched": true,
+        "scratch_time": {
+          "seconds": 1689633708
+        },
+        "barrier": 3,
+        "number": 3,
+        "market_id": "6a94d4f0-4465-4984-980c-6e0b35119533",
+        "visible": true,
+        "barrier_position": "3",
+        "form_summary": {
+          "last20Starts": "2012322152",
+          "riderOrDriver": "Prayven Badrie",
+          "trainerName": "Jerry Gourneau",
+          "bestTime": "",
+          "handicapWeight": 55.5,
+          "entrantComment": "Useful type. Comes off a 30 day let-up. At the latest run 2nd of 7 at Lone Star Park on June 17 over 1609m, 6 len behind Onthestage with 55.5kg at $2.40. Before that 5th of 8 at Lone Star Park on June 10 over 1609m, 4 len behind Mor Lana Spirit with 54kg at $3.20. Ready to win after a solid performance last time out.",
+          "speedmap": {
+            "settling_lengths": 1,
+            "entrant_id": "eeb53661-0516-4bd7-81f1-e18035026bee"
+          },
+          "jockey": {
+            "allowanceWeight": "0"
+          }
+        }
+      }
+    },
+    "price_fluctuations": {
+      "09fdf77d-1272-476f-a586-664c68ee5ce4": [
+        10,
+        13
+      ],
+      "342054c2-b516-454a-a1e6-8d7fbea81453": [
+        2.9,
+        3,
+        1
+      ],
+      "3f8d014c-c1d9-4abb-9d49-161aea5f4664": [
+        15,
+        11,
+        12
+      ],
+      "4ad3988d-8af1-4435-bb15-4b02f0c3a487": [
+        17,
+        14,
+        15
+      ],
+      "6a8b2158-eba3-46d3-b384-5c9a34cae6b4": [
+        13,
+        16
+      ],
+      "6e8e2188-0dfe-4bc5-98f6-c8db3a13187f": [
+        1.45,
+        1.22,
+        1.26
+      ],
+      "de371ff4-1baa-45a9-a37f-03267141e5c5": [
+        3.3,
+        2.8,
+        3.1
+      ],
+      "e5ddb107-3eaa-4ca7-88bb-448ced4be43d": [
+        1.26,
+        1.2,
+        1.24
+      ]
+    }
+  },
+  "message": "Racing Card"
+}
