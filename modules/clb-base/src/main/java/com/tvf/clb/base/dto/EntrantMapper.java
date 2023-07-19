@@ -8,6 +8,7 @@ import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
+import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
@@ -224,6 +225,14 @@ public class EntrantMapper {
                 .isScratched(entrantRawData.isScratched())
                 .currentSitePrice(entrantRawData.getPrice())
                 .scratchedTime(entrantRawData.getScratchedTime())
+                .build();
+    }
+
+    public static EntrantDto toEntrantDto(SportBetEntrantRawData entrant) {
+        return EntrantDto.builder()
+                .id(entrant.getId().toString())
+                .name(entrant.getName())
+                .number(entrant.getRunnerNumber())
                 .build();
     }
 }

@@ -73,7 +73,7 @@ public class SportBetCrawlService implements ICrawlService {
         Mono<Map<String, Long>> mapUUIDToRaceIdMono = crawUtils.saveMeetingSiteAndRaceSite(mapMeetingAndRace, SiteEnum.SPORT_BET.getId());
         setRaceIdThenCrawlAndSaveEntrants(mapUUIDToRaceIdMono, raceDtoList, date);
 
-        return Collections.emptyList();
+        return meetingDtoList;
     }
 
     @Override
@@ -121,25 +121,26 @@ public class SportBetCrawlService implements ICrawlService {
         return crawlEntrantDataSportBet(raceUUID)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
                 .flatMapMany(sportBetRaceDto -> {
-                    MarketRawData  markets = sportBetRaceDto.getMarkets().get(0);
+                    if (! CollectionUtils.isEmpty(sportBetRaceDto.getMarkets())) {
+                        MarketRawData markets = sportBetRaceDto.getMarkets().get(0);
 
-                    if (isRaceStatusFinal(sportBetRaceDto)) {
-                        String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
-                                .limit(4)
-                                .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
-                                .collect(Collectors.joining(","));
-                        raceDto.setFinalResult(top4Entrants);
-                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.SPORTBET_SITE_ID);
-                    }
+                        if (isRaceStatusFinal(sportBetRaceDto)) {
+                            String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
+                                    .limit(4)
+                                    .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
+                                    .collect(Collectors.joining(","));
+                            raceDto.setFinalResult(top4Entrants);
+                            crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.SPORTBET_SITE_ID);
+                        }
 
-                    if (markets != null) {
                         List<SportBetEntrantRawData> allEntrant = markets.getSelections();
                         saveEntrant(allEntrant, raceDto);
+                        return Flux.fromIterable(allEntrant.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList()));
+
                     } else {
                         log.error("Can not found SportBet race by RaceUUID {}", raceUUID);
+                        return Flux.empty();
                     }
-
-                    return Flux.empty();
                 });
     }
 
@@ -153,7 +154,7 @@ public class SportBetCrawlService implements ICrawlService {
                 .sorted(Comparator.comparing(ResultsRawData::getPlace));
     }
 
-    public void saveEntrant(List<SportBetEntrantRawData> entrantRawData, RaceDto raceDto) {
+    private void saveEntrant(List<SportBetEntrantRawData> entrantRawData, RaceDto raceDto) {
         List<Entrant> newEntrants = new ArrayList<>();
         for(SportBetEntrantRawData rawData :entrantRawData){
             List<Float> prices = getPricesFromEntrantStatistics(rawData.getStatistics());
@@ -186,7 +187,7 @@ public class SportBetCrawlService implements ICrawlService {
         return prices;
     }
 
-    public Mono<SportBetRaceDto> crawlEntrantDataSportBet(String raceUUID) {
+    private Mono<SportBetRaceDto> crawlEntrantDataSportBet(String raceUUID) {
 
         String raceQueryURI = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
 
