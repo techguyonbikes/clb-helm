@@ -102,11 +102,8 @@ public class TabCrawlService implements ICrawlService{
 
         return crawlRunnerDataTAB(raceUUID)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
+                .filter(result -> result.getRunners() != null)
                 .flatMapMany(runnerRawData -> {
-                    if (runnerRawData.getResults() == null && runnerRawData.getRunners() == null) {
-                        log.debug("Site tab get Entrant by raceUUID not found: {}", raceUUID);
-                        return Flux.empty();
-                    }
                     List<EntrantRawData> allEntrant = getListEntrant(raceUUID, runnerRawData);
 
                     if (isRaceStatusFinal(runnerRawData)) {
@@ -128,16 +125,13 @@ public class TabCrawlService implements ICrawlService{
                 && AppConstant.TAB_RACE_STATUS_FINAL.equalsIgnoreCase(runnerRawData.getRaceStatus());
     }
 
-    public void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto) {
+    private void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto) {
         List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.TAB_SITE_ID);
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.TAB_SITE_ID);
     }
 
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {
-        if (raceId == null || runnerRawData == null){
-            return new ArrayList<>();
-        }
         return runnerRawData.getRunners().stream().filter(f -> f.getFixedOdds() != null)
                 .map(x -> {
                     List<Float> listPrice = x.getFixedOdds().getFlucs() == null ? new ArrayList<>() :
@@ -147,7 +141,7 @@ public class TabCrawlService implements ICrawlService{
                 }).collect(Collectors.toList());
     }
 
-    public Mono<TabRunnerRawData> crawlRunnerDataTAB(String raceId) {
+    private Mono<TabRunnerRawData> crawlRunnerDataTAB(String raceId) {
         String raceQueryURI = AppConstant.TAB_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
         return crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, this.getClass().getName(), 0L);
     }
