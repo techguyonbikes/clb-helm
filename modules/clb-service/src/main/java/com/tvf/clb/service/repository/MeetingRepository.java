@@ -46,8 +46,8 @@ public interface MeetingRepository extends R2dbcRepository<Meeting, Long> {
     Flux<Meeting> findAllMeetingByRaceTypeAndAdvertisedDate(@Param("raceType") String raceType, @Param("startTime") Instant startTime, @Param("endTime") Instant endTime);
 
 
-    @Query("select m.id from clb_db.meeting m where m.name = :name and m.race_type = :raceType and m.advertised_date >= :date")
-    Flux<Long> getMeetingIdsByNameAndRaceTypeAndAdvertisedDateFrom(@Param("name") String name, @Param("raceType") String raceType, @Param("date") Instant date);
+    @Query("select m.id from clb_db.meeting m where m.name like CONCAT('%', :name, '%') and m.race_type = :raceType and m.advertised_date >= :date")
+    Flux<Long> getMeetingIdsByNameContainsAndRaceTypeAndAdvertisedDateFrom(@Param("name") String name, @Param("raceType") String raceType, @Param("date") Instant date);
 
     @Query("SELECT r.id, r.number, r.actual_start as date, r.name as race_name, r.distance, r.meeting_id , m.race_type as type, m.name as meeting_name , m.state as state, r.status as status,m.country as country" +
             " FROM clb_db.meeting m JOIN clb_db.race r ON m.id = r.meeting_id" +

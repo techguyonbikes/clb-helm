@@ -126,17 +126,23 @@ public class PointBetCrawlService implements ICrawlService {
             Meeting newMeeting = entry.getKey();
             List<Race> newRaces = entry.getValue();
 
-            Instant yesterday = newMeeting.getAdvertisedDate().minus(1, ChronoUnit.DAYS).atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant();
-            Mono<Long> meetingId = meetingRepository.getMeetingIdsByNameAndRaceTypeAndAdvertisedDateFrom(newMeeting.getName(), newMeeting.getRaceType(), yesterday)
-                                    .collectList()
-                                    .flatMap(meetingIds -> raceRepository.getRaceByMeetingIdInAndNumberAndAdvertisedStart(meetingIds, 1, newMeeting.getAdvertisedDate()))
-                                    .map(Race::getMeetingId);
+            Optional<Integer> firstRaceNumberOptional = newRaces.stream().map(Race::getNumber).min(Comparator.naturalOrder());
 
-            newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, SiteEnum.POINT_BET.getId(), id)));
+            if (firstRaceNumberOptional.isPresent()) {
+                int firstRaceNumber = firstRaceNumberOptional.get();
 
-            Flux<RaceSite> raceSites = crawUtils.getRaceSitesFromMeetingIdAndRaces(meetingId, newRaces, SiteEnum.POINT_BET.getId());
+                Instant yesterday = newMeeting.getAdvertisedDate().minus(1, ChronoUnit.DAYS).atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant();
+                Mono<Long> meetingId = meetingRepository.getMeetingIdsByNameContainsAndRaceTypeAndAdvertisedDateFrom(newMeeting.getName(), newMeeting.getRaceType(), yesterday)
+                        .collectList()
+                        .flatMap(meetingIds -> raceRepository.getRaceByMeetingIdInAndNumberAndAdvertisedStart(meetingIds, firstRaceNumber, newMeeting.getAdvertisedDate()))
+                        .map(Race::getMeetingId);
 
-            newRaceSiteFlux = newRaceSiteFlux.concatWith(raceSites);
+                newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, SiteEnum.POINT_BET.getId(), id)));
+
+                Flux<RaceSite> raceSites = crawUtils.getRaceSitesFromMeetingIdAndRaces(meetingId, newRaces, SiteEnum.POINT_BET.getId());
+
+                newRaceSiteFlux = newRaceSiteFlux.concatWith(raceSites);
+            }
         }
 
         return crawUtils.saveMeetingSite(mapMeetingAndRace.keySet(), newMeetingSiteFlux, SiteEnum.POINT_BET.getId())
