@@ -44,7 +44,7 @@ public class SportBetCrawlService implements ICrawlService {
         String meetingQueryURI = AppConstant.SPORT_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
         String className = this.getClass().getName();
 
-        return crawUtils.crawlData(sportBetWebClient, meetingQueryURI, SportBetDataDto.class, className, 20L)
+        return crawUtils.crawlData(sportBetWebClient, meetingQueryURI, SportBetDataDto.class, className, 5L)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
                 .flatMapIterable(sportBetDataDto -> getAllAusMeeting(sportBetDataDto, date));
     }
@@ -198,7 +198,7 @@ public class SportBetCrawlService implements ICrawlService {
 
         String raceQueryURI = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
 
-        return crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, this.getClass().getName(), 0L)
+        return crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, this.getClass().getName(), 5L)
                         .mapNotNull(SportBetRaceApiResponse::getSportBetRaceDto);
     }
 

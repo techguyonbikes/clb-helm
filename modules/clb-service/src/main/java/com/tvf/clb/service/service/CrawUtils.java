@@ -460,11 +460,11 @@ public class CrawUtils {
         return null;
     }
 
-    public <T> Mono<T> crawlData(WebClient webClient, String uri, Class<T> returnType, String className, Long delayCrawlTime) throws ApiRequestFailedException {
+    public <T> Mono<T> crawlData(WebClient webClient, String uri, Class<T> returnType, String className, Long retryCrawl) throws ApiRequestFailedException {
 
         String simpleClassName = className.substring(className.lastIndexOf(".") + 1);
 
-        Retry retryConfig = Retry.backoff(2, Duration.ofSeconds(1))
+        Retry retryConfig = Retry.backoff(retryCrawl, Duration.ofSeconds(1))
                 .doBeforeRetry(retrySignal -> log.info("[{}] Got exception \"{}\" while crawling data (uri = {}), retry attempt {}", simpleClassName, retrySignal.failure().getMessage(), uri, retrySignal.totalRetries() + 1))
                 .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new ApiRequestFailedException(String.format("[%s] Retry exhausted (uri = %s)", simpleClassName, uri)));
 
@@ -472,7 +472,6 @@ public class CrawUtils {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(String.class)
-                .delayElement(Duration.ofSeconds(delayCrawlTime))
                 .<T>handle((bodyString, sink) -> {
                     try {
                         sink.next(objectMapper.readValue(bodyString, returnType));
@@ -481,7 +480,7 @@ public class CrawUtils {
                     }
                 })
                 .retryWhen(retryConfig)
-                .doOnError(throwable -> log.error("[{}] Crawling data (uri = {}) failed after {} retries", simpleClassName, uri, MAX_RETRIES));
+                .doOnError(throwable -> log.error("[{}] Crawling data (uri = {}) failed after {} retries", simpleClassName, uri, retryCrawl));
     }
 
     public Mono<Long> getIdForNewRaceAndSaveRaceSite(RaceDto newRace, List<Entrant> newEntrants, Integer siteId) {

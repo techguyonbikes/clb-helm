@@ -59,7 +59,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         String meetingQueryURI = AppConstant.LAD_BROKES_IT_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
         String className = this.getClass().getName();
 
-        return crawUtils.crawlData(ladbrokesWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 0L)
+        return crawUtils.crawlData(ladbrokesWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 5L)
                         .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
                         .doOnNext(ladBrokedItMeetingDto -> todayData.setLastTimeCrawl(Instant.now()))
                         .flatMapIterable(ladBrokedItMeetingDto -> getAllAusMeeting(ladBrokedItMeetingDto, date));
@@ -381,7 +381,7 @@ public class LadBrokeCrawlService implements ICrawlService {
 
     private Mono<LadbrokesRaceApiResponse> getLadBrokedItRaceDto(String raceUUID) throws ApiRequestFailedException {
         String raceQueryURI = AppConstant.LAD_BROKES_IT_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
-        return crawUtils.crawlData(ladbrokesWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, this.getClass().getName(), 0L);
+        return crawUtils.crawlData(ladbrokesWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, this.getClass().getName(), 5L);
     }
 
     //after every thing is implement for first time then we call all site. we need to save all common data first

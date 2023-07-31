@@ -49,7 +49,7 @@ public class PointBetCrawlService implements ICrawlService {
         String meetingQueryURI = AppConstant.POINT_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
         String className = this.getClass().getName();
 
-        return crawUtils.crawlData(pointBetWebClient, meetingQueryURI, PointBetMeetingRawData[].class, className, 20L)
+        return crawUtils.crawlData(pointBetWebClient, meetingQueryURI, PointBetMeetingRawData[].class, className, 5L)
                         .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
                         .flatMapIterable(meetingRawData -> getAllAusMeeting(Arrays.asList(meetingRawData), date));
     }
@@ -228,7 +228,7 @@ public class PointBetCrawlService implements ICrawlService {
      */
     public Mono<PointBetRaceApiResponse> crawlPointBetRaceData(String raceUUID) {
         String raceQueryURI = AppConstant.POINT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
-        return crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, this.getClass().getName(), 0L)
+        return crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, this.getClass().getName(), 5L)
                         .filter(raceRawData -> raceRawData != null && raceRawData.getEntrants() != null);
     }
 

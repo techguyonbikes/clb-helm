@@ -69,4 +69,9 @@ socket-server:
 scheduler:
     remove-data:
       cron: "0 0 0 ? * *"
+proxy:
+  host: p.webshare.io
+  port: 80
+  username: szctopwk-rotate
+  password: umlisux352u5
 

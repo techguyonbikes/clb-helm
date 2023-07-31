@@ -41,7 +41,7 @@ public class ZBetCrawlService implements ICrawlService {
         String meetingQueryURI = AppConstant.ZBET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
         String className = this.getClass().getName();
 
-        return crawUtils.crawlData(zbetsWebClient, meetingQueryURI, ZBetMeetingResponseRawData.class, className, 20L)
+        return crawUtils.crawlData(zbetsWebClient, meetingQueryURI, ZBetMeetingResponseRawData.class, className, 5L)
                         .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
                         .mapNotNull(ZBetMeetingResponseRawData::getData)
                         .flatMapIterable(zBetMeetingRawData -> getAllAusMeeting(zBetMeetingRawData, date));
@@ -153,7 +153,7 @@ public class ZBetCrawlService implements ICrawlService {
 
     private Mono<ZBetRaceRawData> getZBetRaceData(String raceId) {
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        return crawUtils.crawlData(zbetsWebClient, raceQueryURI, ZbetRaceResponseRawData.class, this.getClass().getName(), 0L)
+        return crawUtils.crawlData(zbetsWebClient, raceQueryURI, ZbetRaceResponseRawData.class, this.getClass().getName(), 5L)
                         .mapNotNull(ZbetRaceResponseRawData::getData);
     }
 

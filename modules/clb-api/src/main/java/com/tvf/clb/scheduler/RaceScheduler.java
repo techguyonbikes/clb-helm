@@ -44,15 +44,18 @@ public class RaceScheduler {
     private boolean isCrawlingRaceStartIn30Minutes = false;
     private boolean isCrawlingRaceStartAfter30MinutesAndIn1Hour = false;
     private boolean isCrawlingRaceStartAfter1Hour = false;
+    private boolean isCrawlingSubscriRaceStart = false;
 
     @Scheduled(cron = "*/4 * * * * *")
     public void crawlSubscribedRace() {
 
         long startTime = System.currentTimeMillis();
 
-        if (CollectionUtils.isEmpty(socketModule.getRaceSubscribers().keySet())) {
+        if (isCrawlingSubscriRaceStart || CollectionUtils.isEmpty(socketModule.getRaceSubscribers().keySet())) {
             return;
         }
+
+        isCrawlingSubscriRaceStart = true;
 
         log.info("Start crawl subscribed race data.");
 
@@ -63,7 +66,10 @@ public class RaceScheduler {
                 log.info("Crawl data subscribed race id = {}", raceId);
                 return crawlPriceService.crawlRaceThenSave(raceId);
             })
-            .doFinally(signalType -> log.info("------ All subscribed races are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime))
+            .doFinally(signalType -> {
+                log.info("------ All subscribed races are updated, time taken: {} millisecond---------", System.currentTimeMillis() - startTime);
+                isCrawlingSubscriRaceStart = false;
+            })
             .then(raceIds.count())
             .subscribe(numberOfRacesNeedToUpdate -> log.info("Number of subscribed races just updated: {}", numberOfRacesNeedToUpdate));
     }

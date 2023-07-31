@@ -40,7 +40,7 @@ public class TabCrawlService implements ICrawlService{
         String meetingQueryURI = AppConstant.TAB_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
         String className = this.getClass().getName();
 
-        return crawUtils.crawlData(tabWebClient, meetingQueryURI, TabBetMeetingDto.class, className, 20L)
+        return crawUtils.crawlData(tabWebClient, meetingQueryURI, TabBetMeetingDto.class, className, 5L)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
                 .mapNotNull(TabBetMeetingDto::getMeetings)
                 .flatMapIterable(tabMeetingRawData -> getAllAusMeeting(tabMeetingRawData, date));
@@ -148,7 +148,7 @@ public class TabCrawlService implements ICrawlService{
 
     private Mono<TabRunnerRawData> crawlRunnerDataTAB(String raceId) {
         String raceQueryURI = AppConstant.TAB_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        return crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, this.getClass().getName(), 0L);
+        return crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, this.getClass().getName(), 5L);
     }
 
 }

@@ -44,7 +44,7 @@ public class NedsCrawlService implements ICrawlService{
         String meetingQueryURI = AppConstant.NEDS_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
         String className = this.getClass().getName();
 
-        return crawUtils.crawlData(nedsWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 20L)
+        return crawUtils.crawlData(nedsWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 5L)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlMeeting(className, date))
                 .flatMapIterable(nedMeetingRawData -> getAllAusMeeting(nedMeetingRawData, date));
     }
@@ -208,6 +208,6 @@ public class NedsCrawlService implements ICrawlService{
 
     private Mono<LadbrokesRaceApiResponse> getNedsRaceDto(String raceUUID) {
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceUUID);
-        return crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, this.getClass().getName(), 0L);
+        return crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, this.getClass().getName(), 5L);
     }
 }
