@@ -135,11 +135,12 @@ public class PointBetCrawlService implements ICrawlService {
                 Mono<Long> meetingId = meetingRepository.getMeetingIdsByNameContainsAndRaceTypeAndAdvertisedDateFrom(newMeeting.getName(), newMeeting.getRaceType(), yesterday)
                         .collectList()
                         .flatMap(meetingIds -> raceRepository.getRaceByMeetingIdInAndNumberAndAdvertisedStart(meetingIds, firstRaceNumber, newMeeting.getAdvertisedDate()))
-                        .map(Race::getMeetingId);
+                        .map(Race::getMeetingId)
+                        .cache();
 
                 newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, SiteEnum.POINT_BET.getId(), id)));
 
-                Flux<RaceSite> raceSites = crawUtils.getRaceSitesFromMeetingIdAndRaces(meetingId, newRaces, SiteEnum.POINT_BET.getId());
+                Flux<RaceSite> raceSites = crawUtils.getRaceSitesFromMeetingIdAndRaces(meetingId, newRaces, SiteEnum.POINT_BET.getId()).cache();
 
                 newRaceSiteFlux = newRaceSiteFlux.concatWith(raceSites);
             }
@@ -158,38 +159,41 @@ public class PointBetCrawlService implements ICrawlService {
 
         return crawlPointBetRaceData(raceUUID)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
-                .flatMapIterable(raceRawData -> {
+                .flatMapMany(raceRawData -> {
                     List<PointBetEntrantRawData> entrants = raceRawData.getEntrants();
-
                     String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
-
                     // Map entrant id to prices
                     Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
-
-                    // Set position for entrants. Currently, only four winners have position when race completed
-                    if (StringUtils.hasText(raceRawData.getPlacing())) {
-                        List<String> winnersId = Arrays.asList(raceRawData.getPlacing().split(","));
-                        entrants.forEach(entrant -> {
-                            if (winnersId.contains(entrant.getId())) {
-                                entrant.setPosition(winnersId.indexOf(entrant.getId()) + 1);
-                            }
-                        });
-                        if (AppConstant.STATUS_FINAL.equals(statusRace)) {
-                            raceDto.setDistance(raceRawData.getRaceDistance());
-                            raceDto.setFinalResult(raceRawData.getPlacing());
-                            crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), raceRawData.getPlacing(), AppConstant.POINT_BET_SITE_ID);
-                        }
-                    }
-
                     // Convert to entity and save from raw data
                     List<Entrant> listEntrantEntity = EntrantMapper.toListEntrantEntity(entrants, allEntrantPrices, raceUUID);
 
-                    raceDto.setDistance(raceRawData.getRaceDistance());
-                    crawUtils.saveEntrantCrawlDataToRedis(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
+                    return Mono.justOrEmpty(raceDto.getRaceId())
+                            .switchIfEmpty(crawUtils.getIdForNewRaceAndSaveRaceSite(raceDto, listEntrantEntity, SiteEnum.POINT_BET.getId())
+                                                    .doOnNext(raceDto::setRaceId)
+                            ) // Get id for new race and save race site if raceDto.getRaceId() == null
+                            .flatMapIterable(raceId -> {
+                                // Set position for entrants. Currently, only four winners have position when race completed
+                                if (StringUtils.hasText(raceRawData.getPlacing())) {
+                                    List<String> winnersId = Arrays.asList(raceRawData.getPlacing().split(","));
+                                    entrants.forEach(entrant -> {
+                                        if (winnersId.contains(entrant.getId())) {
+                                            entrant.setPosition(winnersId.indexOf(entrant.getId()) + 1);
+                                        }
+                                    });
+                                    if (AppConstant.STATUS_FINAL.equals(statusRace)) {
+                                        raceDto.setDistance(raceRawData.getRaceDistance());
+                                        raceDto.setFinalResult(raceRawData.getPlacing());
+                                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), raceRawData.getPlacing(), AppConstant.POINT_BET_SITE_ID);
+                                    }
+                                }
 
-                    crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto.getRaceId(), AppConstant.POINT_BET_SITE_ID);
+                                raceDto.setDistance(raceRawData.getRaceDistance());
 
-                    return listEntrantEntity.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList());
+                                crawUtils.saveEntrantCrawlDataToRedis(listEntrantEntity, raceDto, AppConstant.POINT_BET_SITE_ID);
+                                crawUtils.saveEntrantsPriceIntoDB(listEntrantEntity, raceDto.getRaceId(), AppConstant.POINT_BET_SITE_ID);
+
+                                return listEntrantEntity.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList());
+                            });
                 });
 
     }

@@ -118,26 +118,33 @@ public class ZBetCrawlService implements ICrawlService {
 
         return getZBetRaceData(raceUUID)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
-                .flatMapIterable(raceRawData -> {
+                 .flatMapMany(raceRawData -> {
                     List<ZBetEntrantData> allEntrant = raceRawData.getSelections();
-                    raceDto.setDistance(raceRawData.getDistance());
-                    if (AppConstant.STATUS_FINAL.equals(raceDto.getStatus()) && raceRawData.getFinalResult() != null) {
-                        String finalResult = raceRawData.getFinalResult().replace('/', ',');
-                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.ZBET_SITE_ID);
-                        raceDto.setFinalResult(finalResult);
-                    }
-                    saveEntrant(allEntrant, raceDto);
+                    List<Entrant> newEntrants = allEntrant.stream().distinct()
+                            .map(entrantData -> MeetingMapper.toEntrantEntity(entrantData, buildPriceFluctuations(entrantData))).collect(Collectors.toList());
 
-                    return allEntrant.stream().map(entrantData -> EntrantMapper.toEntrantDto(entrantData, buildPriceFluctuations(entrantData))).collect(Collectors.toList());
+                    return Mono.justOrEmpty(raceDto.getRaceId())
+                            .switchIfEmpty(crawUtils.getIdForNewRaceAndSaveRaceSite(raceDto, newEntrants, SiteEnum.ZBET.getId())
+                                                    .doOnNext(raceDto::setRaceId)
+                            ) // Get id for new race and save race site if raceDto.getRaceId() == null
+                            .flatMapIterable(raceId -> {
+                                raceDto.setDistance(raceRawData.getDistance());
+                                if (AppConstant.STATUS_FINAL.equals(raceDto.getStatus()) && raceRawData.getFinalResult() != null) {
+                                    String finalResult = raceRawData.getFinalResult().replace('/', ',');
+                                    crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.ZBET_SITE_ID);
+                                    raceDto.setFinalResult(finalResult);
+                                }
+                                saveEntrant(newEntrants, raceDto);
+
+                                return allEntrant.stream().map(entrantData -> EntrantMapper.toEntrantDto(entrantData, buildPriceFluctuations(entrantData))).collect(Collectors.toList());
+                            });
                 });
     }
 
-    private void saveEntrant(List<ZBetEntrantData> entrantRawData, RaceDto raceDto) {
-        if (entrantRawData == null || raceDto == null){
+    private void saveEntrant(List<Entrant> newEntrants, RaceDto raceDto) {
+        if (raceDto == null){
             return;
         }
-        List<Entrant> newEntrants = entrantRawData.stream().distinct()
-                .map(entrantData -> MeetingMapper.toEntrantEntity(entrantData, buildPriceFluctuations(entrantData))).collect(Collectors.toList());
 
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.ZBET_SITE_ID);
 

@@ -112,7 +112,7 @@ class PointBetCrawlServiceTest {
         when(crawUtils.crawlData(pointBetWebClient, meetingQueryURI, PointBetMeetingRawData[].class, serviceToTest.getClass().getName(), 20L))
                 .thenReturn(Mono.just(getDataCrawlMeeting()));
 
-        when(meetingRepository.getMeetingIdsByNameAndRaceTypeAndAdvertisedDateFrom(any(), any(), any())).thenReturn(Flux.fromIterable(new ArrayList<>()));
+        when(meetingRepository.getMeetingIdsByNameContainsAndRaceTypeAndAdvertisedDateFrom(any(), any(), any())).thenReturn(Flux.fromIterable(new ArrayList<>()));
         when(raceRepository.getRaceByMeetingIdInAndNumberAndAdvertisedStart(any(), any(), any())).thenReturn(Mono.just(Race.builder().id(1L).build()));
         when(crawUtils.getRaceSitesFromMeetingIdAndRaces(any(), any(), any())).thenReturn(Flux.empty());
         when(crawUtils.saveMeetingSite(any(), any(), any())).thenReturn(Flux.empty());
@@ -198,11 +198,14 @@ class PointBetCrawlServiceTest {
     void giveSuccessCallApi_whenCrawlAndSaveEntrantsInRace_thenReturnFluxEntrantDto() throws IOException {
         RaceDto raceDto = new RaceDto();
         raceDto.setId("38395453");
+        raceDto.setRaceId(1L);
         Mono<PointBetRaceApiResponse> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/pointbet/pointbet-race-api-response.json"));
 
         String raceQueryURI = AppConstant.POINT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
         when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
                 .thenReturn(apiResponseMono);
+
+        when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()).collectList())
                 .expectNextMatches(entrantCrawlData -> entrantCrawlData.stream().allMatch(entrant -> entrant.getCurrentSitePrice() != null && entrant.getId() != null)

@@ -104,19 +104,25 @@ public class TabCrawlService implements ICrawlService{
                 .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
                 .filter(result -> result.getRunners() != null)
                 .flatMapMany(runnerRawData -> {
-                    List<EntrantRawData> allEntrant = getListEntrant(raceUUID, runnerRawData);
+                    List<EntrantRawData> listEntrantRawData = getListEntrant(raceUUID, runnerRawData);
+                    List<Entrant> listEntrantEntity = listEntrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
 
-                    if (isRaceStatusFinal(runnerRawData)) {
-                        String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
-                        raceDto.setDistance(runnerRawData.getRaceDistance());
-                        raceDto.setFinalResult(finalResult);
-                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), finalResult, AppConstant.TAB_SITE_ID);
-                    }
-                    raceDto.setDistance(runnerRawData.getRaceDistance());
-                    saveEntrant(allEntrant, raceDto);
+                    return Mono.justOrEmpty(raceDto.getRaceId())
+                               .switchIfEmpty(crawUtils.getIdForNewRaceAndSaveRaceSite(raceDto, listEntrantEntity, SiteEnum.TAB.getId())
+                                                       .doOnNext(raceDto::setRaceId)
+                               ) // Get id for new race and save race site if raceDto.getRaceId() == null
+                               .flatMapIterable(raceId -> {
+                                   if (isRaceStatusFinal(runnerRawData)) {
+                                       String finalResult = runnerRawData.getResults().stream().map(Object::toString).collect(Collectors.joining(","));
+                                       raceDto.setDistance(runnerRawData.getRaceDistance());
+                                       raceDto.setFinalResult(finalResult);
+                                       crawUtils.updateRaceFinalResultIntoDB(raceId, finalResult, AppConstant.TAB_SITE_ID);
+                                   }
+                                   raceDto.setDistance(runnerRawData.getRaceDistance());
+                                   saveEntrant(listEntrantEntity, raceDto);
 
-                    return Flux.fromIterable(allEntrant)
-                            .flatMap(r -> Mono.just(EntrantMapper.toEntrantDto(r)));
+                                   return listEntrantRawData.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList());
+                               });
                 });
     }
 
@@ -125,8 +131,7 @@ public class TabCrawlService implements ICrawlService{
                 && AppConstant.TAB_RACE_STATUS_FINAL.equalsIgnoreCase(runnerRawData.getRaceStatus());
     }
 
-    private void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto) {
-        List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
+    private void saveEntrant(List<Entrant> newEntrants, RaceDto raceDto) {
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.TAB_SITE_ID);
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.TAB_SITE_ID);
     }

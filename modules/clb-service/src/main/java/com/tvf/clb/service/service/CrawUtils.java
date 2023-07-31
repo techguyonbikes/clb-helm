@@ -8,9 +8,6 @@ import com.tvf.clb.base.dto.topsport.TopSportMeetingDto;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.*;
-import com.tvf.clb.base.model.ladbrokes.LadBrokedItRaceDto;
-import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
-import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
@@ -140,10 +137,10 @@ public class CrawUtils {
             checkMeetingWrongAdvertisedStart(newMeeting, newRaces);
             newRaces = removeDuplicateRaceNumber(newRaces);
 
-            Mono<Long> meetingId = getMeetingIdAndCompareMeetingNames(newMeeting, newRaces, site);
+            Mono<Long> meetingId = getMeetingIdAndCompareMeetingNames(newMeeting, newRaces, site).cache();
             newMeetingSiteFlux = newMeetingSiteFlux.concatWith(meetingId.map(id -> MeetingMapper.toMetingSite(newMeeting, site, id)));
 
-            Flux<RaceSite> raceSites = getRaceSitesFromMeetingIdAndRaces(meetingId, newRaces, site);
+            Flux<RaceSite> raceSites = getRaceSitesFromMeetingIdAndRaces(meetingId, newRaces, site).cache();
             newRaceSiteFlux = newRaceSiteFlux.concatWith(raceSites);
         }
 
@@ -202,7 +199,7 @@ public class CrawUtils {
 
                                 Meeting result = CommonUtils.mapNewMeetingToExisting(mapExistingMeetingAndRace, newMeeting, newRaces);
                                 if (result == null) {
-                                    log.info("[SaveMeetingSiteAndRaceSite] Can't map new meeting with name {} in site {}", newMeeting.getName(), site);
+                                    log.info("[SaveMeetingSiteAndRaceSite] Can't map new meeting with name {} {} in site {}, race type = {}", newMeeting.getName(), newMeeting.getAdvertisedDate(), site, newMeeting.getRaceType());
                                     return null;
                                 } else {
                                     return result.getId();
@@ -485,6 +482,15 @@ public class CrawUtils {
                 })
                 .retryWhen(retryConfig)
                 .doOnError(throwable -> log.error("[{}] Crawling data (uri = {}) failed after {} retries", simpleClassName, uri, MAX_RETRIES));
+    }
+
+    public Mono<Long> getIdForNewRaceAndSaveRaceSite(RaceDto newRace, List<Entrant> newEntrants, Integer siteId) {
+        return this.getIdForNewRace(newRace, newEntrants)
+                   .flatMap(raceId -> {
+                       log.info("Update race site {} with uuid = {}, race name = {}, race number = {} meeting name = {}", siteId, newRace.getId(), newRace.getName(), newRace.getNumber(), newRace.getMeetingName());
+                       return this.saveRaceSite(Flux.just(RaceResponseMapper.toRaceSiteDto(newRace, siteId, raceId)), siteId)
+                                  .then(Mono.just(raceId));
+                   });
     }
 
     public Mono<Long> getIdForNewRace(RaceDto newRace, List<Entrant> newEntrants){

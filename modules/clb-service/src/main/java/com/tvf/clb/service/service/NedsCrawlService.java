@@ -150,7 +150,7 @@ public class NedsCrawlService implements ICrawlService{
                 .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
                 .mapNotNull(LadbrokesRaceApiResponse::getData)
                 .filter(raceRawData -> raceRawData.getRaces() != null || raceRawData.getMeetings() != null)
-                .flatMapIterable(raceRawData -> {
+                .flatMapMany(raceRawData -> {
                     Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
                     Map<String, Integer> positions = new HashMap<>();
                     if (results != null) {
@@ -162,22 +162,30 @@ public class NedsCrawlService implements ICrawlService{
                     HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
                     List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
 
-                    Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
-                    if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
-                        String top4Entrants = getWinnerEntrants(allEntrant)
-                                .map(entrant -> String.valueOf(entrant.getNumber()))
-                                .collect(Collectors.joining(","));
+                    List<Entrant> newEntrants = allEntrant.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
 
-                        raceDto.setFinalResult(top4Entrants);
-                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.NED_SITE_ID);
-                    }
+                    return Mono.justOrEmpty(raceDto.getRaceId())
+                               .switchIfEmpty(crawUtils.getIdForNewRaceAndSaveRaceSite(raceDto, newEntrants, SiteEnum.NED.getId())
+                                                       .doOnNext(raceDto::setRaceId)
+                               ) // Get id for new race and save race site if raceDto.getRaceId() == null
+                               .flatMapIterable(raceId -> {
+                                   Optional<String> optionalStatus = getStatusFromRaceMarket(raceRawData.getMarkets());
+                                   if (optionalStatus.isPresent() && optionalStatus.get().equals(AppConstant.STATUS_FINAL)) {
+                                       String top4Entrants = getWinnerEntrants(allEntrant)
+                                               .map(entrant -> String.valueOf(entrant.getNumber()))
+                                               .collect(Collectors.joining(","));
 
-                    saveEntrant(allEntrant, raceDto);
+                                       raceDto.setFinalResult(top4Entrants);
+                                       crawUtils.updateRaceFinalResultIntoDB(raceId, top4Entrants, AppConstant.NED_SITE_ID);
+                                   }
 
-                    return allEntrant.stream().map(entrant -> {
-                        List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(entrant.getId());
-                        return EntrantMapper.toEntrantDto(entrant, entrantPrices);
-                    }).collect(Collectors.toList());
+                                   saveEntrant(newEntrants, raceDto);
+
+                                   return allEntrant.stream().map(entrant -> {
+                                       List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(entrant.getId());
+                                       return EntrantMapper.toEntrantDto(entrant, entrantPrices);
+                                   }).collect(Collectors.toList());
+                               });
                 });
     }
 
@@ -193,9 +201,7 @@ public class NedsCrawlService implements ICrawlService{
         return finalFieldMarket.flatMap(market -> ConvertBase.getLadbrokeRaceStatus(market.getMarketStatusId()));
     }
 
-    private void saveEntrant(List<EntrantRawData> entrantRawData, RaceDto raceDto) {
-        List<Entrant> newEntrants = entrantRawData.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
-
+    private void saveEntrant(List<Entrant> newEntrants, RaceDto raceDto) {
         crawUtils.saveEntrantCrawlDataToRedis(newEntrants, raceDto, AppConstant.NED_SITE_ID);
         crawUtils.saveEntrantsPriceIntoDB(newEntrants, raceDto.getRaceId(), AppConstant.NED_SITE_ID);
     }

@@ -13,6 +13,7 @@ import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.model.ladbrokes.LadBrokedItRaceDto;
 import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
 import io.r2dbc.postgresql.codec.Json;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
@@ -69,35 +70,16 @@ public class CommonUtils {
     }
 
     public static Race mapNewRaceToExisting(Map<Race, List<Entrant>> mapExistingRaceAndEntrants, RaceDto newRace, List<Entrant> newEntrants) {
-
         if (mapExistingRaceAndEntrants.isEmpty()) {
             return null;
         }
-        List<Race> mostSimilarRacesByName = getTheMostSimilarRacesByName(mapExistingRaceAndEntrants, newRace);
 
-        if (mostSimilarRacesByName.isEmpty()) {
-            return null;
-        } else if (mostSimilarRacesByName.size() == 1) {
-            Race mostSimilarRace = mostSimilarRacesByName.get(0);
-            int numberOfSameEntrants = compareEntrants(mapExistingRaceAndEntrants.get(mostSimilarRace), newEntrants);
+        List<Race> mostSimilarRacesByEntrant = getTheMostSimilarRacesByEntrant(mapExistingRaceAndEntrants, newEntrants);
 
-            if (mapExistingRaceAndEntrants.get(mostSimilarRace).size() == newEntrants.size() &&
-                 (mostSimilarRace.getName().equals(newRace.getName()) || mostSimilarRace.getAdvertisedStart().equals(newRace.getAdvertisedStart())
-                    || numberOfSameEntrants > newEntrants.size() / 2)) {
-                return mostSimilarRacesByName.get(0);
-            } else {
-                return null;
-            }
+        if (mostSimilarRacesByEntrant.size() == 1) {
+            return mostSimilarRacesByEntrant.get(0);
         } else {
-            List<Race> mostSimilarRacesByEntrant = getTheMostSimilarRacesByEntrant(mostSimilarRacesByName.stream().collect(Collectors.toMap(Function.identity(), mapExistingRaceAndEntrants::get)), newEntrants);
-
-            if (mostSimilarRacesByEntrant.isEmpty()) {
-                return null;
-            } else if (mostSimilarRacesByEntrant.size() == 1) {
-                return mostSimilarRacesByEntrant.get(0);
-            } else {
-                return getMostSimilarRaceByMeetingName(mostSimilarRacesByEntrant, newRace);
-            }
+            return getMostSimilarRaceByMeetingName(mostSimilarRacesByEntrant, newRace);
         }
     }
 
@@ -121,6 +103,10 @@ public class CommonUtils {
     }
 
     private static List<Race> getTheMostSimilarRacesByEntrant(Map<Race, List<Entrant>> mapExistingRaceAndEntrants, List<Entrant> newEntrants) {
+        if (CollectionUtils.isEmpty(newEntrants)) {
+            return new ArrayList<>();
+        }
+
         List<Race> mostSimilarRaces = new ArrayList<>();
         int maxSameEntrants = 0;
 
@@ -128,7 +114,7 @@ public class CommonUtils {
             Race existingRace = entry.getKey();
             List<Entrant> existingEntrants = entry.getValue();
 
-            if (existingEntrants.size() == newEntrants.size()) {
+            if (existingEntrants != null && existingEntrants.size() == newEntrants.size()) {
                 int numberOfSameEntrants = compareEntrants(existingEntrants, newEntrants);
                 if (numberOfSameEntrants > newEntrants.size() / 2) {
                     if (numberOfSameEntrants > maxSameEntrants) {
@@ -197,9 +183,7 @@ public class CommonUtils {
             }
         }
 
-        if (mostCommonMeetings.isEmpty()) {
-            return null;
-        } else if (mostCommonMeetings.size() == 1) {
+        if (mostCommonMeetings.size() == 1 && mostCommonMeetings.get(0).getName().equals(meetingNeedToCheck.getName())) {
             return mostCommonMeetings.get(0);
         } else {
             Meeting result = null;

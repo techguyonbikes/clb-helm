@@ -213,11 +213,13 @@ class TabCrawlServiceTest {
 
         RaceDto raceDto = new RaceDto();
         raceDto.setId(UUID.randomUUID().toString());
+        raceDto.setRaceId(1L);
         Mono<TabRunnerRawData> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/tab/TabRaceData.json"));
 
         String raceQueryURI = AppConstant.TAB_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
         when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 0L))
                 .thenReturn(apiResponseMono);
+        when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()).collectList())
                 .expectNextMatches(entrantDtos -> entrantDtos.stream().allMatch(entrantDto -> entrantDto.getId() != null

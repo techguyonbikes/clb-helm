@@ -181,11 +181,13 @@ class SportBetCrawlServiceTest {
 
         RaceDto raceDto = new RaceDto();
         raceDto.setId(UUID.randomUUID().toString());
+        raceDto.setRaceId(1L);
         Mono<SportBetRaceApiResponse> apiResponseMono = Mono.just(getDataCrawlRace());
 
         String raceQueryURI = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
         when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
                 .thenReturn(apiResponseMono);
+        when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()).collectList())
                 .expectNextMatches(entrantDtos -> entrantDtos.stream().allMatch(entrantDto -> entrantDto.getId() != null && entrantDto.getName() != null && entrantDto.getNumber() != null)

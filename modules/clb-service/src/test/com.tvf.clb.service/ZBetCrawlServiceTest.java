@@ -234,11 +234,13 @@ class ZBetCrawlServiceTest {
         RaceDto raceDto = new RaceDto();
         raceDto.setId(UUID.randomUUID().toString());
         raceDto.setStatus(AppConstant.STATUS_FINAL);
+        raceDto.setRaceId(1L);
         Mono<ZbetRaceResponseRawData> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/zbet/ZbetRaceData.json"));
 
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
         when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
                 .thenReturn(apiResponseMono);
+        when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()).collectList())
                 .expectNextMatches(entrantDtos -> entrantDtos.stream().allMatch(entrantDto -> entrantDto.getId() != null
@@ -262,11 +264,13 @@ class ZBetCrawlServiceTest {
         RaceDto raceDto = new RaceDto();
         raceDto.setId(UUID.randomUUID().toString());
         raceDto.setStatus(AppConstant.STATUS_FINAL);
+        raceDto.setRaceId(1L);
         Mono<ZbetRaceResponseRawData> apiResponseMonoTestPrice = Mono.just(getDataCrawlRace("src/test/resources/zbet/ZbetRaceData_TestPriceNull.json"));
 
         String raceQueryURIPriceNull = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
         when(crawUtils.crawlData(zbetWebClient, raceQueryURIPriceNull, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
                 .thenReturn(apiResponseMonoTestPrice);
+        when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()).collectList())
                 .expectNextMatches(entrantDtos -> entrantDtos.stream().allMatch(entrantDto -> CollectionUtils.isEmpty(entrantDto.getCurrentSitePrice()))
@@ -287,11 +291,13 @@ class ZBetCrawlServiceTest {
         RaceDto raceDto = new RaceDto();
         raceDto.setId(UUID.randomUUID().toString());
         raceDto.setStatus(AppConstant.STATUS_FINAL);
+        raceDto.setRaceId(1L);
         Mono<ZbetRaceResponseRawData> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/zbet/ZbetRaceData_TestCantMapPriceCode.json"));
 
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
         when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
                 .thenReturn(apiResponseMono);
+        when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()).collectList())
                 .expectNextMatches(entrantDtos -> entrantDtos.stream().allMatch(entrantDto -> CollectionUtils.isEmpty(entrantDto.getCurrentSitePrice()))

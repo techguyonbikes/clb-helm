@@ -31,7 +31,6 @@ public interface ICrawlService {
 
     default Flux<EntrantDto> crawlAndSaveEntrants(List<RaceDto> raceDtoList, LocalDate date) {
         return Flux.fromIterable(raceDtoList)
-                .filter(raceDto -> raceDto.getRaceId() != null)
                 .flatMap(raceDto -> crawlAndSaveEntrantsInRace(raceDto, date).onErrorMap(throwable -> {
                     if (! (throwable instanceof ApiRequestFailedException)) {
                         return new RuntimeException(String.format("Got exception \"%s\" when crawling race uuid = %s, url = %s", throwable.getMessage(), raceDto.getId(), raceDto.getRaceSiteUrl()));
