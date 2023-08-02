@@ -99,7 +99,7 @@ class LadBrokeCrawlServiceTest {
         ObjectMapper objectMapper = new ObjectMapper();
         LadBrokedItMeetingDto ladBrokedItMeetingDto = objectMapper.readValue(new File("src/test/resources/ladbrokes/ladbroke-meeting-api-response.json"), LadBrokedItMeetingDto.class);
 
-        when(crawUtils.crawlData(ladbrokesWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 0L)).thenReturn(Mono.just(ladBrokedItMeetingDto));
+        when(crawUtils.crawlData(ladbrokesWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 5L)).thenReturn(Mono.just(ladBrokedItMeetingDto));
 
         // prepare data for function 'saveMeetingAndRace'
         MeetingAndSiteUUID meetingAndSiteUUID = new MeetingAndSiteUUID();
@@ -202,7 +202,7 @@ class LadBrokeCrawlServiceTest {
         String meetingQueryURI = AppConstant.LAD_BROKES_IT_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
         String className = serviceToTest.getClass().getName();
 
-        when(crawUtils.crawlData(ladbrokesWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 0L)).thenReturn(Mono.error(new ApiRequestFailedException()));
+        when(crawUtils.crawlData(ladbrokesWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 5L)).thenReturn(Mono.error(new ApiRequestFailedException()));
 
         StepVerifier.create(serviceToTest.getTodayMeetings(date))
                 .expectErrorMatches(throwable -> throwable instanceof ApiRequestFailedException)

@@ -95,7 +95,7 @@ class NedsCrawlServiceTest {
 
         Mono<LadBrokedItMeetingDto> resultMono = Mono.error(new ApiRequestFailedException());
 
-        when(crawUtils.crawlData(nedsWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 20L)).thenReturn(resultMono);
+        when(crawUtils.crawlData(nedsWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, className, 5L)).thenReturn(resultMono);
 
         StepVerifier.create(serviceToTest.getTodayMeetings(date))
                 .expectErrorMatches(throwable -> throwable instanceof ApiRequestFailedException)
@@ -110,7 +110,7 @@ class NedsCrawlServiceTest {
         LocalDate date = LocalDate.now();
         String meetingQueryURI = AppConstant.NEDS_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
 
-        when(crawUtils.crawlData(nedsWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, serviceToTest.getClass().getName(), 20L))
+        when(crawUtils.crawlData(nedsWebClient, meetingQueryURI, LadBrokedItMeetingDto.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(Mono.just(getDataCrawlMeeting()));
 
         when(crawUtils.saveMeetingSiteAndRaceSite(anyMap(), any())).thenReturn(mock(Mono.class));
@@ -143,7 +143,7 @@ class NedsCrawlServiceTest {
         Mono<LadbrokesRaceApiResponse> raceDto = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -157,7 +157,7 @@ class NedsCrawlServiceTest {
         Mono<LadbrokesRaceApiResponse> raceDto = Mono.just(getDataCrawlRace("src/test/resources/neds/NedsRaceData.json"));
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -177,7 +177,7 @@ class NedsCrawlServiceTest {
         Mono<LadbrokesRaceApiResponse> raceDto = Mono.just(getDataCrawlRace("src/test/resources/neds/NedsRaceData_TestPosition.json"));
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -210,7 +210,7 @@ class NedsCrawlServiceTest {
         Mono<LadbrokesRaceApiResponse> apiResponseMono = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()))
@@ -228,7 +228,7 @@ class NedsCrawlServiceTest {
         Mono<LadbrokesRaceApiResponse> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/neds/NedsRaceData_TestPosition.json"));
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
         when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
@@ -249,7 +249,7 @@ class NedsCrawlServiceTest {
         Mono<LadbrokesRaceApiResponse> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/neds/NedsRaceData.json"));
 
         String raceQueryURI = AppConstant.NEDS_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(nedsWebClient, raceQueryURI, LadbrokesRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
         when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 

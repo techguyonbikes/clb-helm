@@ -86,7 +86,7 @@ class SportBetCrawlServiceTest {
 
         Mono<SportBetDataDto> resultMono = Mono.error(new ApiRequestFailedException());
 
-        when(crawUtils.crawlData(sportBetWebClient, meetingQueryURI, SportBetDataDto.class, className, 20L)).thenReturn(resultMono);
+        when(crawUtils.crawlData(sportBetWebClient, meetingQueryURI, SportBetDataDto.class, className, 5L)).thenReturn(resultMono);
 
         StepVerifier.create(serviceToTest.getTodayMeetings(date))
                 .expectErrorMatches(throwable -> throwable instanceof ApiRequestFailedException)
@@ -101,7 +101,7 @@ class SportBetCrawlServiceTest {
         LocalDate date = LocalDate.now();
         String meetingQueryURI = AppConstant.SPORT_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
 
-        when(crawUtils.crawlData(sportBetWebClient, meetingQueryURI, SportBetDataDto.class, serviceToTest.getClass().getName(), 20L))
+        when(crawUtils.crawlData(sportBetWebClient, meetingQueryURI, SportBetDataDto.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(Mono.just(getDataCrawlMeeting()));
 
         when(crawUtils.saveMeetingSiteAndRaceSite(anyMap(), any())).thenReturn(mock(Mono.class));
@@ -129,7 +129,7 @@ class SportBetCrawlServiceTest {
         Mono<SportBetRaceApiResponse> raceDto = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -143,7 +143,7 @@ class SportBetCrawlServiceTest {
         Mono<SportBetRaceApiResponse> raceDto = Mono.just(getDataCrawlRace());
 
         String raceQueryURI = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         String top4Entrants = "1,3,12,10";
@@ -166,7 +166,7 @@ class SportBetCrawlServiceTest {
         Mono<SportBetRaceApiResponse> apiResponseMono = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()))
@@ -185,7 +185,7 @@ class SportBetCrawlServiceTest {
         Mono<SportBetRaceApiResponse> apiResponseMono = Mono.just(getDataCrawlRace());
 
         String raceQueryURI = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
         when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
@@ -207,7 +207,7 @@ class SportBetCrawlServiceTest {
         sportBetRaceApiResponseEmptyMarket.setSportBetRaceDto(new SportBetRaceDto());
 
         String raceQueryURI = AppConstant.SPORT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(sportBetWebClient, raceQueryURI, SportBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(Mono.just(sportBetRaceApiResponseEmptyMarket));
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()))

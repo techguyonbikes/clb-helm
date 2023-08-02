@@ -97,7 +97,7 @@ class ZBetCrawlServiceTest {
 
         Mono<ZBetMeetingResponseRawData> resultMono = Mono.error(new ApiRequestFailedException());
 
-        when(crawUtils.crawlData(zbetWebClient, meetingQueryURI, ZBetMeetingResponseRawData.class, className, 20L)).thenReturn(resultMono);
+        when(crawUtils.crawlData(zbetWebClient, meetingQueryURI, ZBetMeetingResponseRawData.class, className, 5L)).thenReturn(resultMono);
 
         StepVerifier.create(serviceToTest.getTodayMeetings(date))
                 .expectErrorMatches(throwable -> throwable instanceof ApiRequestFailedException)
@@ -112,7 +112,7 @@ class ZBetCrawlServiceTest {
         LocalDate date = LocalDate.now();
         String meetingQueryURI = AppConstant.ZBET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
 
-        when(crawUtils.crawlData(zbetWebClient, meetingQueryURI, ZBetMeetingResponseRawData.class, serviceToTest.getClass().getName(), 20L))
+        when(crawUtils.crawlData(zbetWebClient, meetingQueryURI, ZBetMeetingResponseRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(Mono.just(getDataCrawlMeeting()));
 
         when(crawUtils.saveMeetingSiteAndRaceSite(anyMap(), any())).thenReturn(mock(Mono.class));
@@ -145,7 +145,7 @@ class ZBetCrawlServiceTest {
         Mono<ZbetRaceResponseRawData> raceDto = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -159,7 +159,7 @@ class ZBetCrawlServiceTest {
         Mono<ZbetRaceResponseRawData> raceDto = Mono.just(getDataCrawlRace("src/test/resources/zbet/ZbetRaceData.json"));
 
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -180,7 +180,7 @@ class ZBetCrawlServiceTest {
         Mono<ZbetRaceResponseRawData> raceDto = Mono.just(getDataCrawlRace("src/test/resources/zbet/ZbetRaceData_TestStatusInterim.json"));
 
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -217,7 +217,7 @@ class ZBetCrawlServiceTest {
         Mono<ZbetRaceResponseRawData> apiResponseMono = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()))
@@ -238,7 +238,7 @@ class ZBetCrawlServiceTest {
         Mono<ZbetRaceResponseRawData> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/zbet/ZbetRaceData.json"));
 
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
         when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
@@ -268,7 +268,7 @@ class ZBetCrawlServiceTest {
         Mono<ZbetRaceResponseRawData> apiResponseMonoTestPrice = Mono.just(getDataCrawlRace("src/test/resources/zbet/ZbetRaceData_TestPriceNull.json"));
 
         String raceQueryURIPriceNull = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(zbetWebClient, raceQueryURIPriceNull, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(zbetWebClient, raceQueryURIPriceNull, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMonoTestPrice);
         when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
@@ -295,7 +295,7 @@ class ZBetCrawlServiceTest {
         Mono<ZbetRaceResponseRawData> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/zbet/ZbetRaceData_TestCantMapPriceCode.json"));
 
         String raceQueryURI = AppConstant.ZBET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(zbetWebClient, raceQueryURI, ZbetRaceResponseRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
         when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 

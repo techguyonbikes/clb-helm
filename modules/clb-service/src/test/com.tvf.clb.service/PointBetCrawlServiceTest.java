@@ -94,7 +94,7 @@ class PointBetCrawlServiceTest {
 
         Mono<PointBetMeetingRawData[]> resultMono = Mono.error(new ApiRequestFailedException());
 
-        when(crawUtils.crawlData(pointBetWebClient, meetingQueryURI, PointBetMeetingRawData[].class, className, 20L)).thenReturn(resultMono);
+        when(crawUtils.crawlData(pointBetWebClient, meetingQueryURI, PointBetMeetingRawData[].class, className, 5L)).thenReturn(resultMono);
 
         StepVerifier.create(serviceToTest.getTodayMeetings(date))
                 .expectErrorMatches(throwable -> throwable instanceof ApiRequestFailedException)
@@ -109,7 +109,7 @@ class PointBetCrawlServiceTest {
         LocalDate date = LocalDate.now();
         String meetingQueryURI = AppConstant.POINT_BET_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
 
-        when(crawUtils.crawlData(pointBetWebClient, meetingQueryURI, PointBetMeetingRawData[].class, serviceToTest.getClass().getName(), 20L))
+        when(crawUtils.crawlData(pointBetWebClient, meetingQueryURI, PointBetMeetingRawData[].class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(Mono.just(getDataCrawlMeeting()));
 
         when(meetingRepository.getMeetingIdsByNameContainsAndRaceTypeAndAdvertisedDateFrom(any(), any(), any())).thenReturn(Flux.fromIterable(new ArrayList<>()));
@@ -141,7 +141,7 @@ class PointBetCrawlServiceTest {
         Mono<PointBetRaceApiResponse> raceDto = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.POINT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -155,7 +155,7 @@ class PointBetCrawlServiceTest {
         Mono<PointBetRaceApiResponse> raceDto = Mono.just(getDataCrawlRace("src/test/resources/pointbet/pointbet-race-api-response.json"));
 
         String raceQueryURI = AppConstant.POINT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -184,7 +184,7 @@ class PointBetCrawlServiceTest {
         Mono<PointBetRaceApiResponse> apiResponseMono = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.POINT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()))
@@ -202,7 +202,7 @@ class PointBetCrawlServiceTest {
         Mono<PointBetRaceApiResponse> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/pointbet/pointbet-race-api-response.json"));
 
         String raceQueryURI = AppConstant.POINT_BET_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(pointBetWebClient, raceQueryURI, PointBetRaceApiResponse.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
 
         when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());

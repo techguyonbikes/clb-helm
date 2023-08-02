@@ -97,7 +97,7 @@ class TabCrawlServiceTest {
 
         Mono<TabBetMeetingDto> resultMono = Mono.error(new ApiRequestFailedException());
 
-        when(crawUtils.crawlData(tabWebClient, meetingQueryURI, TabBetMeetingDto.class, className, 20L)).thenReturn(resultMono);
+        when(crawUtils.crawlData(tabWebClient, meetingQueryURI, TabBetMeetingDto.class, className, 5L)).thenReturn(resultMono);
 
         StepVerifier.create(serviceToTest.getTodayMeetings(date))
                 .expectErrorMatches(throwable -> throwable instanceof ApiRequestFailedException)
@@ -112,7 +112,7 @@ class TabCrawlServiceTest {
         LocalDate date = LocalDate.now();
         String meetingQueryURI = AppConstant.TAB_MEETING_QUERY.replace(AppConstant.DATE_PARAM, date.toString());
 
-        when(crawUtils.crawlData(tabWebClient, meetingQueryURI, TabBetMeetingDto.class, serviceToTest.getClass().getName(), 20L))
+        when(crawUtils.crawlData(tabWebClient, meetingQueryURI, TabBetMeetingDto.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(Mono.just(getDataCrawlMeeting()));
 
         when(crawUtils.saveMeetingSiteAndRaceSite(anyMap(), any())).thenReturn(mock(Mono.class));
@@ -145,7 +145,7 @@ class TabCrawlServiceTest {
         Mono<TabRunnerRawData> raceDto = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.TAB_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -159,7 +159,7 @@ class TabCrawlServiceTest {
         Mono<TabRunnerRawData> raceDto = Mono.just(getDataCrawlRace("src/test/resources/tab/TabRaceData.json"));
 
         String raceQueryURI = AppConstant.TAB_RACE_QUERY.replace(AppConstant.ID_PARAM, raceId);
-        when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(raceDto);
 
         StepVerifier.create(serviceToTest.getEntrantByRaceUUID(raceId))
@@ -197,7 +197,7 @@ class TabCrawlServiceTest {
         Mono<TabRunnerRawData> apiResponseMono = Mono.error(new ApiRequestFailedException());
 
         String raceQueryURI = AppConstant.TAB_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
 
         StepVerifier.create(serviceToTest.crawlAndSaveEntrantsInRace(raceDto, LocalDate.now()))
@@ -217,7 +217,7 @@ class TabCrawlServiceTest {
         Mono<TabRunnerRawData> apiResponseMono = Mono.just(getDataCrawlRace("src/test/resources/tab/TabRaceData.json"));
 
         String raceQueryURI = AppConstant.TAB_RACE_QUERY.replace(AppConstant.ID_PARAM, raceDto.getId());
-        when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 0L))
+        when(crawUtils.crawlData(tabWebClient, raceQueryURI, TabRunnerRawData.class, serviceToTest.getClass().getName(), 5L))
                 .thenReturn(apiResponseMono);
         when(crawUtils.getIdForNewRaceAndSaveRaceSite(eq(raceDto), anyList(), anyInt())).thenReturn(Mono.empty());
 
