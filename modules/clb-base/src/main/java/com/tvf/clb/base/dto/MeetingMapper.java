@@ -236,6 +236,7 @@ public class MeetingMapper {
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
                 .currentSitePrice(entrantRawData.getPriceFluctuations())
+                .currentSitePricePlaces(entrantRawData.getPricePlaces())
                 .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
@@ -301,6 +302,7 @@ public class MeetingMapper {
                 .visible(entrantRawData.isVisible())
                 .marketId(entrantRawData.getMarketId())
                 .priceFluctuations(Json.of(gson.toJson(Collections.singletonMap(site, CommonUtils.convertToPriceHistoryData(entrantRawData.getPriceFluctuations())))))
+                .pricePlaces(Json.of(gson.toJson(Collections.singletonMap(site, CommonUtils.convertToPriceHistoryData(entrantRawData.getPricePlaces())))))
                 .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
@@ -342,13 +344,14 @@ public class MeetingMapper {
                 .build();
     }
 
-    public static Entrant toEntrantEntity(ZBetEntrantData entrant, List<Float> prices) {
+    public static Entrant toEntrantEntity(ZBetEntrantData entrant, List<Float> pricesFixed, List<Float> pricePlaces) {
         return Entrant.builder()
                 .entrantId(entrant.getId().toString())
                 .name(entrant.getName())
                 .number(entrant.getNumber())
                 .barrier(entrant.getBarrier())
-                .currentSitePrice(prices)
+                .currentSitePrice(pricesFixed)
+                .currentSitePricePlaces(pricePlaces)
                 .build();
     }
 
@@ -407,13 +410,14 @@ public class MeetingMapper {
                 .raceSiteUrl(ConvertBase.getURLRaceOfSportBet(race, raceType, meeting.getName()))
                 .build();
     }
-    public static Entrant toEntrantEntity(SportBetEntrantRawData entrant, List<Float> prices) {
+    public static Entrant toEntrantEntity(SportBetEntrantRawData entrant, List<Float> winPrices, List<Float> placePrices) {
         return Entrant.builder()
                 .entrantId(entrant.getId().toString())
                 .name(entrant.getName())
                 .number(entrant.getRunnerNumber())
                 .barrier(entrant.getDrawNumber())
-                .currentSitePrice(prices)
+                .currentSitePrice(winPrices)
+                .currentSitePricePlaces(placePrices)
                 .build();
     }
     public static Meeting toMeetingEntityFromTOP(TopSportMeetingDto meeting) {

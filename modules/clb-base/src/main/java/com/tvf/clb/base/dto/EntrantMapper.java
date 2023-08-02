@@ -12,7 +12,6 @@ import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
-import com.tvf.clb.base.utils.ConvertBase;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -29,7 +28,7 @@ public class EntrantMapper {
 
     public static final Gson gson = new Gson();
 
-    public static EntrantDto toEntrantDto(EntrantRawData entrant, List<Float> prices) {
+    public static EntrantDto toEntrantDto(EntrantRawData entrant, List<Float> prices, List<Float> pricePlaces) {
         return EntrantDto.builder()
                 .id(entrant.getId())
                 .name(entrant.getName())
@@ -38,6 +37,7 @@ public class EntrantMapper {
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
                 .currentSitePrice(prices)
+                .currentSitePricePlaces(pricePlaces)
                 .isScratched(entrant.getIsScratched() != null)
                 .scratchedTime(entrant.getScratchedTime())
                 .position(entrant.getPosition())
@@ -60,7 +60,7 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantRawData mapPrices(EntrantRawData entrant, List<Float> prices,Integer position) {
+    public static EntrantRawData mapPrices(EntrantRawData entrant, List<Float> prices, List<Float> pricePlaces, Integer position) {
         return EntrantRawData.builder()
                 .id(entrant.getId())
                 .raceId(entrant.getRaceId())
@@ -70,6 +70,7 @@ public class EntrantMapper {
                 .barrier(entrant.getBarrier())
                 .visible(entrant.isVisible())
                 .priceFluctuations(prices)
+                .pricePlaces(pricePlaces)
                 .isScratched(entrant.getIsScratched())
                 .scratchedTime(entrant.getScratchedTime())
                 .position(position)
@@ -81,6 +82,7 @@ public class EntrantMapper {
         Gson gson = new Gson();
         Type listType = new TypeToken<Map<Integer, List<PriceHistoryData>>>() {}.getType();
         Map<Integer, List<PriceHistoryData>> prices = entrant.getPriceFluctuations() == null ? new HashMap<>() : gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
+        Map<Integer, List<PriceHistoryData>> pricesPlaces = entrant.getPricePlaces() == null ? new HashMap<>() : gson.fromJson(entrant.getPricePlaces().asString(), listType);
         return EntrantResponseDto.builder()
                 .id(entrant.getId())
                 .entrantId(entrant.getEntrantId())
@@ -91,6 +93,7 @@ public class EntrantMapper {
                 .isScratched(entrant.isScratched())
                 .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
                 .priceFluctuations(prices)
+                .pricePlaces(pricesPlaces)
                 .position(entrant.getPosition())
                 .riderOrDriver(entrant.getRiderOrDriver())
                 .trainerName(entrant.getTrainerName())
@@ -102,25 +105,26 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static List<Entrant> toListEntrantEntity(List<PointBetEntrantRawData> entrantRawDataList, Map<String, List<Float>> allEntrantPrices, String raceUUID) {
+    public static List<Entrant> toListEntrantEntity(List<PointBetEntrantRawData> entrantRawDataList, Map<String, List<Float>> allEntrantWinPrices, Map<String, List<Float>> allEntrantPlacePrices, String raceUUID) {
         List<Entrant> listEntrantEntity = new ArrayList<>();
 
         entrantRawDataList.forEach(entrantRawData -> {
-            Entrant entrantEntity = toEntrantEntity(entrantRawData, allEntrantPrices.getOrDefault(entrantRawData.getId(), new ArrayList<>()), raceUUID);
+            Entrant entrantEntity = toEntrantEntity(entrantRawData, allEntrantWinPrices.getOrDefault(entrantRawData.getId(), new ArrayList<>()), allEntrantPlacePrices.getOrDefault(entrantRawData.getId(), new ArrayList<>()), raceUUID);
             listEntrantEntity.add(entrantEntity);
         });
 
         return listEntrantEntity;
     }
 
-    public static Entrant toEntrantEntity(PointBetEntrantRawData entrantRawData, List<Float> entrantPrice, String raceUUID) {
+    public static Entrant toEntrantEntity(PointBetEntrantRawData entrantRawData, List<Float> entrantWinPrice, List<Float> entrantPlacePrice, String raceUUID) {
         return Entrant.builder()
                 .entrantId(entrantRawData.getId())
                 .raceUUID(raceUUID)
                 .name(entrantRawData.getName())
                 .number(Integer.parseInt(entrantRawData.getId()))
                 .barrier(entrantRawData.getBarrierBox())
-                .currentSitePrice(entrantPrice)
+                .currentSitePrice(entrantWinPrice)
+                .currentSitePricePlaces(entrantPlacePrice)
                 .position(entrantRawData.getPosition())
                 .isScratched(entrantRawData.isScratched())
                 .build();
@@ -141,12 +145,12 @@ public class EntrantMapper {
                 .build();
     }
 
-    public static EntrantRawData toEntrantRawData(RunnerTabRawData runner, List<Integer> position, List<Float> listPrice, String raceId) {
+    public static EntrantRawData toEntrantRawData(RunnerTabRawData runner, List<Integer> position, List<Float> listWinPrice, Float placePrice, String raceId) {
         if (runner == null || raceId == null){
             return new EntrantRawData();
         }
         if (runner.getFixedOdds().getReturnWin() != null && runner.getFixedOdds().getReturnWin() != 0) {
-            listPrice.add(runner.getFixedOdds().getReturnWin());
+            listWinPrice.add(runner.getFixedOdds().getReturnWin());
         }
         return EntrantRawData.builder()
                 .id("TAB-" + runner.getRunnerName() + "-" + runner.getRunnerNumber())
@@ -156,25 +160,27 @@ public class EntrantMapper {
                 .number(runner.getRunnerNumber())
                 .barrier(0)
                 .visible(false)
-                .priceFluctuations(listPrice)
+                .priceFluctuations(listWinPrice)
+                .pricePlaces(placePrice == null ? Collections.emptyList() : Collections.singletonList(placePrice))
                 .isScratched(runner.getFixedOdds().getBettingStatus() == null || !AppConstant.SCRATCHED_NAME.equals(runner.getFixedOdds().getBettingStatus()) ? String.valueOf(false) : String.valueOf(true))
                 .scratchedTime(runner.getFixedOdds().getScratchedTime() == null ? null : Instant.parse(runner.getFixedOdds().getScratchedTime()))
                 .position(position.indexOf(runner.getRunnerNumber()) + 1)
                 .build();
     }
 
-    public static EntrantDto toEntrantDto(ZBetEntrantData entrantData, List<Float> price){
+    public static EntrantDto toEntrantDto(ZBetEntrantData entrantData, List<Float> pricesFixed, List<Float> pricePlaces){
         return EntrantDto.builder()
                 .id(String.valueOf(entrantData.getId()))
                 .name(entrantData.getName())
                 .barrier(entrantData.getBarrier())
                 .number(entrantData.getNumber())
-                .currentSitePrice(price)
+                .currentSitePrice(pricesFixed)
+                .currentSitePricePlaces(pricePlaces)
                 .build();
     }
 
 
-    public static EntrantRawData mapCrawlEntrant(String raceId, ZBetEntrantData entrant, List<Float> prices, Map<Integer, Integer> position) {
+    public static EntrantRawData mapCrawlEntrant(String raceId, ZBetEntrantData entrant, List<Float> priceFixes, List<Float> pricesPlaces, Map<Integer, Integer> position) {
         Instant reqInstant = null;
         if (entrant.getScratchingTime() != null) {
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(AppConstant.DATE_TIME_PATTERN);
@@ -199,7 +205,8 @@ public class EntrantMapper {
                 .number(entrant.getNumber())
                 .barrier(entrant.getBarrier())
                 .visible(false)
-                .priceFluctuations(prices)
+                .priceFluctuations(priceFixes)
+                .pricePlaces(pricesPlaces)
                 .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !AppConstant.NOT_SCRATCHED_NAME.equals(entrant.getSelectionsStatus())))
                 .scratchedTime(reqInstant)
                 .position(entrantPosition)
@@ -209,9 +216,12 @@ public class EntrantMapper {
     public static CrawlEntrantData toCrawlEntrantData(EntrantRawData entrant, Integer siteId){
         Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
         priceFluctuations.put(siteId, entrant.getPriceFluctuations());
+        Map<Integer, List<Float>> pricePlaces = new HashMap<>();
+        pricePlaces.put(siteId, entrant.getPricePlaces());
         return CrawlEntrantData.builder()
                 .position(entrant.getPosition())
                 .priceMap(priceFluctuations)
+                .pricePlacesMap(pricePlaces)
                 .isScratched(entrant.getIsScratched() == null ? Boolean.FALSE : Boolean.parseBoolean(entrant.getIsScratched()))
                 .scratchTime(entrant.getScratchedTime())
                 .build();

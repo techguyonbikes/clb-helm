@@ -79,27 +79,21 @@ public class CrawUtils {
         }
         for (EntrantResponseDto entrantResponseDto : raceStored.getEntrants()) {
             Entrant newEntrant = newEntrantMap.get(entrantResponseDto.getNumber());
-
-            if (entrantResponseDto.getPriceFluctuations() == null) {
-                Map<Integer, List<PriceHistoryData>> price = new HashMap<>();
-                log.error("Entrant id = {} in race id = {} null price", entrantResponseDto.getId(), raceStored.getId());
-                entrantResponseDto.setPriceFluctuations(price);
-            }
-
             if (newEntrant != null) {
-                Map<Integer, List<PriceHistoryData>> price;
-                if(entrantResponseDto.getPriceFluctuations() != null) {
-                    price = entrantResponseDto.getPriceFluctuations();
-                    List<PriceHistoryData> sitePrice = newEntrant.getCurrentSitePrice() == null ? new ArrayList<>() :
-                            CommonUtils.convertToPriceHistoryData(newEntrant.getCurrentSitePrice());
-                    price.put(site, sitePrice);
-                }
+                checkPriceRawData(newEntrant.getCurrentSitePrice(), entrantResponseDto.getPriceFluctuations(), site);
+                checkPriceRawData(newEntrant.getCurrentSitePricePlaces(), entrantResponseDto.getPricePlaces(), site);
             }
         }
 
         compareNewAndStoredRace(raceStored, raceDto, site);
 
         raceRedisService.saveRace(raceDto.getRaceId(), raceStored).subscribe();
+    }
+
+    public void checkPriceRawData(List<Float> currentSitePrice, Map<Integer, List<PriceHistoryData>> entrantPriceData, Integer site){
+        List<PriceHistoryData> sitePrice = currentSitePrice == null ? new ArrayList<>() :
+                CommonUtils.convertToPriceHistoryData(currentSitePrice);
+        entrantPriceData.put(site, sitePrice);
     }
 
     public void compareNewAndStoredRace(RaceResponseDto raceStored, RaceDto raceDto, Integer site){
@@ -299,6 +293,7 @@ public class CrawUtils {
         raceNewData.getMapEntrants().forEach((entrantNumber, entrantNewData) -> {
             if (mapEntrants.containsKey(entrantNumber)) {
                 mapEntrants.get(entrantNumber).getPriceMap().putAll(entrantNewData.getPriceMap());
+                mapEntrants.get(entrantNumber).getPricePlacesMap().putAll(entrantNewData.getPricePlacesMap());
                 if (raceNewData.getSiteEnum().equals(SiteEnum.LAD_BROKE)) {
                     mapEntrants.get(entrantNumber).setIsScratched(entrantNewData.getIsScratched());
                     mapEntrants.get(entrantNumber).setScratchTime(entrantNewData.getScratchTime());

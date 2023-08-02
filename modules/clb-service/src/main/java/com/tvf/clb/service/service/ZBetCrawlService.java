@@ -80,7 +80,10 @@ public class ZBetCrawlService implements ICrawlService {
         Map<Integer, Integer> positionResult = crawUtils.getPositionInResult(raceDto.getFinalResult());
 
         return raceDto.getSelections().stream().filter(f -> f.getName() != null && f.getNumber() != null)
-                .map(m -> EntrantMapper.mapCrawlEntrant(raceId, m, buildPriceFluctuations(m), positionResult)).collect(Collectors.toList());
+                .map(m -> {
+                    List<ZBetPrices> pricesZbets = buildPriceFluctuations(m);
+                    return EntrantMapper.mapCrawlEntrant(raceId, m, getPriceFluctuations(pricesZbets), getPricePlaces(pricesZbets), positionResult);
+                }).collect(Collectors.toList());
     }
 
     private List<MeetingDto> getAllAusMeeting(List<ZBetMeetingRawData> zBetMeeting, LocalDate date) {
@@ -121,7 +124,10 @@ public class ZBetCrawlService implements ICrawlService {
                  .flatMapMany(raceRawData -> {
                     List<ZBetEntrantData> allEntrant = raceRawData.getSelections();
                     List<Entrant> newEntrants = allEntrant.stream().distinct()
-                            .map(entrantData -> MeetingMapper.toEntrantEntity(entrantData, buildPriceFluctuations(entrantData))).collect(Collectors.toList());
+                            .map(entrantData -> {
+                                List<ZBetPrices> pricesZbets = buildPriceFluctuations(entrantData);
+                                return MeetingMapper.toEntrantEntity(entrantData, getPriceFluctuations(pricesZbets), getPricePlaces(pricesZbets));
+                            }).collect(Collectors.toList());
 
                     return Mono.justOrEmpty(raceDto.getRaceId())
                             .switchIfEmpty(crawUtils.getIdForNewRaceAndSaveRaceSite(raceDto, newEntrants, SiteEnum.ZBET.getId())
@@ -136,7 +142,10 @@ public class ZBetCrawlService implements ICrawlService {
                                 }
                                 saveEntrant(newEntrants, raceDto);
 
-                                return allEntrant.stream().map(entrantData -> EntrantMapper.toEntrantDto(entrantData, buildPriceFluctuations(entrantData))).collect(Collectors.toList());
+                                return allEntrant.stream().map(entrantData -> {
+                                    List<ZBetPrices> pricesZbets = buildPriceFluctuations(entrantData);
+                                    return EntrantMapper.toEntrantDto(entrantData, getPriceFluctuations(pricesZbets), getPricePlaces(pricesZbets));
+                                }).collect(Collectors.toList());
                             });
                 });
     }
@@ -157,7 +166,7 @@ public class ZBetCrawlService implements ICrawlService {
                         .mapNotNull(ZbetRaceResponseRawData::getData);
     }
 
-    private List<Float> buildPriceFluctuations(ZBetEntrantData entrantData) {
+    private List<ZBetPrices> buildPriceFluctuations(ZBetEntrantData entrantData) {
         if (entrantData != null && entrantData.getPrices() != null) {
             JsonNode priceRawData = entrantData.getPrices();
 
@@ -171,16 +180,26 @@ public class ZBetCrawlService implements ICrawlService {
             }
 
             if (!CollectionUtils.isEmpty(zBetPricesCollection)) {
-                List<ZBetPrices> listZBF = zBetPricesCollection.stream().filter(zBetPrices -> AppConstant.VALID_CHECK_PRODUCT_CODE.equals(zBetPrices.getProductCode()))
+            return zBetPricesCollection.stream().filter(zBetPrices -> AppConstant.VALID_CHECK_PRODUCT_CODE.equals(zBetPrices.getProductCode()))
                         .sorted(Comparator.comparing(ZBetPrices::getRequestedAt)).collect(Collectors.toList());
-                if (CollectionUtils.isEmpty(listZBF)) {
-                    return Collections.emptyList();
-                }
-                List<String> lastFluctuations = Arrays.stream(listZBF.get(listZBF.size() - 1).getFluctuations().split(",")).collect(Collectors.toList());
-                return lastFluctuations.stream().map(Float::parseFloat).filter(x -> x != 0).collect(Collectors.toList());
             }
         }
 
         return Collections.emptyList();
+    }
+
+    private List<Float> getPriceFluctuations(List<ZBetPrices> zBetPricesList) {
+        if (CollectionUtils.isEmpty(zBetPricesList)) {
+            return Collections.emptyList();
+        }
+        List<String> lastFluctuations = Arrays.stream(zBetPricesList.get(zBetPricesList.size() - 1).getFluctuations().split(",")).collect(Collectors.toList());
+        return lastFluctuations.stream().map(Float::parseFloat).filter(x -> x != 0).collect(Collectors.toList());
+    }
+
+    private List<Float> getPricePlaces(List<ZBetPrices> zBetPricesList){
+        if (CollectionUtils.isEmpty(zBetPricesList)) {
+            return Collections.emptyList();
+        }
+        return Collections.singletonList(zBetPricesList.get(zBetPricesList.size()-1).getPlaceOdds());
     }
 }

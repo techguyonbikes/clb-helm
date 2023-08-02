@@ -9,10 +9,7 @@ import com.tvf.clb.base.kafka.payload.EventTypeEnum;
 import com.tvf.clb.base.kafka.payload.KafkaPayload;
 import com.tvf.clb.base.kafka.service.CloudbetKafkaService;
 import com.tvf.clb.base.model.*;
-import com.tvf.clb.base.model.ladbrokes.LadBrokedItMeetingDto;
-import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
-import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceApiResponse;
-import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceResult;
+import com.tvf.clb.base.model.ladbrokes.*;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
@@ -82,7 +79,8 @@ public class LadBrokeCrawlService implements ICrawlService {
                         positions.put(AppConstant.POSITION, 0);
                     }
                     HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+                    HashMap<String, LadBrokesPriceOdds> allEntrantPricesPlaces = raceDto.getPricePlaces();
+                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceDto, allEntrantPrices, allEntrantPricesPlaces, raceId, positions);
 
                     Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
                     allEntrant.forEach(x -> entrantMap.put(x.getNumber(), EntrantMapper.toCrawlEntrantData(x, AppConstant.LAD_BROKE_SITE_ID)));
@@ -303,6 +301,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                     String silkUrl = raceRawData.getRaces().get(raceId).getSilkUrl();
                     String fullFormUrl = raceRawData.getRaces().get(raceId).getFullFormUrl();
                     HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
+                    HashMap<String, LadBrokesPriceOdds> allEntrantPricesPlaces = raceRawData.getPricePlaces();
 
                     if (results != null) {
                         positions = results.keySet().stream().collect(Collectors.toMap(Function.identity(), key -> results.get(key).getPosition()));
@@ -310,7 +309,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                         positions.put(AppConstant.POSITION, 0);
                     }
 
-                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceRawData, allEntrantPrices, raceId, positions);
+                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceRawData, allEntrantPrices, allEntrantPricesPlaces, raceId, positions);
 
                     String top4Entrants = null;
                     Map<Integer, String> resultDisplay = null;

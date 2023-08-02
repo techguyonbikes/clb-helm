@@ -156,7 +156,7 @@ public class CrawlPriceService {
                 }
 
                 //update price
-                updatePriceToRedis(entrantNewData.getPriceMap(), storedEntrant);
+                updatePriceToRedis(entrantNewData.getPriceMap(), entrantNewData.getPricePlacesMap(), storedEntrant);
 
             }
         }
@@ -179,30 +179,34 @@ public class CrawlPriceService {
      * @param newPriceMap new price map
      * @param storedEntrant current entrant - old entrant properties
      */
-    public void updatePriceToRedis(Map<Integer, List<Float>> newPriceMap, EntrantResponseDto storedEntrant) {
-        if (CollectionUtils.isEmpty(newPriceMap) || storedEntrant == null) {
+    private void updatePriceToRedis(Map<Integer, List<Float>> newPriceMap, Map<Integer, List<Float>> pricePlacesMap, EntrantResponseDto storedEntrant) {
+        if (CollectionUtils.isEmpty(newPriceMap) || CollectionUtils.isEmpty(pricePlacesMap) || storedEntrant == null) {
             return;
         }
-
         // For each new price
+        updatePriceMap(newPriceMap, storedEntrant.getPriceFluctuations());
+        updatePriceMap(pricePlacesMap, storedEntrant.getPricePlaces());
+    }
+
+    private void updatePriceMap(Map<Integer, List<Float>> newPriceMap, Map<Integer, List<PriceHistoryData>> storedPriceMap) {
         newPriceMap.forEach((siteId, newPrice) -> {
             if (!CollectionUtils.isEmpty(newPrice)) {
                 // get data price old of list entrant by siteId
-                List<PriceHistoryData> storePriceHistoryData = storedEntrant.getPriceFluctuations().getOrDefault(siteId, new ArrayList<>());
+                List<PriceHistoryData> storePriceHistoryData = storedPriceMap.getOrDefault(siteId, new ArrayList<>());
                 if (CollectionUtils.isEmpty(storePriceHistoryData)) {
-                    storedEntrant.getPriceFluctuations().put(siteId,
-                            newPrice.stream().map(x -> new PriceHistoryData(x, CommonUtils.getStringInstantDateNow())).collect(Collectors.toList()));
+                    storedPriceMap.put(siteId, newPrice.stream()
+                            .map(x -> new PriceHistoryData(x, CommonUtils.getStringInstantDateNow()))
+                            .collect(Collectors.toList()));
                 } else {
                     //get last price in new list price
-                    getLastPriceInListNewPrice(newPrice, storePriceHistoryData, storedEntrant, siteId);
-
+                    getLastPriceInListNewPrice(newPrice, storePriceHistoryData, storedPriceMap, siteId);
                 }
             }
         });
     }
 
-    public void getLastPriceInListNewPrice(List<Float> newPrice, List<PriceHistoryData> storePriceHistoryData, EntrantResponseDto storedEntrant, Integer siteId){
-        if (CollectionUtils.isEmpty(newPrice) || CollectionUtils.isEmpty(storePriceHistoryData) || storedEntrant == null || siteId == null ){
+    private void getLastPriceInListNewPrice(List<Float> newPrice, List<PriceHistoryData> storePriceHistoryData, Map<Integer, List<PriceHistoryData>> storedPriceMap, Integer siteId){
+        if (CollectionUtils.isEmpty(newPrice) || CollectionUtils.isEmpty(storePriceHistoryData) || siteId == null ){
             return;
         }
 
@@ -218,7 +222,7 @@ public class CrawlPriceService {
             for (int i = storeSize - 10; i < storeSize; i++) {
                 newStorePriceHistoryData.add(storePriceHistoryData.get(i));
             }
-            storedEntrant.getPriceFluctuations().put(siteId, newStorePriceHistoryData);
+            storedPriceMap.put(siteId, newStorePriceHistoryData);
 
         }
     }
@@ -255,6 +259,7 @@ public class CrawlPriceService {
                             .findFirst()
                             .ifPresent(entrant -> {
                                         entrant.setPriceFluctuations(Json.of(new Gson().toJson(e.getPriceFluctuations() == null ? new HashMap<>() : e.getPriceFluctuations())));
+                                        entrant.setPricePlaces(Json.of(new Gson().toJson(e.getPricePlaces() == null ? new HashMap<>() : e.getPricePlaces())));
                                         entrant.setPosition(e.getPosition());
                                     }
 

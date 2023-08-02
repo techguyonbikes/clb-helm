@@ -9,10 +9,7 @@ import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
-import com.tvf.clb.base.model.tab.TabMeetingRawData;
-import com.tvf.clb.base.model.tab.TabPriceFlucsRawData;
-import com.tvf.clb.base.model.tab.TabRacesData;
-import com.tvf.clb.base.model.tab.TabRunnerRawData;
+import com.tvf.clb.base.model.tab.*;
 import com.tvf.clb.base.utils.AppConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,9 +74,13 @@ public class TabCrawlService implements ICrawlService{
 
                     Map<Integer, CrawlEntrantData> mapEtrants = new HashMap<>();
                     allEntrant.forEach(x -> {
-                        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-                        priceFluctuations.put(AppConstant.TAB_SITE_ID, Optional.ofNullable(x.getPriceFluctuations()).orElse(new ArrayList<>()));
-                        mapEtrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+                        Map<Integer, List<Float>> winPriceFluctuations = new HashMap<>();
+                        winPriceFluctuations.put(AppConstant.TAB_SITE_ID, Optional.ofNullable(x.getPriceFluctuations()).orElse(new ArrayList<>()));
+
+                        Map<Integer, List<Float>> placePriceFluctuations = new HashMap<>();
+                        placePriceFluctuations.put(AppConstant.TAB_SITE_ID, Optional.ofNullable(x.getPricePlaces()).orElse(new ArrayList<>()));
+
+                        mapEtrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), winPriceFluctuations, placePriceFluctuations));
                     });
 
                     CrawlRaceData result = new CrawlRaceData();
@@ -139,10 +140,10 @@ public class TabCrawlService implements ICrawlService{
     private List<EntrantRawData> getListEntrant(String raceId, TabRunnerRawData runnerRawData) {
         return runnerRawData.getRunners().stream().filter(f -> f.getFixedOdds() != null)
                 .map(x -> {
-                    List<Float> listPrice = x.getFixedOdds().getFlucs() == null ? new ArrayList<>() :
+                    List<Float> listWinPrice = x.getFixedOdds().getFlucs() == null ? new ArrayList<>() :
                             x.getFixedOdds().getFlucs().stream().map(TabPriceFlucsRawData::getReturnWin).filter(aFloat -> aFloat != null && !aFloat.equals(0.0F))
                             .collect(Collectors.toList());
-                    return EntrantMapper.toEntrantRawData(x, runnerRawData.getResults(), listPrice, raceId);
+                    return EntrantMapper.toEntrantRawData(x, runnerRawData.getResults(), listWinPrice, x.getFixedOdds().getReturnPlace(),  raceId);
                 }).collect(Collectors.toList());
     }
 

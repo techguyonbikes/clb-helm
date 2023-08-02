@@ -26,6 +26,7 @@ public class EntrantDto {
     private Boolean visible;
     private Map<Integer, List<PriceHistoryData>> priceFluctuations;
     private List<Float> currentSitePrice;
+    private List<Float> currentSitePricePlaces;
     private boolean isScratched;
     private Instant scratchedTime;
     private Integer position;

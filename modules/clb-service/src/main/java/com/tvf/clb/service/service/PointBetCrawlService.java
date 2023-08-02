@@ -70,13 +70,19 @@ public class PointBetCrawlService implements ICrawlService {
                         winnersRawData.forEach(winner -> mapEntrantsPositions.put(Integer.valueOf(winner.getEntrant().getId()), winner.getFinalPlacing()));
                     }
 
-                    Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
+                    Map<String, List<Float>> allEntrantWinPrices = getEntrantsWinPriceFromRaceRawData(raceRawData);
+                    Map<String, List<Float>> allEntrantPlacePrices = getEntrantsPlacePriceFromRaceRawData(raceRawData);
+
                     Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
 
                     for (PointBetEntrantRawData entrant : raceRawData.getEntrants()) {
-                        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-                        priceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantPrices.getOrDefault(entrant.getId(), new ArrayList<>()));
-                        mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(mapEntrantsPositions.getOrDefault(Integer.valueOf(entrant.getId()), 0), priceFluctuations));
+                        Map<Integer, List<Float>> winPriceFluctuations = new HashMap<>();
+                        winPriceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantWinPrices.getOrDefault(entrant.getId(), new ArrayList<>()));
+
+                        Map<Integer, List<Float>> placePriceFluctuations = new HashMap<>();
+                        placePriceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantPlacePrices.getOrDefault(entrant.getId(), new ArrayList<>()));
+
+                        mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(mapEntrantsPositions.getOrDefault(Integer.valueOf(entrant.getId()), 0), winPriceFluctuations, placePriceFluctuations));
                     }
 
                     CrawlRaceData result = new CrawlRaceData();
@@ -163,9 +169,10 @@ public class PointBetCrawlService implements ICrawlService {
                     List<PointBetEntrantRawData> entrants = raceRawData.getEntrants();
                     String statusRace = ConvertBase.getRaceStatusById(raceRawData.getTradingStatus(), raceRawData.getResultStatus());
                     // Map entrant id to prices
-                    Map<String, List<Float>> allEntrantPrices = getEntrantsPriceFromRaceRawData(raceRawData);
+                    Map<String, List<Float>> allEntrantWinPrices = getEntrantsWinPriceFromRaceRawData(raceRawData);
+                    Map<String, List<Float>> allEntrantPlacePrices = getEntrantsPlacePriceFromRaceRawData(raceRawData);
                     // Convert to entity and save from raw data
-                    List<Entrant> listEntrantEntity = EntrantMapper.toListEntrantEntity(entrants, allEntrantPrices, raceUUID);
+                    List<Entrant> listEntrantEntity = EntrantMapper.toListEntrantEntity(entrants, allEntrantWinPrices, allEntrantPlacePrices, raceUUID);
 
                     return Mono.justOrEmpty(raceDto.getRaceId())
                             .switchIfEmpty(crawUtils.getIdForNewRaceAndSaveRaceSite(raceDto, listEntrantEntity, SiteEnum.POINT_BET.getId())
@@ -199,9 +206,9 @@ public class PointBetCrawlService implements ICrawlService {
     }
 
     /**
-     * This function extract entrants price from race raw data
+     * This function extract entrants win price from race raw data
      */
-    private Map<String, List<Float>> getEntrantsPriceFromRaceRawData(PointBetRaceApiResponse raceRawData) {
+    private Map<String, List<Float>> getEntrantsWinPriceFromRaceRawData(PointBetRaceApiResponse raceRawData) {
 
         // Map entrant id to prices
         Map<String, List<Float>> allEntrantPrices = new HashMap<>();
@@ -216,6 +223,30 @@ public class PointBetCrawlService implements ICrawlService {
                         if (! CollectionUtils.isEmpty(winPrice.getFlucs())) {
                             List<Float> priceFluctuation = winPrice.getFlucs().stream().map(PointBetPriceFluctuation::getPrice).collect(Collectors.toList());
                             allEntrantPrices.put(entrant.getId(), priceFluctuation);
+                        }
+                    });
+        }
+
+        return allEntrantPrices;
+    }
+
+    /**
+     * This function extract entrants place price from race raw data
+     */
+    private Map<String, List<Float>> getEntrantsPlacePriceFromRaceRawData(PointBetRaceApiResponse raceRawData) {
+
+        // Map entrant id to prices
+        Map<String, List<Float>> allEntrantPrices = new HashMap<>();
+        final String PLACE_MARKET = "PLC";
+
+        for (PointBetEntrantRawData entrant : raceRawData.getEntrants()) {
+
+            entrant.getPrices().stream()
+                    .filter(price -> PLACE_MARKET.equals(price.getMarketTypeCode()))
+                    .findFirst()
+                    .ifPresent(placePrice -> {
+                        if (placePrice.getPrice() != null) {
+                            allEntrantPrices.put(entrant.getId(), Collections.singletonList(placePrice.getPrice()));
                         }
                     });
         }

@@ -49,8 +49,13 @@ public class Entrant {
     @JsonSerialize(using = PgJsonObjectSerializer.class)
     @JsonDeserialize(using = PgJsonObjectDeserializer.class)
     private Json priceFluctuations;
+    @JsonSerialize(using = PgJsonObjectSerializer.class)
+    @JsonDeserialize(using = PgJsonObjectDeserializer.class)
+    private Json pricePlaces;
     @Transient
     private List<Float> currentSitePrice;
+    @Transient
+    private List<Float> currentSitePricePlaces;
     private Integer position;
     private String riderOrDriver;
     private String trainerName;

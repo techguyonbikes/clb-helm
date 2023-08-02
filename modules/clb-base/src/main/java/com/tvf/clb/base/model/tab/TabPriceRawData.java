@@ -19,6 +19,7 @@ public class TabPriceRawData {
 
     private Float returnWin;
     private String returnWinTime;
+    private Float returnPlace;
     private String bettingStatus;
     private List<TabPriceFlucsRawData> flucs;
     private String scratchedTime;

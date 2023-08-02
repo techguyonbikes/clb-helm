@@ -24,11 +24,12 @@ public class LadBrokedItRaceDto {
     private Map<String, LadbrokesRaceRawData> races;
     private Map<String, LadbrokesMarketsRawData> markets;
     private JsonNode meetings;
-    private Object prices;
     private Object venues;
     private Object substitutions;
     private Map<String, LadbrokesRaceResult> results;
     private HashMap<String, EntrantRawData> entrants;
     @JsonProperty("price_fluctuations")
     private HashMap<String, ArrayList<Float>> priceFluctuations;
+    @JsonProperty("prices")
+    private HashMap<String, LadBrokesPriceOdds> pricePlaces;
 }

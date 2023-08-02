@@ -13,6 +13,7 @@ import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.sportbet.*;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -87,14 +88,22 @@ public class SportBetCrawlService implements ICrawlService {
                     Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
                     allEntrant.forEach(x -> {
 
-                        List<Float> prices = getPricesFromEntrantStatistics(x.getStatistics());
-                        Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
+                        List<Float> winPrices = getPricesFromEntrantStatistics(x.getStatistics());
+                        Map<Integer, List<Float>> winPriceFluctuations = new HashMap<>();
 
-                        x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
-                                r->prices.add(r.getWinPrice())
-                        );
-                        priceFluctuations.put(AppConstant.SPORTBET_SITE_ID, prices);
-                        entrantMap.put(x.getRunnerNumber(), new CrawlEntrantData(0, priceFluctuations));
+                        List<Float> placePrices = new ArrayList<>();
+                        Map<Integer, List<Float>> placePriceFluctuations = new HashMap<>();
+
+                        x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode()))
+                                .findFirst()
+                                .ifPresent(price -> {
+                                    winPrices.add(price.getWinPrice());
+                                    CommonUtils.setIfPresent(price.getPlacePrice(), placePrices::add);
+                                });
+                        winPriceFluctuations.put(AppConstant.SPORTBET_SITE_ID, winPrices);
+                        placePriceFluctuations.put(AppConstant.SPORTBET_SITE_ID, placePrices);
+
+                        entrantMap.put(x.getRunnerNumber(), new CrawlEntrantData(0, winPriceFluctuations, placePriceFluctuations));
                     });
 
                     CrawlRaceData result = new CrawlRaceData();
@@ -127,15 +136,17 @@ public class SportBetCrawlService implements ICrawlService {
                         MarketRawData markets = sportBetRaceDto.getMarkets().get(0);
                         List<SportBetEntrantRawData> allEntrant = markets.getSelections();
                         for(SportBetEntrantRawData rawData : allEntrant){
-                            List<Float> prices = getPricesFromEntrantStatistics(rawData.getStatistics());
+                            List<Float> winPrices = getPricesFromEntrantStatistics(rawData.getStatistics());
+                            List<Float> placePrices = new ArrayList<>();
                             rawData.getPrices().stream().filter(r -> AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
-                                    x -> {
-                                        if (x.getWinPrice() != null) {
-                                            prices.add(x.getWinPrice());
+                                    price -> {
+                                        if (price.getWinPrice() != null) {
+                                            winPrices.add(price.getWinPrice());
+                                            CommonUtils.setIfPresent(price.getPlacePrice(), placePrices::add);
                                         }
                                     }
                             );
-                            Entrant entrant = MeetingMapper.toEntrantEntity(rawData,prices);
+                            Entrant entrant = MeetingMapper.toEntrantEntity(rawData, winPrices, placePrices);
                             newEntrants.add(entrant);
                         }
 

@@ -212,4 +212,8 @@ public class AppConstant {
     public static final String LADBROKE_STATUS_ABANDONED = "a8419435-bd8f-406d-bdef-734e25a15569";
     public static final String SIDE_NAME_PREFIX = "R";
 
+    //
+    public static final String LADBROKE_NEDS_DATA_PRICE_KEY = ":7cf3eea6-5654-42be-9c2e-6de280e7bb34:";
+
+
 }

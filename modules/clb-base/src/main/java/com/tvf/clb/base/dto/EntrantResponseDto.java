@@ -2,7 +2,6 @@ package com.tvf.clb.base.dto;
 
 import com.tvf.clb.base.model.PriceHistoryData;
 import lombok.*;
-import org.springframework.data.redis.core.RedisHash;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +21,7 @@ public class EntrantResponseDto {
     private Boolean isScratched;
     private String scratchedTime;
     private Map<Integer, List<PriceHistoryData>> priceFluctuations;
+    private Map<Integer, List<PriceHistoryData>> pricePlaces;
     private Integer position;
     private String riderOrDriver;
     private String trainerName;

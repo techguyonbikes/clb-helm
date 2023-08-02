@@ -11,11 +11,13 @@ import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.model.ladbrokes.LadBrokedItRaceDto;
+import com.tvf.clb.base.model.ladbrokes.LadBrokesPriceOdds;
 import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
 import io.r2dbc.postgresql.codec.Json;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -110,7 +112,7 @@ public class CommonUtils {
         List<Race> mostSimilarRaces = new ArrayList<>();
         int maxSameEntrants = 0;
 
-        for (Map.Entry<Race, List<Entrant>> entry: mapExistingRaceAndEntrants.entrySet()) {
+        for (Map.Entry<Race, List<Entrant>> entry : mapExistingRaceAndEntrants.entrySet()) {
             Race existingRace = entry.getKey();
             List<Entrant> existingEntrants = entry.getValue();
 
@@ -130,7 +132,7 @@ public class CommonUtils {
 
         return mostSimilarRaces;
     }
-    
+
     private static Race getMostSimilarRaceByMeetingName(List<Race> listRace, RaceDto newRace) {
         Race result = null;
         int maxSameMeetingName = 0;
@@ -164,7 +166,7 @@ public class CommonUtils {
     }
 
     public static Meeting mapNewMeetingToExisting(Map<Meeting, List<Race>> mapExisingMeetingAndRace, Meeting meetingNeedToCheck, List<Race> racesNeedToCheck) {
-        if (mapExisingMeetingAndRace.isEmpty() || meetingNeedToCheck == null){
+        if (mapExisingMeetingAndRace.isEmpty() || meetingNeedToCheck == null) {
             return null;
         }
 
@@ -188,7 +190,7 @@ public class CommonUtils {
         } else {
             Meeting result = null;
             int maxCommonRace = 0;
-            for (Meeting meeting: mostCommonMeetings) {
+            for (Meeting meeting : mostCommonMeetings) {
                 int numberOfCommonRaces = compareRaces(mapExisingMeetingAndRace.get(meeting), racesNeedToCheck);
                 if (numberOfCommonRaces > maxCommonRace) {
                     maxCommonRace = numberOfCommonRaces;
@@ -218,7 +220,7 @@ public class CommonUtils {
         return numberOfCommonRaces;
     }
 
-    public static int compareName(String meetingName1, String meetingName2){
+    public static int compareName(String meetingName1, String meetingName2) {
         if (meetingName1 == null || meetingName2 == null) {
             return 0;
         }
@@ -261,13 +263,13 @@ public class CommonUtils {
         return date1.isAfter(date2);
     }
 
-    public static List<Long> convertStringToListLong(String ids){
+    public static List<Long> convertStringToListLong(String ids) {
         if (ids == null || ids.isEmpty()) {
             return Collections.emptyList();
         }
         try {
             return Arrays.stream(ids.trim().split(",")).map(Long::parseLong).distinct().collect(Collectors.toList());
-        }catch (Exception e) {
+        } catch (Exception e) {
             return Collections.emptyList();
         }
     }
@@ -303,7 +305,9 @@ public class CommonUtils {
         return statusOrder.get(status);
     }
 
-    public static List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices, String raceId, Map<String, Integer> positions) {
+    public static List<EntrantRawData> getListEntrant(LadBrokedItRaceDto raceDto, Map<String, ArrayList<Float>> allEntrantPrices,
+                                                      Map<String, LadBrokesPriceOdds> allEntrantPricePlaces, String raceId,
+                                                      Map<String, Integer> positions) {
         LadbrokesMarketsRawData marketsRawData = raceDto.getMarkets().values().stream()
                 .filter(m -> AppConstant.MARKETS_NAME.equals(m.getName())).findFirst()
                 .orElseThrow(() -> new RuntimeException("No markets found"));
@@ -314,9 +318,11 @@ public class CommonUtils {
             marketsRawData.getEntrantIds().forEach(x -> {
                 EntrantRawData data = raceDto.getEntrants().get(x);
                 if (data.getFormSummary() != null && data.getId() != null) {
+                    LadBrokesPriceOdds pricePlaces = allEntrantPricePlaces == null ? new LadBrokesPriceOdds() : allEntrantPricePlaces.getOrDefault(data.getId() + LADBROKE_NEDS_DATA_PRICE_KEY, new LadBrokesPriceOdds());
                     EntrantRawData entrantRawData = EntrantMapper.mapPrices(
                             data,
                             allEntrantPrices == null ? new ArrayList<>() : allEntrantPrices.getOrDefault(data.getId(), new ArrayList<>()),
+                            getPricePlaces(pricePlaces),
                             positions.getOrDefault(data.getId(), 0)
                     );
                     entrantRawData.setRaceId(raceId);
@@ -326,6 +332,17 @@ public class CommonUtils {
         }
 
         return result;
+    }
+
+    public static List<Float> getPricePlaces(LadBrokesPriceOdds pricePlaces){
+        DecimalFormat decimalFormat = new DecimalFormat("##.00");
+        if (pricePlaces == null || pricePlaces.getOdds() == null) {
+            return new ArrayList<>();
+        }
+        if (pricePlaces.getOdds().getNumerator() == null || pricePlaces.getOdds().getDenominator() == null) {
+            return new ArrayList<>();
+        }
+        return Collections.singletonList((Float.parseFloat(decimalFormat.format(pricePlaces.getOdds().getNumerator() / pricePlaces.getOdds().getDenominator()))) + 1F);
     }
 
 

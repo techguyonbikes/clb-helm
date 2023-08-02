@@ -33,6 +33,7 @@ public class EntrantRawData {
 
     @JsonProperty("pricefluctuations")
     private List<Float> priceFluctuations;
+    private List<Float> pricePlaces;
     @JsonProperty("form_summary")
     public FormSummaryRawData formSummary;
     @JsonProperty("is_scratched")

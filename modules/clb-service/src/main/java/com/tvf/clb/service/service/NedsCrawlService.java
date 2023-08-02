@@ -6,10 +6,7 @@ import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.*;
-import com.tvf.clb.base.model.ladbrokes.LadBrokedItMeetingDto;
-import com.tvf.clb.base.model.ladbrokes.LadbrokesMarketsRawData;
-import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceApiResponse;
-import com.tvf.clb.base.model.ladbrokes.LadbrokesRaceResult;
+import com.tvf.clb.base.model.ladbrokes.*;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
@@ -67,20 +64,16 @@ public class NedsCrawlService implements ICrawlService{
                         positions.put(AppConstant.POSITION, 0);
                     }
                     HashMap<String, ArrayList<Float>> allEntrantPrices = raceDto.getPriceFluctuations();
-                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceDto, allEntrantPrices, raceId, positions);
+                    HashMap<String, LadBrokesPriceOdds> allEntrantPricesPlaces = raceDto.getPricePlaces();
+                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceDto, allEntrantPrices, allEntrantPricesPlaces, raceId, positions);
 
                     Map<Integer, CrawlEntrantData> mapEntrants = new HashMap<>();
                     allEntrant.forEach(x -> {
-                        List<Float> entrantPrice;
-                        if (allEntrantPrices == null) {
-                            entrantPrice = new ArrayList<>();
-                        } else {
-                            entrantPrice = allEntrantPrices.get(x.getId()) == null ? new ArrayList<>()
-                                    : new ArrayList<>(allEntrantPrices.get(x.getId()));
-                        }
                         Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
-                        priceFluctuations.put(AppConstant.NED_SITE_ID, entrantPrice);
-                        mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations));
+                        priceFluctuations.put(AppConstant.NED_SITE_ID, x.getPriceFluctuations());
+                        Map<Integer, List<Float>> pricePlaces = new HashMap<>();
+                        pricePlaces.put(AppConstant.NED_SITE_ID, x.getPricePlaces());
+                        mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations, pricePlaces));
                     });
 
                     CrawlRaceData result = new CrawlRaceData();
@@ -160,7 +153,8 @@ public class NedsCrawlService implements ICrawlService{
                     }
 
                     HashMap<String, ArrayList<Float>> allEntrantPrices = raceRawData.getPriceFluctuations();
-                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceRawData, allEntrantPrices, raceUUID, positions);
+                    HashMap<String, LadBrokesPriceOdds> allEntrantPricesPlaces = raceRawData.getPricePlaces();
+                    List<EntrantRawData> allEntrant = CommonUtils.getListEntrant(raceRawData, allEntrantPrices, allEntrantPricesPlaces, raceUUID, positions);
 
                     List<Entrant> newEntrants = allEntrant.stream().distinct().map(MeetingMapper::toEntrantEntity).collect(Collectors.toList());
 
@@ -181,10 +175,8 @@ public class NedsCrawlService implements ICrawlService{
 
                                    saveEntrant(newEntrants, raceDto);
 
-                                   return allEntrant.stream().map(entrant -> {
-                                       List<Float> entrantPrices = CollectionUtils.isEmpty(allEntrantPrices) ? new ArrayList<>() : allEntrantPrices.get(entrant.getId());
-                                       return EntrantMapper.toEntrantDto(entrant, entrantPrices);
-                                   }).collect(Collectors.toList());
+                                   return allEntrant.stream().map(entrant ->
+                                           EntrantMapper.toEntrantDto(entrant, entrant.getPriceFluctuations(), entrant.getPricePlaces())).collect(Collectors.toList());
                                });
                 });
     }
