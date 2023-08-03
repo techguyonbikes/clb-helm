@@ -200,11 +200,8 @@ public class LadBrokeCrawlService implements ICrawlService {
         Map<String, Meeting> meetingUUIDMap = meetings.stream()
                                                     .filter(meeting -> meeting.getMeetingId() != null)
                                                     .collect(Collectors.toMap(Meeting::getMeetingId, Function.identity(), (first, second) -> first));
-        List<Race> newRaces = raceDtoList.stream().map(raceDto -> {
-            Race race = MeetingMapper.toRaceEntity(raceDto);
-            race.setVenueId(excelUtils.getVanueId(raceDto));
-            return race;
-        }).filter(x -> x.getNumber() != null).collect(Collectors.toList());
+        excelUtils.setVenueIdForRaces(raceDtoList);
+        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).filter(x -> x.getNumber() != null).collect(Collectors.toList());
         List<Integer> raceNumbers = newRaces.stream().map(Race::getNumber).collect(Collectors.toList());
         List<Long> meetingIds = meetings.stream().map(Meeting::getId).collect(Collectors.toList());
         Flux<Race> existedRaces = raceRepository.findAllByNumberInAndMeetingIdIn(raceNumbers, meetingIds);
@@ -380,7 +377,10 @@ public class LadBrokeCrawlService implements ICrawlService {
 
                     return raceRedisService.hasKey(raceId).flatMap(hasKey -> {
                         if (Boolean.FALSE.equals(hasKey)) {
-                            return raceRedisService.saveRace(raceId, raceResponseDto);
+                            return raceRepository.findById(raceId).flatMap(race -> {
+                                raceResponseDto.setVenueId(race.getVenueId());
+                                return raceRedisService.saveRace(raceId, raceResponseDto);
+                            });
                         } else {
                             return raceRedisService.updateRace(raceId, raceResponseDto);
                         }

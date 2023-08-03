@@ -226,6 +226,7 @@ public class MeetingMapper {
                 .raceType(raceDto.getRaceType())
                 .raceSiteUrl(raceDto.getRaceSiteUrl())
                 .meetingName(raceDto.getMeetingName())
+                .venueId(raceDto.getVenueId())
                 .build();
     }
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData) {

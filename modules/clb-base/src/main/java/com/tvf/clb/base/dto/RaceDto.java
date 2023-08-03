@@ -33,4 +33,5 @@ public class RaceDto {
     private String fullFormUrl;
     private String countryCode;
     private String state;
+    private String venueId;
 }

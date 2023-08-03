@@ -19,6 +19,7 @@ public class RaceResponseDto {
     private String actualStart;
     private String silkUrl;
     private String fullFormUrl;
+    private String venueId;
     private Map<Integer, String> mapSiteUUID;
     private Map<Integer, String> finalResult;
     private Map<Integer, String> interimResult;
