@@ -51,6 +51,7 @@ public class Race {
     private String meetingName;
     private String silkUrl;
     private String fullFormUrl;
+    private String venueId;
 
     @Override
     public boolean equals(Object o) {

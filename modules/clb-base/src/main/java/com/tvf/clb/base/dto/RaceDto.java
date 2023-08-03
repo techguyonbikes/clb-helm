@@ -31,4 +31,6 @@ public class RaceDto {
     private String raceSiteUrl;
     private String silkUrl;
     private String fullFormUrl;
+    private String countryCode;
+    private String state;
 }

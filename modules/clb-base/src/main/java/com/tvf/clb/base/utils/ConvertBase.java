@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-
+import org.springframework.stereotype.Component;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -226,10 +226,21 @@ public class ConvertBase {
 
     public static String getLast6Race(String last20Starts) {
         int index = last20Starts.length();
+        int last5Start = 5;
         if (index <= 6) {
             return last20Starts;
         }
-        return last20Starts.substring(index - 6, index);
+        return last20Starts.substring(index - last5Start, index);
     }
-
+    public static String convertRaceType(String raceType) {
+        switch (raceType) {
+            case AppConstant.GREYHOUND_RACING:
+                return "GREYHOUND";
+            case AppConstant.HORSE_RACING:
+                return "HORSE";
+            case AppConstant.HARNESS_RACING:
+                return "HARNESS";
+            default: return null;
+        }
+    }
 }

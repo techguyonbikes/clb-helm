@@ -13,12 +13,14 @@ import com.tvf.clb.base.model.ladbrokes.*;
 import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
+import com.tvf.clb.base.utils.ExcelUtils;
 import com.tvf.clb.service.repository.EntrantRepository;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -50,6 +52,9 @@ public class LadBrokeCrawlService implements ICrawlService {
     private TodayData todayData;
     private CloudbetKafkaService kafkaService;
     private WebClient ladbrokesWebClient;
+
+    @Autowired
+    private ExcelUtils excelUtils;
 
     @Override
     public Flux<MeetingDto> getTodayMeetings(LocalDate date) {
@@ -195,7 +200,11 @@ public class LadBrokeCrawlService implements ICrawlService {
         Map<String, Meeting> meetingUUIDMap = meetings.stream()
                                                     .filter(meeting -> meeting.getMeetingId() != null)
                                                     .collect(Collectors.toMap(Meeting::getMeetingId, Function.identity(), (first, second) -> first));
-        List<Race> newRaces = raceDtoList.stream().map(MeetingMapper::toRaceEntity).filter(x -> x.getNumber() != null).collect(Collectors.toList());
+        List<Race> newRaces = raceDtoList.stream().map(raceDto -> {
+            Race race = MeetingMapper.toRaceEntity(raceDto);
+            race.setVenueId(excelUtils.getVanueId(raceDto));
+            return race;
+        }).filter(x -> x.getNumber() != null).collect(Collectors.toList());
         List<Integer> raceNumbers = newRaces.stream().map(Race::getNumber).collect(Collectors.toList());
         List<Long> meetingIds = meetings.stream().map(Meeting::getId).collect(Collectors.toList());
         Flux<Race> existedRaces = raceRepository.findAllByNumberInAndMeetingIdIn(raceNumbers, meetingIds);
@@ -217,6 +226,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                 setIfPresent(newRace.getRaceId(), existing::setRaceId);
                                 setIfPresent(newRace.getStatus(), existing::setStatus);
                                 setIfPresent(newRace.getRaceSiteUrl(), existing::setRaceSiteUrl);
+                                setIfPresent(newRace.getVenueId(), existing::setVenueId);
                                 raceNeedUpdateOrInsert.add(existing);
                             } else {
                                 newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());

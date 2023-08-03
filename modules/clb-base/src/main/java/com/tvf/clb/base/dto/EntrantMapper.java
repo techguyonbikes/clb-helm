@@ -41,6 +41,7 @@ public class EntrantMapper {
                 .isScratched(entrant.getIsScratched() != null)
                 .scratchedTime(entrant.getScratchedTime())
                 .position(entrant.getPosition())
+                .barrierPosition(entrant.getBarrierPosition())
                 .build();
     }
 
@@ -57,6 +58,7 @@ public class EntrantMapper {
                 .isScratched(entrant.isScratched())
                 .scratchedTime(entrant.getScratchedTime())
                 .position(entrant.getPosition())
+                .barrierPosition(entrant.getBarrierPosition())
                 .build();
     }
 
@@ -75,6 +77,7 @@ public class EntrantMapper {
                 .scratchedTime(entrant.getScratchedTime())
                 .position(position)
                 .formSummary(entrant.getFormSummary())
+                .barrierPosition(entrant.getBarrierPosition())
                 .build();
     }
 
@@ -102,6 +105,7 @@ public class EntrantMapper {
                 .entrantComment(entrant.getEntrantComment())
                 .bestTime(entrant.getBestTime())
                 .bestMileRate(entrant.getBestMileRate())
+                .barrierPosition(entrant.getBarrierPosition())
                 .build();
     }
 

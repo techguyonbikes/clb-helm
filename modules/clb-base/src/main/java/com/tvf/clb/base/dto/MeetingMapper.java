@@ -56,7 +56,7 @@ public class MeetingMapper {
                 .regionId(meeting.getRegionId())
                 .feedId(meeting.getFeedId())
                 .compoundIds(meeting.getCompoundIds())
-                .races(toRaceDtoList(races, meeting.getId(), meeting.getName(), raceType))
+                .races(toRaceDtoList(races, meeting, raceType))
                 .raceType(raceType)
                 .build();
     }
@@ -73,11 +73,11 @@ public class MeetingMapper {
                 .build();
     }
 
-    public static RaceDto toRaceDto(RaceRawData race, String meetingUUID, String meetingName, String raceType) {
+    public static RaceDto toRaceDto(RaceRawData race, MeetingRawData meeting, String raceType) {
         return RaceDto.builder()
                 .id(race.getId())
-                .meetingUUID(meetingUUID)
-                .meetingName(meetingName)
+                .meetingUUID(meeting.getId())
+                .meetingName(meeting.getName())
                 .status(ConvertBase.getLadbrokeRaceStatus(race.getMainMarketStatusId()).orElse(null))
                 .name(race.getName())
                 .number(race.getNumber())
@@ -88,13 +88,15 @@ public class MeetingMapper {
                 .mainMarketStatusId(race.getMainMarketStatusId())
                 .resultsDisplay(race.getResultsDisplay())
                 .distance(race.getDistance())
-                .raceSiteUrl(ConvertBase.getURLRaceOfLadbrokes(meetingName,race.getId()))
+                .raceSiteUrl(ConvertBase.getURLRaceOfLadbrokes(meeting.getName(),race.getId()))
+                .countryCode(meeting.getCountry())
+                .state(meeting.getState())
                 .build();
     }
 
-    public static List<RaceDto> toRaceDtoList(List<RaceRawData> races, String meetingUUID, String meetingName, String raceType) {
+    public static List<RaceDto> toRaceDtoList(List<RaceRawData> races, MeetingRawData meeting, String raceType) {
         List<RaceDto> raceDtoList = new ArrayList<>();
-        races.forEach(r -> raceDtoList.add(toRaceDto(r, meetingUUID, meetingName, raceType)));
+        races.forEach(r -> raceDtoList.add(toRaceDto(r, meeting, raceType)));
         return raceDtoList;
     }
 
@@ -313,6 +315,7 @@ public class MeetingMapper {
                 .bestTime(entrantRawData.getFormSummary().getBestTime())
                 .entrantComment(entrantRawData.getFormSummary().getEntrantComment())
                 .bestMileRate(entrantRawData.getFormSummary().getBestMileRate())
+                .barrierPosition(entrantRawData.getBarrierPosition())
                 .build();
     }
 

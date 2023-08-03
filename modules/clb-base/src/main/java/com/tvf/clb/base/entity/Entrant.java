@@ -65,6 +65,7 @@ public class Entrant {
     private Float handicapWeight;
     private String entrantComment;
     private String bestMileRate;
+    private String barrierPosition;
 
     @Override
     public boolean equals(Object o) {

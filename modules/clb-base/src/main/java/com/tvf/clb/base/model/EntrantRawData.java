@@ -42,6 +42,8 @@ public class EntrantRawData {
     private Instant scratchedTime;
     @JsonProperty("position")
     private Integer position;
+    @JsonProperty("barrier_position")
+    private String barrierPosition;
 
     @Override
     public boolean equals(Object o) {

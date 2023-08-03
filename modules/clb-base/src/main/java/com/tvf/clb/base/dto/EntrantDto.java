@@ -30,4 +30,5 @@ public class EntrantDto {
     private boolean isScratched;
     private Instant scratchedTime;
     private Integer position;
+    private String barrierPosition;
 }
