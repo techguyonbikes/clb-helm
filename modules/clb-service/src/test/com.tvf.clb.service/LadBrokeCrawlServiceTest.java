@@ -147,7 +147,11 @@ class LadBrokeCrawlServiceTest {
                                                       .mapToObj(i -> Entrant.builder().name("testEntrant-" + i).number(i).build())
                                                       .collect(Collectors.toList());
         when(entrantRepository.findByRaceId(any())).thenReturn(Flux.fromIterable(listExistingEntrants));
-        when(entrantRepository.saveAll(anyCollection())).thenAnswer(invocationOnMock -> Flux.fromIterable((Collection)invocationOnMock.getArguments()[0]));
+        when(entrantRepository.saveAll(anyCollection())).thenAnswer(invocationOnMock -> {
+            Collection<Entrant> collection = (Collection<Entrant>) invocationOnMock.getArguments()[0];
+            collection.forEach(entrant -> entrant.setId(1 + (long) (Math.random() * 10000)));
+            return Flux.fromIterable(collection);
+        });
 
         LadbrokesRaceApiResponse ladbrokesRaceApiResponse = getObjectMapper().readValue(new File("src/test/resources/ladbrokes/ladbroke-race-api-response.json"), LadbrokesRaceApiResponse.class);
 
@@ -189,7 +193,7 @@ class LadBrokeCrawlServiceTest {
         verify(crawUtils, times(1)).saveFailedCrawlMeeting(className, date);
         verify(meetingRepository, times(139)).save(any(Meeting.class));
         verify(raceRepository, times(1371)).save(any(Race.class));
-        verify(kafkaService, times(4)).publishKafka(any(), any());
+        verify(kafkaService, times(1526)).publishKafka(any(), any(), isNull()); // equals number of (meetings + races + entrants need to update)
         verify(raceRedisService, times(2)).updateRace(any(), any());
         verify(entrantRepository, times(2)).saveAll(anyCollection());
         verify(crawUtils, times(1)).saveMeetingSite(any(), any(), any());

@@ -3,6 +3,7 @@ package com.tvf.clb.service.service;
 import com.google.gson.Gson;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
+import com.tvf.clb.base.dto.kafka.KafkaDtoMapper;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.kafka.payload.EventTypeEnum;
@@ -185,8 +186,10 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                                .collectList()
                     )
                     .flatMapMany(savedMeetings -> {
-                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedMeetings))).build();
-                        kafkaService.publishKafka(payload, null);
+                        savedMeetings.stream().map(KafkaDtoMapper::convertToKafkaMeetingDto).forEach(meeting -> {
+                            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(meeting))).build();
+                            kafkaService.publishKafka(payload, meeting.getId().toString(), null);
+                        });
 
                         List<MeetingSite> meetingSites = savedMeetings.stream().map(meeting -> MeetingMapper.toMetingSite(meeting, SiteEnum.LAD_BROKE.getId(), meeting.getId())).collect(Collectors.toList());
                         return crawUtils.saveMeetingSite(savedMeetings, Flux.fromIterable(meetingSites), SiteEnum.LAD_BROKE.getId())
@@ -239,8 +242,10 @@ public class LadBrokeCrawlService implements ICrawlService {
                                                            .collectList()
                     )
                     .flatMap(savedRace -> {
-                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedRace))).build();
-                        kafkaService.publishKafka(payload, null);
+                        savedRace.stream().map(KafkaDtoMapper::convertToKafkaRaceDto).forEach(race -> {
+                            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(race))).build();
+                            kafkaService.publishKafka(payload, race.getId().toString(), null);
+                        });
                         saveRaceToTodayData(savedRace);
 
                         List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
@@ -369,8 +374,10 @@ public class LadBrokeCrawlService implements ICrawlService {
                 })
                 .flatMap(entrantNeedUpdateOrInsert -> entrantRepository.saveAll(entrantNeedUpdateOrInsert).collectList())
                 .flatMapMany(savedEntrants -> {
-                    KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(savedEntrants))).build();
-                    kafkaService.publishKafka(payload, null);
+                    savedEntrants.stream().map(KafkaDtoMapper::convertToKafkaEntrantDto).forEach(entrant -> {
+                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(new Gson().toJson(entrant)).build();
+                        kafkaService.publishKafka(payload, entrant.getId().toString(), null);
+                    });
 
                     log.info("{} entrants save into redis and database", savedEntrants.size());
                     RaceResponseDto raceResponseDto = RaceResponseMapper.toRaceResponseDto(savedEntrants, raceUUID, raceId, raceDto);

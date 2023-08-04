@@ -2,6 +2,7 @@ package com.tvf.clb.service.service;
 
 import com.google.gson.Gson;
 import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.dto.kafka.KafkaDtoMapper;
 import com.tvf.clb.base.kafka.payload.EventTypeEnum;
 import com.tvf.clb.base.kafka.payload.KafkaPayload;
 import com.tvf.clb.base.kafka.service.CloudbetKafkaService;
@@ -29,7 +30,7 @@ public class RaceRedisService {
 
 
     public Mono<Boolean> saveRace(Long raceId, RaceResponseDto race) {
-        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(race))).build();
+        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(KafkaDtoMapper.convertToKafkaRaceDto(race)))).build();
         kafkaService.publishKafka(payload, String.valueOf(raceId), null);
         return this.raceDetailTemplate.opsForValue().set(raceId, race);
     }
@@ -57,8 +58,6 @@ public class RaceRedisService {
 
     public Mono<Boolean> updateRace(Long raceId, RaceResponseDto newRace) {
         return findByRaceId(raceId).flatMap(existing -> {
-            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(newRace))).build();
-            kafkaService.publishKafka(payload, String.valueOf(raceId), null);
 
             CommonUtils.setIfPresent(newRace.getAdvertisedStart(), existing::setAdvertisedStart);
             CommonUtils.setIfPresent(newRace.getActualStart(), existing::setActualStart);

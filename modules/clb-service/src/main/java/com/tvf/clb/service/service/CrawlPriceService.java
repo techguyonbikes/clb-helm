@@ -3,6 +3,7 @@ package com.tvf.clb.service.service;
 import com.google.gson.Gson;
 import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
+import com.tvf.clb.base.dto.kafka.KafkaDtoMapper;
 import com.tvf.clb.base.entity.RaceSite;
 import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.base.kafka.payload.EventTypeEnum;
@@ -238,7 +239,7 @@ public class CrawlPriceService {
             saveEntrantToDb(generalRaceId, race.getEntrants());
 
             Json raceFinalResult = Json.of(new Gson().toJson(race.getFinalResult()));
-            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(race))).build();
+            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(KafkaDtoMapper.convertToKafkaRaceDto(race)))).build();
             kafkaService.publishKafka(payload, String.valueOf(race.getId()), null);
             return raceRepository.updateRaceStatusAndFinalResultById(generalRaceId, race.getStatus(), raceFinalResult,
                             Instant.parse(race.getActualStart()), Instant.parse(race.getAdvertisedStart()))
