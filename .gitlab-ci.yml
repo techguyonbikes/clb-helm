@@ -24,7 +24,7 @@ cache:
 
 stages:
   - ci
-  - package
+#  - package
   - build
   - deploy
 
@@ -52,18 +52,18 @@ sonarqube:
     - if: $PIPELINE_NAME == "CI" || $PIPELINE_NAME == "CD"
     - when: never
 
-package:
-  image: maven:3.8.5-jdk-11
-  stage: package
-  script:
-    - mvn -T20 clean install
-  artifacts:
-    paths:
-      - modules/clb-api/target/*.jar
-    expire_in: 1 hr
-  rules:
-    - if: $PIPELINE_NAME == "CD"
-    - when: never
+#package:
+#  image: maven:3.8.5-jdk-11
+#  stage: package
+#  script:
+#    - mvn -T20 clean install
+#  artifacts:
+#    paths:
+#      - modules/clb-api/target/*.jar
+#    expire_in: 1 hr
+#  rules:
+#    - if: $PIPELINE_NAME == "CD"
+#    - when: never
 
 build:
   stage: build

@@ -1,5 +1,10 @@
-FROM adoptopenjdk/openjdk11:alpine-jre
+FROM maven:3.9.0 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY modules/ ./modules/
+RUN mvn clean install
 
+FROM adoptopenjdk/openjdk11:alpine-jre
 ARG BUILD_DATE
 ARG GIT_FULL_BRANCH
 ARG SHORT_COMMIT_HASH
@@ -17,7 +22,6 @@ USER appuser
 WORKDIR /app
 
 RUN pwd
-COPY "modules/clb-api/target/*.jar" /app/
-
+COPY --from=build /app/modules/clb-api/target/*.jar /app/
 
 ENTRYPOINT java -jar *.jar
