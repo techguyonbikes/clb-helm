@@ -59,7 +59,7 @@ package:
     - mvn -T20 clean install
   artifacts:
     paths:
-      - modules/clb-api/target/clb-api-0.0.1-SNAPSHOT.jar
+      - modules/clb-api/target/*.jar
     expire_in: 1 hr
   rules:
     - if: $PIPELINE_NAME == "CD"
