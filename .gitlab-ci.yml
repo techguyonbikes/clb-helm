@@ -58,7 +58,6 @@ package:
   script:
     - mvn -T20 clean install
   artifacts:
-    when: always
     paths:
       - modules/clb-api/target/*.jar
     expire_in: 1 hr
