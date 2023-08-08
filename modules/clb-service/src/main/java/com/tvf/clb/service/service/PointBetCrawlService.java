@@ -7,6 +7,7 @@ import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.pointbet.*;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
 import com.tvf.clb.service.repository.MeetingRepository;
 import com.tvf.clb.service.repository.RaceRepository;
@@ -82,7 +83,13 @@ public class PointBetCrawlService implements ICrawlService {
                         Map<Integer, List<Float>> placePriceFluctuations = new HashMap<>();
                         placePriceFluctuations.put(AppConstant.POINT_BET_SITE_ID, allEntrantPlacePrices.getOrDefault(entrant.getId(), new ArrayList<>()));
 
-                        mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(mapEntrantsPositions.getOrDefault(Integer.valueOf(entrant.getId()), 0), winPriceFluctuations, placePriceFluctuations));
+                        Map<Integer, Float> winDeduction = new HashMap<>();
+                        Map<Integer, Float> placeDeduction = new HashMap<>();
+                        if (entrant.getDeduction() != null) {
+                            CommonUtils.applyIfPresent(AppConstant.POINT_BET_SITE_ID, entrant.getDeduction().getWin(), winDeduction::put);
+                            CommonUtils.applyIfPresent(AppConstant.POINT_BET_SITE_ID, entrant.getDeduction().getPlace3(), placeDeduction::put);
+                        }
+                        mapEntrants.put(Integer.valueOf(entrant.getId()), new CrawlEntrantData(mapEntrantsPositions.getOrDefault(Integer.valueOf(entrant.getId()), 0), winPriceFluctuations, placePriceFluctuations, winDeduction, placeDeduction));
                     }
 
                     CrawlRaceData result = new CrawlRaceData();

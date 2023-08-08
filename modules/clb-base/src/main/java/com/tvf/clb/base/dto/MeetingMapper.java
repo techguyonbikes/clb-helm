@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
@@ -243,6 +244,8 @@ public class MeetingMapper {
                 .isScratched(entrantRawData.getIsScratched() != null)
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .position(entrantRawData.getPosition())
+                .currentWinDeductions(entrantRawData.getWinDeduction() == null ? null : entrantRawData.getWinDeduction())
+                .currentPlaceDeductions(entrantRawData.getPlaceDeduction() == null ? null : entrantRawData.getPlaceDeduction())
                 .build();
     }
     public static MeetingSite toMetingSite(Meeting meeting, Integer siteId,Long generalId) {
@@ -296,6 +299,9 @@ public class MeetingMapper {
     }
 
     public static Entrant toEntrantEntity(EntrantRawData entrantRawData, Integer site) {
+        Map<Integer, Float> winDeductions = entrantRawData.getWinDeduction() == null ? Collections.emptyMap() : Collections.singletonMap(site, entrantRawData.getWinDeduction());
+        Map<Integer, Float> placeDeductions = entrantRawData.getPlaceDeduction() == null ? Collections.emptyMap() : Collections.singletonMap(site, entrantRawData.getPlaceDeduction());
+
         return Entrant.builder()
                 .entrantId(entrantRawData.getId())
                 .raceUUID(entrantRawData.getRaceId())
@@ -317,6 +323,8 @@ public class MeetingMapper {
                 .entrantComment(entrantRawData.getFormSummary().getEntrantComment())
                 .bestMileRate(entrantRawData.getFormSummary().getBestMileRate())
                 .barrierPosition(entrantRawData.getBarrierPosition())
+                .priceWinDeductions(CommonUtils.toJsonb(winDeductions))
+                .pricePlaceDeductions(CommonUtils.toJsonb(placeDeductions))
                 .build();
     }
 
@@ -356,6 +364,8 @@ public class MeetingMapper {
                 .barrier(entrant.getBarrier())
                 .currentSitePrice(pricesFixed)
                 .currentSitePricePlaces(pricePlaces)
+                .currentPlaceDeductions(entrant.getPlaceDeductions() / 100)
+                .currentWinDeductions(entrant.getWinDeductions() / 100)
                 .build();
     }
 

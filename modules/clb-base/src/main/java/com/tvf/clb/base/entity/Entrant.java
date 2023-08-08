@@ -66,6 +66,14 @@ public class Entrant {
     private String entrantComment;
     private String bestMileRate;
     private String barrierPosition;
+    @Column("price_win_deductions")
+    private Json priceWinDeductions;
+    @Column("price_place_deductions")
+    private Json pricePlaceDeductions;
+    @Transient
+    private Float currentWinDeductions;
+    @Transient
+    private Float currentPlaceDeductions;
 
     @Override
     public boolean equals(Object o) {

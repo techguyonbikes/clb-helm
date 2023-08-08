@@ -3,6 +3,7 @@ package com.tvf.clb.base.dto.sportbet;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.tvf.clb.base.model.sportbet.MarketRawData;
 import com.tvf.clb.base.model.sportbet.ResultsRawData;
+import com.tvf.clb.base.model.sportbet.SportBetDeduction;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,5 @@ public class SportBetRaceDto {
     List<MarketRawData>  markets;
     List<ResultsRawData> results;
     private String bettingStatus;
+    private List<SportBetDeduction> deductions;
 }

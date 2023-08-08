@@ -158,7 +158,8 @@ public class CrawlPriceService {
 
                 //update price
                 updatePriceToRedis(entrantNewData.getPriceMap(), entrantNewData.getPricePlacesMap(), storedEntrant);
-
+                storedEntrant.setWinPriceDeductions(entrantNewData.getWinDeductions());
+                storedEntrant.setPlacePriceDeductions(entrantNewData.getPlaceDeductions());
             }
         }
     }
@@ -261,6 +262,8 @@ public class CrawlPriceService {
                             .ifPresent(entrant -> {
                                         entrant.setPriceFluctuations(Json.of(new Gson().toJson(e.getPriceFluctuations() == null ? new HashMap<>() : e.getPriceFluctuations())));
                                         entrant.setPricePlaces(Json.of(new Gson().toJson(e.getPricePlaces() == null ? new HashMap<>() : e.getPricePlaces())));
+                                        entrant.setPriceWinDeductions(Json.of(new Gson().toJson(e.getWinPriceDeductions() == null ? new HashMap<>() : e.getWinPriceDeductions())));
+                                        entrant.setPricePlaceDeductions(Json.of(new Gson().toJson(e.getPlacePriceDeductions() == null ? new HashMap<>() : e.getPlacePriceDeductions())));
                                         entrant.setPosition(e.getPosition());
                                     }
 

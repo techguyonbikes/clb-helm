@@ -23,4 +23,6 @@ public class TabPriceRawData {
     private String bettingStatus;
     private List<TabPriceFlucsRawData> flucs;
     private String scratchedTime;
+    private Float winDeduction;
+    private Float placeDeduction;
 }

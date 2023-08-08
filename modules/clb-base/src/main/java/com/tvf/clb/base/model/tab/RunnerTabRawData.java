@@ -2,7 +2,6 @@ package com.tvf.clb.base.model.tab;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.gson.annotations.JsonAdapter;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,5 +21,4 @@ public class RunnerTabRawData {
     private String runnerName;
     private int runnerNumber;
     private TabPriceRawData fixedOdds;
-
 }

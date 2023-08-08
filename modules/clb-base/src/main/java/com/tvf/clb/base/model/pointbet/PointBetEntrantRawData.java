@@ -3,6 +3,7 @@ package com.tvf.clb.base.model.pointbet;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.tvf.clb.base.model.ladbrokes.Deductions;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.*;
 
@@ -25,19 +26,6 @@ public class PointBetEntrantRawData {
     private Integer barrierBox;
     private boolean scratched;
     private String rating;
-    private PointBetEntrantDeduction deduction;
+    private Deductions deduction;
     private Integer position;
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-class PointBetEntrantDeduction {
-    private String scratchedTime;
-    private Float win;
-    private Float place1;
-    private Float place2;
-    private Float place3;
 }

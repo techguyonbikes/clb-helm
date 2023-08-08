@@ -21,10 +21,14 @@ public class CrawlEntrantData {
     private Instant scratchTime;
     private Map<Integer, List<Float>> priceMap;
     private Map<Integer, List<Float>> pricePlacesMap;
+    private Map<Integer, Float> winDeductions;
+    private Map<Integer, Float> placeDeductions;
 
-    public CrawlEntrantData(Integer position, Map<Integer, List<Float>> priceMap, Map<Integer, List<Float>> pricePlacesMap) {
+    public CrawlEntrantData(Integer position, Map<Integer, List<Float>> priceMap, Map<Integer, List<Float>> pricePlacesMap, Map<Integer, Float> winDeductions, Map<Integer, Float> placeDeductions) {
         this.position = position;
         this.priceMap = priceMap;
         this.pricePlacesMap = pricePlacesMap;
+        this.winDeductions = winDeductions;
+        this.placeDeductions = placeDeductions;
     }
 }

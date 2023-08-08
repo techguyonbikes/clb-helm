@@ -23,6 +23,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -280,6 +281,12 @@ public class CommonUtils {
         }
     }
 
+    public static <T1, T2> void applyIfPresent(T1 value1, T2 value2, BiConsumer<T1, T2> consumer) {
+        if (value1 != null && value2 != null) {
+            consumer.accept(value1, value2);
+        }
+    }
+
     public static Json toJsonb(Object source) {
         return Json.of(new Gson().toJson(source));
     }
@@ -343,6 +350,13 @@ public class CommonUtils {
             return new ArrayList<>();
         }
         return Collections.singletonList((Float.parseFloat(decimalFormat.format(pricePlaces.getOdds().getNumerator() / pricePlaces.getOdds().getDenominator()))) + 1F);
+    }
+    public static Map<Integer, Float> getPriceFromJsonb(Json json) {
+        if (json == null) {
+            return new HashMap<>();
+        }
+        Type type = new TypeToken<Map<Integer, Float>>() {}.getType();
+        return new Gson().fromJson(json.asString(), type);
     }
 
 

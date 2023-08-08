@@ -10,8 +10,10 @@ import com.tvf.clb.base.model.PriceHistoryData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
 import com.tvf.clb.base.model.tab.RunnerTabRawData;
+import com.tvf.clb.base.model.tab.TabPriceRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.ConvertBase;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -63,6 +65,11 @@ public class EntrantMapper {
     }
 
     public static EntrantRawData mapPrices(EntrantRawData entrant, List<Float> prices, List<Float> pricePlaces, Integer position) {
+        Float winDeduction = null;
+        Float placeDeduction = ConvertBase.getPlaceDeduction(entrant.getDeduction());
+        if (entrant.getDeduction() != null) {
+            winDeduction = entrant.getDeduction().getWin();
+        }
         return EntrantRawData.builder()
                 .id(entrant.getId())
                 .raceId(entrant.getRaceId())
@@ -78,14 +85,19 @@ public class EntrantMapper {
                 .position(position)
                 .formSummary(entrant.getFormSummary())
                 .barrierPosition(entrant.getBarrierPosition())
+                .winDeduction(winDeduction)
+                .placeDeduction(placeDeduction)
                 .build();
     }
 
     public static EntrantResponseDto toEntrantResponseDto(Entrant entrant) {
         Gson gson = new Gson();
         Type listType = new TypeToken<Map<Integer, List<PriceHistoryData>>>() {}.getType();
+        Type floatType = new TypeToken<Map<Integer, Float>>() {}.getType();
         Map<Integer, List<PriceHistoryData>> prices = entrant.getPriceFluctuations() == null ? new HashMap<>() : gson.fromJson(entrant.getPriceFluctuations().asString(), listType);
         Map<Integer, List<PriceHistoryData>> pricesPlaces = entrant.getPricePlaces() == null ? new HashMap<>() : gson.fromJson(entrant.getPricePlaces().asString(), listType);
+        Map<Integer, Float> priceWinDeductions = entrant.getPriceWinDeductions() == null ? new HashMap<>() : gson.fromJson(entrant.getPriceWinDeductions().asString(), floatType);
+        Map<Integer, Float> pricePlaceDeductions = entrant.getPricePlaceDeductions() == null ? new HashMap<>() : gson.fromJson(entrant.getPricePlaceDeductions().asString(), floatType);
         return EntrantResponseDto.builder()
                 .id(entrant.getId())
                 .entrantId(entrant.getEntrantId())
@@ -97,6 +109,8 @@ public class EntrantMapper {
                 .scratchedTime(entrant.isScratched() ? entrant.getScratchedTime().toString() : "")
                 .priceFluctuations(prices)
                 .pricePlaces(pricesPlaces)
+                .winPriceDeductions(priceWinDeductions)
+                .placePriceDeductions(pricePlaceDeductions)
                 .position(entrant.getPosition())
                 .riderOrDriver(entrant.getRiderOrDriver())
                 .trainerName(entrant.getTrainerName())
@@ -131,6 +145,8 @@ public class EntrantMapper {
                 .currentSitePricePlaces(entrantPlacePrice)
                 .position(entrantRawData.getPosition())
                 .isScratched(entrantRawData.isScratched())
+                .currentWinDeductions(entrantRawData.getDeduction() == null ? null : entrantRawData.getDeduction().getWin())
+                .currentPlaceDeductions(ConvertBase.getPlaceDeduction(entrantRawData.getDeduction()))
                 .build();
     }
 
@@ -153,7 +169,8 @@ public class EntrantMapper {
         if (runner == null || raceId == null){
             return new EntrantRawData();
         }
-        if (runner.getFixedOdds().getReturnWin() != null && runner.getFixedOdds().getReturnWin() != 0) {
+        TabPriceRawData priceRawData = runner.getFixedOdds();
+        if (priceRawData.getReturnWin() != null && priceRawData.getReturnWin() != 0) {
             listWinPrice.add(runner.getFixedOdds().getReturnWin());
         }
         return EntrantRawData.builder()
@@ -169,6 +186,8 @@ public class EntrantMapper {
                 .isScratched(runner.getFixedOdds().getBettingStatus() == null || !AppConstant.SCRATCHED_NAME.equals(runner.getFixedOdds().getBettingStatus()) ? String.valueOf(false) : String.valueOf(true))
                 .scratchedTime(runner.getFixedOdds().getScratchedTime() == null ? null : Instant.parse(runner.getFixedOdds().getScratchedTime()))
                 .position(position.indexOf(runner.getRunnerNumber()) + 1)
+                .winDeduction(priceRawData.getWinDeduction() == null ? null : priceRawData.getWinDeduction()/100)
+                .placeDeduction(priceRawData.getPlaceDeduction() == null ? null : priceRawData.getPlaceDeduction()/100)
                 .build();
     }
 
@@ -180,6 +199,8 @@ public class EntrantMapper {
                 .number(entrantData.getNumber())
                 .currentSitePrice(pricesFixed)
                 .currentSitePricePlaces(pricePlaces)
+                .currentPlaceDeductions(entrantData.getPlaceDeductions())
+                .currentWinDeductions(entrantData.getWinDeductions())
                 .build();
     }
 
@@ -211,6 +232,8 @@ public class EntrantMapper {
                 .visible(false)
                 .priceFluctuations(priceFixes)
                 .pricePlaces(pricesPlaces)
+                .winDeduction(entrant.getWinDeductions())
+                .placeDeduction(entrant.getPlaceDeductions())
                 .isScratched(String.valueOf(entrant.getSelectionsStatus() != null && !AppConstant.NOT_SCRATCHED_NAME.equals(entrant.getSelectionsStatus())))
                 .scratchedTime(reqInstant)
                 .position(entrantPosition)
@@ -222,10 +245,20 @@ public class EntrantMapper {
         priceFluctuations.put(siteId, entrant.getPriceFluctuations());
         Map<Integer, List<Float>> pricePlaces = new HashMap<>();
         pricePlaces.put(siteId, entrant.getPricePlaces());
+        Map<Integer, Float> winDeduction = new HashMap<>();
+        if (entrant.getWinDeduction() != null) {
+            winDeduction.put(siteId, entrant.getWinDeduction());
+        }
+        Map<Integer, Float> placeDeduction = new HashMap<>();
+        if (entrant.getPlaceDeduction() != null) {
+            placeDeduction.put(siteId, entrant.getPlaceDeduction());
+        }
         return CrawlEntrantData.builder()
                 .position(entrant.getPosition())
                 .priceMap(priceFluctuations)
                 .pricePlacesMap(pricePlaces)
+                .winDeductions(winDeduction)
+                .placeDeductions(placeDeduction)
                 .isScratched(entrant.getIsScratched() == null ? Boolean.FALSE : Boolean.parseBoolean(entrant.getIsScratched()))
                 .scratchTime(entrant.getScratchedTime())
                 .build();

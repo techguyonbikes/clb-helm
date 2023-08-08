@@ -28,4 +28,9 @@ public class ZBetEntrantData {
     @JsonProperty("selection_status")
     private String selectionsStatus;
     private JsonNode prices;
+    @JsonProperty("win_deductions")
+    private Float winDeductions;
+    @JsonProperty("place_deductions")
+    private Float placeDeductions;
+
 }

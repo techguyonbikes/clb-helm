@@ -90,7 +90,7 @@ public class TopSportCrawlService implements ICrawlService {
                         Map<Integer, List<Float>> pricePlaces = new HashMap<>();
                         pricePlaces.put(AppConstant.TOPSPORT_SITE_ID, x.getPricePlaces());
 
-                        entrantMap.put(x.getNumber(), new CrawlEntrantData(0, priceFluctuations, pricePlaces));
+                        entrantMap.put(x.getNumber(), new CrawlEntrantData(0, priceFluctuations, pricePlaces, new HashMap<>(), new HashMap<>()));
                     });
                     CrawlRaceData result = new CrawlRaceData();
                     result.setSiteEnum(SiteEnum.TOP_SPORT);

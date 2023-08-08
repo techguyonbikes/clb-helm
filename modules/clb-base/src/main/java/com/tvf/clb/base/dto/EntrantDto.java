@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -31,4 +30,6 @@ public class EntrantDto {
     private Instant scratchedTime;
     private Integer position;
     private String barrierPosition;
+    private Float currentWinDeductions;
+    private Float currentPlaceDeductions;
 }

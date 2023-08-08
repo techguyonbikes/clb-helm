@@ -12,7 +12,6 @@ import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -71,9 +70,17 @@ public class NedsCrawlService implements ICrawlService{
                     allEntrant.forEach(x -> {
                         Map<Integer, List<Float>> priceFluctuations = new HashMap<>();
                         priceFluctuations.put(AppConstant.NED_SITE_ID, x.getPriceFluctuations());
+
                         Map<Integer, List<Float>> pricePlaces = new HashMap<>();
                         pricePlaces.put(AppConstant.NED_SITE_ID, x.getPricePlaces());
-                        mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations, pricePlaces));
+
+                        Map<Integer, Float> winDeduction = new HashMap<>();
+                        CommonUtils.applyIfPresent(AppConstant.NED_SITE_ID, x.getWinDeduction(), winDeduction::put);
+
+                        Map<Integer, Float> placeDeduction = new HashMap<>();
+                        CommonUtils.applyIfPresent(AppConstant.NED_SITE_ID, x.getPlaceDeduction(), placeDeduction::put);
+
+                        mapEntrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), priceFluctuations, pricePlaces, winDeduction, placeDeduction));
                     });
 
                     CrawlRaceData result = new CrawlRaceData();

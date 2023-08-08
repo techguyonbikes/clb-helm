@@ -3,6 +3,7 @@ package com.tvf.clb.base.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.tvf.clb.base.model.ladbrokes.Deductions;
 import com.tvf.clb.base.utils.UpperCaseAndTrimStringDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,6 +45,9 @@ public class EntrantRawData {
     private Integer position;
     @JsonProperty("barrier_position")
     private String barrierPosition;
+    private Deductions deduction;
+    private Float winDeduction;
+    private Float placeDeduction;
 
     @Override
     public boolean equals(Object o) {

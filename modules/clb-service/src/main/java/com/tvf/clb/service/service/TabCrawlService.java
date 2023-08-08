@@ -9,8 +9,12 @@ import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.model.EntrantRawData;
-import com.tvf.clb.base.model.tab.*;
+import com.tvf.clb.base.model.tab.TabMeetingRawData;
+import com.tvf.clb.base.model.tab.TabPriceFlucsRawData;
+import com.tvf.clb.base.model.tab.TabRacesData;
+import com.tvf.clb.base.model.tab.TabRunnerRawData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -80,7 +84,13 @@ public class TabCrawlService implements ICrawlService{
                         Map<Integer, List<Float>> placePriceFluctuations = new HashMap<>();
                         placePriceFluctuations.put(AppConstant.TAB_SITE_ID, Optional.ofNullable(x.getPricePlaces()).orElse(new ArrayList<>()));
 
-                        mapEtrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), winPriceFluctuations, placePriceFluctuations));
+                        Map<Integer, Float> winDeduction = new HashMap<>();
+                        CommonUtils.applyIfPresent(AppConstant.TAB_SITE_ID, x.getWinDeduction(), winDeduction::put);
+
+                        Map<Integer, Float> placeDeduction = new HashMap<>();
+                        CommonUtils.applyIfPresent(AppConstant.TAB_SITE_ID, x.getPlaceDeduction(), placeDeduction::put);
+
+                        mapEtrants.put(x.getNumber(), new CrawlEntrantData(x.getPosition(), winPriceFluctuations, placePriceFluctuations, winDeduction, placeDeduction));
                     });
 
                     CrawlRaceData result = new CrawlRaceData();

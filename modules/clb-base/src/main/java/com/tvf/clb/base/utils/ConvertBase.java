@@ -2,13 +2,14 @@ package com.tvf.clb.base.utils;
 
 import com.tvf.clb.base.dto.RaceBaseResponseDTO;
 import com.tvf.clb.base.dto.RaceDto;
+import com.tvf.clb.base.model.ladbrokes.Deductions;
 import com.tvf.clb.base.model.sportbet.SportBetRacesData;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.stereotype.Component;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -242,5 +243,13 @@ public class ConvertBase {
                 return "HARNESS";
             default: return null;
         }
+    }
+
+    public static Float getPlaceDeduction(Deductions deductions) {
+        if (deductions == null) return null;
+        if (deductions.getPlace1() != null) return deductions.getPlace1();
+        if (deductions.getPlace2() != null) return deductions.getPlace2();
+        if (deductions.getPlace3() != null) return deductions.getPlace3();
+        return null;
     }
 }

@@ -22,6 +22,8 @@ public class EntrantResponseDto {
     private String scratchedTime;
     private Map<Integer, List<PriceHistoryData>> priceFluctuations;
     private Map<Integer, List<PriceHistoryData>> pricePlaces;
+    private Map<Integer, Float> winPriceDeductions;
+    private Map<Integer, Float> placePriceDeductions;
     private Integer position;
     private String riderOrDriver;
     private String trainerName;

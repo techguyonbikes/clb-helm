@@ -86,15 +86,18 @@ public class SportBetCrawlService implements ICrawlService {
                     List<SportBetEntrantRawData> allEntrant = markets.getSelections();
 
                     Map<Integer, CrawlEntrantData> entrantMap = new HashMap<>();
-                    allEntrant.forEach(x -> {
 
-                        List<Float> winPrices = getPricesFromEntrantStatistics(x.getStatistics());
+                    Map<Integer, SportBetDeduction> mapDeductions = getEntrantDeductions(sportBetRaceDto.getDeductions());
+
+                    allEntrant.forEach(entrant -> {
+
+                        List<Float> winPrices = getPricesFromEntrantStatistics(entrant.getStatistics());
                         Map<Integer, List<Float>> winPriceFluctuations = new HashMap<>();
 
                         List<Float> placePrices = new ArrayList<>();
                         Map<Integer, List<Float>> placePriceFluctuations = new HashMap<>();
 
-                        x.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode()))
+                        entrant.getPrices().stream().filter(r->AppConstant.PRICE_CODE.equals(r.getPriceCode()))
                                 .findFirst()
                                 .ifPresent(price -> {
                                     winPrices.add(price.getWinPrice());
@@ -103,7 +106,15 @@ public class SportBetCrawlService implements ICrawlService {
                         winPriceFluctuations.put(AppConstant.SPORTBET_SITE_ID, winPrices);
                         placePriceFluctuations.put(AppConstant.SPORTBET_SITE_ID, placePrices);
 
-                        entrantMap.put(x.getRunnerNumber(), new CrawlEntrantData(0, winPriceFluctuations, placePriceFluctuations));
+                        Map<Integer, Float> winDeduction = new HashMap<>();
+                        Map<Integer, Float> placeDeduction = new HashMap<>();
+                        if (mapDeductions.containsKey(entrant.getRunnerNumber())) {
+                            SportBetDeduction deductions = mapDeductions.get(entrant.getRunnerNumber());
+                            CommonUtils.applyIfPresent(AppConstant.SPORTBET_SITE_ID, deductions.getWinDeduction(), winDeduction::put);
+                            CommonUtils.applyIfPresent(AppConstant.SPORTBET_SITE_ID, deductions.getPlaceDeduction(), placeDeduction::put);
+                        }
+
+                        entrantMap.put(entrant.getRunnerNumber(), new CrawlEntrantData(0, winPriceFluctuations, placePriceFluctuations, winDeduction, placeDeduction));
                     });
 
                     CrawlRaceData result = new CrawlRaceData();
@@ -129,48 +140,52 @@ public class SportBetCrawlService implements ICrawlService {
 
         return crawlEntrantDataSportBet(raceUUID)
                 .doOnError(throwable -> crawUtils.saveFailedCrawlRace(this.getClass().getName(), raceDto, date))
+                .filter(sportBetRaceDto -> ! CollectionUtils.isEmpty(sportBetRaceDto.getMarkets()))
                 .flatMapMany(sportBetRaceDto -> {
-                    if (! CollectionUtils.isEmpty(sportBetRaceDto.getMarkets())) {
-                        List<Entrant> newEntrants = new ArrayList<>();
+                    List<Entrant> newEntrants = new ArrayList<>();
 
-                        MarketRawData markets = sportBetRaceDto.getMarkets().get(0);
-                        List<SportBetEntrantRawData> allEntrant = markets.getSelections();
-                        for(SportBetEntrantRawData rawData : allEntrant){
-                            List<Float> winPrices = getPricesFromEntrantStatistics(rawData.getStatistics());
-                            List<Float> placePrices = new ArrayList<>();
-                            rawData.getPrices().stream().filter(r -> AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
-                                    price -> {
-                                        if (price.getWinPrice() != null) {
-                                            winPrices.add(price.getWinPrice());
-                                            CommonUtils.setIfPresent(price.getPlacePrice(), placePrices::add);
-                                        }
+                    MarketRawData markets = sportBetRaceDto.getMarkets().get(0);
+                    List<SportBetEntrantRawData> allEntrant = markets.getSelections();
+                    Map<Integer, SportBetDeduction> mapDeductions = getEntrantDeductions(sportBetRaceDto.getDeductions());
+
+                    for(SportBetEntrantRawData rawData : allEntrant){
+                        List<Float> winPrices = getPricesFromEntrantStatistics(rawData.getStatistics());
+                        List<Float> placePrices = new ArrayList<>();
+                        rawData.getPrices().stream().filter(r -> AppConstant.PRICE_CODE.equals(r.getPriceCode())).findFirst().ifPresent(
+                                price -> {
+                                    if (price.getWinPrice() != null) {
+                                        winPrices.add(price.getWinPrice());
+                                        CommonUtils.setIfPresent(price.getPlacePrice(), placePrices::add);
                                     }
-                            );
-                            Entrant entrant = MeetingMapper.toEntrantEntity(rawData, winPrices, placePrices);
-                            newEntrants.add(entrant);
+                                }
+                        );
+                        Entrant entrant = MeetingMapper.toEntrantEntity(rawData, winPrices, placePrices);
+                        if (mapDeductions.containsKey(entrant.getNumber())) {
+                            entrant.setCurrentPlaceDeductions(mapDeductions.get(entrant.getNumber()).getPlaceDeduction()/100);
+                            entrant.setCurrentWinDeductions(mapDeductions.get(entrant.getNumber()).getWinDeduction()/100);
                         }
 
-                        return Mono.justOrEmpty(raceDto.getRaceId())
-                                .switchIfEmpty(crawUtils.getIdForNewRaceAndSaveRaceSite(raceDto, newEntrants, SiteEnum.SPORT_BET.getId())
-                                                        .doOnNext(raceDto::setRaceId)
-                                ) // Get id for new race and save race site if raceDto.getRaceId() == null
-                                .flatMapMany(raceId -> {
-                                    if (isRaceStatusFinal(sportBetRaceDto)) {
-                                        String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
-                                                .limit(4)
-                                                .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
-                                                .collect(Collectors.joining(","));
-                                        raceDto.setFinalResult(top4Entrants);
-                                        crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.SPORTBET_SITE_ID);
-                                    }
-
-                                    saveEntrant(newEntrants, raceDto);
-                                    return Flux.fromIterable(allEntrant.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList()));
-                                });
-                    } else {
-                        log.error("Can not found SportBet race by RaceUUID {}", raceUUID);
-                        return Flux.empty();
+                        newEntrants.add(entrant);
                     }
+
+                    return Mono.justOrEmpty(raceDto.getRaceId())
+                            .switchIfEmpty(crawUtils.getIdForNewRaceAndSaveRaceSite(raceDto, newEntrants, SiteEnum.SPORT_BET.getId())
+                                                    .doOnNext(raceDto::setRaceId)
+                            ) // Get id for new race and save race site if raceDto.getRaceId() == null
+                            .flatMapMany(raceId -> {
+                                if (isRaceStatusFinal(sportBetRaceDto)) {
+                                    String top4Entrants = getWinnerEntrants(sportBetRaceDto.getResults())
+                                            .limit(4)
+                                            .map(resultsRawData -> resultsRawData.getRunnerNumber().toString())
+                                            .collect(Collectors.joining(","));
+                                    raceDto.setFinalResult(top4Entrants);
+                                    crawUtils.updateRaceFinalResultIntoDB(raceDto.getRaceId(), top4Entrants, AppConstant.SPORTBET_SITE_ID);
+                                }
+
+                                saveEntrant(newEntrants, raceDto);
+                                return Flux.fromIterable(allEntrant.stream().map(EntrantMapper::toEntrantDto).collect(Collectors.toList()));
+                            });
+
                 });
     }
 
@@ -203,6 +218,14 @@ public class SportBetCrawlService implements ICrawlService {
 
         }
         return prices;
+    }
+
+    private Map<Integer, SportBetDeduction> getEntrantDeductions(List<SportBetDeduction> deductions) {
+        Map<Integer, SportBetDeduction> mapDeductions = new HashMap<>();
+        if (deductions != null) {
+            deductions.forEach(deduction -> mapDeductions.put(deduction.getRunnerNumber(), deduction));
+        }
+        return mapDeductions;
     }
 
     private Mono<SportBetRaceDto> crawlEntrantDataSportBet(String raceUUID) {

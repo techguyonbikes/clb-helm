@@ -112,6 +112,7 @@ public class RaceResponseMapper {
                 .advertisedStart(r.getStartTime())
                 .name(r.getRaceName())
                 .meetingName(r.getMeetingName())
+                .raceSiteUrl(AppConstant.TOPSPORT_BASE_URL+r.getId())
                 .build();
     }
     public static RaceDto toRaceDTO(LadbrokesRaceRawData raceRawData, String meetingName, String finalResult, String status) {

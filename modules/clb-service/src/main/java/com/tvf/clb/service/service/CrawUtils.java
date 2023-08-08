@@ -81,9 +81,17 @@ public class CrawUtils {
         }
         for (EntrantResponseDto entrantResponseDto : raceStored.getEntrants()) {
             Entrant newEntrant = newEntrantMap.get(entrantResponseDto.getNumber());
+            Map<Integer, Float> winPriceDeductions = entrantResponseDto.getWinPriceDeductions();
+            Map<Integer, Float> placePriceDeductions = entrantResponseDto.getPlacePriceDeductions();
             if (newEntrant != null) {
                 checkPriceRawData(newEntrant.getCurrentSitePrice(), entrantResponseDto.getPriceFluctuations(), site);
                 checkPriceRawData(newEntrant.getCurrentSitePricePlaces(), entrantResponseDto.getPricePlaces(), site);
+                if (newEntrant.getCurrentWinDeductions() != null) {
+                    winPriceDeductions.put(site, newEntrant.getCurrentWinDeductions());
+                }
+                if (newEntrant.getCurrentPlaceDeductions() != null) {
+                    placePriceDeductions.put(site, newEntrant.getCurrentPlaceDeductions());
+                }
             }
         }
 
@@ -294,11 +302,16 @@ public class CrawUtils {
         }
         raceNewData.getMapEntrants().forEach((entrantNumber, entrantNewData) -> {
             if (mapEntrants.containsKey(entrantNumber)) {
-                mapEntrants.get(entrantNumber).getPriceMap().putAll(entrantNewData.getPriceMap());
-                mapEntrants.get(entrantNumber).getPricePlacesMap().putAll(entrantNewData.getPricePlacesMap());
+                CrawlEntrantData existedEntrant = mapEntrants.get(entrantNumber);
+
+                existedEntrant.getPriceMap().putAll(entrantNewData.getPriceMap());
+                existedEntrant.getPricePlacesMap().putAll(entrantNewData.getPricePlacesMap());
+                existedEntrant.getWinDeductions().putAll(entrantNewData.getWinDeductions());
+                existedEntrant.getPlaceDeductions().putAll(entrantNewData.getPlaceDeductions());
+
                 if (raceNewData.getSiteEnum().equals(SiteEnum.LAD_BROKE)) {
-                    mapEntrants.get(entrantNumber).setIsScratched(entrantNewData.getIsScratched());
-                    mapEntrants.get(entrantNumber).setScratchTime(entrantNewData.getScratchTime());
+                    existedEntrant.setIsScratched(entrantNewData.getIsScratched());
+                    existedEntrant.setScratchTime(entrantNewData.getScratchTime());
                 }
             } else {
                 mapEntrants.put(entrantNumber, entrantNewData);
@@ -306,32 +319,46 @@ public class CrawUtils {
         });
     }
 
-    public void saveEntrantsPriceIntoDB(List<Entrant> newEntrant, Long raceId, Integer siteId) {
+    public void saveEntrantsPriceIntoDB(List<Entrant> listNewEntrants, Long raceId, Integer siteId) {
         Flux<Entrant> existedFlux = entrantRepository.findByRaceId(raceId);
         List<Entrant> listNeedToUpdate = new ArrayList<>();
         existedFlux.collectList().subscribe(listExisted -> {
 
-            Map<Integer, Entrant> mapNumberToNewEntrant = newEntrant.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity(), (first, second) -> first));
+            Map<Integer, Entrant> mapNumberToNewEntrant = listNewEntrants.stream().collect(Collectors.toMap(Entrant::getNumber, Function.identity(), (first, second) -> first));
             listExisted.forEach(existed -> {
 
                 Map<Integer, List<PriceHistoryData>> allExistedSitePrices = CommonUtils.getSitePriceFromJsonb(existed.getPriceFluctuations());
-
                 List<PriceHistoryData> existedSitePrice = allExistedSitePrices.getOrDefault(siteId, new ArrayList<>());
-                List<PriceHistoryData> newSitePrice = new ArrayList<>();
-                if (existed.getNumber() != null) {
-                    Entrant entrant = mapNumberToNewEntrant.get(existed.getNumber());
-                    newSitePrice = CommonUtils.convertToPriceHistoryData(entrant == null ? null : entrant.getCurrentSitePrice());
-                }
-                if (!CollectionUtils.isEmpty(newSitePrice) && !Objects.equals(existedSitePrice, newSitePrice)) {
-                    allExistedSitePrices.put(siteId, newSitePrice);
-                    existed.setPriceFluctuations(CommonUtils.toJsonb(allExistedSitePrices));
 
-                    listNeedToUpdate.add(existed);
+                if (existed.getNumber() != null) {
+                    Entrant newEntrant = mapNumberToNewEntrant.get(existed.getNumber());
+
+                    if (newEntrant != null) {
+                        List<PriceHistoryData> newSitePrice = CommonUtils.convertToPriceHistoryData(newEntrant.getCurrentSitePrice());
+                        if (!CollectionUtils.isEmpty(newSitePrice) && !Objects.equals(existedSitePrice, newSitePrice)) {
+                            allExistedSitePrices.put(siteId, newSitePrice);
+                            existed.setPriceFluctuations(CommonUtils.toJsonb(allExistedSitePrices));
+                        }
+                        setEntrantPriceDeductions(existed, newEntrant, siteId);
+                        listNeedToUpdate.add(existed);
+                    }
                 }
             });
             entrantRepository.saveAll(listNeedToUpdate).subscribe();
+        });
+    }
+
+    private void setEntrantPriceDeductions(Entrant existed, Entrant newEntrant, Integer siteId) {
+        Map<Integer, Float> allExistedWinDeductions = CommonUtils.getPriceFromJsonb(existed.getPriceWinDeductions());
+        Map<Integer, Float> allExistedPlaceDeductions = CommonUtils.getPriceFromJsonb(existed.getPricePlaceDeductions());
+        if (newEntrant.getCurrentWinDeductions() != null) {
+            allExistedWinDeductions.put(siteId, newEntrant.getCurrentWinDeductions());
+            existed.setPriceWinDeductions(CommonUtils.toJsonb(allExistedWinDeductions));
         }
-    );
+        if (newEntrant.getCurrentPlaceDeductions() != null) {
+            allExistedPlaceDeductions.put(siteId, newEntrant.getCurrentPlaceDeductions());
+            existed.setPricePlaceDeductions(CommonUtils.toJsonb(allExistedPlaceDeductions));
+        }
     }
 
     public void checkMeetingWrongAdvertisedStart(MeetingRawData meeting, List<RaceRawData> races) {
