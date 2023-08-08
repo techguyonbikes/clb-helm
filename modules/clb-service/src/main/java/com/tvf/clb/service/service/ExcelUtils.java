@@ -1,6 +1,7 @@
-package com.tvf.clb.base.utils;
+package com.tvf.clb.service.service;
 
 import com.tvf.clb.base.dto.RaceDto;
+import com.tvf.clb.base.utils.ConvertBase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +49,9 @@ public class ExcelUtils {
 
         Map<String, String> mapVenueId = new HashMap<>();
 
-        try(FileInputStream fileInputStream = new FileInputStream(path);
-            Workbook workbook= new XSSFWorkbook(fileInputStream)) {
+        try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
+            Workbook workbook= new XSSFWorkbook(Objects.requireNonNull(inputStream)))
+        {
             Sheet sheet = workbook.getSheetAt(0);
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
