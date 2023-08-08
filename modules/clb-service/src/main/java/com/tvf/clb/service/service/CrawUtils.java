@@ -11,6 +11,8 @@ import com.tvf.clb.base.model.*;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -469,7 +471,11 @@ public class CrawUtils {
                 .bodyToMono(String.class)
                 .<T>handle((bodyString, sink) -> {
                     try {
-                        sink.next(objectMapper.readValue(bodyString, returnType));
+                        if (Document.class.isAssignableFrom(returnType)) {
+                            sink.next(returnType.cast(Jsoup.parse(bodyString)));
+                        } else {
+                            sink.next(objectMapper.readValue(bodyString, returnType));
+                        }
                     } catch (JsonProcessingException e) {
                         sink.error(new ApiRequestFailedException(String.format("Can not map body to type %s with exception detail: %s", returnType.getSimpleName(), e.getMessage())));
                     }

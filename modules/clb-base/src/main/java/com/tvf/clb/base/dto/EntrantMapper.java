@@ -237,7 +237,8 @@ public class EntrantMapper {
                 .number(entrantRawData.getNumber())
                 .name(entrantRawData.getEntrantName())
                 .isScratched(entrantRawData.isScratched())
-                .currentSitePrice(entrantRawData.getPrice())
+                .currentSitePrice(entrantRawData.getPriceWins())
+                .currentSitePricePlaces(entrantRawData.getPricePlaces())
                 .scratchedTime(entrantRawData.getScratchedTime())
                 .build();
     }

@@ -95,4 +95,9 @@ public class WebClientConfig {
         return createFromBaseUrl(AppConstant.SPORT_BET_BASE_URL, buildHttpClient(proxySpecProvider));
     }
 
+    @Bean
+    public WebClient topSportWebClient() {
+        return createFromBaseUrl(AppConstant.TOPSPORT_BASE_URL, buildHttpClient(proxySpecProvider));
+    }
+
 }

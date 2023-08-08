@@ -21,5 +21,6 @@ public class TopSportEntrantDto {
     private Integer barrier;
     private boolean scratched;
     private Instant scratchedTime;
-    List<Float> price;
+    private List<Float> priceWins;
+    private List<Float> pricePlaces;
 }

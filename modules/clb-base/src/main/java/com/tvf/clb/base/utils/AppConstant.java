@@ -125,8 +125,9 @@ public class AppConstant {
     public static final int SECOND_TIME = 59;
     public static final int ZERO_TIME = 0;
     //Topsport
-    public static final String TOPSPORT_MEETING_QUERY= "https://www.topsport.com.au/Racing/All/{date}";
-    public static final String TOPSPORT_RACE_QUERY= "https://www.topsport.com.au/{id}";
+    public static final String TOPSPORT_MEETING_QUERY= "/Racing/All/{date}";
+    public static final String TOPSPORT_RACE_QUERY= "{id}";
+    public static final String TOPSPORT_BASE_URL= "https://www.topsport.com.au";
     public static final String TODAY = "Today";
     public static final String YESTERDAY = "Yesterday";
     public static final String TOMORROW = "Tomorrow";
@@ -168,6 +169,8 @@ public class AppConstant {
     public static final String SCRATCHPAY_CLASS = "scratchPay";
     public static final String RACEREGION = "raceRegion";
     public static final String RACESTATE = "raceState";
+    public static final String OPEN_PRICE_WIN = "span[data-mtype=R]";
+    public static final String FLUC_INIT_PRICE = "span[class=fluc flucInit]";
     //URL RACE ALL SITE
     public static final String URL_LAD_BROKES_IT_RACE = "https://www.ladbrokes.com.au/racing/{id}";
     public static final String URL_NEDS_RACE = "https://www.neds.com.au/racing/{id}";
