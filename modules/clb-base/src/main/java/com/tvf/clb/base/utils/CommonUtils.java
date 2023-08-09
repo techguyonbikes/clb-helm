@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.tvf.clb.base.utils.AppConstant.*;
@@ -349,7 +351,7 @@ public class CommonUtils {
         if (pricePlaces.getOdds().getNumerator() == null || pricePlaces.getOdds().getDenominator() == null) {
             return new ArrayList<>();
         }
-        return Collections.singletonList((Float.parseFloat(decimalFormat.format(pricePlaces.getOdds().getNumerator() / pricePlaces.getOdds().getDenominator()))) + 1F);
+        return Collections.singletonList(Float.parseFloat(decimalFormat.format((pricePlaces.getOdds().getNumerator() / pricePlaces.getOdds().getDenominator()) + 1F)));
     }
     public static Map<Integer, Float> getPriceFromJsonb(Json json) {
         if (json == null) {
@@ -359,5 +361,42 @@ public class CommonUtils {
         return new Gson().fromJson(json.asString(), type);
     }
 
+    public static <T, K> K applyIfNotEmpty(List<T> list, Function<List<T>, K> appliedFunction) {
+        if (!CollectionUtils.isEmpty(list)) {
+            try {
+                return appliedFunction.apply(list);
+            }catch (IndexOutOfBoundsException exception){
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public static <T, K> K applyIfNotEmpty(T list, Function<T, K> appliedFunction) {
+        if (list != null) {
+            return appliedFunction.apply(list);
+        }
+        return null;
+    }
+
+    public static Float getPriceFromString(String priceString, int indexPrice) {
+        if (priceString == null) {
+            return null;
+        }
+        String[] words = priceString.split(",");
+        String priceWord = words[indexPrice];
+
+        Pattern pattern = Pattern.compile("\\b\\d+(\\.\\d+)?c?\\b");
+        Matcher matcher = pattern.matcher(priceWord);
+
+        if (matcher.find()) {
+            String numberStr = matcher.group();
+            if (numberStr.endsWith("c")) {
+                numberStr = numberStr.substring(0, numberStr.length() - 1);
+            }
+            return Float.parseFloat(numberStr);
+        }
+        return null;
+    }
 
 }

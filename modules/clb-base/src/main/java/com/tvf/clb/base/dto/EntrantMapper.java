@@ -273,6 +273,8 @@ public class EntrantMapper {
                 .currentSitePrice(entrantRawData.getPriceWins())
                 .currentSitePricePlaces(entrantRawData.getPricePlaces())
                 .scratchedTime(entrantRawData.getScratchedTime())
+                .currentWinDeductions(entrantRawData.getPriceWinScratch())
+                .currentPlaceDeductions(entrantRawData.getPricePlacesScratch())
                 .build();
     }
 

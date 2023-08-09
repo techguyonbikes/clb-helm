@@ -23,4 +23,6 @@ public class TopSportEntrantDto {
     private Instant scratchedTime;
     private List<Float> priceWins;
     private List<Float> pricePlaces;
+    private Float priceWinScratch;
+    private Float pricePlacesScratch;
 }

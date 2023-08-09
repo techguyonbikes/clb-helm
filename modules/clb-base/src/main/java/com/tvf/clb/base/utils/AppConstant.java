@@ -25,6 +25,7 @@ public class AppConstant {
     public static final Integer SPORTBET_SITE_ID = 6;
     public static final Integer TOPSPORT_SITE_ID = 7;
     public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT));
+    public static final String RACE_NAME_DEFAULT = "RACE";
     public static final String POSITION = "position";
 
     public static final String DISTANCE = "distance";
@@ -125,6 +126,8 @@ public class AppConstant {
     public static final int SECOND_TIME = 59;
     public static final int ZERO_TIME = 0;
     //Topsport
+    public static final String TAG_DISTANCE = "DISTANCE";
+    public static final String TAG_START_TIME = "STARTS_TIME";
     public static final String TOPSPORT_MEETING_QUERY= "/Racing/All/{date}";
     public static final String TOPSPORT_RACE_QUERY= "{id}";
     public static final String TOPSPORT_BASE_URL= "https://www.topsport.com.au";
@@ -171,6 +174,7 @@ public class AppConstant {
     public static final String RACESTATE = "raceState";
     public static final String OPEN_PRICE_WIN = "span[data-mtype=R]";
     public static final String FLUC_INIT_PRICE = "span[class=fluc flucInit]";
+    public static final String SCRATCH_PRICE_QUERY = "td[class=oddsColumn betlink scratchPay]";
     //URL RACE ALL SITE
     public static final String URL_LAD_BROKES_IT_RACE = "https://www.ladbrokes.com.au/racing/{id}";
     public static final String URL_NEDS_RACE = "https://www.neds.com.au/racing/{id}";
@@ -214,9 +218,10 @@ public class AppConstant {
     public static final String LADBROKE_STATUS_FINAL = "46b6910d-8379-44fb-855c-afbbdee3b007";
     public static final String LADBROKE_STATUS_ABANDONED = "a8419435-bd8f-406d-bdef-734e25a15569";
     public static final String SIDE_NAME_PREFIX = "R";
-
-    //
     public static final String LADBROKE_NEDS_DATA_PRICE_KEY = ":7cf3eea6-5654-42be-9c2e-6de280e7bb34:";
-
+    public static final String PRICE_SCRATCH_WIN = "SCRATCH WIN";
+    public static final String PRICE_SCRATCH_PLACE = "SCRATCH PLACE";
+    public static final String PRICE_WIN = "WIN";
+    public static final String PRICE_PLACE = "PLACE";
 
 }

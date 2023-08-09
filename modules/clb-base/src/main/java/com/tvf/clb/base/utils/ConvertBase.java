@@ -117,8 +117,11 @@ public class ConvertBase {
         return resulst;
     }
     public static Instant dateFormatFromString(String date){
+        if (date == null) {
+            return null;
+        }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy, h:mm a");
-        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(date.trim(), formatter);
         return  dateTime.toInstant(ZoneOffset.UTC).minus(10, ChronoUnit.HOURS);
     }
 

@@ -11,6 +11,7 @@ import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.CrawlRaceData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +91,17 @@ public class TopSportCrawlService implements ICrawlService {
                         Map<Integer, List<Float>> pricePlaces = new HashMap<>();
                         pricePlaces.put(AppConstant.TOPSPORT_SITE_ID, x.getPricePlaces());
 
-                        entrantMap.put(x.getNumber(), new CrawlEntrantData(0, priceFluctuations, pricePlaces, new HashMap<>(), new HashMap<>()));
+                        Map<Integer, Float> priceScratchPlaces = new HashMap<>();
+                        if (x.getPricePlacesScratch() != null) {
+                            priceScratchPlaces.put(AppConstant.TOPSPORT_SITE_ID, x.getPricePlacesScratch());
+                        }
+
+                        Map<Integer, Float> priceScratchWin = new HashMap<>();
+                        if (x.getPriceWinScratch() != null) {
+                            priceScratchWin.put(AppConstant.TOPSPORT_SITE_ID, x.getPriceWinScratch());
+                        }
+
+                        entrantMap.put(x.getNumber(), new CrawlEntrantData(0, priceFluctuations, pricePlaces, priceScratchWin, priceScratchPlaces));
                     });
                     CrawlRaceData result = new CrawlRaceData();
                     result.setSiteEnum(SiteEnum.TOP_SPORT);
@@ -105,7 +116,7 @@ public class TopSportCrawlService implements ICrawlService {
     private Mono<TopSportRaceDto> crawlAndSaveEntrantsAndRace(TopSportMeetingDto meetingDto, String raceSiteUUID, LocalDate date) {
         Mono<TopSportRaceDto> topSportRaceCrawlData = getRacesByTOP(raceSiteUUID);
         return topSportRaceCrawlData.doOnError(throwable -> crawUtils.saveFailedCrawlRaceForTopSport(meetingDto, raceSiteUUID, date))
-                .filter(raceRawData -> raceRawData.getRaceName() != null || raceRawData.getRunners() != null)
+                .filter(raceRawData -> raceRawData.getRaceName() != null || raceRawData.getRunners() != null || raceRawData.getMeetingName() != null)
                 .flatMap(topSportRaceDto -> {
                     topSportRaceDto.setRaceType(ConvertBase.convertRaceTypeOfTOP(meetingDto.getRaceType()));
                     topSportRaceDto.setMeetingName(meetingDto.getName().toUpperCase());
@@ -142,23 +153,24 @@ public class TopSportCrawlService implements ICrawlService {
                 .onErrorResume(throwable -> Mono.empty())
                 .map(doc -> {
                     TopSportRaceDto topSportRaceDto = new TopSportRaceDto();
-                    String raceName = getNodesFromDoc(doc, AppConstant.RACE_NAME, "b", 0).get(0).toString().toUpperCase();
-                    String distance = getNodesFromDoc(doc, AppConstant.RACE_INFORMATION, AppConstant.SPAN, 0).get(1).toString().replace("m", "").trim();
-                    String startTime = getNodesFromDoc(doc, AppConstant.RACE_INFORMATION, AppConstant.SPAN, 1).get(1).toString();
-                    Elements raceInfor = doc.select(AppConstant.LINK + "[" + AppConstant.HREF + "=" + raceId + "]");
-                    String raceNumber = raceInfor.select(AppConstant.RACE_NUMBER).get(0).childNodes().get(0).toString().replace("\n", "");
-                    String reslust = raceInfor.select(AppConstant.RACE_RESULT).isEmpty() ? "" : raceInfor.select(AppConstant.RACE_RESULT).get(0).childNodes().get(0).toString().replace("\n", "");
-                    Element sectionClass = doc.select(AppConstant.SECTION_CLASS).get(0);
-                    Element bodyElement = sectionClass.getElementsByTag(AppConstant.BODY).get(0);
-                    Elements entrant = bodyElement.select(AppConstant.SILKCOLUMN_QUERY);
+                    String raceName = CommonUtils.applyIfNotEmpty(getNodesFromDoc(doc, AppConstant.RACE_NAME, "b", 0, "NAME"), functions ->  functions.get(0).toString().toUpperCase());
+
+                    String distance = CommonUtils.applyIfNotEmpty(getNodesFromDoc(doc, AppConstant.RACE_INFORMATION, AppConstant.SPAN, 0, AppConstant.TAG_DISTANCE), functions ->  functions.get(1).toString().replace("m", "").trim());
+                    String startTime = CommonUtils.applyIfNotEmpty(getNodesFromDoc(doc, AppConstant.RACE_INFORMATION, AppConstant.SPAN, 1, AppConstant.TAG_START_TIME), functions ->  functions.get(1).toString());
+                    Elements raceElements = doc.select(AppConstant.LINK + "[" + AppConstant.HREF + "=" + raceId + "]");
+                    String raceNumber = CommonUtils.applyIfNotEmpty(raceElements.select(AppConstant.RACE_NUMBER).get(0).childNodes(), functions ->  functions.get(0).toString().replace("\n", ""));
+                    String result = raceElements.select(AppConstant.RACE_RESULT).isEmpty() ? "" : CommonUtils.applyIfNotEmpty(raceElements.select(AppConstant.RACE_RESULT).get(0).childNodes(), functions ->  functions.get(0).toString().replace("\n", ""));
+                    Element sectionClass = CommonUtils.applyIfNotEmpty(doc.select(AppConstant.SECTION_CLASS), functions ->  functions.get(0));
+                    Element bodyElement = CommonUtils.applyIfNotEmpty(sectionClass, functions ->  functions.getElementsByTag(AppConstant.BODY).get(0));
+                    Elements entrant = CommonUtils.applyIfNotEmpty(bodyElement, functions ->  functions.select(AppConstant.SILKCOLUMN_QUERY));
                     topSportRaceDto.setId(raceId);
-                    topSportRaceDto.setRaceNumber(Integer.parseInt(raceNumber));
-                    topSportRaceDto.setRaceName(raceName);
-                    topSportRaceDto.setStartTime(ConvertBase.dateFormatFromString(startTime.trim()));
-                    topSportRaceDto.setDistance(Integer.parseInt(distance));
-                    topSportRaceDto.setResults(reslust);
+                    topSportRaceDto.setRaceNumber(raceNumber == null ? 0 : Integer.parseInt(raceNumber));
+                    topSportRaceDto.setRaceName(raceName == null ? AppConstant.RACE_NAME_DEFAULT + raceNumber : raceName);
+                    topSportRaceDto.setStartTime(ConvertBase.dateFormatFromString(startTime));
+                    topSportRaceDto.setDistance(distance == null ? 0 : Integer.parseInt(distance));
+                    topSportRaceDto.setResults(result);
                     List<TopSportEntrantDto> topSportEntrantDtos = new ArrayList<>();
-                    for (int i = 0; i < entrant.size(); i++) {
+                    for (int i = 0; i < Objects.requireNonNull(entrant, "[TOPSPORT] Crawl null entrant data with raceId: "+raceId).size(); i++) {
                         TopSportEntrantDto topSportEntrantDto = getEntrantById(entrant, i, raceId);
                         topSportEntrantDtos.add(topSportEntrantDto);
                     }
@@ -178,28 +190,35 @@ public class TopSportCrawlService implements ICrawlService {
         }
         boolean scratched = false;
         String scratchedTime = null;
+        Float priceWinScratched = null;
+        Float pricePlaceScratched = null;
+
         List<Float> listPriceWin = new ArrayList<>();
         List<Float> listPricePlace = new ArrayList<>();
         if (element.select(AppConstant.SCRATCHED_QUERY).isEmpty()) {
-            Float openPrice = getPriceFromElement(element.select(AppConstant.OPEN_PRICE_WIN), raceId);
-            Float win = getPriceFromElement(element.select(AppConstant.FIXED_WIN_QUERY), raceId);
-            Float place = getPriceFromElement(element.select(AppConstant.FIXED_PLACE_QUERY), raceId);
-            Float flucInitPrice = getPriceFromElement(element.select(AppConstant.FLUC_INIT_PRICE), raceId);
-            if (!openPrice.equals(0F)) {
+            Float openPrice = getPriceFromElement(element.select(AppConstant.OPEN_PRICE_WIN), raceId, AppConstant.PRICE_WIN);
+            Float win = getPriceFromElement(element.select(AppConstant.FIXED_WIN_QUERY), raceId, AppConstant.PRICE_WIN);
+            Float place = getPriceFromElement(element.select(AppConstant.FIXED_PLACE_QUERY), raceId, AppConstant.PRICE_PLACE);
+            Float flucInitPrice = getPriceFromElement(element.select(AppConstant.FLUC_INIT_PRICE), raceId, AppConstant.PRICE_WIN);
+            if (openPrice != null) {
                 listPriceWin.add(openPrice);
-                if (!win.equals(0F)) {
+                if (win != null) {
                     listPriceWin.add(win);
                 }
-                if (!place.equals(0F)) {
-                    listPricePlace.add(place);
-                }
-            } else if (!flucInitPrice.equals(0F)) {
+            } else if (flucInitPrice != null) {
                 listPriceWin.add(flucInitPrice);
+            }
+            if (place != null) {
+                listPricePlace.add(place);
             }
         } else {
             scratched = true;
             scratchedTime = getNodesFromElement(element, AppConstant.SCRATCHPAY_CLASS);
+            priceWinScratched = getPriceFromElement(element.select(AppConstant.SCRATCH_PRICE_QUERY), raceId, AppConstant.PRICE_SCRATCH_WIN);
+            pricePlaceScratched = getPriceFromElement(element.select(AppConstant.SCRATCH_PRICE_QUERY), raceId, AppConstant.PRICE_SCRATCH_PLACE);
         }
+        topSportEntrantDto.setPricePlacesScratch(pricePlaceScratched);
+        topSportEntrantDto.setPriceWinScratch(priceWinScratched);
         topSportEntrantDto.setRaceUUID(raceId);
         topSportEntrantDto.setEntrantName(name);
         topSportEntrantDto.setNumber(number);
@@ -227,8 +246,8 @@ public class TopSportCrawlService implements ICrawlService {
         Elements elements = element.getElementsByTag(AppConstant.COLUMN);
         meeting.setRaceType(raceType);
         meeting.setAdvertisedDate(ConvertBase.dateFormat(date));
-        Element elementTag = element.getElementsByTag(AppConstant.SPAN).get(0);
-        String meetingName = elementTag.childNodes().get(0).toString().toUpperCase();
+        Element elementTag = CommonUtils.applyIfNotEmpty(element.getElementsByTag(AppConstant.SPAN), functions ->  functions.get(0));
+        String meetingName = elementTag == null ? "" : CommonUtils.applyIfNotEmpty(elementTag.childNodes(), elementNode -> elementNode.get(0).toString().toUpperCase());
         String elmsVal = elements.get(0).attributes().get(AppConstant.CLASS);
         String countryCode = elmsVal.split(" ")[0].replace(AppConstant.RACEREGION, "");
         String stateCode = elmsVal.split(" ")[1].replace(AppConstant.RACESTATE, "");
@@ -250,35 +269,66 @@ public class TopSportCrawlService implements ICrawlService {
         return meeting;
     }
 
-    private List<Node> getNodesFromDoc(Document document, String className, String tag, int index) {
-        Element element = document.getElementsByClass(className).get(0);
-        Element childElement = element.getElementsByTag(tag).get(index);
-        return childElement.childNodes();
+    private List<Node> getNodesFromDoc(Document document, String className, String tag, int index, String property) {
+        Element element = CommonUtils.applyIfNotEmpty(document.getElementsByClass(className), functions ->  functions.get(0));
+        if (element == null) {
+            return Collections.emptyList();
+        }
+        if (element.getElementsByTag(tag).size() > 1) {
+            if (property.equals(AppConstant.TAG_DISTANCE) || property.equals(AppConstant.TAG_START_TIME)) {
+                Element childElement = CommonUtils.applyIfNotEmpty(element.getElementsByTag(tag), functions ->  functions.get(index));
+                return CommonUtils.applyIfNotEmpty(childElement, Node::childNodes);
+            }
+        } else {
+            if (property.equals(AppConstant.TAG_DISTANCE)) {
+                return Collections.emptyList();
+            } else if (property.equals(AppConstant.TAG_START_TIME)) {
+                Element childElement = CommonUtils.applyIfNotEmpty(element.getElementsByTag(tag), functions ->  functions.get(0));
+                return CommonUtils.applyIfNotEmpty(childElement, Node::childNodes);
+            }
+        }
+        Element childElement = CommonUtils.applyIfNotEmpty(element.getElementsByTag(tag), functions ->  functions.get(index));
+        return CommonUtils.applyIfNotEmpty(childElement, Node::childNodes);
     }
 
     private String getNodesFromElement(Element element, String className) {
-        Element childElement = element.getElementsByClass(className).get(0);
-        List<Node> childNodes = childElement.childNodes();
-        return childNodes.get(0).toString();
+        Element childElement = CommonUtils.applyIfNotEmpty(element.getElementsByClass(className), functions ->  functions.get(0));
+        List<Node> childNodes = CommonUtils.applyIfNotEmpty(childElement, Node::childNodes);
+        return CommonUtils.applyIfNotEmpty(childNodes, functions ->  functions.get(0).toString());
     }
 
-    private Float getPriceFromElement(Elements element, String raceId) {
+    private Float getPriceFromElement(Elements element, String raceId, String typePrice) {
         if (element.isEmpty()){
-            return 0F;
+            return null;
         }
         Node node = null;
         try {
-            Element childElement = element.get(0);
+            Element childElement = CommonUtils.applyIfNotEmpty(element, functions ->  functions.get(0));
+            if (childElement == null) {
+                return null;
+            }
             Element attributeElm = childElement.getElementsByAttribute(AppConstant.DATA_PRICE).first();
             if (attributeElm != null) {
                 node = attributeElm.childNodes().get(0);
             } else {
-                node = childElement.childNodes().get(0);
+                if (typePrice.equals(AppConstant.PRICE_SCRATCH_WIN) || typePrice.equals(AppConstant.PRICE_SCRATCH_PLACE)) {
+                    return getDocumentPriceScratch(childElement, typePrice);
+                } else {
+                    node = CommonUtils.applyIfNotEmpty(childElement.childNodes(), functions ->  functions.get(0));
+                }
             }
-            return Float.parseFloat(node.toString());
+            return node == null ? null : Float.parseFloat(node.toString());
         } catch (NullPointerException | NumberFormatException | IndexOutOfBoundsException e) {
             log.error("[TopSport] Failed to parse: {} with raceId: {}", node, raceId);
-            return 0F;
+            return null;
         }
+    }
+
+    private Float getDocumentPriceScratch(Element childElement, String typePrice){
+        if (childElement.childNodes().size() < 2) {
+            return null;
+        }
+        int priceIndex = typePrice.equals(AppConstant.PRICE_SCRATCH_WIN) ? 0 : 1;
+        return CommonUtils.getPriceFromString(childElement.childNodes().get(2).toString(), priceIndex);
     }
 }
