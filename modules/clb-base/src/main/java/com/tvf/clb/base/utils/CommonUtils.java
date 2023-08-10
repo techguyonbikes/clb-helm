@@ -379,22 +379,24 @@ public class CommonUtils {
         return null;
     }
 
-    public static Float getPriceFromString(String priceString, int indexPrice) {
+    public static Float getDollarPriceFromString(String priceString, int indexPrice) {
         if (priceString == null) {
             return null;
         }
         String[] words = priceString.split(",");
         String priceWord = words[indexPrice];
 
-        Pattern pattern = Pattern.compile("\\b\\d+(\\.\\d+)?c?\\b");
+        Pattern pattern = Pattern.compile(PRICE_REGEX);
         Matcher matcher = pattern.matcher(priceWord);
 
         if (matcher.find()) {
-            String numberStr = matcher.group();
-            if (numberStr.endsWith("c")) {
-                numberStr = numberStr.substring(0, numberStr.length() - 1);
+            String priceStr = matcher.group();
+            float priceNumber = Float.parseFloat(priceStr.substring(0, priceStr.length() - 1));
+            if (priceStr.endsWith("c")) {
+                return priceNumber / 100;
+            } else {
+                return priceNumber;
             }
-            return Float.parseFloat(numberStr);
         }
         return null;
     }

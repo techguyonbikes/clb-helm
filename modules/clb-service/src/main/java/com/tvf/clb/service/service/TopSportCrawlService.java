@@ -329,6 +329,6 @@ public class TopSportCrawlService implements ICrawlService {
             return null;
         }
         int priceIndex = typePrice.equals(AppConstant.PRICE_SCRATCH_WIN) ? 0 : 1;
-        return CommonUtils.getPriceFromString(childElement.childNodes().get(2).toString(), priceIndex);
+        return CommonUtils.getDollarPriceFromString(childElement.childNodes().get(2).toString(), priceIndex);
     }
 }

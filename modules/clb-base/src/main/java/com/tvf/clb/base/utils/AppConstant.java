@@ -223,5 +223,6 @@ public class AppConstant {
     public static final String PRICE_SCRATCH_PLACE = "SCRATCH PLACE";
     public static final String PRICE_WIN = "WIN";
     public static final String PRICE_PLACE = "PLACE";
+    public static final String PRICE_REGEX = "\\b(\\d+\\.?\\d*)\\s*([a-zA-Z]+)\\b";
 
 }
