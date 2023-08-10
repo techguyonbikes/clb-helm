@@ -58,7 +58,7 @@ spring:
       acks: all
       retries: 3
     topics:
-      generic: test-topic
+      generic: raw.cyclone.race
   task:
     scheduling:
       pool:

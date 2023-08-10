@@ -5,12 +5,12 @@ import java.util.Objects;
 
 public class KafkaPayload {
     private final EventTypeEnum eventType;
-    private final Object payload;
+    private final Object actualPayload;
     private final Instant timeStamp;
 
-    private KafkaPayload(EventTypeEnum eventType, Object payload, Instant timeStamp) {
+    private KafkaPayload(EventTypeEnum eventType, Object actualPayload, Instant timeStamp) {
         this.eventType = eventType;
-        this.payload = payload;
+        this.actualPayload = actualPayload;
         this.timeStamp = timeStamp;
     }
 
@@ -18,8 +18,8 @@ public class KafkaPayload {
         return eventType;
     }
 
-    public Object getPayload() {
-        return payload;
+    public Object getActualPayload() {
+        return actualPayload;
     }
 
     public Instant getTimeStamp() {
@@ -29,7 +29,7 @@ public class KafkaPayload {
     public static class Builder {
 
         private EventTypeEnum eventType;
-        private Object payload;
+        private Object actualPayload;
 
         public Builder eventType(EventTypeEnum key) {
             this.eventType = Objects.requireNonNull(key);
@@ -37,12 +37,12 @@ public class KafkaPayload {
         }
 
         public Builder actualPayload(Object payload) {
-            this.payload = Objects.requireNonNull(payload);
+            this.actualPayload = Objects.requireNonNull(payload);
             return this;
         }
 
         public KafkaPayload build() {
-            return new KafkaPayload(this.eventType, this.payload, Instant.now());
+            return new KafkaPayload(this.eventType, this.actualPayload, Instant.now());
         }
     }
 }
