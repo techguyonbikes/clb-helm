@@ -71,4 +71,9 @@ public class CloudbetKafkaService {
         return producer.send(producerRecord, callback);
     }
 
+    public void setTopics(Map<String, String> topics) {
+        this.topics = topics;
+    }
+
+
 }
