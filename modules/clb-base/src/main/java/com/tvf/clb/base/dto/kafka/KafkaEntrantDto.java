@@ -22,6 +22,8 @@ public class KafkaEntrantDto {
     private String scratchedTime;
     private Map<String, List<PriceHistoryData>> winPriceFluctuations;
     private Map<String, List<PriceHistoryData>> placePriceFluctuations;
+    private Map<String, Float> winDeduction;
+    private Map<String, Float> placeDeduction;
     private Integer position;
     private String riderOrDriver;
     private String trainerName;
