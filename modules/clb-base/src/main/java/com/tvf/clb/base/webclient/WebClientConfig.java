@@ -100,4 +100,9 @@ public class WebClientConfig {
         return createFromBaseUrl(AppConstant.TOPSPORT_BASE_URL, buildHttpClient(proxySpecProvider));
     }
 
+    @Bean
+    public WebClient betFluxWebClient() {
+        return createFromBaseUrl(AppConstant.BET_FLUX_BASE_URL, buildHttpClient(null));
+    }
+
 }
