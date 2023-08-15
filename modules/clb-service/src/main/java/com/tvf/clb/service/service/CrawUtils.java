@@ -386,7 +386,9 @@ public class CrawUtils {
             Instant lastRaceAdvertisedStart = lastRace.get().getAdvertisedStart();
             Instant meetingAdvertisedStart = meeting.getAdvertisedDate();
 
-            if (lastRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN).isBefore(meetingAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN))) {
+            if (meetingAdvertisedStart == null) {
+                meeting.setAdvertisedDate(lastRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant());
+            } else if (lastRaceAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN).isBefore(meetingAdvertisedStart.atZone(ZoneOffset.UTC).with(LocalTime.MIN))) {
                 meeting.setAdvertisedDate(meetingAdvertisedStart.minus(1, ChronoUnit.DAYS));
             }
         }

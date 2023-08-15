@@ -11,6 +11,10 @@ import com.tvf.clb.base.entity.Race;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.MeetingRawData;
 import com.tvf.clb.base.model.RaceRawData;
+import com.tvf.clb.base.model.betm.BetMMeetingRawData;
+import com.tvf.clb.base.model.betm.BetMRaceRawData;
+import com.tvf.clb.base.model.betm.BetMRaceStatusEnum;
+import com.tvf.clb.base.model.betm.BetMRaceTypeEnum;
 import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
 import com.tvf.clb.base.model.pointbet.PointBetRacesRawData;
 import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
@@ -32,10 +36,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
@@ -478,6 +479,30 @@ public class MeetingMapper {
                 .raceType(raceDto.getRaceType())
                 .raceSiteUrl(ConvertBase.getURLRaceOfNEDS(raceDto))
                 .meetingName(raceDto.getMeetingName())
+                .build();
+    }
+
+    public static MeetingDto toMeetingDto(BetMMeetingRawData betMMeetingRawData) {
+        String raceType = BetMRaceTypeEnum.getValueFromRawData(betMMeetingRawData.getRaceType());
+        return MeetingDto.builder()
+                .id(UUID.randomUUID().toString())
+                .name(betMMeetingRawData.getName())
+                .state(betMMeetingRawData.getRaceState())
+                .raceType(raceType)
+                .races(betMMeetingRawData.getRaces().stream().map(race -> MeetingMapper.toRaceDto(race, betMMeetingRawData.getName(), raceType)).collect(Collectors.toList()))
+                .build();
+    }
+
+    public static RaceDto toRaceDto(BetMRaceRawData betMRaceRawData, String meetingName, String raceType) {
+        return RaceDto.builder()
+                .id(betMRaceRawData.getId().toString())
+                .name(betMRaceRawData.getName())
+                .number(betMRaceRawData.getNumber())
+                .advertisedStart(betMRaceRawData.getStartTime())
+                .status(BetMRaceStatusEnum.getValueFromRawData(betMRaceRawData.getStatus()))
+                .finalResult(betMRaceRawData.getResult())
+                .raceType(raceType)
+                .raceSiteUrl(AppConstant.URL_BET_M_RACE.replace(AppConstant.ID_PARAM, String.format("%s/%s", meetingName, betMRaceRawData.getId())))
                 .build();
     }
 }

@@ -18,6 +18,7 @@ public class AppConstant {
     public static final String SPORT_BET = "SPORTBET";
     public static final String TOP_SPORT = "TOPSPORT";
     public static final String BET_FLUX = "BETFLUX";
+    public static final String BET_M = "BETM";
     public static final Integer LAD_BROKE_SITE_ID = 1;
     public static final Integer NED_SITE_ID = 2;
     public static final Integer POINT_BET_SITE_ID = 4;
@@ -25,7 +26,8 @@ public class AppConstant {
     public static final Integer TAB_SITE_ID = 5;
     public static final Integer SPORTBET_SITE_ID = 6;
     public static final Integer TOPSPORT_SITE_ID = 7;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT, BET_FLUX));
+    public static final Integer BET_M_SITE_ID = 8;
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT, BET_M, BET_FLUX));
     public static final String RACE_NAME_DEFAULT = "RACE";
     public static final String POSITION = "position";
 
@@ -77,6 +79,12 @@ public class AppConstant {
     public static final String BET_FLUX_MEETING_QUERY = "/api/v2/combined/meetings/races?date={date}";
 
     public static final String BET_FLUX_RACE_QUERY = "/api/v2/combined/race/selections?race_id={id}";
+
+    public static final String BET_M_BASE_URL = "https://api.betm.com.au/v1/fixtures/races";
+
+    public static final String BET_M_MEETING_QUERY = "/{date}/A";
+
+    public static final String BET_M_RACE_QUERY = "/{id}";
 
     public static final String HARNESS_RACING = "Harness Racing";
     public static final String GREYHOUND_RACING = "Greyhound Racing";
@@ -190,6 +198,7 @@ public class AppConstant {
     public static final String URL_POINT_BET_RACE = "https://pointsbet.com.au/racing/{id}";
     public static final String URL_SPORT_BET_RACE = "https://www.sportsbet.com.au/{id}";
     public static final String URL_TOPSPORT_RACE = "https://www.topsport.com.au/{id}";
+    public static final String URL_BET_M_RACE = "https://betm.com.au/racing/{id}";
 
     //Status - Position priority
     public static final int LAD_BROKE_STATUS_PRIORITY = 1;
@@ -206,6 +215,8 @@ public class AppConstant {
     public static final int SPORT_BET_POSITION_PRIORITY = 6;
     public static final int TOP_SPORT_STATUS_PRIORITY = 7;
     public static final int TOP_SPORT_POSITION_PRIORITY = 7;
+    public static final int BET_M_STATUS_PRIORITY = 8;
+    public static final int BET_M_POSITION_PRIORITY = 8;
     public static final int BET_FLUX_POSITION_PRIORITY = 9;
     public static final int BET_FLUX_STATUS_PRIORITY = 9;
 
@@ -234,5 +245,7 @@ public class AppConstant {
     public static final String PRICE_WIN = "WIN";
     public static final String PRICE_PLACE = "PLACE";
     public static final String PRICE_REGEX = "\\b(\\d+\\.?\\d*)\\s*([a-zA-Z]+)\\b";
+    public static final String CSRF_HEADER_NAME = "X-Csrf-Token";
+    public static final String CSRF_TOKEN = "cloud-bet";
 
 }

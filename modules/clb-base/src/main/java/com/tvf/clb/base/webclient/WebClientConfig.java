@@ -101,6 +101,16 @@ public class WebClientConfig {
     }
 
     @Bean
+    public WebClient betMWebClient() {
+        Consumer<HttpHeaders> headersWithToken = headers.andThen(httpHeaders -> httpHeaders.add(AppConstant.CSRF_HEADER_NAME, AppConstant.CSRF_TOKEN));
+
+        return createFromBaseUrl(AppConstant.BET_M_BASE_URL, buildHttpClient(null))
+                    .mutate()
+                    .defaultHeaders(headersWithToken)
+                    .build();
+    }
+
+    @Bean
     public WebClient betFluxWebClient() {
         return createFromBaseUrl(AppConstant.BET_FLUX_BASE_URL, buildHttpClient(null));
     }
