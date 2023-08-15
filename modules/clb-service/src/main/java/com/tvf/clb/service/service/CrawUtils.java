@@ -8,6 +8,7 @@ import com.tvf.clb.base.dto.topsport.TopSportMeetingDto;
 import com.tvf.clb.base.entity.*;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.model.*;
+import com.tvf.clb.base.utils.AppConstant;
 import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.service.repository.*;
 import lombok.extern.slf4j.Slf4j;
@@ -248,6 +249,7 @@ public class CrawUtils {
         return Flux.fromIterable(mapSiteRaceUUID.entrySet())
                 .flatMap(entry -> serviceLookup.forBean(ICrawlService.class, SiteEnum.getSiteNameById(entry.getKey()))
                                                .getEntrantByRaceUUID(entry.getValue()))
+                .onErrorContinue((throwable, o) -> log.error("Got exception {} while crawling uuids {} caused by {}", throwable.getMessage(), mapSiteRaceUUID, o))
                 .collectList()
                 .map(listRaceNewData -> {
 
@@ -262,6 +264,9 @@ public class CrawUtils {
                         if (raceNewData.getSiteEnum() == null) continue;
 
                         // Set race final result
+                        if (AppConstant.STATUS_ABANDONED.equals(raceNewData.getStatus())) {
+                            mapRaceInterimResult.put(raceNewData.getSiteEnum().getId(), "");
+                        }
                         setIfPresent(raceNewData.getFinalResult(), mapRaceFinalResult::putAll);
 
                         // Set race interim result
