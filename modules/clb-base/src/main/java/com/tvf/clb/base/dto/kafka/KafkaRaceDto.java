@@ -17,6 +17,7 @@ public class KafkaRaceDto {
     private String name;
     private Integer number;
     private String status;
+    private String raceType;
     private String advertisedStart;
     private String actualStart;
     private Integer distance;

@@ -14,6 +14,10 @@ import java.util.Map;
 @RedisHash("race")
 public class RaceResponseDto {
     private Long id;
+    private String raceName;
+    private Integer raceNumber;
+    private String raceType;
+    private Integer distance;
     private String status;
     private String advertisedStart;
     private String actualStart;

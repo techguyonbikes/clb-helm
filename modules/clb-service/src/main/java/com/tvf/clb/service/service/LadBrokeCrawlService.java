@@ -226,6 +226,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                                 setIfPresent(newRace.getStatus(), existing::setStatus);
                                 setIfPresent(newRace.getRaceSiteUrl(), existing::setRaceSiteUrl);
                                 setIfPresent(newRace.getVenueId(), existing::setVenueId);
+                                setIfPresent(newRace.getRaceType(), existing::setRaceType);
                                 raceNeedUpdateOrInsert.add(existing);
                             } else {
                                 newRace.setMeetingId(meetingUUIDMap.get(newRace.getMeetingUUID()).getId());
@@ -248,8 +249,8 @@ public class LadBrokeCrawlService implements ICrawlService {
                         saveRaceToTodayData(savedRace);
 
                         List<RaceSite> raceSites = savedRace.stream().map(race -> RaceResponseMapper.toRacesiteDto(race, SiteEnum.LAD_BROKE.getId(), race.getId())).collect(Collectors.toList());
-                        Map<String, Long> mapRaceUUIDAndId = savedRace.stream().filter(race -> race.getRaceId() != null && race.getId() != null)
-                                .collect(Collectors.toMap(Race::getRaceId, Race::getId, (first, second) -> first));
+                        Map<Race, Long> mapRaceUUIDAndId = savedRace.stream().filter(race -> race.getRaceId() != null && race.getId() != null)
+                                .collect(Collectors.toMap(Function.identity(), Race::getId, (first, second) -> first));
 
                         return crawUtils.saveRaceSite(Flux.fromIterable(raceSites), SiteEnum.LAD_BROKE.getId())
                                         .then(Mono.just(mapRaceUUIDAndId));
@@ -273,7 +274,7 @@ public class LadBrokeCrawlService implements ICrawlService {
         savedRace.forEach(race -> todayData.addOrUpdateRace(race.getAdvertisedStart().toEpochMilli(), race.getId()));
     }
 
-    private Flux<Entrant> crawlAndSaveEntrants(Map<String, Long> mapRaceUUIDAndId, LocalDate date) {
+    private Flux<Entrant> crawlAndSaveEntrants(Map<Race, Long> mapRaceUUIDAndId, LocalDate date) {
         AtomicBoolean isApiRequestFailed = new AtomicBoolean(false);
 
         return Flux.fromIterable(mapRaceUUIDAndId.entrySet())
@@ -292,8 +293,8 @@ public class LadBrokeCrawlService implements ICrawlService {
                    });
     }
 
-    private Flux<Entrant> getEntrantByRaceId(String raceId, Long generalRaceId) {
-
+    private Flux<Entrant> getEntrantByRaceId(Race race, Long generalRaceId) {
+        String raceId = race.getRaceId();
         Mono<LadbrokesRaceApiResponse> ladbrokesRaceApiResponseMono = getLadBrokedItRaceDto(raceId);
 
         return ladbrokesRaceApiResponseMono
@@ -304,7 +305,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                     }
                     Map<String, LadbrokesRaceResult> results = raceRawData.getResults();
                     Map<String, Integer> positions = new HashMap<>();
-                    String meetingName = raceRawData.getMeetings().get(raceRawData.getRaces().get(raceId).getMeetingId()).get("name").asText();
+                    String meetingName = raceRawData.getMeetings().get(raceRawData.getRaces().get(raceId).getMeetingId()).get("name").asText(String.valueOf(0));
                     if(meetingName.contains(" ")){
                         meetingName = meetingName.replace(" ","-").toLowerCase();
                     }
@@ -331,9 +332,9 @@ public class LadBrokeCrawlService implements ICrawlService {
                         resultDisplay = Collections.singletonMap(SiteEnum.LAD_BROKE.getId(), top4Entrants);
                     }
 
-                    RaceDto raceDto = RaceResponseMapper.toRaceDTO(raceRawData.getRaces().get(raceId), meetingName, top4Entrants, optionalStatus.orElse(null));
+                    RaceDto raceDto = RaceResponseMapper.toRaceDTO(raceRawData.getRaces().get(raceId), meetingName, top4Entrants, optionalStatus.orElse(null), race.getRaceType(), Integer.parseInt(distance));
 
-                    return raceRepository.updateDistanceAndResultsDisplayAndSilkUrlAndFullFormUrlById(generalRaceId, distance == null ? 0 : Integer.parseInt(distance), CommonUtils.toJsonb(resultDisplay), silkUrl, fullFormUrl)
+                    return raceRepository.updateDistanceAndResultsDisplayAndSilkUrlAndFullFormUrlById(generalRaceId, Integer.parseInt(distance), CommonUtils.toJsonb(resultDisplay), silkUrl, fullFormUrl)
                             .thenMany(saveEntrant(allEntrant, raceId, generalRaceId, raceDto));
                 });
     }

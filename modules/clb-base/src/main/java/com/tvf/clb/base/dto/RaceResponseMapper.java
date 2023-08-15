@@ -93,6 +93,10 @@ public class RaceResponseMapper {
                 .status(raceDto.getStatus())
                 .silkUrl(raceDto.getSilkUrl())
                 .fullFormUrl(raceDto.getFullFormUrl())
+                .raceType(raceDto.getRaceType())
+                .raceName(raceDto.getName())
+                .raceNumber(raceDto.getNumber())
+                .distance(raceDto.getDistance())
                 .build();
     }
 
@@ -115,7 +119,8 @@ public class RaceResponseMapper {
                 .raceSiteUrl(AppConstant.TOPSPORT_BASE_URL+r.getId())
                 .build();
     }
-    public static RaceDto toRaceDTO(LadbrokesRaceRawData raceRawData, String meetingName, String finalResult, String status) {
+    public static RaceDto toRaceDTO(LadbrokesRaceRawData raceRawData, String meetingName, String finalResult,
+                                    String status, String raceType, Integer distance) {
         return RaceDto.builder()
                 .number(raceRawData.getNumber())
                 .advertisedStart(raceRawData.getAdvertisedStart())
@@ -126,6 +131,8 @@ public class RaceResponseMapper {
                 .meetingName(meetingName)
                 .silkUrl(raceRawData.getSilkUrl())
                 .fullFormUrl(raceRawData.getFullFormUrl())
+                .raceType(raceType)
+                .distance(distance)
                 .build();
     }
 
