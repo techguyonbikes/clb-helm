@@ -30,7 +30,7 @@ public class RaceRedisService {
 
 
     public Mono<Boolean> saveRace(Long raceId, RaceResponseDto race) {
-        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(KafkaDtoMapper.convertToKafkaRaceDto(race)))).build();
+        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(KafkaDtoMapper.convertToKafkaRaceDto(race)).build();
         kafkaService.publishKafka(payload, String.valueOf(raceId), null);
         return this.raceDetailTemplate.opsForValue().set(raceId, race);
     }
