@@ -1,6 +1,5 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
 import com.tvf.clb.base.anotation.ClbService;
 import com.tvf.clb.base.dto.*;
 import com.tvf.clb.base.dto.kafka.KafkaDtoMapper;
@@ -186,7 +185,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                     )
                     .flatMapMany(savedMeetings -> {
                         savedMeetings.stream().map(KafkaDtoMapper::convertToKafkaMeetingDto).forEach(meeting -> {
-                            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(meeting))).build();
+                            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(meeting).build();
                             kafkaService.publishKafka(payload, meeting.getId().toString(), null);
                         });
 
@@ -243,7 +242,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                     )
                     .flatMap(savedRace -> {
                         savedRace.stream().map(KafkaDtoMapper::convertToKafkaRaceDto).forEach(race -> {
-                            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(race))).build();
+                            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(race).build();
                             kafkaService.publishKafka(payload, race.getId().toString(), null);
                         });
                         saveRaceToTodayData(savedRace);
@@ -375,7 +374,7 @@ public class LadBrokeCrawlService implements ICrawlService {
                 .flatMap(entrantNeedUpdateOrInsert -> entrantRepository.saveAll(entrantNeedUpdateOrInsert).collectList())
                 .flatMapMany(savedEntrants -> {
                     savedEntrants.stream().map(KafkaDtoMapper::convertToKafkaEntrantDto).forEach(entrant -> {
-                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(new Gson().toJson(entrant)).build();
+                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(entrant).build();
                         kafkaService.publishKafka(payload, entrant.getId().toString(), null);
                     });
 

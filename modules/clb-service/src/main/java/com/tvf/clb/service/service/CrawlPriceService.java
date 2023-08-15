@@ -240,7 +240,7 @@ public class CrawlPriceService {
             saveEntrantToDb(generalRaceId, race.getEntrants());
 
             Json raceFinalResult = Json.of(new Gson().toJson(race.getFinalResult()));
-            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload((new Gson().toJson(KafkaDtoMapper.convertToKafkaRaceDto(race)))).build();
+            KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(KafkaDtoMapper.convertToKafkaRaceDto(race)).build();
             kafkaService.publishKafka(payload, String.valueOf(race.getId()), null);
             return raceRepository.updateRaceStatusAndFinalResultById(generalRaceId, race.getStatus(), raceFinalResult,
                             Instant.parse(race.getActualStart()), Instant.parse(race.getAdvertisedStart()))
