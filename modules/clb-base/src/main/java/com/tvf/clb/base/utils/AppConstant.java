@@ -16,19 +16,20 @@ public class AppConstant {
     public static final String POINT_BET = "POINTBET";
     public static final String ZBET = "ZBET";
     public static final String SPORT_BET = "SPORTBET";
+    public static final String PLAY_UP = "PLAY_UP";
     public static final String TOP_SPORT = "TOPSPORT";
     public static final String BET_FLUX = "BETFLUX";
     public static final String BET_M = "BETM";
     public static final Integer LAD_BROKE_SITE_ID = 1;
     public static final Integer NED_SITE_ID = 2;
     public static final Integer POINT_BET_SITE_ID = 4;
-    public static final Integer ZBET_SITE_ID = 3;
     public static final Integer TAB_SITE_ID = 5;
     public static final Integer SPORTBET_SITE_ID = 6;
     public static final Integer TOPSPORT_SITE_ID = 7;
     public static final Integer BET_M_SITE_ID = 8;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT, BET_M, BET_FLUX));
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT, BET_M, BET_FLUX, PLAY_UP));
     public static final String RACE_NAME_DEFAULT = "RACE";
+    public static final Integer PLAY_UP_SITE_ID = 10;
     public static final String POSITION = "position";
 
     public static final String DISTANCE = "distance";
@@ -93,7 +94,6 @@ public class AppConstant {
     public static final String HARNESS_FEED_TYPE = "harness_racing";
     public static final String HORSE_FEED_TYPE = "horse_racing";
     public static final String GREYHOUND_FEED_TYPE = "greyhound_racing";
-    public static final String DATE_TIME_FORMAT_LONG = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     public static final String DATE_PATTERN = "yyyy-MM-dd";
@@ -125,7 +125,6 @@ public class AppConstant {
     public static final String STATUS_ABANDONED = "ABANDONED";
     public static final String STATUS_RE_RESULTED = "RE-RESULTED";
     public static final String PRICE_CODE = "L";
-    public static final String RACECARD_EVENT="racecardEvent";
     public static final String ZBET_SELLING_STATUS = "selling";
     public static final String ZBET_PAID_STATUS = "paid";
     public static final String ZBET_PAYING_STATUS = "paying";
@@ -219,6 +218,8 @@ public class AppConstant {
     public static final int BET_M_POSITION_PRIORITY = 8;
     public static final int BET_FLUX_POSITION_PRIORITY = 9;
     public static final int BET_FLUX_STATUS_PRIORITY = 9;
+    public static final int PLAY_UP_STATUS_PRIORITY = 10;
+    public static final int PLAY_UP_POSITION_PRIORITY = 10;
 
     // STATUS ORDER
 
@@ -240,6 +241,13 @@ public class AppConstant {
     public static final String LADBROKE_STATUS_ABANDONED = "a8419435-bd8f-406d-bdef-734e25a15569";
     public static final String SIDE_NAME_PREFIX = "R";
     public static final String LADBROKE_NEDS_DATA_PRICE_KEY = ":7cf3eea6-5654-42be-9c2e-6de280e7bb34:";
+    public static final String PLAY_UP_BASE_URL = "https://wagering-api.playup.io/v1";
+
+    public static final String PLAY_UP_MEETING_QUERY = "/meetings/?include=races&filter[start_date][from]={date}&filter[start_date][to]={date}&filter[is_future]=0&page[size]=1000";
+
+    public static final String PLAY_UP_RACE_QUERY= "/races/{id}/?include=selections.prices,result";
+    public static final String URL_PLAY_UP_RACE= "https://www.playup.com.au/betting/racing/{id}";
+
     public static final String PRICE_SCRATCH_WIN = "SCRATCH WIN";
     public static final String PRICE_SCRATCH_PLACE = "SCRATCH PLACE";
     public static final String PRICE_WIN = "WIN";
@@ -247,5 +255,6 @@ public class AppConstant {
     public static final String PRICE_REGEX = "\\b(\\d+\\.?\\d*)\\s*([a-zA-Z]+)\\b";
     public static final String CSRF_HEADER_NAME = "X-Csrf-Token";
     public static final String CSRF_TOKEN = "cloud-bet";
+    public static final String PLAY_UP_RACE_STATUS_FINAL = "Paid";
 
 }

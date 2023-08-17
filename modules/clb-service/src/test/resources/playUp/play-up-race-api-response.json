@@ -1,0 +1,1708 @@
+{
+  "data": {
+    "type": "races",
+    "id": "754881",
+    "attributes": {
+      "name": "Better Be The Best Winner Of Group 1 Nsw Derby Ms Pace",
+      "start_time": "2023-08-14T07:02:00+00:00",
+      "race_number": 5,
+      "status": {
+        "id": 5,
+        "name": "Paid"
+      },
+      "race_type": {
+        "id": 3,
+        "name": "Harness"
+      },
+      "meeting": {
+        "id": 42536,
+        "name": "Pinjarra"
+      },
+      "number_of_places": 3,
+      "number_of_runners": 8,
+      "number_of_active_runners": 8,
+      "distance": 2185,
+      "display_result": "8,1,6",
+      "has_fixed_prices": true,
+      "featured": false,
+      "in_review": false,
+      "boostable": true,
+      "bonus_disabled": false
+    },
+    "relationships": {
+      "selections": {
+        "data": [
+          {
+            "type": "selections",
+            "id": "3331962"
+          },
+          {
+            "type": "selections",
+            "id": "3331964"
+          },
+          {
+            "type": "selections",
+            "id": "3331966"
+          },
+          {
+            "type": "selections",
+            "id": "3331969"
+          },
+          {
+            "type": "selections",
+            "id": "3331971"
+          },
+          {
+            "type": "selections",
+            "id": "3331974"
+          },
+          {
+            "type": "selections",
+            "id": "3331977"
+          },
+          {
+            "type": "selections",
+            "id": "3331981"
+          }
+        ]
+      }
+    },
+    "links": {
+      "self": "v1/races/754881"
+    }
+  },
+  "included": [
+    {
+      "type": "selections",
+      "id": "3331962",
+      "attributes": {
+        "type": "Racing",
+        "name": "Sweet Ivy Nz",
+        "number": 1,
+        "status": {
+          "id": 1,
+          "name": "Active"
+        },
+        "scratched_time": null,
+        "barrier": 1,
+        "weight": null,
+        "emergency": false,
+        "silk": "https://image-assets.playup.com.au/silks/257458_5_1_64x64.png",
+        "jockey": "Gary Hall Jnr",
+        "comment": null,
+        "statistics": {
+          "wet": null,
+          "firm": "0(0-0-0)",
+          "good": "0(0-0-0)",
+          "soft": "0(0-0-0)",
+          "heavy": "0(0-0-0)",
+          "jumps": null,
+          "night": null,
+          "season": null,
+          "non_wet": null,
+          "results": "6(3-3-0)",
+          "first_up": "0(0-0-0)",
+          "second_up": "0(0-0-0)",
+          "synthetic": "0(0-0-0)",
+          "this_dist": "0(0-0-0)",
+          "this_track": "2(2-0-0)",
+          "track_dist": "0(0-0-0)"
+        },
+        "trainer": "Sarah Wall",
+        "training_location": "Bunbury",
+        "owner": null,
+        "last_ten_starts": "21211s2",
+        "previous_forms": [
+          {
+            "date": "2023-08-01",
+            "track": "Bunbury",
+            "finish": 2,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 6,
+            "comment": "",
+            "distance": 1609,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L1/5NEHWOE$12000+",
+            "race_winner": "",
+            "track_4_char": "Bunbury",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-04-22",
+            "track": "Narrogin",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 5,
+            "comment": "",
+            "distance": 1823,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L2/4NEHWOE$9000+",
+            "race_winner": "",
+            "track_4_char": "Narrogin",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-04-17",
+            "track": "Pinjarra",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 7,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L1/3NEHWOE$6000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-04-07",
+            "track": "Gloucester Park",
+            "finish": 2,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 5,
+            "comment": "",
+            "distance": 1730,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "3YOOPEN",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-04-03",
+            "track": "Pinjarra",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 6,
+            "comment": "",
+            "distance": 1684,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "Maiden",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          }
+        ],
+        "color": null,
+        "sex": "F",
+        "age": 3,
+        "foaling_date": null,
+        "sire": "Sweet Lou Usa",
+        "dam": "Glenivy (Nz)",
+        "deductions": null,
+        "srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "d_srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "display_price_flucs": [],
+        "d_display_price_flucs": []
+      },
+      "relationships": {
+        "prices": {
+          "data": [
+            {
+              "type": "prices",
+              "id": "3331962-2-2"
+            },
+            {
+              "type": "prices",
+              "id": "3331962-2-3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331962-2-2",
+      "attributes": {
+        "price": 270,
+        "d_price": 2.7,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 2,
+          "name": "Win"
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331962-2-3",
+      "attributes": {
+        "price": 112,
+        "d_price": 1.12,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 3,
+          "name": "Place"
+        }
+      }
+    },
+    {
+      "type": "selections",
+      "id": "3331964",
+      "attributes": {
+        "type": "Racing",
+        "name": "Lil Delight",
+        "number": 2,
+        "status": {
+          "id": 1,
+          "name": "Active"
+        },
+        "scratched_time": null,
+        "barrier": 2,
+        "weight": null,
+        "emergency": false,
+        "silk": "https://image-assets.playup.com.au/silks/257458_5_2_64x64.png",
+        "jockey": "Joseph Suvaljko",
+        "comment": null,
+        "statistics": {
+          "wet": null,
+          "firm": "0(0-0-0)",
+          "good": "0(0-0-0)",
+          "soft": "0(0-0-0)",
+          "heavy": "0(0-0-0)",
+          "jumps": null,
+          "night": null,
+          "season": null,
+          "non_wet": null,
+          "results": "101(3-4-14)",
+          "first_up": "0(0-0-0)",
+          "second_up": "0(0-0-0)",
+          "synthetic": "0(0-0-0)",
+          "this_dist": "0(0-0-0)",
+          "this_track": "32(0-2-4)",
+          "track_dist": "0(0-0-0)"
+        },
+        "trainer": "Sarah Suvaljko",
+        "training_location": "Cardup",
+        "owner": null,
+        "last_ten_starts": "5000079766",
+        "previous_forms": [
+          {
+            "date": "2023-08-08",
+            "track": "Gloucester Park",
+            "finish": 6,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 7,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L1/5NEHWOE$12000+",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-08-04",
+            "track": "Northam",
+            "finish": 6,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 0,
+            "comment": "",
+            "distance": 1780,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5$LT$4000",
+            "race_winner": "",
+            "track_4_char": "Northam",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-25",
+            "track": "Northam",
+            "finish": 7,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 1,
+            "comment": "",
+            "distance": 2190,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5$LT$4000",
+            "race_winner": "",
+            "track_4_char": "Northam",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-17",
+            "track": "Pinjarra",
+            "finish": 9,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 0,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L4/5NEHWOE$12000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-11",
+            "track": "Gloucester Park",
+            "finish": 7,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 6,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L1/5NEHWOE$12000+",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          }
+        ],
+        "color": "b",
+        "sex": "M",
+        "age": 5,
+        "foaling_date": null,
+        "sire": "Bettors Delight Usa",
+        "dam": "Lilianna Beauty Usa",
+        "deductions": null,
+        "srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "d_srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "display_price_flucs": [],
+        "d_display_price_flucs": []
+      },
+      "relationships": {
+        "prices": {
+          "data": [
+            {
+              "type": "prices",
+              "id": "3331964-2-2"
+            },
+            {
+              "type": "prices",
+              "id": "3331964-2-3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331964-2-2",
+      "attributes": {
+        "price": 7100,
+        "d_price": 71,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 2,
+          "name": "Win"
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331964-2-3",
+      "attributes": {
+        "price": 600,
+        "d_price": 6,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 3,
+          "name": "Place"
+        }
+      }
+    },
+    {
+      "type": "selections",
+      "id": "3331966",
+      "attributes": {
+        "type": "Racing",
+        "name": "Yankeedelight Nz",
+        "number": 3,
+        "status": {
+          "id": 1,
+          "name": "Active"
+        },
+        "scratched_time": null,
+        "barrier": 3,
+        "weight": null,
+        "emergency": false,
+        "silk": "https://image-assets.playup.com.au/silks/257458_5_3_64x64.png",
+        "jockey": "Garry Johnson",
+        "comment": null,
+        "statistics": {
+          "wet": null,
+          "firm": "0(0-0-0)",
+          "good": "0(0-0-0)",
+          "soft": "0(0-0-0)",
+          "heavy": "0(0-0-0)",
+          "jumps": null,
+          "night": null,
+          "season": null,
+          "non_wet": null,
+          "results": "38(2-0-2)",
+          "first_up": "0(0-0-0)",
+          "second_up": "0(0-0-0)",
+          "synthetic": "0(0-0-0)",
+          "this_dist": "0(0-0-0)",
+          "this_track": "17(2-0-2)",
+          "track_dist": "0(0-0-0)"
+        },
+        "trainer": "Garry Johnson",
+        "training_location": null,
+        "owner": null,
+        "last_ten_starts": "0456s89796",
+        "previous_forms": [
+          {
+            "date": "2023-08-07",
+            "track": "Pinjarra",
+            "finish": 6,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 1,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/7NEHWOE$25000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-08-01",
+            "track": "Bunbury",
+            "finish": 9,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 4,
+            "comment": "",
+            "distance": 2100,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L2/5NEHWOE$12000+",
+            "race_winner": "",
+            "track_4_char": "Bunbury",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-24",
+            "track": "Gloucester Park",
+            "finish": 7,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 3,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/6NEHWOE$18500+",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-18",
+            "track": "Bunbury",
+            "finish": 9,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 6,
+            "comment": "",
+            "distance": 2100,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L2/4NEHWOE$9000+",
+            "race_winner": "",
+            "track_4_char": "Bunbury",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-11",
+            "track": "Gloucester Park",
+            "finish": 8,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 0,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L1/5NEHWOE$12000+",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          }
+        ],
+        "color": null,
+        "sex": "M",
+        "age": 4,
+        "foaling_date": null,
+        "sire": "Bettors Delight Usa",
+        "dam": "Yankee Dream Nz",
+        "deductions": null,
+        "srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "d_srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "display_price_flucs": [],
+        "d_display_price_flucs": []
+      },
+      "relationships": {
+        "prices": {
+          "data": [
+            {
+              "type": "prices",
+              "id": "3331966-2-2"
+            },
+            {
+              "type": "prices",
+              "id": "3331966-2-3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331966-2-2",
+      "attributes": {
+        "price": 6100,
+        "d_price": 61,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 2,
+          "name": "Win"
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331966-2-3",
+      "attributes": {
+        "price": 600,
+        "d_price": 6,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 3,
+          "name": "Place"
+        }
+      }
+    },
+    {
+      "type": "selections",
+      "id": "3331969",
+      "attributes": {
+        "type": "Racing",
+        "name": "Doctor Catherine",
+        "number": 4,
+        "status": {
+          "id": 1,
+          "name": "Active"
+        },
+        "scratched_time": null,
+        "barrier": 4,
+        "weight": null,
+        "emergency": false,
+        "silk": "https://image-assets.playup.com.au/silks/257458_5_4_64x64.png",
+        "jockey": "Chris Voak",
+        "comment": null,
+        "statistics": {
+          "wet": null,
+          "firm": "0(0-0-0)",
+          "good": "0(0-0-0)",
+          "soft": "0(0-0-0)",
+          "heavy": "0(0-0-0)",
+          "jumps": null,
+          "night": null,
+          "season": null,
+          "non_wet": null,
+          "results": "5(3-0-0)",
+          "first_up": "0(0-0-0)",
+          "second_up": "0(0-0-0)",
+          "synthetic": "0(0-0-0)",
+          "this_dist": "0(0-0-0)",
+          "this_track": "3(1-0-0)",
+          "track_dist": "0(0-0-0)"
+        },
+        "trainer": "Michael Brennan",
+        "training_location": "Blythewood",
+        "owner": null,
+        "last_ten_starts": "11s197",
+        "previous_forms": [
+          {
+            "date": "2023-08-07",
+            "track": "Pinjarra",
+            "finish": 7,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 3,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/7NEHWOE$25000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-17",
+            "track": "Pinjarra",
+            "finish": 9,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 4,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/7NEHWOE$25000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-03",
+            "track": "Pinjarra",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 0,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L1/5NEHWOE$12000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Dead",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-01-31",
+            "track": "Gloucester Park",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 5,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L1/4NEHWOE$9000+",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-01-17",
+            "track": "Bunbury",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 4,
+            "comment": "",
+            "distance": 2100,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "Maiden",
+            "race_winner": "",
+            "track_4_char": "Bunbury",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          }
+        ],
+        "color": null,
+        "sex": "M",
+        "age": 4,
+        "foaling_date": null,
+        "sire": "Art Major Usa",
+        "dam": "Chloe Vargarita",
+        "deductions": null,
+        "srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "d_srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "display_price_flucs": [],
+        "d_display_price_flucs": []
+      },
+      "relationships": {
+        "prices": {
+          "data": [
+            {
+              "type": "prices",
+              "id": "3331969-2-2"
+            },
+            {
+              "type": "prices",
+              "id": "3331969-2-3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331969-2-2",
+      "attributes": {
+        "price": 1800,
+        "d_price": 18,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 2,
+          "name": "Win"
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331969-2-3",
+      "attributes": {
+        "price": 245,
+        "d_price": 2.45,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 3,
+          "name": "Place"
+        }
+      }
+    },
+    {
+      "type": "selections",
+      "id": "3331971",
+      "attributes": {
+        "type": "Racing",
+        "name": "Icy Winds",
+        "number": 5,
+        "status": {
+          "id": 1,
+          "name": "Active"
+        },
+        "scratched_time": null,
+        "barrier": 5,
+        "weight": null,
+        "emergency": false,
+        "silk": "https://image-assets.playup.com.au/silks/257458_5_5_64x64.png",
+        "jockey": "Mitchell Miller",
+        "comment": null,
+        "statistics": {
+          "wet": null,
+          "firm": "0(0-0-0)",
+          "good": "0(0-0-0)",
+          "soft": "0(0-0-0)",
+          "heavy": "0(0-0-0)",
+          "jumps": null,
+          "night": null,
+          "season": null,
+          "non_wet": null,
+          "results": "29(4-5-6)",
+          "first_up": "0(0-0-0)",
+          "second_up": "0(0-0-0)",
+          "synthetic": "0(0-0-0)",
+          "this_dist": "0(0-0-0)",
+          "this_track": "12(0-3-1)",
+          "track_dist": "0(0-0-0)"
+        },
+        "trainer": "Kim Prentice",
+        "training_location": "Oldbury",
+        "owner": null,
+        "last_ten_starts": "3612466571",
+        "previous_forms": [
+          {
+            "date": "2023-08-08",
+            "track": "Gloucester Park",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 3,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5$LT$8000",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-31",
+            "track": "Gloucester Park",
+            "finish": 7,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 6,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5$LT$8000",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-24",
+            "track": "Gloucester Park",
+            "finish": 5,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 5,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5$LT$8000",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-03",
+            "track": "Pinjarra",
+            "finish": 6,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 1,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/7NEHWOE$25000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Dead",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-06-26",
+            "track": "Pinjarra",
+            "finish": 6,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 3,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/7NEHWOE$25000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          }
+        ],
+        "color": null,
+        "sex": "M",
+        "age": 4,
+        "foaling_date": null,
+        "sire": "Roll With Joe Usa",
+        "dam": "Im Ice Cold",
+        "deductions": null,
+        "srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "d_srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "display_price_flucs": [],
+        "d_display_price_flucs": []
+      },
+      "relationships": {
+        "prices": {
+          "data": [
+            {
+              "type": "prices",
+              "id": "3331971-2-2"
+            },
+            {
+              "type": "prices",
+              "id": "3331971-2-3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331971-2-2",
+      "attributes": {
+        "price": 2600,
+        "d_price": 26,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 2,
+          "name": "Win"
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331971-2-3",
+      "attributes": {
+        "price": 340,
+        "d_price": 3.4,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 3,
+          "name": "Place"
+        }
+      }
+    },
+    {
+      "type": "selections",
+      "id": "3331974",
+      "attributes": {
+        "type": "Racing",
+        "name": "Dove Cry",
+        "number": 6,
+        "status": {
+          "id": 1,
+          "name": "Active"
+        },
+        "scratched_time": null,
+        "barrier": 6,
+        "weight": null,
+        "emergency": false,
+        "silk": "https://image-assets.playup.com.au/silks/257458_5_6_64x64.png",
+        "jockey": "Chris Lewis",
+        "comment": null,
+        "statistics": {
+          "wet": null,
+          "firm": "0(0-0-0)",
+          "good": "0(0-0-0)",
+          "soft": "0(0-0-0)",
+          "heavy": "0(0-0-0)",
+          "jumps": null,
+          "night": null,
+          "season": null,
+          "non_wet": null,
+          "results": "25(5-1-4)",
+          "first_up": "0(0-0-0)",
+          "second_up": "0(0-0-0)",
+          "synthetic": "0(0-0-0)",
+          "this_dist": "0(0-0-0)",
+          "this_track": "11(3-1-2)",
+          "track_dist": "0(0-0-0)"
+        },
+        "trainer": "David Pyburne",
+        "training_location": "Benger",
+        "owner": null,
+        "last_ten_starts": "2185s65641",
+        "previous_forms": [
+          {
+            "date": "2023-08-07",
+            "track": "Pinjarra",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 4,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/7NEHWOE$25000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-31",
+            "track": "Gloucester Park",
+            "finish": 4,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 5,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5$LT$8000",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-24",
+            "track": "Gloucester Park",
+            "finish": 6,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 0,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5$LT$8000",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-07-18",
+            "track": "Bunbury",
+            "finish": 5,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 6,
+            "comment": "",
+            "distance": 1609,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/6NEHWOE$18500+",
+            "race_winner": "",
+            "track_4_char": "Bunbury",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-06-14",
+            "track": "Bunbury",
+            "finish": 6,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 1,
+            "comment": "",
+            "distance": 2100,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/6NEHWOE$18500+",
+            "race_winner": "",
+            "track_4_char": "Bunbury",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          }
+        ],
+        "color": null,
+        "sex": "M",
+        "age": 5,
+        "foaling_date": null,
+        "sire": "Renaissance Man",
+        "dam": "Tondalaya",
+        "deductions": null,
+        "srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "d_srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "display_price_flucs": [],
+        "d_display_price_flucs": []
+      },
+      "relationships": {
+        "prices": {
+          "data": [
+            {
+              "type": "prices",
+              "id": "3331974-2-2"
+            },
+            {
+              "type": "prices",
+              "id": "3331974-2-3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331974-2-2",
+      "attributes": {
+        "price": 1900,
+        "d_price": 19,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 2,
+          "name": "Win"
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331974-2-3",
+      "attributes": {
+        "price": 260,
+        "d_price": 2.6,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 3,
+          "name": "Place"
+        }
+      }
+    },
+    {
+      "type": "selections",
+      "id": "3331977",
+      "attributes": {
+        "type": "Racing",
+        "name": "Caribbean Lily Nz",
+        "number": 7,
+        "status": {
+          "id": 1,
+          "name": "Active"
+        },
+        "scratched_time": null,
+        "barrier": 7,
+        "weight": null,
+        "emergency": false,
+        "silk": "https://image-assets.playup.com.au/silks/257458_5_7_64x64.png",
+        "jockey": "Maddison Brown",
+        "comment": null,
+        "statistics": {
+          "wet": null,
+          "firm": "0(0-0-0)",
+          "good": "0(0-0-0)",
+          "soft": "0(0-0-0)",
+          "heavy": "0(0-0-0)",
+          "jumps": null,
+          "night": null,
+          "season": null,
+          "non_wet": null,
+          "results": "30(5-5-4)",
+          "first_up": "0(0-0-0)",
+          "second_up": "0(0-0-0)",
+          "synthetic": "0(0-0-0)",
+          "this_dist": "0(0-0-0)",
+          "this_track": "7(1-0-0)",
+          "track_dist": "0(0-0-0)"
+        },
+        "trainer": "Michael Young",
+        "training_location": "Hopelands",
+        "owner": null,
+        "last_ten_starts": "334216787s",
+        "previous_forms": [
+          {
+            "date": "2023-02-06",
+            "track": "Pinjarra",
+            "finish": 7,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 3,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L8/9",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-01-31",
+            "track": "Gloucester Park",
+            "finish": 8,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 4,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5$LT$12000",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-01-23",
+            "track": "Pinjarra",
+            "finish": 7,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 5,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L1/7NEHWOE$25000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-01-11",
+            "track": "Pinjarra",
+            "finish": 6,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 0,
+            "comment": "",
+            "distance": 2185,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/7NEHWOE$25000+",
+            "race_winner": "",
+            "track_4_char": "Pinjarra",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2023-01-03",
+            "track": "Bunbury",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 0,
+            "comment": "",
+            "distance": 2100,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "L5/6NEHWOE$18500+",
+            "race_winner": "",
+            "track_4_char": "Bunbury",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          }
+        ],
+        "color": null,
+        "sex": "M",
+        "age": 5,
+        "foaling_date": null,
+        "sire": "Bettors Delight Usa",
+        "dam": "Caribbean Blue (Nz)",
+        "deductions": null,
+        "srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "d_srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "display_price_flucs": [],
+        "d_display_price_flucs": []
+      },
+      "relationships": {
+        "prices": {
+          "data": [
+            {
+              "type": "prices",
+              "id": "3331977-2-2"
+            },
+            {
+              "type": "prices",
+              "id": "3331977-2-3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331977-2-2",
+      "attributes": {
+        "price": 1600,
+        "d_price": 16,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 2,
+          "name": "Win"
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331977-2-3",
+      "attributes": {
+        "price": 230,
+        "d_price": 2.3,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 3,
+          "name": "Place"
+        }
+      }
+    },
+    {
+      "type": "selections",
+      "id": "3331981",
+      "attributes": {
+        "type": "Racing",
+        "name": "Zephyra",
+        "number": 8,
+        "status": {
+          "id": 1,
+          "name": "Active"
+        },
+        "scratched_time": null,
+        "barrier": 1,
+        "weight": null,
+        "emergency": false,
+        "silk": "https://image-assets.playup.com.au/silks/257458_5_8_64x64.png",
+        "jockey": "Dylan Egerton-green",
+        "comment": null,
+        "statistics": {
+          "wet": null,
+          "firm": "0(0-0-0)",
+          "good": "0(0-0-0)",
+          "soft": "0(0-0-0)",
+          "heavy": "0(0-0-0)",
+          "jumps": null,
+          "night": null,
+          "season": null,
+          "non_wet": null,
+          "results": "8(6-2-0)",
+          "first_up": "0(0-0-0)",
+          "second_up": "0(0-0-0)",
+          "synthetic": "0(0-0-0)",
+          "this_dist": "0(0-0-0)",
+          "this_track": "0(0-0-0)",
+          "track_dist": "0(0-0-0)"
+        },
+        "trainer": "Dylan Egerton-green",
+        "training_location": "Banjup",
+        "owner": null,
+        "last_ten_starts": "21s121111s",
+        "previous_forms": [
+          {
+            "date": "2022-09-16",
+            "track": "Gloucester Park",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 3,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "G1",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2022-09-06",
+            "track": "Gloucester Park",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 2,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "2YOOPEN",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2022-08-19",
+            "track": "Gloucester Park",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 7,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "G1",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2022-08-09",
+            "track": "Gloucester Park",
+            "finish": 1,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 1,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "2YOOPEN",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          },
+          {
+            "date": "2022-07-22",
+            "track": "Gloucester Park",
+            "finish": 2,
+            "jockey": "",
+            "margin": 0,
+            "barrier": 6,
+            "comment": "",
+            "distance": 2130,
+            "time_ran": 0,
+            "days_since": null,
+            "race_class": "2YOOPEN",
+            "race_winner": "",
+            "track_4_char": "Gloucester Park",
+            "starting_price": 0,
+            "track_condition": "Good",
+            "race_prize_money": 0,
+            "number_of_runners": 3
+          }
+        ],
+        "color": null,
+        "sex": "F",
+        "age": 3,
+        "foaling_date": null,
+        "sire": "Sweet Lou Usa",
+        "dam": "Tricky Styx Nz",
+        "deductions": null,
+        "srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "d_srm_prices": {
+          "top2": null,
+          "top3": null,
+          "top4": null
+        },
+        "display_price_flucs": [],
+        "d_display_price_flucs": []
+      },
+      "relationships": {
+        "prices": {
+          "data": [
+            {
+              "type": "prices",
+              "id": "3331981-2-2"
+            },
+            {
+              "type": "prices",
+              "id": "3331981-2-3"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331981-2-2",
+      "attributes": {
+        "price": 165,
+        "d_price": 1.65,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 2,
+          "name": "Win"
+        }
+      }
+    },
+    {
+      "type": "prices",
+      "id": "3331981-2-3",
+      "attributes": {
+        "price": 101,
+        "d_price": 1.01,
+        "product": {
+          "id": 2,
+          "name": "Fixed Price"
+        },
+        "bet_type": {
+          "id": 3,
+          "name": "Place"
+        }
+      }
+    }
+  ]
+}

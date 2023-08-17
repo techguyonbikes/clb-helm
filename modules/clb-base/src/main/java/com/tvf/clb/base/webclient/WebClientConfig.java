@@ -99,6 +99,10 @@ public class WebClientConfig {
     public WebClient topSportWebClient() {
         return createFromBaseUrl(AppConstant.TOPSPORT_BASE_URL, buildHttpClient(proxySpecProvider));
     }
+    @Bean
+    public WebClient playUpWebClient() {
+        return createFromBaseUrl(AppConstant.PLAY_UP_BASE_URL, buildHttpClient(proxySpecProvider));
+    }
 
     @Bean
     public WebClient betMWebClient() {

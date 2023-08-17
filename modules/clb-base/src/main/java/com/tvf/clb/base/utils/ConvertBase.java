@@ -2,6 +2,7 @@ package com.tvf.clb.base.utils;
 
 import com.tvf.clb.base.dto.RaceBaseResponseDTO;
 import com.tvf.clb.base.dto.RaceDto;
+import com.tvf.clb.base.dto.RaceTypeEnum;
 import com.tvf.clb.base.model.ladbrokes.Deductions;
 import com.tvf.clb.base.model.sportbet.SportBetRacesData;
 import lombok.AccessLevel;
@@ -27,11 +28,11 @@ public class ConvertBase {
     public static String convertRaceTypeOfTab(String feedId) {
         switch (feedId) {
             case "G":
-                return AppConstant.GREYHOUND_RACING;
+                return RaceTypeEnum.getSiteNameById(2);
             case "R":
-                return AppConstant.HORSE_RACING;
+                return RaceTypeEnum.getSiteNameById(1);
             case "H":
-                return AppConstant.HARNESS_RACING;
+                return RaceTypeEnum.getSiteNameById(3);
             default:
                 return null;
         }
@@ -68,11 +69,11 @@ public class ConvertBase {
 
     public static String convertRaceTypeOfSportBet(String raceType) {
         if (AppConstant.GREYHOUND_RACE_TYPE.contains(raceType)) {
-            return AppConstant.GREYHOUND_RACING;
+            return RaceTypeEnum.getSiteNameById(2);
         } else if (AppConstant.HORSE_RACE_TYPE.contains(raceType)) {
-            return AppConstant.HORSE_RACING;
+            return RaceTypeEnum.getSiteNameById(1);
         } else if (AppConstant.HARNESS_RACE_TYPE.contains(raceType)) {
-            return AppConstant.HARNESS_RACING;
+            return RaceTypeEnum.getSiteNameById(3);
         } else {
             return null;
         }
@@ -133,11 +134,11 @@ public class ConvertBase {
     public static String convertRaceTypeOfTOP(String raceType) {
         switch (raceType) {
             case "GREYHOUNDS":
-                return AppConstant.GREYHOUND_RACING;
+                return RaceTypeEnum.getSiteNameById(2);
             case "THOROUGHBREDS":
-                return AppConstant.HORSE_RACING;
+                return RaceTypeEnum.getSiteNameById(1);
             case "HARNESS":
-                return AppConstant.HARNESS_RACING;
+                return RaceTypeEnum.getSiteNameById(3);
             default: return null;
         }
     }
@@ -254,5 +255,59 @@ public class ConvertBase {
         if (deductions.getPlace2() != null) return deductions.getPlace2();
         if (deductions.getPlace3() != null) return deductions.getPlace3();
         return null;
+    }
+    public static String getURLRaceOfPlayUp(String id,String meetingName,String racingTypeName,int raceNumber){
+        if(meetingName != null && meetingName.contains(" ")){
+            meetingName = meetingName.replace(" ","-");
+        }
+        String url = racingTypeName + "/" + meetingName + "/race-"+raceNumber +"/" + id;
+        return AppConstant.URL_PLAY_UP_RACE.replace(AppConstant.ID_PARAM, url);
+    }
+    public static String convertRaceTypeOfPlayUp(String raceType) {
+        switch (raceType) {
+            case "Greyhound":
+                return RaceTypeEnum.getSiteNameById(2);
+            case "Gallop":
+                return RaceTypeEnum.getSiteNameById(1);
+            case "Harness":
+                return RaceTypeEnum.getSiteNameById(3);
+            default: return null;
+        }
+    }
+    public static String convertRaceTypeByFeedId(String feedId) {
+        if (feedId.contains(AppConstant.GREYHOUND_FEED_TYPE)) {
+            return RaceTypeEnum.getSiteNameById(2);
+        } else if (feedId.contains(AppConstant.HORSE_FEED_TYPE)) {
+            return RaceTypeEnum.getSiteNameById(1);
+        }else if (feedId.contains(AppConstant.HARNESS_FEED_TYPE)) {
+            return RaceTypeEnum.getSiteNameById(3);
+        }
+        else {
+            return AppConstant.HORSE_RACING; // racetype is null in labroker  = horse racing in other site
+        }
+    }
+
+    public static String convertRaceTypePointBet(Integer raceTypeId) {
+        switch (raceTypeId) {
+            case 1:
+                return RaceTypeEnum.getSiteNameById(1);
+            case 2:
+                return RaceTypeEnum.getSiteNameById(3);
+            case 4:
+                return RaceTypeEnum.getSiteNameById(2);
+            default:
+                return null;
+        }
+    }
+    public static String convertRacesTypeZbet(String feedId) {
+        if (AppConstant.GREYHOUND_TYPE_RACE.contains(feedId)) {
+            return RaceTypeEnum.getSiteNameById(2);
+        } else if (AppConstant.HORSE_TYPE_RACE.contains(feedId)) {
+            return RaceTypeEnum.getSiteNameById(1);
+        } else if (AppConstant.HARNESS_TYPE_RACE.contains(feedId)) {
+            return RaceTypeEnum.getSiteNameById(3);
+        } else {
+            return null;
+        }
     }
 }

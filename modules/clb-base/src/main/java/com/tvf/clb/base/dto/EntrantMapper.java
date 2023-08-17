@@ -7,6 +7,7 @@ import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.PriceHistoryData;
+import com.tvf.clb.base.model.playup.PlayUpRunnerRawData;
 import com.tvf.clb.base.model.betm.BetMRunnerRawData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
@@ -284,6 +285,25 @@ public class EntrantMapper {
                 .id(entrant.getId().toString())
                 .name(entrant.getName())
                 .number(entrant.getRunnerNumber())
+                .build();
+    }
+    public static Entrant toEntrantEntityPlayUp(PlayUpRunnerRawData entrantRawData,List<Float> entrantWinPrice, List<Float> entrantPlacePrice, String raceUUID) {
+        return Entrant.builder()
+                .entrantId(entrantRawData.getId())
+                .raceUUID(raceUUID)
+                .number(entrantRawData.getNumber())
+                .name(entrantRawData.getName())
+                .currentSitePrice(entrantWinPrice)
+                .currentSitePricePlaces(entrantPlacePrice)
+                .currentWinDeductions(entrantRawData.getDeductions() == null ? null: entrantRawData.getDeductions().getWin())
+                .currentWinDeductions(entrantRawData.getDeductions() == null ? null: entrantRawData.getDeductions().getPlace())
+                .build();
+    }
+    public static EntrantDto toEntrantDto(PlayUpRunnerRawData entrant) {
+        return EntrantDto.builder()
+                .id(entrant.getId().toString())
+                .name(entrant.getName())
+                .number(entrant.getNumber())
                 .build();
     }
 
