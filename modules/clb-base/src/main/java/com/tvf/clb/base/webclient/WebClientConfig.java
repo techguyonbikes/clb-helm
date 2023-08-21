@@ -119,4 +119,8 @@ public class WebClientConfig {
         return createFromBaseUrl(AppConstant.BET_FLUX_BASE_URL, buildHttpClient(null));
     }
 
+    @Bean
+    public WebClient blueBetWebClient() {
+        return createFromBaseUrl(AppConstant.BLUE_BET_BASE_URL, buildHttpClient(proxySpecProvider));
+    }
 }

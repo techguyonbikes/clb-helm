@@ -15,7 +15,8 @@ public enum SiteEnum {
     TOP_SPORT(7, AppConstant.TOP_SPORT, AppConstant.TOP_SPORT_STATUS_PRIORITY, AppConstant.TOP_SPORT_POSITION_PRIORITY),
     BET_M(8, AppConstant.BET_M, AppConstant.BET_M_STATUS_PRIORITY, AppConstant.BET_M_POSITION_PRIORITY),
     PLAY_UP(10, AppConstant.PLAY_UP, AppConstant.PLAY_UP_STATUS_PRIORITY, AppConstant.PLAY_UP_POSITION_PRIORITY),
-    BET_FLUX(9, AppConstant.BET_FLUX, AppConstant.BET_FLUX_STATUS_PRIORITY, AppConstant.BET_FLUX_POSITION_PRIORITY);
+    BET_FLUX(9, AppConstant.BET_FLUX, AppConstant.BET_FLUX_STATUS_PRIORITY, AppConstant.BET_FLUX_POSITION_PRIORITY),
+    BLUE_BET(12, AppConstant.BLUE_BET, AppConstant.BLUE_BET_STATUS_PRIORITY, AppConstant.BLUE_BET_POSITION_PRIORITY);
 
     private final int id;
     private final String name;
