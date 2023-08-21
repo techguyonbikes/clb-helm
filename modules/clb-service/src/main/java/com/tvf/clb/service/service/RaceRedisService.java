@@ -1,6 +1,5 @@
 package com.tvf.clb.service.service;
 
-import com.google.gson.Gson;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.dto.kafka.KafkaDtoMapper;
 import com.tvf.clb.base.kafka.payload.EventTypeEnum;
@@ -16,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -30,25 +30,34 @@ public class RaceRedisService {
 
 
     public Mono<Boolean> saveRace(Long raceId, RaceResponseDto race) {
-        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(KafkaDtoMapper.convertToKafkaRaceDto(race)).build();
-        kafkaService.publishKafka(payload, String.valueOf(raceId), null);
-        return this.raceDetailTemplate.opsForValue().set(raceId, race);
+
+        Mono<RaceResponseDto> existed = this.raceDetailTemplate.opsForValue().get(raceId);
+        return existed
+                .defaultIfEmpty(race)
+                .flatMap(dto -> {
+                    if (!Objects.equals(dto, race)) {
+                        KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(KafkaDtoMapper.convertToKafkaRaceDto(race)).build();
+                        kafkaService.publishKafka(payload, String.valueOf(raceId), null);
+                        return this.raceDetailTemplate.opsForValue().set(raceId, race).thenReturn(true);
+                    }
+                    return Mono.just(false);
+                });
     }
 
-    public Mono<RaceResponseDto> findByRaceId(Long key){
+    public Mono<RaceResponseDto> findByRaceId(Long key) {
         return this.raceDetailTemplate.opsForValue().get(key);
     }
 
-    public Mono<List<RaceResponseDto>> findAllByRaceIds(Collection<Long> keys){
+    public Mono<List<RaceResponseDto>> findAllByRaceIds(Collection<Long> keys) {
         return this.raceDetailTemplate.opsForValue().multiGet(keys);
     }
 
-    public Mono<Long> delete(List<Long> raceIds){
+    public Mono<Long> delete(List<Long> raceIds) {
         return Flux.fromIterable(raceIds)
                 .flatMap(raceDetailTemplate::delete).count();
     }
 
-    public Mono<Long> delete(Long raceId){
+    public Mono<Long> delete(Long raceId) {
         return raceDetailTemplate.delete(raceId);
     }
 
