@@ -54,6 +54,8 @@ spring:
     api-key: IRYZFTIZUJY7QKGZ
     api-secret: aKU77spH6gUr6RUl4NSIvrtIL4tr/iWRkehTr+UipEkIChF9E1itpD9cd1XqLkLS
     bootstrap-servers: pkc-0ww79.australia-southeast2.gcp.confluent.cloud:9092
+    properties:
+      enable.idempotence: true
     producer:
       acks: all
       retries: 3
