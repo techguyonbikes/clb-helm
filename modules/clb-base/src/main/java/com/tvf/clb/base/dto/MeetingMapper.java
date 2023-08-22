@@ -15,6 +15,8 @@ import com.tvf.clb.base.model.betm.BetMMeetingRawData;
 import com.tvf.clb.base.model.betm.BetMRaceRawData;
 import com.tvf.clb.base.model.betm.BetMRaceStatusEnum;
 import com.tvf.clb.base.model.betm.BetMRaceTypeEnum;
+import com.tvf.clb.base.model.betright.BetRightMeetingRaceTypeRawData;
+import com.tvf.clb.base.model.betright.BetRightMeetingRacesRawData;
 import com.tvf.clb.base.model.colossalbet.ColBetMeetingRawData;
 import com.tvf.clb.base.model.colossalbet.ColBetRaceRawData;
 import com.tvf.clb.base.model.colossalbet.ColBetRaceTypeEnum;
@@ -455,6 +457,35 @@ public class MeetingMapper {
                 .advertisedStart(Instant.parse(ZonedDateTime.parse(raceRawData.getRaceStartTime()).toInstant().toString()))
                 .distance(raceRawData.getRaceDistance())
                 .raceSiteUrl(ConvertBase.getURLRaceOfPlayUp(meetingId,raceRawData.getMeeting().getName(), raceRawData.getRaceType().getName(), raceRawData.getRaceNumber()))
+                .build();
+    }
+    public static MeetingDto toMeetingDtoFromBetRights(BetRightMeetingRaceTypeRawData meetingType, List<BetRightMeetingRacesRawData> races){
+        return MeetingDto.builder()
+                .id(meetingType.getVenueId())
+                .name(meetingType.getVenue())
+                .country(meetingType.getCountryCode())
+                .advertisedDate(races.get(races.size() - 1).getAdvertisedStartTimeUtc())
+                .raceType(RaceTypeBetRightEnum.getSiteNameById(races.get(races.size() - 1).getEventTypeId()))
+                .races(toRaceDtoFromBetRightDto(races, meetingType.getVenue(), meetingType.getVenueId()))
+                .build();
+    }
+
+    public static List<RaceDto> toRaceDtoFromBetRightDto(List<BetRightMeetingRacesRawData> races, String meetingName, String meetingUUID){
+        List<RaceDto> raceDtos = new ArrayList<>();
+        races.forEach(betRightMeetingRacesRawData -> raceDtos.add(toRaceDtoFromBetRightDto(betRightMeetingRacesRawData, meetingUUID, meetingName)));
+        return raceDtos;
+    }
+
+    public static RaceDto toRaceDtoFromBetRightDto(BetRightMeetingRacesRawData raceData, String meetingUUID, String meetingName){
+        return RaceDto.builder()
+                .id(raceData.getEventId())
+                .meetingUUID(meetingUUID)
+                .meetingName(meetingName)
+                .name(raceData.getEventName())
+                .raceType(RaceTypeBetRightEnum.getSiteNameById(raceData.getEventTypeId()))
+                .number(raceData.getRaceNumber())
+                .advertisedStart(raceData.getAdvertisedStartTimeUtc())
+                .raceSiteUrl(ConvertBase.getURLRaceOfBetRight(meetingName, raceData.getRaceNumber(), raceData.getEventId()))
                 .build();
     }
 

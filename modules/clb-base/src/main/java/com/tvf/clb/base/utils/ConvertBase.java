@@ -181,6 +181,10 @@ public class ConvertBase {
         String url = raceType.toLowerCase() + "/" + countryCode + "/" + meetingName.toLowerCase() + "/race-"+raceNumber+"-"+race.getId();
         return AppConstant.URL_SPORT_BET_RACE.replace(AppConstant.ID_PARAM, url);
     }
+    public static String getURLRaceOfBetRight(String meetingName,Integer raceNumber, String raceId){
+        String url = meetingName + "/" + raceNumber + "/" + raceId + "/win";
+        return AppConstant.BET_RIGHT_RACE_URL.replace(AppConstant.ID_PARAM, url);
+    }
     public static String convertCountryCode(String countryCode) {
         switch (countryCode) {
             case "Aus/NZ":

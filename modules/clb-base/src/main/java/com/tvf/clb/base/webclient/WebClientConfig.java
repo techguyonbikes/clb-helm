@@ -136,6 +136,11 @@ public class WebClientConfig {
     }
 
     @Bean
+    public WebClient betRightWebClient() {
+        return createFromBaseUrl(AppConstant.BET_RIGHT_BASE_URL, buildHttpClient(null));
+    }
+
+    @Bean
     public WebClient blueBetWebClient() {
         return createFromBaseUrl(AppConstant.BLUE_BET_BASE_URL, buildHttpClient(proxySpecProvider));
     }
