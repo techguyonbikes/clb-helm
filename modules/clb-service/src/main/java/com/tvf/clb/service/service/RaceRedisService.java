@@ -33,9 +33,9 @@ public class RaceRedisService {
 
         Mono<RaceResponseDto> existed = this.raceDetailTemplate.opsForValue().get(raceId);
         return existed
-                .defaultIfEmpty(race)
+                .defaultIfEmpty(null)
                 .flatMap(dto -> {
-                    if (!Objects.equals(dto, race)) {
+                    if (Objects.isNull(dto) || !Objects.equals(dto, race)) {
                         KafkaPayload payload = new KafkaPayload.Builder().eventType(EventTypeEnum.GENERIC).actualPayload(KafkaDtoMapper.convertToKafkaRaceDto(race)).build();
                         kafkaService.publishKafka(payload, String.valueOf(raceId), null);
                         return this.raceDetailTemplate.opsForValue().set(raceId, race).thenReturn(true);
