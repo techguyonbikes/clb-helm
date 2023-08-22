@@ -20,7 +20,7 @@ public enum RaceTypeBetRightEnum {
     }
 
     public static String getSiteNameById(int id) {
-        for (RaceTypeEnum siteEnum : RaceTypeEnum.values()) {
+        for (RaceTypeBetRightEnum siteEnum : RaceTypeBetRightEnum.values()) {
             if (siteEnum.getId() == id) {
                 return siteEnum.getName();
             }
