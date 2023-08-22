@@ -10,15 +10,11 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
-
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @NoArgsConstructor(access= AccessLevel.PRIVATE)
@@ -310,4 +306,17 @@ public class ConvertBase {
             return null;
         }
     }
+    public static Instant getStringInstantDate(String stringDate) {
+        DateTimeFormatter  formatter =  DateTimeFormatter.ofPattern("dd MMM yy");
+        LocalDate ld = LocalDate.parse(stringDate,formatter);
+        return ld.atStartOfDay().atZone(ZoneOffset.UTC).toInstant();
+    }
+    public static Instant getStringInstantRaceDate(String stringDate) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+        LocalDateTime localDateTime = LocalDateTime.parse(stringDate, dateTimeFormatter);
+        ZoneId zoneId = ZoneId.of(ZoneOffset.UTC.getId());
+        return localDateTime.atZone(zoneId).toInstant();
+    }
+
 }

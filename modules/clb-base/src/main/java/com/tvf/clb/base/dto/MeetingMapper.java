@@ -15,6 +15,9 @@ import com.tvf.clb.base.model.betm.BetMMeetingRawData;
 import com.tvf.clb.base.model.betm.BetMRaceRawData;
 import com.tvf.clb.base.model.betm.BetMRaceStatusEnum;
 import com.tvf.clb.base.model.betm.BetMRaceTypeEnum;
+import com.tvf.clb.base.model.colossalbet.ColBetMeetingRawData;
+import com.tvf.clb.base.model.colossalbet.ColBetRaceRawData;
+import com.tvf.clb.base.model.colossalbet.ColBetRaceTypeEnum;
 import com.tvf.clb.base.model.playup.*;
 import com.tvf.clb.base.model.pointbet.PointBetMeetingRawData;
 import com.tvf.clb.base.model.pointbet.PointBetRacesRawData;
@@ -476,6 +479,28 @@ public class MeetingMapper {
                 .finalResult(betMRaceRawData.getResult())
                 .raceType(raceType)
                 .raceSiteUrl(AppConstant.URL_BET_M_RACE.replace(AppConstant.ID_PARAM, String.format("%s/%s", meetingName, betMRaceRawData.getId())))
+                .build();
+    }
+    public static MeetingDto toMeetingDto(ColBetMeetingRawData meetingRawData) {
+        String raceType = ColBetRaceTypeEnum.getValueFromRawData(meetingRawData.getRaceType());
+        return MeetingDto.builder()
+                .id(meetingRawData.getId().toString())
+                .name(meetingRawData.getName())
+                .advertisedDate((ConvertBase.getStringInstantDate(meetingRawData.getRaceDay())))
+                .raceType(raceType)
+                .races(meetingRawData.getRaces().stream().map(race -> MeetingMapper.toRaceDto(race, raceType)).collect(Collectors.toList()))
+                .build();
+    }
+    public static RaceDto toRaceDto(ColBetRaceRawData raceRawData, String raceType) {
+        return RaceDto.builder()
+                .id(raceRawData.getId().toString())
+                .name("Race"+raceRawData.getNumber())
+                .number(raceRawData.getNumber())
+                .advertisedStart(ConvertBase.getStringInstantRaceDate(raceRawData.getStartTime()))
+                .status(raceRawData.getStatus())
+                .finalResult(raceRawData.getResult())
+                .raceType(raceType)
+                .raceSiteUrl(AppConstant.URL_COLOSSAL_BET_RACE.replace(AppConstant.ID_PARAM, raceRawData.getId().toString()))
                 .build();
     }
 }

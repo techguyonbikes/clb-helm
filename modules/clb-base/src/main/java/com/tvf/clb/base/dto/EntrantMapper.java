@@ -7,6 +7,7 @@ import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.PriceHistoryData;
+import com.tvf.clb.base.model.colossalbet.ColBetRunnerRawData;
 import com.tvf.clb.base.model.playup.PlayUpRunnerRawData;
 import com.tvf.clb.base.model.betm.BetMRunnerRawData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
@@ -301,7 +302,7 @@ public class EntrantMapper {
     }
     public static EntrantDto toEntrantDto(PlayUpRunnerRawData entrant) {
         return EntrantDto.builder()
-                .id(entrant.getId().toString())
+                .id(entrant.getId())
                 .name(entrant.getName())
                 .number(entrant.getNumber())
                 .build();
@@ -343,5 +344,41 @@ public class EntrantMapper {
         }
 
         return new CrawlEntrantData(0, winPrices, placePrices, winDeduction, placeDeduction);
+    }
+    public static CrawlEntrantData toCrawlEntrantData(ColBetRunnerRawData entrantRawData) {
+        Map<Integer, List<Float>> winPrices = new HashMap<>();
+        winPrices.put(AppConstant.COLOSSAL_BET_SITE_ID, entrantRawData.getWinPrice() == null ? Collections.emptyList() : Collections.singletonList(entrantRawData.getWinPrice()));
+
+        Map<Integer, List<Float>> placePrices = new HashMap<>();
+        placePrices.put(AppConstant.COLOSSAL_BET_SITE_ID, entrantRawData.getPlacePrice() == null ? Collections.emptyList() : Collections.singletonList(entrantRawData.getPlacePrice()));
+
+        Map<Integer, Float> winDeduction = new HashMap<>();
+        Map<Integer, Float> placeDeduction = new HashMap<>();
+        if (Boolean.TRUE.equals(entrantRawData.getIsScratched())) {
+            if (entrantRawData.getWinDeduction() != null) {
+                winDeduction.put(AppConstant.COLOSSAL_BET_SITE_ID, entrantRawData.getWinDeduction());
+            }
+            if (entrantRawData.getPlaceDeduction() != null) {
+                placeDeduction.put(AppConstant.COLOSSAL_BET_SITE_ID, entrantRawData.getPlaceDeduction());
+            }
+        }
+
+        return new CrawlEntrantData(0, winPrices, placePrices, winDeduction, placeDeduction);
+    }
+    public static Entrant toEntrantEntity(ColBetRunnerRawData entrant) {
+        boolean isScratched = Boolean.TRUE.equals(entrant.getIsScratched());
+        Float winDeduction = isScratched ? entrant.getWinDeduction() : null;
+        Float placeDeduction = isScratched ? entrant.getPlaceDeduction() : null;
+
+        return Entrant.builder()
+                .name(entrant.getName())
+                .number(entrant.getNumber())
+                .isScratched(isScratched)
+                /*.scratchedTime(entrant.getScratchedAt())*/
+                .currentSitePrice(entrant.getWinPrice() == null ? Collections.emptyList() : Collections.singletonList(entrant.getWinPrice()))
+                .currentSitePricePlaces(entrant.getPlacePrice() == null ? Collections.emptyList() : Collections.singletonList(entrant.getPlacePrice()))
+                .currentWinDeductions(winDeduction)
+                .currentPlaceDeductions(placeDeduction)
+                .build();
     }
 }
