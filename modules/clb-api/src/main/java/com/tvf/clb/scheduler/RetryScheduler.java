@@ -3,7 +3,7 @@ package com.tvf.clb.scheduler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tvf.clb.base.entity.FailedApiCall;
-import com.tvf.clb.base.entity.TodayData;
+import com.tvf.clb.service.service.TodayData;
 import com.tvf.clb.service.service.FailedApiCallService;
 import com.tvf.clb.service.service.ServiceLookup;
 import lombok.extern.slf4j.Slf4j;

@@ -1,18 +1,58 @@
-package com.tvf.clb.base.entity;
+package com.tvf.clb.service.service;
 
+import com.tvf.clb.base.entity.Race;
+import com.tvf.clb.service.repository.RaceRepository;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@DependsOn("flyway")
+@Getter
+@Setter
+@RequiredArgsConstructor
 public class TodayData {
 
     // Map race advertised start (epoch milliseconds) to race id
-    private TreeMap<Long, List<Long>> races;
+    private SortedMap<Long, List<Long>> races;
 
     private Instant lastTimeCrawl = Instant.now();
+
+    private final RaceRepository raceRepository;
+
+    @PostConstruct
+    public void postConstruct() {
+        races = new TreeMap<>();
+        Instant startTime = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minusHours(5).toInstant();
+        Instant endOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
+
+        raceRepository.findAllByAdvertisedStartBetweenAndStatusNotIn(startTime, endOfToday, Collections.emptyList())
+                      .doOnNext(race -> addOrUpdateRace(race.getAdvertisedStart().toEpochMilli(), race.getId()))
+                      .blockLast();
+    }
+
+    public synchronized void addOrUpdateRaces(List<Race> newRaces) {
+        List<Long> allRaceIds = races.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+
+        newRaces.forEach(newRace -> {
+            Long newRaceId = newRace.getId();
+            Long newRaceAdvertisedStart = newRace.getAdvertisedStart().toEpochMilli();
+            if (! allRaceIds.contains(newRaceId)) {
+                addRace(newRaceAdvertisedStart, newRaceId);
+            } else {
+                updateRaceAdvertisedStart(newRaceId, newRaceAdvertisedStart);
+            }
+        });
+    }
 
     public synchronized void addOrUpdateRace(Long advertisedStart, Long raceId) {
 
@@ -35,22 +75,12 @@ public class TodayData {
         races.put(advertisedStart, ids);
     }
 
-    public void setRaces(TreeMap<Long, List<Long>> races) {
-        this.races = races;
-    }
-
-    public TreeMap<Long, List<Long>> getRaces() {
-        return races;
-    }
-
     public synchronized void deleteFinalOrAbandonedRace(Long advertisedStart, Long raceId) {
-        if (races != null) {
-            List<Long> raceIds = races.get(advertisedStart);
-            if (raceIds != null) {
-                raceIds.removeIf(id -> id.equals(raceId));
-                if (raceIds.isEmpty()) {
-                    races.remove(advertisedStart);
-                }
+        List<Long> raceIds = races.get(advertisedStart);
+        if (raceIds != null) {
+            raceIds.removeIf(id -> id.equals(raceId));
+            if (raceIds.isEmpty()) {
+                races.remove(advertisedStart);
             }
         }
     }
@@ -74,13 +104,5 @@ public class TodayData {
     public synchronized void updateRaceAdvertisedStart(Long raceId, Long oldAdvertisedStart, Long newAdvertisedStart) {
         deleteFinalOrAbandonedRace(oldAdvertisedStart, raceId);
         addRace(newAdvertisedStart, raceId);
-    }
-
-    public Instant getLastTimeCrawl() {
-        return lastTimeCrawl;
-    }
-
-    public void setLastTimeCrawl(Instant lastTimeCrawl) {
-        this.lastTimeCrawl = lastTimeCrawl;
     }
 }

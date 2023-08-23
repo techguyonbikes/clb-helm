@@ -1,8 +1,7 @@
 package com.tvf.clb.scheduler;
 
-import com.tvf.clb.base.entity.TodayData;
-import com.tvf.clb.service.repository.RaceRepository;
 import com.tvf.clb.service.service.CrawlPriceService;
+import com.tvf.clb.service.service.TodayData;
 import com.tvf.clb.socket.socket.SocketModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,21 +15,12 @@ import java.time.Instant;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
-
-import static com.tvf.clb.base.utils.AppConstant.STATUS_ABANDONED;
-import static com.tvf.clb.base.utils.AppConstant.STATUS_FINAL;
 
 @Component
 @Slf4j
 public class RaceScheduler {
-
-    @Autowired
-    private RaceRepository raceRepository;
 
     @Autowired
     private CrawlPriceService crawlPriceService;
@@ -82,7 +72,7 @@ public class RaceScheduler {
         isCrawlingRaceStartIn30Minutes = true;
         long startTime = System.currentTimeMillis();
 
-        Long raceStartTimeFrom = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minus(2, ChronoUnit.HOURS).toInstant().toEpochMilli();
+        Long raceStartTimeFrom = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minusHours(5).toInstant().toEpochMilli();
         Long raceStartTimeTo = Instant.now().plus(30, ChronoUnit.MINUTES).toEpochMilli();
 
         Flux<Long> raceIds = getAllRaceIdsStartBetween(raceStartTimeFrom, raceStartTimeTo);
@@ -167,26 +157,10 @@ public class RaceScheduler {
     }
 
     public Flux<Long> getAllRaceIdsStartBetween(Long raceStartTimeFrom, Long raceStartTimeTo) {
-        return getTodayNonFinalAndAbandonedRace()
+        return Mono.just(todayData.getRaces())
                 .map(treeMap -> treeMap.subMap(raceStartTimeFrom, raceStartTimeTo))
                 .flatMapMany(treeMap ->
                         Flux.fromIterable(treeMap.values().stream().flatMap(Collection::stream).filter(raceId -> !socketModule.getSubscribedRaces().containsKey(raceId)).collect(Collectors.toList())));
     }
 
-    public Mono<TreeMap<Long, List<Long>>> getTodayNonFinalAndAbandonedRace() {
-        if (todayData.getRaces() == null) {
-            log.info("TodayRaces has no data so need to search in DB");
-            todayData.setRaces(new TreeMap<>());
-            Instant startTime = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).toInstant();
-            Instant endOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MAX).toInstant();
-
-            return raceRepository.findAllByAdvertisedStartBetweenAndStatusNotIn(startTime, endOfToday, Arrays.asList(STATUS_FINAL, STATUS_ABANDONED))
-                    .doOnNext(race -> todayData.addOrUpdateRace(race.getAdvertisedStart().toEpochMilli(), race.getId()))
-                    .then(Mono.just(todayData.getRaces()));
-        } else {
-            log.info("TodayRaces has data so no need to search in DB, map race size = {}", todayData.getRaces().size());
-            return Mono.just(todayData.getRaces());
-        }
-
-    }
 }

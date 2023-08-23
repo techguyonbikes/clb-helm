@@ -7,7 +7,7 @@ import com.tvf.clb.base.dto.MeetingAndSiteUUID;
 import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.entity.Meeting;
 import com.tvf.clb.base.entity.Race;
-import com.tvf.clb.base.entity.TodayData;
+import com.tvf.clb.service.service.TodayData;
 import com.tvf.clb.base.exception.ApiRequestFailedException;
 import com.tvf.clb.base.kafka.service.CloudbetKafkaService;
 import com.tvf.clb.base.model.ladbrokes.LadBrokedItMeetingDto;
