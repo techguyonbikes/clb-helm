@@ -289,6 +289,6 @@ public class AppConstant {
 
 
     public static final String COLOSSAL_BET_RACE_QUERY = "/{id}";
-    public static final String COLOSSAL_BET_RACE_STATUS_FINAL = "DONE";
+    public static final String COLOSSAL_BET_RACE_STATUS_FINAL = "Final";
 
 }
