@@ -1,0 +1,68 @@
+image: maven:3.8.5-jdk-11
+
+pipelines:
+  branches:
+    develop:
+      - step:
+          name: SonarQube Analysis
+          caches:
+            - maven
+          script:
+            - mvn verify sonar:sonar \
+              -Dsonar.qualitygate.wait=true \
+              -Dsonar.projectKey=$BITBUCKET_REPO_SLUG \
+              -Dsonar.projectName=$BITBUCKET_REPO_SLUG \
+              -Dsonar.projectVersion=$BITBUCKET_COMMIT \
+              -DsourceEncoding=UTF-8
+          allow_failure: true
+          artifacts:
+            - .sonar/cache/**
+          services:
+            - docker
+
+    main:
+      - step:
+          name: SonarQube Analysis
+          caches:
+            - maven
+          script:
+            - mvn verify sonar:sonar \
+              -Dsonar.qualitygate.wait=true \
+              -Dsonar.projectKey=$BITBUCKET_REPO_SLUG \
+              -Dsonar.projectName=$BITBUCKET_REPO_SLUG \
+              -Dsonar.projectVersion=$BITBUCKET_COMMIT \
+              -DsourceEncoding=UTF-8
+          allow_failure: true
+          artifacts:
+            - .sonar/cache/**
+          services:
+            - docker
+
+      - step:
+          name: Build and Push Docker Image
+          caches:
+            - maven
+          script:
+            - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
+            - docker build --no-cache -t $DOCKER_REGISTRY_IMAGE:latest .
+            - docker push $DOCKER_REGISTRY_IMAGE:latest
+          services:
+            - docker
+
+      - step:
+          name: Deploy to Kubernetes
+          image: google/cloud-sdk
+          script:
+            - echo $GCLOUD_SERVICE_KEY | base64 -d > ${HOME}/gcloud-service-key.json
+            - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            - gcloud config set project watch-bet-383403
+            - gcloud config set container/cluster cloudbet-cluster
+            - gcloud config set compute/zone australia-southeast1-a
+            - gcloud container clusters get-credentials cloudbet-cluster --zone australia-southeast1-a --project watch-bet-383403
+            - kubectl config set-context --current --namespace=default
+            - kubectl get pod
+            - cd charts/clb-charts
+            - helm upgrade --install clb-be -n default .
+            - kubectl rollout restart deployment clb-be
+          services:
+            - docker
