@@ -16,7 +16,7 @@ pipelines:
 
       - step:
           name: Deploy to Kubernetes
-          image: google/cloud-sdk:latest
+          image: google/cloud-sdk
           script:
             - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
             - echo $GCLOUD_SERVICE_KEY | base64 -d > ${HOME}/gcloud-service-key.json
