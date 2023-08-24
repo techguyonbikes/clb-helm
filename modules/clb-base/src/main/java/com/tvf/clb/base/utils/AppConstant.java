@@ -20,7 +20,9 @@ public class AppConstant {
     public static final String TOP_SPORT = "TOPSPORT";
     public static final String BET_FLUX = "BETFLUX";
     public static final String BET_M = "BETM";
+    public static final String COLOSSAL_BET = "COLOSSAL_BET";
     public static final String BLUE_BET = "BLUEBET";
+    public static final String BET_RIGHT = "BETRIGHT";
     public static final Integer LAD_BROKE_SITE_ID = 1;
     public static final Integer NED_SITE_ID = 2;
     public static final Integer POINT_BET_SITE_ID = 4;
@@ -28,8 +30,9 @@ public class AppConstant {
     public static final Integer SPORTBET_SITE_ID = 6;
     public static final Integer TOPSPORT_SITE_ID = 7;
     public static final Integer BET_M_SITE_ID = 8;
+    public static final Integer COLOSSAL_BET_SITE_ID = 11;
     public static final Integer BLUE_BET_SITE_ID = 12;
-    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT, BET_M, BET_FLUX, PLAY_UP, BLUE_BET));
+    public static final List<String> SITE_LIST = new ArrayList<>(Arrays.asList(NED, ZBET, TAB, POINT_BET, SPORT_BET, TOP_SPORT, BET_M, BET_FLUX, PLAY_UP, BLUE_BET, COLOSSAL_BET, BET_RIGHT));
     public static final String RACE_NAME_DEFAULT = "RACE";
     public static final Integer PLAY_UP_SITE_ID = 10;
     public static final String POSITION = "position";
@@ -88,6 +91,13 @@ public class AppConstant {
     public static final String BET_M_MEETING_QUERY = "/{date}/A";
 
     public static final String BET_M_RACE_QUERY = "/{id}";
+
+    //BetRight
+    public static final String BET_RIGHT_BASE_URL="https://next-api.betright.com.au";
+    public static final String BET_RIGHT_MEETING_QUERY="/Racing/GroupedRaceCard?raceDate={date}";
+    public static final String BET_RIGHT_RACE_QUERY="/Racing/Event?eventId={id}";
+    public static final String BET_RIGHT_RACE_URL="https://www.betright.com.au/racing/{id}";
+    public static final Integer BET_RIGHT_FINAL_RESULTS = 2;
 
     public static final String BLUE_BET_BASE_URL = "https://web20-api.bluebet.com.au";
 
@@ -159,9 +169,6 @@ public class AppConstant {
     public static final String TOMORROW = "Tomorrow";
 
     public static final String SPORT_BET_BETTING_STATUS_RESULTED = "RESULTED";
-
-    public static final String SPORT_BET_BETTING_STATUS_OFF = "OFF";
-
     public static final String TAB_RACE_STATUS_FINAL = "Paying";
 
     public static final Integer MAX_RETRIES = 2;
@@ -207,6 +214,7 @@ public class AppConstant {
     public static final String URL_TOPSPORT_RACE = "https://www.topsport.com.au/{id}";
     public static final String URL_BLUEBET_RACE = "https://www.bluebet.com.au/racing/{id}/win";
     public static final String URL_BET_M_RACE = "https://betm.com.au/racing/{id}";
+    public static final String URL_COLOSSAL_BET_RACE = "https://www.colossalbet.com.au/race-detail/{id}";
 
     //Status - Position priority
     public static final int LAD_BROKE_STATUS_PRIORITY = 1;
@@ -223,6 +231,8 @@ public class AppConstant {
     public static final int SPORT_BET_POSITION_PRIORITY = 6;
     public static final int TOP_SPORT_STATUS_PRIORITY = 7;
     public static final int TOP_SPORT_POSITION_PRIORITY = 7;
+    public static final int BET_RIGHT_STATUS_PRIORITY = 12;
+    public static final int BET_RIGHT_POSITION_PRIORITY = 12;
     public static final int BET_M_STATUS_PRIORITY = 8;
     public static final int BET_M_POSITION_PRIORITY = 8;
     public static final int BET_FLUX_POSITION_PRIORITY = 9;
@@ -231,6 +241,8 @@ public class AppConstant {
     public static final int BLUE_BET_POSITION_PRIORITY = 12;
     public static final int PLAY_UP_STATUS_PRIORITY = 10;
     public static final int PLAY_UP_POSITION_PRIORITY = 10;
+    public static final int COLOSSAL_BET_STATUS_PRIORITY = 11;
+    public static final int COLOSSAL_BET_POSITION_PRIORITY = 11;
 
     // STATUS ORDER
 
@@ -263,9 +275,20 @@ public class AppConstant {
     public static final String PRICE_SCRATCH_PLACE = "SCRATCH PLACE";
     public static final String PRICE_WIN = "WIN";
     public static final String PRICE_PLACE = "PLACE";
+    public static final String PRICE_PLACE_CODE = "PLC";
     public static final String PRICE_REGEX = "\\b(\\d+\\.?\\d*)\\s*([a-zA-Z]+)\\b";
     public static final String CSRF_HEADER_NAME = "X-Csrf-Token";
     public static final String CSRF_TOKEN = "cloud-bet";
     public static final String PLAY_UP_RACE_STATUS_FINAL = "Paid";
+    public static final String AUTHORIZATION = "clientKey=colossalbet&timestamp=&signature=";
+    public static final String ACCEPT = "application/json, text/plain, */*";
+    public static final String COLOSSAL_BET_BASE_MEETING_URL = "https://api.racebookhq.com/api/v1/genweb/events/short";
+
+    public static final String COLOSSAL_BET_MEETING_QUERY = "/{date}";
+    public static final String COLOSSAL_BET_BASE_RACE_URL = "https://apicob.generationweb.com.au/GWBetService/r/b/GetEventRace";
+
+
+    public static final String COLOSSAL_BET_RACE_QUERY = "/{id}";
+    public static final String COLOSSAL_BET_RACE_STATUS_FINAL = "Final";
 
 }
