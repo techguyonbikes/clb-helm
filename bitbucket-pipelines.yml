@@ -2,42 +2,7 @@ image: maven:3.8.5-jdk-11
 
 pipelines:
   branches:
-    develop:
-      - step:
-          name: SonarQube Analysis
-          caches:
-            - maven
-          script:
-            - mvn verify sonar:sonar \
-              -Dsonar.qualitygate.wait=true \
-              -Dsonar.projectKey=$BITBUCKET_REPO_SLUG \
-              -Dsonar.projectName=$BITBUCKET_REPO_SLUG \
-              -Dsonar.projectVersion=$BITBUCKET_COMMIT \
-              -DsourceEncoding=UTF-8
-          allow_failure: true
-          artifacts:
-            - .sonar/cache/**
-          services:
-            - docker
-
     main:
-      - step:
-          name: SonarQube Analysis
-          caches:
-            - maven
-          script:
-            - mvn verify sonar:sonar \
-              -Dsonar.qualitygate.wait=true \
-              -Dsonar.projectKey=$BITBUCKET_REPO_SLUG \
-              -Dsonar.projectName=$BITBUCKET_REPO_SLUG \
-              -Dsonar.projectVersion=$BITBUCKET_COMMIT \
-              -DsourceEncoding=UTF-8
-          allow_failure: true
-          artifacts:
-            - .sonar/cache/**
-          services:
-            - docker
-
       - step:
           name: Build and Push Docker Image
           caches:
