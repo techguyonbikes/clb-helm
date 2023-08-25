@@ -42,7 +42,7 @@ spec:
       targetPort: 20002
     - protocol: TCP
       port: 21222
-      name: debugPort
+      name: debug
       targetPort: 21222
 ---
 apiVersion: v1
