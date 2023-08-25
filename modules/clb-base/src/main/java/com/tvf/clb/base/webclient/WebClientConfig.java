@@ -118,6 +118,27 @@ public class WebClientConfig {
     public WebClient betFluxWebClient() {
         return createFromBaseUrl(AppConstant.BET_FLUX_BASE_URL, buildHttpClient(null));
     }
+    @Bean
+    public WebClient colBetWebClientRace() {
+        Consumer<HttpHeaders> headersWithToken = headers.andThen(httpHeaders-> {
+            httpHeaders.add(HttpHeaders.AUTHORIZATION, AppConstant.AUTHORIZATION);
+            httpHeaders.add(HttpHeaders.ACCEPT, AppConstant.ACCEPT);
+        });
+
+        return createFromBaseUrl(AppConstant.COLOSSAL_BET_BASE_RACE_URL, buildHttpClient(null))
+                .mutate()
+                .defaultHeaders(headersWithToken)
+                .build();
+    }
+    @Bean
+    public WebClient colBetWebClientMeeting() {
+        return createFromBaseUrl(AppConstant.COLOSSAL_BET_BASE_MEETING_URL, buildHttpClient(null));
+    }
+
+    @Bean
+    public WebClient betRightWebClient() {
+        return createFromBaseUrl(AppConstant.BET_RIGHT_BASE_URL, buildHttpClient(null));
+    }
 
     @Bean
     public WebClient blueBetWebClient() {

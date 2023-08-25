@@ -5,7 +5,6 @@ import com.tvf.clb.base.dto.EntrantResponseDto;
 import com.tvf.clb.base.dto.RaceResponseDto;
 import com.tvf.clb.base.dto.kafka.KafkaDtoMapper;
 import com.tvf.clb.base.entity.RaceSite;
-import com.tvf.clb.base.entity.TodayData;
 import com.tvf.clb.base.kafka.payload.EventTypeEnum;
 import com.tvf.clb.base.kafka.payload.KafkaPayload;
 import com.tvf.clb.base.kafka.service.CloudbetKafkaService;

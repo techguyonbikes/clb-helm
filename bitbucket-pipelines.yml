@@ -1,35 +1,34 @@
-# This is an example Starter pipeline configuration
-# Use a skeleton to build, test and deploy using manual and parallel steps
-# -----
-# You can specify a custom docker image from Docker Hub as your build environment.
-
-image: atlassian/default-image:3
+image: maven:3.8.5-jdk-11
 
 pipelines:
-  default:
-    - parallel:
+  branches:
+    main:
       - step:
-          name: 'Build and Test'
+          name: Build and Push Docker Image
+          caches:
+            - maven
           script:
-            - echo "Your build and test goes here..."
-      - step:
-          name: 'Lint'
-          script:
-            - echo "Your linting goes here..."
-      - step:
-          name: 'Security scan'
-          script:
-            - echo "Your security scan goes here..."
+            - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY
+            - docker build --no-cache -t $DOCKER_REGISTRY_IMAGE:latest .
+            - docker push $DOCKER_REGISTRY_IMAGE:latest
+          services:
+            - docker
 
-    # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
-    - step:
-        name: 'Deployment to Staging'
-        deployment: staging
-        script:
-          - echo "Your deployment to staging script goes here..."
-    - step:
-        name: 'Deployment to Production'
-        deployment: production
-        trigger: 'manual'
-        script:
-          - echo "Your deployment to production script goes here..."
+      - step:
+          name: Deploy to Kubernetes
+          image: google/cloud-sdk
+          script:
+            - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+            - echo $GCLOUD_SERVICE_KEY | base64 -d > ${HOME}/gcloud-service-key.json
+            - gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            - gcloud config set project watch-bet-383403
+            - gcloud config set container/cluster cloudbet-cluster
+            - gcloud config set compute/zone australia-southeast1-a
+            - gcloud container clusters get-credentials cloudbet-cluster --zone australia-southeast1-a --project watch-bet-383403
+            - kubectl config set-context --current --namespace=default
+            - kubectl get pod
+            - cd charts/clb-charts
+            - helm upgrade --install clb-be -n default .
+            - kubectl rollout restart deployment clb-be
+          services:
+            - docker

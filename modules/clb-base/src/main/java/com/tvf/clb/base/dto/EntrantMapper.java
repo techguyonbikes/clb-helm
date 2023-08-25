@@ -7,7 +7,11 @@ import com.tvf.clb.base.entity.Entrant;
 import com.tvf.clb.base.model.CrawlEntrantData;
 import com.tvf.clb.base.model.EntrantRawData;
 import com.tvf.clb.base.model.PriceHistoryData;
+import com.tvf.clb.base.model.colossalbet.ColBetRunnerRawData;
 import com.tvf.clb.base.model.playup.PlayUpRunnerRawData;
+import com.tvf.clb.base.model.betright.BetRightDeductionsRawData;
+import com.tvf.clb.base.model.betright.BetRightEntrantRawData;
+import com.tvf.clb.base.model.betright.BetRightWinnersRawData;
 import com.tvf.clb.base.model.betm.BetMRunnerRawData;
 import com.tvf.clb.base.model.pointbet.PointBetEntrantRawData;
 import com.tvf.clb.base.model.sportbet.SportBetEntrantRawData;
@@ -15,6 +19,7 @@ import com.tvf.clb.base.model.tab.RunnerTabRawData;
 import com.tvf.clb.base.model.tab.TabPriceRawData;
 import com.tvf.clb.base.model.zbet.ZBetEntrantData;
 import com.tvf.clb.base.utils.AppConstant;
+import com.tvf.clb.base.utils.CommonUtils;
 import com.tvf.clb.base.utils.ConvertBase;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -287,6 +292,41 @@ public class EntrantMapper {
                 .number(entrant.getRunnerNumber())
                 .build();
     }
+
+    public static List<Entrant> toListEntrantEntityBetRight(List<BetRightEntrantRawData> entrantRawDataList, Map<Integer, List<Float>> allEntrantWinPrices,
+                                                            Map<Integer, List<Float>> allEntrantPlacePrices, String raceUUID, Map<Integer, BetRightDeductionsRawData> allEntrantDeductions,
+                                                            Map<Integer, BetRightWinnersRawData> allEntrantWinners) {
+        List<Entrant> listEntrantEntity = new ArrayList<>();
+
+        entrantRawDataList.forEach(entrantRawData -> {
+            Integer entrantID = entrantRawData.getOutcomeId();
+            Integer position = CommonUtils.applyIfNotEmpty(allEntrantWinners.get(entrantID), BetRightWinnersRawData::getFinalPlacing);
+            Float deductionWin = CommonUtils.applyIfNotEmpty(allEntrantDeductions.get(entrantID), BetRightDeductionsRawData::getDeductionWin);
+            Float deductionPlace = CommonUtils.applyIfNotEmpty(allEntrantDeductions.get(entrantID), BetRightDeductionsRawData::getDeductionPlace);
+            Entrant entrantEntity = toEntrantEntityBetRight(entrantRawData, allEntrantWinPrices.getOrDefault(entrantID, new ArrayList<>()),
+                    allEntrantPlacePrices.getOrDefault(entrantID, new ArrayList<>()), raceUUID, position, deductionWin, deductionPlace);
+            listEntrantEntity.add(entrantEntity);
+        });
+
+        return listEntrantEntity;
+    }
+
+    public static Entrant toEntrantEntityBetRight(BetRightEntrantRawData entrantRawData, List<Float> entrantWinPrice, List<Float> entrantPlacePrice,
+                                                  String raceUUID, Integer position, Float deductionWin, Float deductionPlace) {
+        return Entrant.builder()
+                .entrantId(String.valueOf(entrantRawData.getOutcomeId()))
+                .raceUUID(raceUUID)
+                .name(entrantRawData.getOutcomeName())
+                .number(entrantRawData.getOutcomeId())
+                .barrier(entrantRawData.getBarrierBox())
+                .currentSitePrice(entrantWinPrice)
+                .currentSitePricePlaces(entrantPlacePrice)
+                .isScratched(entrantRawData.getScratched())
+                .position(position)
+                .currentWinDeductions(deductionWin)
+                .currentPlaceDeductions(deductionPlace)
+                .build();
+    }
     public static Entrant toEntrantEntityPlayUp(PlayUpRunnerRawData entrantRawData,List<Float> entrantWinPrice, List<Float> entrantPlacePrice, String raceUUID) {
         return Entrant.builder()
                 .entrantId(entrantRawData.getId())
@@ -301,7 +341,7 @@ public class EntrantMapper {
     }
     public static EntrantDto toEntrantDto(PlayUpRunnerRawData entrant) {
         return EntrantDto.builder()
-                .id(entrant.getId().toString())
+                .id(entrant.getId())
                 .name(entrant.getName())
                 .number(entrant.getNumber())
                 .build();
@@ -343,5 +383,41 @@ public class EntrantMapper {
         }
 
         return new CrawlEntrantData(0, winPrices, placePrices, winDeduction, placeDeduction);
+    }
+    public static CrawlEntrantData toCrawlEntrantData(ColBetRunnerRawData entrantRawData) {
+        Map<Integer, List<Float>> winPrices = new HashMap<>();
+        winPrices.put(AppConstant.COLOSSAL_BET_SITE_ID, entrantRawData.getWinPrice() == null ? Collections.emptyList() : Collections.singletonList(entrantRawData.getWinPrice()));
+
+        Map<Integer, List<Float>> placePrices = new HashMap<>();
+        placePrices.put(AppConstant.COLOSSAL_BET_SITE_ID, entrantRawData.getPlacePrice() == null ? Collections.emptyList() : Collections.singletonList(entrantRawData.getPlacePrice()));
+
+        Map<Integer, Float> winDeduction = new HashMap<>();
+        Map<Integer, Float> placeDeduction = new HashMap<>();
+        if (Boolean.TRUE.equals(entrantRawData.getIsScratched())) {
+            if (entrantRawData.getWinDeduction() != null) {
+                winDeduction.put(AppConstant.COLOSSAL_BET_SITE_ID, entrantRawData.getWinDeduction());
+            }
+            if (entrantRawData.getPlaceDeduction() != null) {
+                placeDeduction.put(AppConstant.COLOSSAL_BET_SITE_ID, entrantRawData.getPlaceDeduction());
+            }
+        }
+
+        return new CrawlEntrantData(0, winPrices, placePrices, winDeduction, placeDeduction);
+    }
+    public static Entrant toEntrantEntity(ColBetRunnerRawData entrant) {
+        boolean isScratched = Boolean.TRUE.equals(entrant.getIsScratched());
+        Float winDeduction = isScratched ? entrant.getWinDeduction() : null;
+        Float placeDeduction = isScratched ? entrant.getPlaceDeduction() : null;
+
+        return Entrant.builder()
+                .name(entrant.getName())
+                .number(entrant.getNumber())
+                .isScratched(isScratched)
+                /*.scratchedTime(entrant.getScratchedAt())*/
+                .currentSitePrice(entrant.getWinPrice() == null ? Collections.emptyList() : Collections.singletonList(entrant.getWinPrice()))
+                .currentSitePricePlaces(entrant.getPlacePrice() == null ? Collections.emptyList() : Collections.singletonList(entrant.getPlacePrice()))
+                .currentWinDeductions(winDeduction)
+                .currentPlaceDeductions(placeDeduction)
+                .build();
     }
 }

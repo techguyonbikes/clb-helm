@@ -261,16 +261,12 @@ public class LadBrokeCrawlService implements ICrawlService {
     }
 
     private void saveRaceToTodayData(List<Race> savedRace) {
-        if (todayData.getRaces() == null) {
-            todayData.setRaces(new TreeMap<>());
-        }
         // remove yesterday data
         if (! todayData.getRaces().isEmpty()) {
             Long startOfToday = Instant.now().atZone(ZoneOffset.UTC).with(LocalTime.MIN).minusHours(2).toInstant().toEpochMilli();
             todayData.setRaces(new TreeMap<>(todayData.getRaces().tailMap(startOfToday)));
         }
-
-        savedRace.forEach(race -> todayData.addOrUpdateRace(race.getAdvertisedStart().toEpochMilli(), race.getId()));
+        todayData.addOrUpdateRaces(savedRace);
     }
 
     private Flux<Entrant> crawlAndSaveEntrants(Map<Race, Long> mapRaceUUIDAndId, LocalDate date) {
