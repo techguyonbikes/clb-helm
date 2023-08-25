@@ -13,7 +13,7 @@ spec:
         app: clb-be
     spec:
       containers:
-        - image: ducvu123/cloudbet-be:latest
+        - image: devopsclb1/cloudbet-be:latest
           name: cloudbet-be
           imagePullPolicy: {{ .Values.kubernetes.imagePullPolicy }}
           env:
