@@ -24,4 +24,4 @@ WORKDIR /app
 RUN pwd
 COPY --from=build /app/modules/clb-api/target/*.jar /app/
 
-ENTRYPOINT java -agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n -jar *.jar
+ENTRYPOINT java -agentlib:jdwp=transport=dt_socket,address=*:21222,server=y,suspend=n -jar *.jar
