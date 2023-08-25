@@ -41,9 +41,9 @@ spec:
       name : socket
       targetPort: 20002
     - protocol: TCP
-      port: 9875
+      port: 5005
       name: debug
-      targetPort: 9875
+      targetPort: 5005
 ---
 apiVersion: v1
 kind: ConfigMap
