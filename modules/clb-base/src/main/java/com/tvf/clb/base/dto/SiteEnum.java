@@ -20,6 +20,7 @@ public enum SiteEnum {
     BLUE_BET(12, AppConstant.BLUE_BET, AppConstant.BLUE_BET_STATUS_PRIORITY, AppConstant.BLUE_BET_POSITION_PRIORITY),
     BET_RIGHT(13, AppConstant.BET_RIGHT, AppConstant.BET_RIGHT_STATUS_PRIORITY, AppConstant.BET_RIGHT_POSITION_PRIORITY);
 
+
     private final int id;
     private final String name;
     private final int statusPriority;
